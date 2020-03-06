@@ -34,7 +34,7 @@ namespace frydom {
                                  FLUID_TYPE fluid_type) :
       FrCatenaryLineBase(name, TypeToString(this), startingNode, endingNode, properties, elastic, unstretchedLength),
       c_qL(0.) {
-    m_point_forces.emplace_back(internal::PointForce{0., Force()});
+    m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
   }
 
   FrCatenaryLine::FrCatenaryLine(const std::string &name, FrCable *cable, bool elastic, FLUID_TYPE fluid_type) :
@@ -49,14 +49,14 @@ namespace frydom {
   void FrCatenaryLine::AddClumpWeight(double s, const double &mass, bool reversed) {
     if (reversed) s = m_unstretchedLength - s;
     AddPointMass(s / m_unstretchedLength,
-                 Force(0, 0, -mass * GetSystem()->GetEnvironment()->GetGravityAcceleration()) / c_qL);
+                 Force(0, 0, -mass * GetSystem()->GetEnvironment()->GetGravityAcceleration()));
     // FIXME: il faut que c_qL soit set dans le constructeur !
   }
 
   void FrCatenaryLine::AddBuoy(double s, const double &mass, bool reversed) {
     if (reversed) s = m_unstretchedLength - s;
     AddPointMass(s / m_unstretchedLength,
-                 Force(0, 0, mass * GetSystem()->GetEnvironment()->GetGravityAcceleration()) / c_qL);
+                 Force(0, 0, mass * GetSystem()->GetEnvironment()->GetGravityAcceleration()));
   }
 
   bool FrCatenaryLine::IsSingular() const {
@@ -173,7 +173,8 @@ namespace frydom {
       if (s > pos->s())
         break;
     }
-    m_point_forces.insert(pos, internal::PointForce(s, force));
+    pos++;
+    m_point_forces.insert(pos, internal::PointForce(this, s, force));
   }
 
   auto FrCatenaryLine::ti(const unsigned int &i, const double &s) const {
@@ -207,29 +208,16 @@ namespace frydom {
     return t(1.);
   }
 
-//  Position FrCatenaryLine::p0() const {
-//    return m_startingNode->GetPositionInWorld(NWU) / m_unstretchedLength;
-//  }
-
   unsigned int FrCatenaryLine::SToI(const double &s) const {
     assert(0. <= s && s <= 1.);
-
-    unsigned int i = 0;
-    // si < s <= si+1 ---> we send back i
-    for (unsigned int j = 0; i < N(); i++) {
-      if (si(j) < s && s <= si(j + 1)) {
-        i = j;
-        break;
-      }
+    for (unsigned int j=1; j<=N(); j++) {
+      if (s <= si(j)) return j-1;
     }
-    return i;
+    return N();
   }
 
   void FrCatenaryLine::p_pi(Position &position, const unsigned int &i, const double &s) const {
     auto scalar = ti(i, s).norm() - ti(i, si(i)).norm();
-    double t1 = ti(i, s).norm(); // TODO: Retirer
-    double t2 = ti(i, si(i)).norm(); // TODO: Retirer
-
     for (int j = 0; j < i; j++) {
       scalar += ti(j, si(j + 1)).norm() - ti(j, si(j)).norm();
     }
@@ -277,7 +265,7 @@ namespace frydom {
     return position;
   }
 
-  Position FrCatenaryLine::pL() const { // TODO: est-ce que l'adim est aussi simple ???
+  Position FrCatenaryLine::pL() const {
     return (m_endingNode->GetPositionInWorld(NWU) - m_startingNode->GetPositionInWorld(NWU)) / m_unstretchedLength;
   }
 
@@ -878,5 +866,16 @@ namespace frydom {
 //
 //
 
+  namespace internal {
+
+    internal::PointForce::PointForce(FrCatenaryLine *line, const double &s, const Force &force) :
+        m_line(line), m_s(s), m_force(force) {}
+
+    const double &PointForce::s() const { return m_s; }
+
+    Force PointForce::force() const { return m_force / m_line->c_qL; }
+
+
+  }  // end namespace frydom::internal
 
 }  // end namespace frydom

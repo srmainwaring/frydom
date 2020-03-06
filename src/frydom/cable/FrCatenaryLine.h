@@ -33,20 +33,24 @@
 
 namespace frydom {
 
+  class FrCatenaryLine;
+
   namespace internal {
 
     class PointForce {
      public:
-      PointForce(const double &s, const Force &force) : m_s(s), m_force(force) {}
+      PointForce(FrCatenaryLine *line, const double &s, const Force &force);
 
-      const double &s() const { return m_s; }
+      const double &s() const;
 
-      const Force &force() const { return m_force; }
+      Force force() const;
 
      private:
+      FrCatenaryLine *m_line;
       double m_s;
       Force m_force;
     };
+
   }  // end namespace frydom::internal
 
 
@@ -113,8 +117,6 @@ namespace frydom {
 
     Tension tL() const; // inline
 
-//    Position p0() const; // inline
-
     unsigned int SToI(const double &s) const;
 
     void p_pi(Position &position, const unsigned int &i, const double &s) const;
@@ -137,13 +139,13 @@ namespace frydom {
 
     Residue3 GetResidue() const;
 
-    void dpc_dt(Jacobian33& jacobian) const; // inline
+    void dpc_dt(Jacobian33 &jacobian) const; // inline
 
-    void dp_pi_dt(Jacobian33& jacobian) const; // inline
+    void dp_pi_dt(Jacobian33 &jacobian) const; // inline
 
-    void dp_perp_dt(Jacobian33& jacobian) const; // inline
+    void dp_perp_dt(Jacobian33 &jacobian) const; // inline
 
-    void dpe_dt(Jacobian33& jacobian) const; // inline
+    void dpe_dt(Jacobian33 &jacobian) const; // inline
 
     Jacobian33 GetJacobian() const;
 
@@ -154,6 +156,8 @@ namespace frydom {
     void DefineLogMessages() override;
 
     void BuildCache();
+
+    friend Force internal::PointForce::force() const;
 
    private:
     Tension m_t0;
