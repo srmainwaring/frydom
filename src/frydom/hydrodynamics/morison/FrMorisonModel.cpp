@@ -52,7 +52,8 @@ namespace frydom {
       diameter = element["diameter"].get<double>();
       Cd = element["cd"].get<double>();
       Cm = element["cm"].get<double>();
-      model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm), MorisonCoeff(Cd), 0.);
+      Direction dv = (PosB - PosA);
+      model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm-1.), MorisonCoeff(Cd), 0.);
     }
 
     return model;
@@ -211,6 +212,8 @@ namespace frydom {
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
 
     velocity = waveField->GetVelocity(worldPos, NWU);
+    //velocity = waveField->GetVelocity({0., 0., -10.}, NWU);
+    //##CC
     velocity -= m_node->GetVelocityInWorld(NWU);
 
     if (m_includeCurrent) {
@@ -230,6 +233,8 @@ namespace frydom {
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
 
     acceleration = waveField->GetAcceleration(worldPos, NWU);
+    //acceleration = waveField->GetAcceleration({0., 0., -10.}, NWU);
+    //##CC
     Acceleration accBody = body->GetFrame().ProjectVectorParentInFrame(acceleration, NWU);
     return m_node->GetFrameInWorld().ProjectVectorParentInFrame(accBody, NWU);
   }
