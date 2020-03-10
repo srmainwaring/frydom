@@ -28,3 +28,19 @@ RUN apt-get install -y -q doxygen
 # https://stackoverflow.com/questions/44331836/apt-get-install-tzdata-noninteractive
 RUN apt-get install -y -q tzdata
 #RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q tzdata
+
+ARG download_dir=/download
+
+# Building VTK
+RUN mkdir ${download_dir} && \
+    cd ${download_dir} && \
+    wget --no-verbose https://www.vtk.org/files/release/8.2/VTK-8.2.0.tar.gz && \
+    tar xf VTK-8.2.0.tar.gz && \
+    cd VTK-8.2.0 && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DVTK_WRAP_PYTHON=OFF && \
+    make -j6 && \
+    make install && \
+    cd / && \
+    rm -rf ${download_dir}
