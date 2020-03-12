@@ -43,4 +43,5 @@ RUN mkdir ${download_dir} && \
     make -j6 && \
     make install && \
     cd / && \
-    rm -rf ${download_dir}
+    rm -rf ${download_dir} && \
+	/sbin/ldconfig -v
