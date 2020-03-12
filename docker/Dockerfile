@@ -43,5 +43,7 @@ RUN mkdir ${download_dir} && \
     make -j6 && \
     make install && \
     cd / && \
-    rm -rf ${download_dir} && \
-	/sbin/ldconfig -v
+    rm -rf ${download_dir}
+
+# Update links to shared objects
+RUN /sbin/ldconfig -v
