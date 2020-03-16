@@ -325,7 +325,7 @@ namespace frydom {
       matrix += c_U * (m_t0 - Fi(j)) * (Lambda_tau(j, si(j + 1)) - Lambda_tau(j, si(j))).transpose();
       scalar += std::log(rho(j, si(j + 1)) / rho(j, si(j)));
     }
-    jacobian += c_U * scalar + c_U * matrix;
+    jacobian += c_U * scalar + c_U * matrix; // FIXME: on a 2 fois c_U devant matrix (ici et dans la boucle... normal ?)
   }
 
   void FrCatenaryLine::dpc_dt(Jacobian33 &jacobian) const {

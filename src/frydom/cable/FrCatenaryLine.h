@@ -109,7 +109,7 @@ namespace frydom {
 
     Direction Lambda_tau(const unsigned int &i, const double &s) const; // inline
 
-    unsigned int N() const; // inline
+    unsigned int N() const; // inline en priorite !!
 
     auto ti(const unsigned int &i, const double &s) const; // inline
 
