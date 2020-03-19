@@ -212,6 +212,7 @@ namespace frydom {
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
 
     velocity = waveField->GetVelocity(worldPos, NWU);
+    //##CC
     //velocity = waveField->GetVelocity({0., 0., -10.}, NWU);
     //##CC
     velocity -= m_node->GetVelocityInWorld(NWU);
@@ -221,7 +222,20 @@ namespace frydom {
     }
 
     Velocity velocityBody = body->GetFrame().ProjectVectorParentInFrame(velocity, NWU);
-    return m_node->GetFrameInWorld().ProjectVectorParentInFrame(velocityBody, NWU);
+    Velocity velocityNode = m_node->GetFrameInWorld().ProjectVectorParentInFrame(velocity, NWU);
+
+    //##CC
+    /*
+    std::cout << "-- debug : Morison model ----------------------------" << std::endl;
+    std::cout << "world pos : " << worldPos.x() << " ; " << worldPos.y() << " ; " << worldPos.z() << std::endl;
+    std::cout << "velocity in world : " << velocity.x() << " ; " << velocity.y() << " ; " << velocity.z() << std::endl;
+    std::cout << "velocity in body : " << velocityBody.x() << " ; " << velocityBody.y() << " ; " << velocityBody.z() << std::endl;
+    std::cout << "velocity in frame : " << velocityNode.x()  << " ; " << velocityNode.y() << " ; " << velocityNode.z() << std::endl;
+    std::cout << "-----------------------------------------------------" << std::endl;
+    */
+    //##CC
+
+    return velocityNode;
   }
 
   Acceleration FrMorisonSingleElement::GetFlowAcceleration() {
@@ -233,16 +247,17 @@ namespace frydom {
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
 
     acceleration = waveField->GetAcceleration(worldPos, NWU);
+    //##CC
     //acceleration = waveField->GetAcceleration({0., 0., -10.}, NWU);
     //##CC
     Acceleration accBody = body->GetFrame().ProjectVectorParentInFrame(acceleration, NWU);
-    return m_node->GetFrameInWorld().ProjectVectorParentInFrame(accBody, NWU);
+    return m_node->GetFrameInWorld().ProjectVectorParentInFrame(acceleration, NWU);
   }
 
   Acceleration FrMorisonSingleElement::GetNodeAcceleration() {
     Acceleration acceleration = m_node->GetAccelerationInWorld(NWU);
     Acceleration accBody = m_node->GetBody()->GetFrame().ProjectVectorParentInFrame(acceleration, NWU);
-    return m_node->GetFrameInWorld().ProjectVectorParentInFrame(accBody, NWU);
+    return m_node->GetFrameInWorld().ProjectVectorParentInFrame(acceleration, NWU);
   }
 
   //
@@ -259,6 +274,10 @@ namespace frydom {
     Velocity velocity = GetFlowVelocity();
 
     double Vnorm = velocity.norm();
+
+    //##CC
+    //std::cout << "debug : Morison Model : vnorm = " << Vnorm << std::endl;
+    //##CC
 
     Vector3d<double> Cd = {m_property.cd.x, m_property.cd.y,  M_PI * m_property.cf};
 
@@ -283,12 +302,37 @@ namespace frydom {
 //                     std::abs(velocity.z());
 
     // Project force in world at COG
-    auto forceBody = m_node->GetFrameInWorld().ProjectVectorFrameInParent(localForce, NWU);
-    m_force = body->GetFrame().ProjectVectorFrameInParent(forceBody, NWU);
+    //auto forceBody = m_node->GetFrameInWorld().ProjectVectorFrameInParent(localForce, NWU);
+    //m_force = body->GetFrame().ProjectVectorFrameInParent(forceBody, NWU);
+    m_force = m_node->GetFrameInWorld().ProjectVectorFrameInParent(localForce, NWU);
+    auto forceBody = m_node->GetFrameInBody().ProjectVectorFrameInParent(localForce, NWU);
 
     //Project torque in body at COG
     Position relPos = m_node->GetNodePositionInBody(NWU) - body->GetCOG(NWU);
     m_torque = relPos.cross(forceBody);
+
+    //##CC
+    /*
+    std::cout << " -- debug : Morison element update ------------------------ " << std::endl;
+    auto b_pos = m_node->GetNodePositionInBody(NWU);
+    auto w_pos = m_node->GetPositionInWorld(NWU);
+    std::cout << "Node position in body : " << b_pos.x() << " ; " << b_pos.y() << " ; " << b_pos.z() << std::endl;
+    std::cout << "Node position in world : " << w_pos.x() << " ; " << w_pos.y() << " ; " << w_pos.z() << std::endl;
+    std::cout << "Flow velocity : " << velocity.x() << " ; " << velocity.y() << " ; " << velocity.z() << std::endl;
+    std::cout << "Frame in world :" << std::endl;
+    m_node->GetFrameInWorld().GetXAxisInParent(NWU).print("frame-x-axis");
+    m_node->GetFrameInWorld().GetYAxisInParent(NWU).print("frame-y-axis");
+    m_node->GetFrameInWorld().GetZAxisInParent(NWU).print("frame-z-axis");
+    std::cout << "Frame in body : " << std::endl;
+    m_node->GetFrameInBody().GetXAxisInParent(NWU).print("frame-x-axis");
+    m_node->GetFrameInBody().GetYAxisInParent(NWU).print("frame-y-axis");
+    m_node->GetFrameInBody().GetZAxisInParent(NWU).print("frame-z-axis");
+    std::cout << "" << std::endl;
+    forceBody.print("forceBody");
+    std::cout << "" << std::endl;
+    m_force.print("force");
+    */
+    //##CC
   }
 
   void FrMorisonSingleElement::Initialize() {
