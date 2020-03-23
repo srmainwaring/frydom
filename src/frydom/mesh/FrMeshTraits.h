@@ -26,7 +26,7 @@ namespace frydom {
     enum IntegrandType {
       // TODO: voir http://www.drdobbs.com/when-enum-just-isnt-enough-enumeration-c/184403955 pour une meilleure
       // gestion des enums
-          UNDEFINED_INTEGRAND,
+      UNDEFINED_INTEGRAND,
       POLY_1,
       POLY_X,
       POLY_Y,
@@ -50,7 +50,7 @@ namespace frydom {
 
     enum VertexPosition {  // N'a a priori de sens que lors de la decoupe... Mettre dans FrMeshClipper ?
       // On pourrait du coup plutot utiliser les fonctions d'ajout dynamique de proprietes !!
-          VP_ABOVE_SURFACE = 0,
+      VP_ABOVE_SURFACE = 0,
       VP_ON_SURFACE = 1,
       VP_UNDER_SURFACE = 2,
       VP_UNDEFINED = -1

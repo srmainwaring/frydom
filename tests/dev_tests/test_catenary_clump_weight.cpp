@@ -23,7 +23,7 @@ int main() {
   node1->SetPositionInWorld({0, 0, 0}, NWU);
 
   auto node2 = world_body->NewNode("node2");
-  node2->SetPositionInWorld({100, 0, 0}, NWU);
+  node2->SetPositionInWorld({100, 0, 0.}, NWU);
 
 
   auto cable_properties = make_cable_properties();
@@ -46,10 +46,16 @@ int main() {
 
   auto cable = make_catenary_line("cable", node1, node2, cable_properties, true, 220, AIR);
 
-  cable->AddBuoy(110, 10);
+  cable->AddBuoy(110, 5000);
+//  cable->AddClumpWeight(110, 1000);
 
+  cable->Initialize();
 
-  system.RunInViewer();
+  std::cout << "Cable weight = " << cable->GetTotalMass() * 9.81 << std::endl;
+  std::cout << cable->GetPositionInWorld(110, NWU) << std::endl; // Must be 50 in X !!!
+
+//  system.RunInViewer();
+
 
 
   return 0;

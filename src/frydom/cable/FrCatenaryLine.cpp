@@ -111,10 +111,11 @@ namespace frydom {
   }
 
   Position FrCatenaryLine::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
-    Position position = p(s / m_unstretchedLength) * m_unstretchedLength;
+    Position position;
+    p(s / m_unstretchedLength, position);
     if (IsNED(fc))
       internal::SwapFrameConvention(position);
-    return position;
+    return m_startingNode->GetPositionInWorld(fc) + position  * m_unstretchedLength;
   }
 
   double FrCatenaryLine::GetUnstretchedLength() const {
@@ -251,17 +252,18 @@ namespace frydom {
   }
 
   void FrCatenaryLine::pi(Position &position, const unsigned int &i, const double &s) const {
-//    position += p0();
     pc(position, i, s);
     if (m_elastic)
       pe(position, i, s);
   }
 
+  void FrCatenaryLine::p(const double &s, Position &position) const {
+    pi(position, SToI(s), s);
+  }
+
   Position FrCatenaryLine::p(const double &s) const {
     Position position;
-    unsigned int i = SToI(s);
-    pi(position, i, s);
-    Position pp = position * m_unstretchedLength;
+    p(s, position);
     return position;
   }
 

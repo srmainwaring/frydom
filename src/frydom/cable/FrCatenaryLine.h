@@ -131,7 +131,9 @@ namespace frydom {
 
     void pi(Position &position, const unsigned int &i, const double &s) const; // inline
 
-    Position p(const double &s) const; // inline
+    void p(const double &s, Position& position) const; // inline
+
+    Position p(const double &s) const;
 
     Position pL() const; // inline
 
@@ -166,8 +168,8 @@ namespace frydom {
     // Cache
     std::vector<Force> c_Fi;
     std::vector<Force> c_sum_fs;
-    mathutils::Matrix33<double> c_U;
-    double c_qL;
+    mathutils::Matrix33<double> c_U; // This is (I - pi.pi^t)
+    double c_qL;  // Used for adimensionalization of forces and tensions
 
   };
 

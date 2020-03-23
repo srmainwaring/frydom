@@ -88,6 +88,10 @@ namespace frydom {
 //
     double GetUnstretchedLength() const override = 0;
 
+    double GetTotalMass() const {
+      return GetUnstretchedLength() * m_properties->GetLinearDensity();
+    }
+
     virtual bool HasSeabedInteraction() const {
       // TODO
     }
