@@ -1,21 +1,329 @@
-////
-//// Created by frongere on 27/02/2020.
-////
 //
-//#include "FrCatenaryLineSeabed.h"
+// Created by frongere on 27/02/2020.
 //
-//
-//#include "frydom/logging/FrTypeNames.h"
-//#include "frydom/logging/FrEventLogger.h"
+
+#include "FrCatenaryLineSeabed.h"
+
+#include "FrCatenaryLine.h"
+#include "frydom/logging/FrTypeNames.h"
+#include "frydom/logging/FrEventLogger.h"
 //
 //#include "frydom/core/common/FrNode.h"
 //#include "frydom/core/body/FrBody.h"
 //
-//#include "frydom/environment/FrEnvironment.h"
-//#include "frydom/environment/ocean/FrOcean.h"
-//#include "frydom/environment/ocean/seabed/FrSeabed.h"
+#include "frydom/environment/FrEnvironment.h"
+#include "frydom/environment/ocean/FrOcean.h"
+#include "frydom/environment/ocean/seabed/FrSeabed.h"
+
+namespace frydom {
+
+  FrCatenaryLineSeabed::FrCatenaryLineSeabed(const std::string &name,
+                                             const std::shared_ptr<FrNode> &anchorNode,
+                                             const std::shared_ptr<FrNode> &fairleadNode,
+                                             const std::shared_ptr<FrCableProperties> &properties,
+                                             bool elastic,
+                                             double unstretchedLength,
+                                             FLUID_TYPE fluid,
+                                             double seabed_friction_coeff) :
+      m_Cb(seabed_friction_coeff),
+      FrCatenaryLineBase(name,
+                         TypeToString(this),
+                         anchorNode,
+                         fairleadNode,
+                         properties,
+                         elastic,
+                         unstretchedLength) {
+
+    // Creating the touchdown point node
+    m_touch_down_node = GetSystem()->GetWorldBody()->NewNode(name + "_TouchDownPoint");
+
+    m_catenary_line = std::make_unique<FrCatenaryLine>(
+        name + "catenary_part",
+        m_touch_down_node,
+        fairleadNode,
+        properties,
+        elastic,
+        unstretchedLength, // TODO: voir si on peut pas faire un meilleur guess tout de suite ?
+        fluid
+    );
+
+    m_catenary_line->UseForShapeInitialization(true);
+
+  }
+
+  void FrCatenaryLineSeabed::AddClumpWeight(double s, const double &mass, bool reversed) {
+    // TODO
+  }
+
+  void FrCatenaryLineSeabed::AddBuoy(double s, const double &mass, bool reversed) {
+    // TODO
+  }
+
+  void FrCatenaryLineSeabed::Initialize() {
+
+    m_q = m_properties->GetLinearDensity() *
+          GetSystem()->GetEnvironment()->GetGravityAcceleration();
+    m_pi = {0., 0., -1.}; // FIXME: en dur pour le moment...
+
+    m_touch_down_node->SetPositionInWorld(m_startingNode->GetPositionInWorld(NWU), NWU);
+    m_touch_down_node->Initialize();
+
+    m_catenary_line->Initialize();
+    BuildCache();
+
+    GuessLb();
+    solve();
+
+    if (!m_use_for_shape_initialization) {
+      // Building the catenary forces and adding them to bodies
+      if (!m_startingForce) {
+        m_startingForce = std::make_shared<FrCatenaryForce>(GetName() + "_start_force", m_startingNode->GetBody(), this,
+                                                            FrCatenaryLineBase::LINE_START);
+        auto starting_body = m_startingNode->GetBody();
+        starting_body->AddExternalForce(m_startingForce);
+      }
+
+      if (!m_endingForce) {
+        m_endingForce = std::make_shared<FrCatenaryForce>(GetName() + "_end_force", m_endingNode->GetBody(), this,
+                                                          FrCatenaryLineBase::LINE_END);
+        auto ending_body = m_endingNode->GetBody();
+        ending_body->AddExternalForce(m_endingForce);
+      }
+
+      FrCatenaryAssetOwner::Initialize();
+    }
+
+    FrCable::Initialize();
+
+  }
+
+  Force FrCatenaryLineSeabed::GetTension(const double &s, FRAME_CONVENTION fc) const {
+    if (0. <= s && s < m_Lb) {
+      // On seabed
+      if (HasNonZeroTensionAtAnchor()) {
+        return (GetTensionAtTouchDown(fc).norm() + m_Cb * (s - m_Lb)) * GetCatenaryPlaneIntersectionWithSeabed(fc);
+      } else {
+        return std::max(0., m_Cb * (m_Lb - GetGammaLength())) * GetCatenaryPlaneIntersectionWithSeabed(fc);
+      }
+
+    } else {
+      // catenary part
+      return m_catenary_line->GetTension(s - m_Lb, fc);
+    }
+  }
+
+  Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION fc) const {
+    return m_catenary_line->GetTension(0., fc);
+  }
+
+  Force FrCatenaryLineSeabed::GetTensionAtAnchor(FRAME_CONVENTION fc) const {
+    return std::max(0., GetTensionAtTouchDown(fc).norm() - m_Cb * m_Lb) * GetCatenaryPlaneIntersectionWithSeabed(fc);
+  }
+
+  bool FrCatenaryLineSeabed::HasNonZeroTensionAtAnchor() const {
+    if (m_Cb == 0.) {
+      return true;
+    } else {
+      return m_Lb * m_Cb <= GetTensionAtTouchDown(NWU).norm();
+    }
+  }
+
+  Position FrCatenaryLineSeabed::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
+    if (0. <= s && s < m_Lb) {
+      // FIXME: ajoute un <= a la énd condition pour que ce soit le cable pose qui donne la reponse en s=Lb
+      // Verifier qu'on raccorde bien en s = Lb + eps
+
+      double gamma = GetGammaLength();
+      // On seabed
+      if (HasNonZeroTensionAtAnchor()) {
+        return m_startingNode->GetPositionInWorld(fc) +
+               (s + (0.5 * m_Cb * m_unstretchedLength * m_q / m_properties->GetEA()) * // TODO: verifier que c'est bien m_unstretchedLength
+                    (s * s - 2. * s * gamma)) * GetCatenaryPlaneIntersectionWithSeabed(fc);
+
+      } else {
+        double s_gamma = s - gamma;
+        return m_startingNode->GetPositionInWorld(fc) +
+               (s + (0.5 * m_Cb * m_unstretchedLength * m_q / m_properties->GetEA()) * s_gamma * s_gamma) * // TODO: verifier que c'est bien m_unstretchedLength
+               GetCatenaryPlaneIntersectionWithSeabed(fc);
+      }
+
+//      return GetPositionInWorldOnSeabed(s, fc);
+
+    } else {
+      // Catenary part
+      return m_catenary_line->GetPositionInWorld(s - m_Lb, fc);
+    }
+  }
+
+  Position FrCatenaryLineSeabed::GetTouchDownPointPosition(FRAME_CONVENTION fc) const {
+    return m_touch_down_node->GetPositionInWorld(fc);
+  }
+
+  double FrCatenaryLineSeabed::GetUnstretchedLength() const {
+    return m_unstretchedLength;
+  }
+
+  double FrCatenaryLineSeabed::GetUnstretchedLengthOnSeabed() const {
+    return m_Lb;
+  }
+
+  void FrCatenaryLineSeabed::solve() {
+// TODO
+  }
+
+  void FrCatenaryLineSeabed::Compute(double time) {
+    solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
+  }
+
+  internal::FrPhysicsItemBase *FrCatenaryLineSeabed::GetChronoItem_ptr() const {
+    return m_chronoPhysicsItem.get();
+  }
+
+  void FrCatenaryLineSeabed::DefineLogMessages() {
+// TODO
+  }
+
+  void FrCatenaryLineSeabed::SetLb(const double& Lb) {
+    m_Lb = Lb;
+    m_catenary_line->SetUnstretchedLength(m_unstretchedLength - Lb);
+  }
+
+  void FrCatenaryLineSeabed::GuessLb() {
+
+    // We take for Lb as a first approximate the abscissae of the cable which is clipping the seabed
+    auto seabed = GetSystem()->GetEnvironment()->GetOcean()->GetSeabed();
+
+    // Necessary for the bisection algorithm not to converge to the anchor position which is by definition on seabed
+    double L = m_catenary_line->GetUnstretchedLength();
+    double ds = L * 1e-3 / L;
+    double sa = ds;
+
+    Position position = m_catenary_line->GetPositionInWorld(sa, NWU);
+    while (seabed->IsOnSeabed(position, NWU) ||
+           seabed->IsAboveSeabed(position, NWU)) {
+      sa += ds;
+      if (sa > L) {
+        event_logger::error(GetTypeName(), GetName(),
+                            "This line {} is declared to have seabed interaction but seems too taut to lie on seabed",
+                            GetName());
+        exit(EXIT_FAILURE);
+      }
+      position = m_catenary_line->GetPositionInWorld(sa, NWU);
+    }
+
+    // Intersection point searching using a bisection algorithm
+    double sb = L;
+    while (std::fabs(sb - sa) > 1e-6) {
+
+      double sm = 0.5 * (sa + sb);
+
+      Position Pa = m_catenary_line->GetPositionInWorld(sa, NWU);
+      double da = Pa.z() - seabed->GetBathymetry(Pa.x(), Pa.y(), NWU);
+
+      Position Pm = m_catenary_line->GetPositionInWorld(sm, NWU);
+      double dm = Pm.z() - seabed->GetBathymetry(Pm.x(), Pm.y(), NWU);
+
+      if (da * dm <= 0.) {
+        sb = sm;
+      } else {
+        sa = sm;
+      }
+    }
+
+//    m_touch_down_node->SetPositionInWorld(m_catenary_line->GetPositionInWorld(sa, NWU), NWU);
+
+
+//    auto pos = GetPositionInWorldOnSeabed(sa, NWU); // FIXME : cette modif ne fonctionne pas !!!
+    auto pos = GetPositionInWorld(sa, NWU);
+    m_touch_down_node->SetPositionInWorld(pos, NWU);
+    SetLb(sa);
+
+//    auto pos1 = GetPositionInWorld(sa+0.1, NWU);
+
+//    double aa = m_catenary_line->GetUnstretchedLength() + m_Lb;
+
+    m_catenary_line->solve();
+
+//    auto pos1 = GetPositionInWorld(sa+0.1, NWU);
+
+
+  }
+
+  void FrCatenaryLineSeabed::BuildCache() {
+    // TODO, notamment pour ub...
+  }
+
+  FrCatenaryLineSeabed::Jacobian44 FrCatenaryLineSeabed::GetJacobian() const {
+    Jacobian44 jacobian;
+
+    FrCatenaryLine::Jacobian33 catenary_jacobian = m_catenary_line->GetJacobian();
+
+//    FrCatenaryLine
+
+
+  }
+
+  FrCatenaryLineSeabed::Residue4 FrCatenaryLineSeabed::GetResidue() const {
+    // TODO
+  }
+
+  double FrCatenaryLineSeabed::GetGammaLength() const {
+    return std::max(0., m_Lb - GetTensionAtTouchDown(NWU).norm() / m_Cb);
+  }
+
+  Position FrCatenaryLineSeabed::GetPositionInWorldOnSeabed(const double& s, FRAME_CONVENTION fc) const {
+//    double gamma = GetGammaLength();
+//    // On seabed
+//    if (HasNonZeroTensionAtAnchor()) {
+//      return m_startingNode->GetPositionInWorld(fc) +
+//             (s + (0.5 * m_Cb * m_unstretchedLength * m_q / m_properties->GetEA()) * // TODO: verifier que c'est bien m_unstretchedLength
+//                  (s * s - 2. * s * gamma)) * GetCatenaryPlaneIntersectionWithSeabed(fc);
 //
-//namespace frydom {
+//    } else {
+//      double s_gamma = s - gamma;
+//      return m_startingNode->GetPositionInWorld(fc) +
+//             (s + (0.5 * m_Cb * m_unstretchedLength * m_q / m_properties->GetEA()) * s_gamma * s_gamma) * // TODO: verifier que c'est bien m_unstretchedLength
+//             GetCatenaryPlaneIntersectionWithSeabed(fc);
+//    }
+  }
+
+  Direction FrCatenaryLineSeabed::GetCatenaryPlaneIntersectionWithSeabed(FRAME_CONVENTION fc) const {
+    auto p0 = m_startingNode->GetPositionInWorld(NWU);
+    auto pL = m_endingNode->GetPositionInWorld(NWU);
+    Direction z_axis{0., 0., 1.};
+
+    Direction ub = (((pL - p0).cross(m_pi)).cross(z_axis)).normalized();
+    if (IsNED(fc)) {
+      internal::SwapFrameConvention(ub);
+    }
+    return ub; // TODO: mettre en cache !!
+  }
+
+
+
+  std::shared_ptr<FrCatenaryLineSeabed>
+  make_catenary_line_seabed(const std::string &name,
+                            const std::shared_ptr<FrNode> &startingNode,
+                            const std::shared_ptr<FrNode> &endingNode,
+                            const std::shared_ptr<FrCableProperties> &properties,
+                            bool elastic,
+                            double unstretchedLength,
+                            FLUID_TYPE fluid_type,
+                            double seabed_friction_coeff) {
+    auto line = std::make_shared<FrCatenaryLineSeabed>(name,
+                                                       startingNode,
+                                                       endingNode,
+                                                       properties,
+                                                       elastic,
+                                                       unstretchedLength,
+                                                       fluid_type,
+                                                       seabed_friction_coeff);
+    startingNode->GetBody()->GetSystem()->Add(line);
+    return line;
+  }
+
+
+}
 //
 //
 //  FrCatenaryLineSeabed::FrCatenaryLineSeabed(const std::string &name,

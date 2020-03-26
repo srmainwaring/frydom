@@ -1,29 +1,106 @@
-////
-//// Created by frongere on 27/02/2020.
-////
 //
-//#ifndef FRYDOM_FRCATENARYLINESEABED__H
-//#define FRYDOM_FRCATENARYLINESEABED__H
+// Created by frongere on 27/02/2020.
 //
-//#include "frydom/core/FrOffshoreSystem.h"
-//#include "frydom/core/common/FrPhysicsItem.h"
-//#include "frydom/asset/FrCatenaryLineAsset.h"
-//#include "frydom/environment/FrFluidType.h"
-//#include "FrCatenaryLine.h"
-//
-//
-//namespace frydom {
-//
-//  class FrCatenaryLineSeabed : public FrCatenaryLine {
-//
-//   public:
-//    FrCatenaryLineSeabed(const std::string &name,
-//                         const std::shared_ptr<FrNode> &anchorNode,
-//                         const std::shared_ptr<FrNode> &fairleadNode,
-//                         const std::shared_ptr<FrCableProperties> &properties,
-//                         bool elastic,
-//                         double unstretchedLength,
-//                         FLUID_TYPE fluid);
+
+#ifndef FRYDOM_FRCATENARYLINESEABED__H
+#define FRYDOM_FRCATENARYLINESEABED__H
+
+
+#include "FrCatenaryLineBase.h"
+
+
+namespace frydom {
+
+  // Forward declaration
+  class FrCatenaryLine;
+
+  class FrCatenaryLineSeabed : public FrCatenaryLineBase {
+
+   public:
+    FrCatenaryLineSeabed(const std::string &name,
+                         const std::shared_ptr<FrNode> &anchorNode,
+                         const std::shared_ptr<FrNode> &fairleadNode,
+                         const std::shared_ptr<FrCableProperties> &properties,
+                         bool elastic,
+                         double unstretchedLength,
+                         FLUID_TYPE fluid,
+                         double seabed_friction_coeff);
+
+    void AddClumpWeight(double s, const double &mass, bool reversed = false);
+
+    void AddBuoy(double s, const double &mass, bool reversed = false);
+
+    void Initialize() override;
+
+    Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
+
+    Force GetTensionAtTouchDown(FRAME_CONVENTION fc) const;
+
+    Force GetTensionAtAnchor(FRAME_CONVENTION fc) const;
+
+    bool HasNonZeroTensionAtAnchor() const;
+
+    Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
+
+    Position GetTouchDownPointPosition(FRAME_CONVENTION fc) const;
+
+    double GetUnstretchedLength() const override;
+
+    double GetUnstretchedLengthOnSeabed() const;
+
+    void solve() override;
+
+   private:
+
+    using Residue4 = Eigen::Vector4d;
+    using Jacobian44 = Eigen::Matrix4d;
+
+    void SetLb(const double& Lb);
+
+    void GuessLb();
+
+    void BuildCache();
+
+    Jacobian44 GetJacobian() const;
+
+    Residue4 GetResidue() const;
+
+    double GetGammaLength() const;
+
+    Position GetPositionInWorldOnSeabed(const double& s, FRAME_CONVENTION fc) const;
+
+    Direction GetCatenaryPlaneIntersectionWithSeabed(FRAME_CONVENTION fc) const;
+
+    void Compute(double time) override;
+
+    internal::FrPhysicsItemBase *GetChronoItem_ptr() const override; // Qu'est ce que ca fait la ???
+
+    void DefineLogMessages() override;
+
+   private:
+
+    std::unique_ptr<FrCatenaryLine> m_catenary_line;
+    std::shared_ptr<FrNode> m_touch_down_node;
+
+    double m_Cb;
+
+    double m_Lb;
+
+
+  };
+
+  std::shared_ptr<FrCatenaryLineSeabed>
+  make_catenary_line_seabed(const std::string &name,
+                            const std::shared_ptr<FrNode> &startingNode,
+                            const std::shared_ptr<FrNode> &endingNode,
+                            const std::shared_ptr<FrCableProperties> &properties,
+                            bool elastic,
+                            double unstretchedLength,
+                            FLUID_TYPE fluid_type,
+                            double seabed_friction_coeff);
+
+
+
 //
 //    void Initialize() override;
 //
@@ -104,6 +181,6 @@
 //  }
 //
 //
-//}  // end namespace frydom
-//
-//#endif //FRYDOM_FRCATENARYLINESEABED__H
+}  // end namespace frydom
+
+#endif //FRYDOM_FRCATENARYLINESEABED__H

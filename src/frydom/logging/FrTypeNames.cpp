@@ -36,6 +36,10 @@ namespace frydom {
 
   TYPE_TO_STRING(FrCatenaryLine, "CatenaryLine")
 
+  class FrCatenaryLineSeabed;
+
+  TYPE_TO_STRING(FrCatenaryLineSeabed, "CatenaryLineSeabed")
+
 
   // FORCES
 

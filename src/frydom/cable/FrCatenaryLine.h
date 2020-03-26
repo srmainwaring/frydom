@@ -14,6 +14,7 @@
 #define FRYDOM_FRCATENARYLINE_H
 
 #include "FrCatenaryLineBase.h"
+#include "FrCatenaryLineSeabed.h"
 
 
 //#include "FrCable.h"
@@ -87,15 +88,17 @@ namespace frydom {
 
     void solve() override;
 
+    using Residue3 = mathutils::Vector3d<double>;
+    using Jacobian33 = mathutils::Matrix33<double>;
+
+    Jacobian33 GetJacobian() const;
+
+    Residue3 GetResidue() const;
 
    private:
     // WARNING: every method into the private scope are working with dimensionless variables and in NWU
     // The public part of the catenary line API works with dimensional variables.
     // Forces are divided by Lq and lengths by L
-
-    using Residue3 = mathutils::Vector3d<double>;
-    using Jacobian33 = mathutils::Matrix33<double>;
-
 
     void AddPointMass(const double &s, const Force &force);
 
@@ -131,15 +134,13 @@ namespace frydom {
 
     void pi(Position &position, const unsigned int &i, const double &s) const; // inline
 
-    void p(const double &s, Position& position) const; // inline
+    void p(const double &s, Position &position) const; // inline
 
     Position p(const double &s) const;
 
     Position pL() const; // inline
 
     void GuessTension();
-
-    Residue3 GetResidue() const;
 
     void dpc_dt(Jacobian33 &jacobian) const; // inline
 
@@ -148,8 +149,6 @@ namespace frydom {
     void dp_perp_dt(Jacobian33 &jacobian) const; // inline
 
     void dpe_dt(Jacobian33 &jacobian) const; // inline
-
-    Jacobian33 GetJacobian() const;
 
     void Compute(double time) override;
 
@@ -160,6 +159,7 @@ namespace frydom {
     void BuildCache();
 
     friend Force internal::PointForce::force() const;
+    friend Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION) const;
 
    private:
     Tension m_t0;
@@ -173,6 +173,15 @@ namespace frydom {
 
   };
 
+
+  std::shared_ptr<FrCatenaryLine>
+  make_catenary_line(const std::string &name,
+                     const std::shared_ptr<FrNode> &startingNode,
+                     const std::shared_ptr<FrNode> &endingNode,
+                     const std::shared_ptr<FrCableProperties> &properties,
+                     bool elastic,
+                     double unstretchedLength,
+                     FLUID_TYPE fluid_type);
 
 //
 //
@@ -424,14 +433,7 @@ namespace frydom {
 //
 //  };
 //
-  std::shared_ptr<FrCatenaryLine>
-  make_catenary_line(const std::string &name,
-                     const std::shared_ptr<FrNode> &startingNode,
-                     const std::shared_ptr<FrNode> &endingNode,
-                     const std::shared_ptr<FrCableProperties> &properties,
-                     bool elastic,
-                     double unstretchedLength,
-                     FLUID_TYPE fluid_type);
+
 
 
 //  /**

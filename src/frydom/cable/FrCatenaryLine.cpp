@@ -32,7 +32,13 @@ namespace frydom {
                                  bool elastic,
                                  double unstretchedLength,
                                  FLUID_TYPE fluid_type) :
-      FrCatenaryLineBase(name, TypeToString(this), startingNode, endingNode, properties, elastic, unstretchedLength),
+      FrCatenaryLineBase(name,
+                         TypeToString(this),
+                         startingNode,
+                         endingNode,
+                         properties,
+                         elastic,
+                         unstretchedLength),
       c_qL(0.) {
     m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
   }
@@ -69,7 +75,7 @@ namespace frydom {
 //                                           startingNode->GetSystem()->GetEnvironment()->GetFluidDensity(fluid_type); // FIXME: bug ici, pas de gravity
     m_q = m_properties->GetLinearDensity() *
           GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
-    m_pi = {0., 0., -1.};
+    m_pi = {0., 0., -1.}; // FIXME: en dur pour le moment... (voir aussi dans FrCatenaryLineSeabed::Initialize())
 
 
     m_startingNode->Initialize();
@@ -115,7 +121,7 @@ namespace frydom {
     p(s / m_unstretchedLength, position);
     if (IsNED(fc))
       internal::SwapFrameConvention(position);
-    return m_startingNode->GetPositionInWorld(fc) + position  * m_unstretchedLength;
+    return m_startingNode->GetPositionInWorld(fc) + position * m_unstretchedLength;
   }
 
   double FrCatenaryLine::GetUnstretchedLength() const {
@@ -211,8 +217,8 @@ namespace frydom {
 
   unsigned int FrCatenaryLine::SToI(const double &s) const {
     assert(0. <= s && s <= 1.);
-    for (unsigned int j=1; j<=N(); j++) {
-      if (s <= si(j)) return j-1;
+    for (unsigned int j = 1; j <= N(); j++) {
+      if (s <= si(j)) return j - 1;
     }
     return N();
   }
@@ -352,7 +358,7 @@ namespace frydom {
   }
 
   void FrCatenaryLine::Compute(double time) {
-    // TODO
+    solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
   }
 
   internal::FrPhysicsItemBase *FrCatenaryLine::GetChronoItem_ptr() const {

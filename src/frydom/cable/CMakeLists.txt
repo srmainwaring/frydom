@@ -4,7 +4,7 @@ set(SRC_FILES
         FrCable.cpp
         FrCatenaryLineBase.cpp
         FrCatenaryLine.cpp
-#        FrCatenaryLineSeabed.cpp
+        FrCatenaryLineSeabed.cpp
         FrMooringBuoy.cpp
         FrDynamicCable.cpp
         FrLumpedMassCable.cpp

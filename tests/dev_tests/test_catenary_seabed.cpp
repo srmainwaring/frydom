@@ -37,8 +37,16 @@ int main() {
   cable_properties->SetHydrodynamicDiameter(0.168);
   cable_properties->SetRayleighDamping(1e4);
 
+  double seabed_friction_coeff = 1.;
 
-//  auto cable = make_catenary_line_seabed("cable", anchor, fairlead, cable_properties, true, 520, WATER);
+  auto cable = make_catenary_line_seabed("cable",
+                                         anchor,
+                                         fairlead,
+                                         cable_properties,
+                                         true,
+                                         520,
+                                         WATER,
+                                         seabed_friction_coeff);
 
 
   system.RunInViewer();
