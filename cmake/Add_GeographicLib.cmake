@@ -42,8 +42,8 @@ if (NOT GeographicLib_FOUND)
     message(STATUS ${magneticmodel_BINARY_DIR})
 
     ## FIXME : erreur de chargement de magnetic model a fixer
-    #if(NOT magneticmodel_POPULATED)
-    #    message(STATUS "Downloading, Configuring and Generating magnetic models for 'GeographicLib' dependency")
+    if(NOT magneticmodel_POPULATED)
+        message(STATUS "Downloading, Configuring and Generating magnetic models for 'GeographicLib' dependency")
         #FetchContent_Populate(MagneticModel)
 
         # GeographicLib BUILD OPTIONS
@@ -55,10 +55,10 @@ if (NOT GeographicLib_FOUND)
 #        message(STATUS "Magnetic Field model datasets found in: " ${magneticmodel_SOURCE_DIR})
 #        set(ENV{GEOGRAPHICLIB_MAGNETIC_PATH} ${magneticmodel_SOURCE_DIR})
 #       Path to the magnetic model is stored into a compilation variable (GEOGRAPHICLIB_MAGNETIC_PATH) for the GeographicLib target
-        #TARGET_COMPILE_OPTIONS(GeographicLib PUBLIC -DGEOGRAPHICLIB_MAGNETIC_PATH="${magneticmodel_SOURCE_DIR}" )
-        #message(STATUS "GEOGRAPHICLIB_MAGNETIC_PATH : " $ENV{GEOGRAPHICLIB_MAGNETIC_PATH})
+        TARGET_COMPILE_OPTIONS(GeographicLib PUBLIC -DGEOGRAPHICLIB_MAGNETIC_PATH="${magneticmodel_SOURCE_DIR}" )
+        message(STATUS "GEOGRAPHICLIB_MAGNETIC_PATH : " $ENV{GEOGRAPHICLIB_MAGNETIC_PATH})
 
-    #endif()
+    endif()
 
 endif()
 
