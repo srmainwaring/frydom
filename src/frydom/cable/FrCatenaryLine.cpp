@@ -56,7 +56,6 @@ namespace frydom {
     if (reversed) s = m_unstretchedLength - s;
     AddPointMass(s / m_unstretchedLength,
                  Force(0, 0, -mass * GetSystem()->GetEnvironment()->GetGravityAcceleration()));
-    // FIXME: il faut que c_qL soit set dans le constructeur !
   }
 
   void FrCatenaryLine::AddBuoy(double s, const double &mass, bool reversed) {
@@ -121,16 +120,14 @@ namespace frydom {
     p(s / m_unstretchedLength, position);
     if (IsNED(fc))
       internal::SwapFrameConvention(position);
+
+    Position pos = position * m_unstretchedLength; // FIXME retirer
     return m_startingNode->GetPositionInWorld(fc) + position * m_unstretchedLength;
   }
 
   double FrCatenaryLine::GetUnstretchedLength() const {
     return m_unstretchedLength;
   }
-
-//  bool FrCatenaryLine::HasSeabedInteraction() const {
-//    // TODO
-//  }
 
   void FrCatenaryLine::solve() {
 
@@ -143,7 +140,7 @@ namespace frydom {
     double err = residue.norm();
 
     if (err < m_tolerance) {
-      std::cout << "Already at equilibrium" << std::endl;
+//      std::cout << "Already at equilibrium" << std::endl;
       return;
     }
 
@@ -244,7 +241,6 @@ namespace frydom {
     if (!IsSingular()) {
       p_perp(position, i, s);
     }
-    Position pp = position * m_unstretchedLength; // TODO: retirer
   }
 
   Force FrCatenaryLine::sum_fs(const unsigned int &i) const {
@@ -252,8 +248,6 @@ namespace frydom {
   }
 
   void FrCatenaryLine::pe(Position &position, const unsigned int &i, const double &s) const {
-    Position pp = (c_qL / m_properties->GetEA()) * ((m_t0 - Fi(i)) * s + sum_fs(i) - 0.5 * m_pi * s * s) *
-                  m_unstretchedLength; // TODO: retirer
     position += (c_qL / m_properties->GetEA()) * ((m_t0 - Fi(i)) * s + sum_fs(i) - 0.5 * m_pi * s * s);
   }
 
@@ -326,14 +320,16 @@ namespace frydom {
     return (ti(i, s).normalized() - m_pi) / (rho(i, s));
   }
 
-  void FrCatenaryLine::dp_perp_dt(Jacobian33 &jacobian) const {
+  void FrCatenaryLine::dp_perp_dt(Jacobian33 &jacobian) const {// FIXME: verifier le micma avec les matrices U !!!!
     Jacobian33 matrix = (c_U * (m_t0 - Fi(N()))) * (Lambda_tau(N(), 1.) - Lambda_tau(N(), si(N()))).transpose();
     double scalar = std::log(rho(N(), 1.) / rho(N(), si(N())));
     for (unsigned int j = 0; j < N(); j++) {
       matrix += c_U * (m_t0 - Fi(j)) * (Lambda_tau(j, si(j + 1)) - Lambda_tau(j, si(j))).transpose();
       scalar += std::log(rho(j, si(j + 1)) / rho(j, si(j)));
     }
-    jacobian += c_U * scalar + c_U * matrix; // FIXME: on a 2 fois c_U devant matrix (ici et dans la boucle... normal ?)
+//    jacobian += c_U * scalar + c_U * matrix; // FIXME: on a 2 fois c_U devant matrix (ici et dans la boucle... normal ?)
+    auto scalmat = scalar * Jacobian33::Identity();
+    jacobian += c_U * scalmat + matrix;
   }
 
   void FrCatenaryLine::dpc_dt(Jacobian33 &jacobian) const {
@@ -343,7 +339,7 @@ namespace frydom {
     }
   }
 
-  void FrCatenaryLine::dpe_dt(Jacobian33 &jacobian) const {
+  void FrCatenaryLine::dpe_dt(Jacobian33 &jacobian) const {// FIXME: il semblerait qu'il manque un L !!!!!
     jacobian += (m_q * m_unstretchedLength / m_properties->GetEA()) * Eigen::Matrix3d::Identity(); // TODO: optim
   }
 

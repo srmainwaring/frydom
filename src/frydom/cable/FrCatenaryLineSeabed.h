@@ -38,7 +38,7 @@ namespace frydom {
 
     Force GetTensionAtAnchor(FRAME_CONVENTION fc) const;
 
-    bool HasNonZeroTensionAtAnchor() const;
+    bool HasTensionAtAnchor() const;
 
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
 
@@ -55,19 +55,31 @@ namespace frydom {
     using Residue4 = Eigen::Vector4d;
     using Jacobian44 = Eigen::Matrix4d;
 
-    void SetLb(const double& Lb);
+    void SetLb(const double &Lb);
 
     void GuessLb();
 
     void BuildCache();
 
+    double gamma() const;
+
+    Position p(const double &s) const;
+
+    Position p_seabed(const double& s) const;
+
+    Position p_catenary(const double &s ) const;
+
+    Tension t(const double &s) const;
+
+    Tension t_seabed(const double& s) const;
+
+    Tension t_catenary(const double& s) const;
+
+    Tension t_TDP() const;
+
     Jacobian44 GetJacobian() const;
 
     Residue4 GetResidue() const;
-
-    double GetGammaLength() const;
-
-    Position GetPositionInWorldOnSeabed(const double& s, FRAME_CONVENTION fc) const;
 
     Direction GetCatenaryPlaneIntersectionWithSeabed(FRAME_CONVENTION fc) const;
 
@@ -85,6 +97,8 @@ namespace frydom {
     double m_Cb;
 
     double m_Lb;
+
+    double c_qL;
 
 
   };

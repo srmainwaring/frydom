@@ -54,7 +54,7 @@ int main() {
   std::cout << "Cable weight = " << cable->GetTotalMass() * 9.81 << std::endl;
   std::cout << cable->GetPositionInWorld(110, NWU) << std::endl; // Must be 50 in X !!!
 
-//  system.RunInViewer();
+  system.RunInViewer();
 
 
 
