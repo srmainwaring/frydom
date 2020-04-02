@@ -52,7 +52,10 @@ namespace frydom {
     Torque m_torque;                    ///< Torque at COG of the body in body-coordinates
 
     bool m_includeCurrent;              ///< Include current flow in morison element model
+
     bool m_extendedModel = false;                   ///< If true the inertial component of the morison force is used (false by dafault)
+    Force m_force_added_mass;
+    Torque m_torque_added_mass;
 
    public:
     /// Set the local frame of the morison model from node positions
@@ -84,6 +87,11 @@ namespace frydom {
     /// \return Torque vector
     Torque GetTorqueInBody() const;
 
+    /// Get
+    Force GetForceAddedMassInWorld(FRAME_CONVENTION fc) const;
+
+    Torque GetTorqueAddedMassInWorld() const;
+
     /// Include current flow in the morison model
     /// \param includeCurrent Boolean, if true the current is included in morison model
     virtual void SetIncludeCurrent(bool includeCurrent) { m_includeCurrent = includeCurrent; }
@@ -91,6 +99,8 @@ namespace frydom {
     /// Defines if the inertial component with added mass is used (false by default)
     /// \param extendedModel Boolean, if true inertial component is used
     void SetExtendedModel(bool extendedModel) { m_extendedModel = extendedModel; }
+
+    bool IsExtendedModel() const { return m_extendedModel; }
 
     /// Update the force of the morison model
     /// \param time Current time of the simulation from begining (in seconds)
@@ -101,6 +111,8 @@ namespace frydom {
 
     /// Method to be applied at the end of each time step
     virtual void StepFinalize() = 0;
+
+    virtual void ComputeForceAddedMass() = 0;
 
   };
 
@@ -251,6 +263,8 @@ namespace frydom {
 
     /// Methods to be applied at the end of each time step
     void StepFinalize() override;
+
+    void ComputeForceAddedMass() override;
 
    protected:
 
@@ -410,6 +424,8 @@ namespace frydom {
 
     /// Methods to be applied at the end of each time step of the simulation
     void StepFinalize() override {}
+
+    void ComputeForceAddedMass() override;
   };
 
 }  // end namespace frydom

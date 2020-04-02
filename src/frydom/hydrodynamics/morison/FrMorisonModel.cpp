@@ -101,6 +101,16 @@ namespace frydom {
     return m_torque;
   }
 
+  Force FrMorisonElement::GetForceAddedMassInWorld(FRAME_CONVENTION fc) const {
+    auto force = m_force_added_mass;
+    if (IsNED(fc)) internal::SwapFrameConvention(force);
+    return force;
+  }
+
+  Torque FrMorisonElement::GetTorqueAddedMassInWorld() const {
+    return m_torque_added_mass;
+  }
+
   FrFrame FrMorisonElement::GetFrame() const { return m_node->GetFrameInWorld(); }
 
 
@@ -263,6 +273,9 @@ namespace frydom {
 
   void FrMorisonSingleElement::Update(double time) {
 
+    m_force_added_mass.SetNull();
+    m_torque_added_mass.SetNull();
+
     Force localForce;
 
     auto body = m_node->GetBody();
@@ -289,9 +302,19 @@ namespace frydom {
       localForce.x() += rho * (m_property.ca.x + 1.) * GetVolume() * acceleration.x();
       localForce.y() += rho * (m_property.ca.y + 1.) * GetVolume() * acceleration.y();
 
-      Acceleration node_acc = GetNodeAcceleration();
-      localForce.x() -= rho * m_property.ca.x * GetVolume() * node_acc.x();
-      localForce.y() -= rho * m_property.ca.y * GetVolume() * node_acc.y();
+      //##CC
+      //std::cout << "debug : morison : flow acceleration (x,y) : " << acceleration.x() << " ; " << acceleration.y() << std::endl;
+      //std::cout << "debug : morison : local_force (x,y) : " << localForce.x() << " ; " << localForce.y() << std::endl;
+      //##CC
+
+      //Acceleration node_acc = GetNodeAcceleration();
+      //m_force_added_mass.x() = -rho * m_property.ca.x * GetVolume() * node_acc.x();
+      //m_force_added_mass.y() = -rho * m_property.ca.y * GetVolume() * node_acc.y();
+      //m_force_added_mass.z() = 0.0;
+      //m_force_added_mass = m_node->GetFrameInWorld().ProjectVectorFrameInParent(m_force_added_mass, NWU);
+
+      //Position relPos = m_node->GetPositionInWorld(NWU) - body->GetCOGPositionInWorld(NWU);
+      //m_torque_added_mass = relPos.cross(m_force_added_mass);
     }
 
 //    localForce.z() = 0.5 * m_property.cf * rho * M_PI * m_property.diameter * m_property.length * velocity.z() *
@@ -319,6 +342,29 @@ namespace frydom {
   }
 
   void FrMorisonSingleElement::StepFinalize() {
+
+  }
+
+  void FrMorisonSingleElement::ComputeForceAddedMass() {
+
+    //##CC
+    std::cout << "debug : FrMorisonSingleElement : ComputeForceAddedMass .." << std::endl;
+    //##CC
+
+    m_force_added_mass.SetNull();
+    m_torque_added_mass.SetNull();
+
+    auto body = m_node->GetBody();
+    auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
+
+    Acceleration node_acc = GetNodeAcceleration();
+    m_force_added_mass.x() = -rho * m_property.ca.x * GetVolume() * node_acc.x();
+    m_force_added_mass.y() = -rho * m_property.ca.y * GetVolume() * node_acc.y();
+    m_force_added_mass.z() = 0.0;
+    m_force_added_mass = m_node->GetFrameInWorld().ProjectVectorFrameInParent(m_force_added_mass, NWU);
+
+    Position relPos = m_node->GetPositionInWorld(NWU) - body->GetCOGPositionInWorld(NWU);
+    m_torque_added_mass = relPos.cross(m_force_added_mass);
 
   }
 
@@ -410,6 +456,33 @@ namespace frydom {
       m_force += element->GetForceInWorld(NWU);
       m_torque += element->GetTorqueInBody();
     }
+
+  }
+
+  void FrMorisonCompositeElement::ComputeForceAddedMass() {
+
+    //##CC
+    std::cout << "debug : FrMorisonCompositeElement : ComputeForceAddedMass ..." << std::endl;
+    //##CC
+
+    // Added mass force and torque
+    m_force_added_mass.SetNull();
+    m_torque_added_mass.SetNull();
+
+    for (auto& element: m_morison) {
+      if (element->IsExtendedModel()) {
+        element->ComputeForceAddedMass();
+        m_force_added_mass += element->GetForceAddedMassInWorld(NWU);
+        m_torque_added_mass += element->GetTorqueAddedMassInWorld();
+      }
+    }
+
+    //##CC
+    std::cout << "debug: FrMorisonCompositeElement : force "
+              << m_force_added_mass.GetFx() << " ; " << m_force_added_mass.GetFy()
+              << " ; " << m_force_added_mass.GetFz() << std::endl;
+    //##CC
+
   }
 
 }  // end namespace frydom
