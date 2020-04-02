@@ -321,15 +321,14 @@ namespace frydom {
   }
 
   void FrCatenaryLine::dp_perp_dt(Jacobian33 &jacobian) const {// FIXME: verifier le micma avec les matrices U !!!!
-    Jacobian33 matrix = (c_U * (m_t0 - Fi(N()))) * (Lambda_tau(N(), 1.) - Lambda_tau(N(), si(N()))).transpose();
+    Jacobian33 matrix = (m_t0 - Fi(N())) * (Lambda_tau(N(), 1.) - Lambda_tau(N(), si(N()))).transpose();
     double scalar = std::log(rho(N(), 1.) / rho(N(), si(N())));
     for (unsigned int j = 0; j < N(); j++) {
-      matrix += c_U * (m_t0 - Fi(j)) * (Lambda_tau(j, si(j + 1)) - Lambda_tau(j, si(j))).transpose();
+      matrix += (m_t0 - Fi(j)) * (Lambda_tau(j, si(j + 1)) - Lambda_tau(j, si(j))).transpose();
       scalar += std::log(rho(j, si(j + 1)) / rho(j, si(j)));
     }
-//    jacobian += c_U * scalar + c_U * matrix; // FIXME: on a 2 fois c_U devant matrix (ici et dans la boucle... normal ?)
     auto scalmat = scalar * Jacobian33::Identity();
-    jacobian += c_U * scalmat + matrix;
+    jacobian += c_U * matrix + c_U * scalmat;
   }
 
   void FrCatenaryLine::dpc_dt(Jacobian33 &jacobian) const {
@@ -340,7 +339,7 @@ namespace frydom {
   }
 
   void FrCatenaryLine::dpe_dt(Jacobian33 &jacobian) const {// FIXME: il semblerait qu'il manque un L !!!!!
-    jacobian += (m_q * m_unstretchedLength / m_properties->GetEA()) * Eigen::Matrix3d::Identity(); // TODO: optim
+    jacobian += (m_q * m_unstretchedLength * m_unstretchedLength / m_properties->GetEA()) * Eigen::Matrix3d::Identity();
   }
 
   FrCatenaryLine::Jacobian33 FrCatenaryLine::GetJacobian() const {
