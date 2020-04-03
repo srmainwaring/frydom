@@ -14,6 +14,30 @@ namespace frydom {
   // Forward declaration
   class FrCatenaryLine;
 
+  class FrCatenaryLineSeabed;
+
+  namespace internal {
+
+    struct JacobianBuilder {
+     public:
+
+      static void dp_dt(const FrCatenaryLineSeabed &sl,
+                        const FrCatenaryLine &cl,
+                        mathutils::Matrix33<double> &mat);
+
+      static void dp_dLb(const FrCatenaryLineSeabed &sl,
+                         const FrCatenaryLine &cl,
+                         mathutils::Vector3d<double> &vec);
+
+      static void catenary_residue(const FrCatenaryLine &cl, mathutils::Vector3d<double> &vec);
+
+      static void Lb_residue(const FrCatenaryLineSeabed &sl, double &scalar);
+
+    };
+
+  }  // end namespace frydom::internal
+
+
   class FrCatenaryLineSeabed : public FrCatenaryLineBase {
 
    public:
@@ -57,7 +81,7 @@ namespace frydom {
 
     void SetLb(const double &Lb);
 
-    void GuessLb();
+    void FirstGuess() override;
 
     void BuildCache();
 
@@ -65,21 +89,21 @@ namespace frydom {
 
     Position p(const double &s) const;
 
-    Position p_seabed(const double& s) const;
+    Position p_seabed(const double &s) const;
 
-    Position p_catenary(const double &s ) const;
+    Position p_catenary(const double &s) const;
 
     Tension t(const double &s) const;
 
-    Tension t_seabed(const double& s) const;
+    Tension t_seabed(const double &s) const;
 
-    Tension t_catenary(const double& s) const;
+    Tension t_catenary(const double &s) const;
 
     Tension t_TDP() const;
 
-    Jacobian44 GetJacobian() const;
+    void GetJacobian(Jacobian44 &jacobian) const;
 
-    Residue4 GetResidue() const;
+    void GetResidue(Residue4 &residue) const;
 
     Direction GetCatenaryPlaneIntersectionWithSeabed(FRAME_CONVENTION fc) const;
 
@@ -88,6 +112,8 @@ namespace frydom {
     internal::FrPhysicsItemBase *GetChronoItem_ptr() const override; // Qu'est ce que ca fait la ???
 
     void DefineLogMessages() override;
+
+    friend class internal::JacobianBuilder;
 
    private:
 
@@ -112,6 +138,7 @@ namespace frydom {
                             double unstretchedLength,
                             FLUID_TYPE fluid_type,
                             double seabed_friction_coeff);
+
 
 
 

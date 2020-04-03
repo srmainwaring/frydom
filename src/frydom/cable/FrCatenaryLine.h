@@ -91,14 +91,14 @@ namespace frydom {
     using Residue3 = mathutils::Vector3d<double>;
     using Jacobian33 = mathutils::Matrix33<double>;
 
-    Jacobian33 GetJacobian() const;
-
-    Residue3 GetResidue() const;
-
    private:
     // WARNING: every method into the private scope are working with dimensionless variables and in NWU
     // The public part of the catenary line API works with dimensional variables.
     // Forces are divided by Lq and lengths by L
+
+    Jacobian33 GetJacobian() const;
+
+    Residue3 GetResidue() const;
 
     void AddPointMass(const double &s, const Force &force);
 
@@ -140,7 +140,7 @@ namespace frydom {
 
     Position pL() const; // inline
 
-    void GuessTension();
+    void FirstGuess() override;
 
     void dpc_dt(Jacobian33 &jacobian) const; // inline
 
@@ -158,8 +158,18 @@ namespace frydom {
 
     void BuildCache();
 
+
+    // Friends declarations
+
     friend Force internal::PointForce::force() const;
-    friend Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION) const;
+
+    friend class internal::JacobianBuilder;
+
+    friend void FrCatenaryLineSeabed::solve();
+
+    // TODO: declarer toute la classe comme amie !
+//    friend Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION) const;
+//    friend void FrCatenaryLineSeabed::FirstGuess();
 
    private:
     Tension m_t0;

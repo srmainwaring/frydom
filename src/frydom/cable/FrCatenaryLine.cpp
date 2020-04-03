@@ -82,30 +82,10 @@ namespace frydom {
 
     BuildCache();
 
-    GuessTension();
+    FirstGuess();
     solve();
 
-    if (!m_use_for_shape_initialization) {
-      // Building the catenary forces and adding them to bodies
-      if (!m_startingForce) {
-        m_startingForce = std::make_shared<FrCatenaryForce>(GetName() + "_start_force", m_startingNode->GetBody(), this,
-                                                            FrCatenaryLineBase::LINE_START);
-        auto starting_body = m_startingNode->GetBody();
-        starting_body->AddExternalForce(m_startingForce);
-      }
-
-      if (!m_endingForce) {
-        m_endingForce = std::make_shared<FrCatenaryForce>(GetName() + "_end_force", m_endingNode->GetBody(), this,
-                                                          FrCatenaryLineBase::LINE_END);
-        auto ending_body = m_endingNode->GetBody();
-        ending_body->AddExternalForce(m_endingForce);
-      }
-
-      FrCatenaryAssetOwner::Initialize();
-    }
-
-    FrCable::Initialize();
-
+    FrCatenaryLineBase::Initialize();
   }
 
   Force FrCatenaryLine::GetTension(const double &s, FRAME_CONVENTION fc) const {
@@ -271,15 +251,15 @@ namespace frydom {
     return (m_endingNode->GetPositionInWorld(NWU) - m_startingNode->GetPositionInWorld(NWU)) / m_unstretchedLength;
   }
 
-  void FrCatenaryLine::GuessTension() {
+  void FrCatenaryLine::FirstGuess() {
     // Peyrot et goulois
 
-    Position p0pL = GetEndingNode()->GetPositionInWorld(NWU) - GetStartingNode()->GetPositionInWorld(NWU);
+    Position p0pL = m_endingNode->GetPositionInWorld(NWU) - m_startingNode->GetPositionInWorld(NWU);
     double lx = p0pL(0);
     double ly = p0pL(1);
     double lz = p0pL(2);
 
-    double V = lz;
+//    double V = lz;
     double H = sqrt(lx * lx + ly * ly);
 
     auto chord_length = p0pL.norm();
@@ -292,7 +272,7 @@ namespace frydom {
       // The cable is taut
       lambda = 0.2;
     } else if ((m_pi.cross(p0pL)).norm() < 1e-4) {
-      // The cable has direction collinear to main effort
+      // The cable is collinear to main load
       lambda = 1e6;
     } else {
       lambda = sqrt(6. * (sqrt((lu * lu - lz * lz) / (lx * lx + ly * ly)) - 1.));
@@ -321,14 +301,14 @@ namespace frydom {
   }
 
   void FrCatenaryLine::dp_perp_dt(Jacobian33 &jacobian) const {// FIXME: verifier le micma avec les matrices U !!!!
+    // FIXME: ne pas faire appel a N() partout mais en faire un param local !! Pareil ailleurs...
     Jacobian33 matrix = (m_t0 - Fi(N())) * (Lambda_tau(N(), 1.) - Lambda_tau(N(), si(N()))).transpose();
     double scalar = std::log(rho(N(), 1.) / rho(N(), si(N())));
     for (unsigned int j = 0; j < N(); j++) {
       matrix += (m_t0 - Fi(j)) * (Lambda_tau(j, si(j + 1)) - Lambda_tau(j, si(j))).transpose();
       scalar += std::log(rho(j, si(j + 1)) / rho(j, si(j)));
     }
-    auto scalmat = scalar * Jacobian33::Identity();
-    jacobian += c_U * matrix + c_U * scalmat;
+    jacobian += c_U * matrix + c_U * scalar;
   }
 
   void FrCatenaryLine::dpc_dt(Jacobian33 &jacobian) const {
@@ -338,8 +318,9 @@ namespace frydom {
     }
   }
 
-  void FrCatenaryLine::dpe_dt(Jacobian33 &jacobian) const {// FIXME: il semblerait qu'il manque un L !!!!!
-    jacobian += (m_q * m_unstretchedLength * m_unstretchedLength / m_properties->GetEA()) * Eigen::Matrix3d::Identity();
+  void FrCatenaryLine::dpe_dt(Jacobian33 &jacobian) const {
+    // FIXME: il semblerait qu'il manque un L !!!!! --> ben non en fait vu la diff dans la convergence... voir pourquoi j'ai pense ca...
+    jacobian += (m_q * m_unstretchedLength  / m_properties->GetEA()) * Eigen::Matrix3d::Identity(); // TODO: utiliser Eigen pour faire une matrice diag a partir du scalaire...
   }
 
   FrCatenaryLine::Jacobian33 FrCatenaryLine::GetJacobian() const {
@@ -352,7 +333,7 @@ namespace frydom {
     return jacobian;
   }
 
-  void FrCatenaryLine::Compute(double time) {
+  void FrCatenaryLine::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
   }
 

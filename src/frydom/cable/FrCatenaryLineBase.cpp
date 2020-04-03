@@ -47,6 +47,30 @@ namespace frydom {
 
   }
 
+  void FrCatenaryLineBase::Initialize() {
+
+    if (!m_use_for_shape_initialization) {
+      // Building the catenary forces and adding them to bodies
+      if (!m_startingForce) {
+        m_startingForce = std::make_shared<FrCatenaryForce>(GetName() + "_start_force", m_startingNode->GetBody(), this,
+                                                            FrCatenaryLineBase::LINE_START);
+        auto starting_body = m_startingNode->GetBody();
+        starting_body->AddExternalForce(m_startingForce);
+      }
+
+      if (!m_endingForce) {
+        m_endingForce = std::make_shared<FrCatenaryForce>(GetName() + "_end_force", m_endingNode->GetBody(), this,
+                                                          FrCatenaryLineBase::LINE_END);
+        auto ending_body = m_endingNode->GetBody();
+        ending_body->AddExternalForce(m_endingForce);
+      }
+
+      FrCatenaryAssetOwner::Initialize();
+    }
+
+    FrCable::Initialize();
+  }
+
 //  FLUID_TYPE FrCatenaryLineBase::GetFluidType() const {
 //    auto environment = GetSystem()->GetEnvironment();
 //    auto start_fluid = environment->GetFluidTypeAtPointInWorld(m_startingNode->GetPositionInWorld(NWU), NWU, false);

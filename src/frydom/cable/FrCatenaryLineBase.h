@@ -76,16 +76,12 @@ namespace frydom {
       return m_endingForce;
     }
 
-//    FLUID_TYPE GetFluidType() const;
-
-//    void Initialize() = 0;
+    void Initialize() override;
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override = 0;
 
-//
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override = 0;
 
-//
     double GetUnstretchedLength() const override = 0;
 
     double GetTotalMass() const {
@@ -97,6 +93,11 @@ namespace frydom {
     }
 
     virtual void solve() = 0;
+
+   protected:
+    virtual void FirstGuess() = 0;
+
+//    void Initialize
 
 
    protected:

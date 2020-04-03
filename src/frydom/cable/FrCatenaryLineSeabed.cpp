@@ -72,29 +72,10 @@ namespace frydom {
     m_catenary_line->Initialize();
     BuildCache();
 
-    GuessLb();
+    FirstGuess();
     solve();
 
-    if (!m_use_for_shape_initialization) {
-      // Building the catenary forces and adding them to bodies
-      if (!m_startingForce) {
-        m_startingForce = std::make_shared<FrCatenaryForce>(GetName() + "_start_force", m_startingNode->GetBody(), this,
-                                                            FrCatenaryLineBase::LINE_START);
-        auto starting_body = m_startingNode->GetBody();
-        starting_body->AddExternalForce(m_startingForce);
-      }
-
-      if (!m_endingForce) {
-        m_endingForce = std::make_shared<FrCatenaryForce>(GetName() + "_end_force", m_endingNode->GetBody(), this,
-                                                          FrCatenaryLineBase::LINE_END);
-        auto ending_body = m_endingNode->GetBody();
-        ending_body->AddExternalForce(m_endingForce);
-      }
-
-      FrCatenaryAssetOwner::Initialize();
-    }
-
-    FrCable::Initialize();
+    FrCatenaryLineBase::Initialize();
 
   }
 
@@ -143,6 +124,8 @@ namespace frydom {
   }
 
   Position FrCatenaryLineSeabed::GetTouchDownPointPosition(FRAME_CONVENTION fc) const {
+    // TODO: voire si on prefere sortir la position du noeud (peut ne pas etre a jour) ou bien recalculer avec un
+    // GetPositionInWorld(m_Lb, fc)...
     return m_touch_down_node->GetPositionInWorld(fc);
   }
 
@@ -154,11 +137,65 @@ namespace frydom {
     return m_Lb;
   }
 
-  void FrCatenaryLineSeabed::solve() {
-// TODO
+  void FrCatenaryLineSeabed::solve() {  // TODO: voir a factoriser et mettre ce solveur dans la classe de base en templatant???
+
+    unsigned int iter = 0;
+
+    // Defining the linear solver
+    Eigen::FullPivLU<Eigen::Matrix4d> linear_solver;
+
+    Residue4 residue;
+    GetResidue(residue);
+    double err = residue.norm();
+
+    if (err < m_tolerance) {
+//      std::cout << "Already at equilibrium" << std::endl;
+      return;
+    }
+
+
+    // Essais de debug
+    Force t1_s = t(1.);
+    Force t1_c = m_catenary_line->t(1.); // FIXME: la valeur en x correspond mais pas en z !!!
+
+    Force tb_s = t_seabed(m_Lb);
+    Force tb_c = m_catenary_line->m_t0; // Petite diff en x mais la catenaire a une composante verticale positive... -> il faut diminuer Lb
+
+    // FIN essais de debug
+
+
+
+
+    while (iter < m_maxiter) {
+
+      iter++;
+
+      Jacobian44 jacobian;
+      GetJacobian(jacobian);
+
+      linear_solver.compute(jacobian);
+      Eigen::Vector4d correction = linear_solver.solve(-residue);
+
+//      m_catenary_line->m_t0 += correction.head(3);
+//      SetLb(m_Lb + correction(3));
+
+      GetResidue(residue);
+      err = residue.norm();
+
+      if (err < m_tolerance) {
+        break;
+      }
+
+    }
+
+    if (iter == m_maxiter) {
+      std::cout << "NO CONVERGENCE" << std::endl;
+    } else {
+      std::cout << "CONVERGENCE IN " << iter << std::endl;
+    }
   }
 
-  void FrCatenaryLineSeabed::Compute(double time) {
+  void FrCatenaryLineSeabed::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
   }
 
@@ -176,8 +213,7 @@ namespace frydom {
     m_catenary_line->SetUnstretchedLength((1. - Lb) * m_unstretchedLength);
   }
 
-  void FrCatenaryLineSeabed::GuessLb() {
-
+  void FrCatenaryLineSeabed::FirstGuess() {
 
     // We take for Lb as a first approximate the abscissae of the cable which is clipping the seabed
     auto seabed = GetSystem()->GetEnvironment()->GetOcean()->GetSeabed();
@@ -220,10 +256,12 @@ namespace frydom {
     }
 
     SetLb(sa / m_unstretchedLength);
-
     m_touch_down_node->SetPositionInWorld(GetPositionInWorld(sa, NWU), NWU);
 
     // Solving catenary line with this new starting node (TDP) and new unstreteched length
+    // FIXME: for speed, il semblerait qu'il soit mieux de refaire un guess pour la ligne catenaire plutot que de
+    //  repartir sur la solution precedente...
+//    m_catenary_line->FrCatenaryLineBase::FirstGuess(); // protected... --> ou peut faire une methode generique protected Guess dans la classe de base...
     m_catenary_line->solve();
 
   }
@@ -232,20 +270,33 @@ namespace frydom {
     c_qL = m_q * m_unstretchedLength;
   }
 
-  FrCatenaryLineSeabed::Jacobian44 FrCatenaryLineSeabed::GetJacobian() const {
+  void FrCatenaryLineSeabed::GetJacobian(Jacobian44 &jacobian) const {
 
-    // TODO
-    Jacobian44 jacobian;
+    mathutils::Matrix33<double> jac_dp_Lb_dt;
+    internal::JacobianBuilder::dp_dt(*this, *m_catenary_line, jac_dp_Lb_dt);
+    jacobian.topLeftCorner(3, 3) = jac_dp_Lb_dt;
 
-    FrCatenaryLine::Jacobian33 catenary_jacobian = m_catenary_line->GetJacobian();
+    mathutils::Vector3d<double> jac_dp_dLb;
+    internal::JacobianBuilder::dp_dLb(*this, *m_catenary_line, jac_dp_dLb);
+    jacobian.topRightCorner(3, 1) = jac_dp_dLb;
 
-//    FrCatenaryLine
+    jacobian.bottomLeftCorner(1, 3) = m_pi.transpose();
 
+    jacobian(3, 3) = 2;
 
   }
 
-  FrCatenaryLineSeabed::Residue4 FrCatenaryLineSeabed::GetResidue() const {
-    // TODO
+  void FrCatenaryLineSeabed::GetResidue(Residue4 &residue) const {
+
+    mathutils::Vector3d<double> cat_residue;
+    internal::JacobianBuilder::catenary_residue(*m_catenary_line, cat_residue);
+
+    double Lb_residue;
+    internal::JacobianBuilder::Lb_residue(*this, Lb_residue);
+
+    residue.head(3) = cat_residue;
+    residue(3) = Lb_residue;
+
   }
 
   Direction FrCatenaryLineSeabed::GetCatenaryPlaneIntersectionWithSeabed(FRAME_CONVENTION fc) const {
@@ -284,9 +335,8 @@ namespace frydom {
       // No tension in line at this position as there are too much friction on seabed from the Touch Down Point
       l = s;
     } else {
-      double lambda = (gama > 0.) ? gama : 0.;
-
-      l = s + 0.5 * m_Cb * c_qL / m_properties->GetEA() * (s * s - 2. * s * gama + gama * lambda);
+      double alpha = (gama > 0.) ? 1. : 0.;
+      l = s + 0.5 * m_Cb * c_qL / m_properties->GetEA() * (s * s - 2. * s * gama + alpha * gama * gama);
     }
 
     return l * GetCatenaryPlaneIntersectionWithSeabed(NWU);
@@ -351,7 +401,77 @@ namespace frydom {
   }
 
 
-}
+  namespace internal {
+
+    void JacobianBuilder::dp_dt(const FrCatenaryLineSeabed &sl,
+                                const FrCatenaryLine &cl,
+                                mathutils::Matrix33<double> &mat) {
+
+      mat = cl.GetJacobian();
+
+      double gama = sl.gamma();
+      Force tb = sl.t_seabed(sl.m_Lb); // TODO: mettre en cache
+
+      double a;
+      if (gama > 0.) {
+        a = sl.c_qL / (sl.m_properties->GetEA() * sl.m_Cb);
+      } else {
+        a = sl.c_qL * sl.m_Lb / (sl.m_properties->GetEA() * tb.norm());
+      }
+
+      mat += a * sl.GetCatenaryPlaneIntersectionWithSeabed(NWU) * tb.transpose();
+    }
+
+    void JacobianBuilder::dp_dLb(const FrCatenaryLineSeabed &sl,
+                                 const FrCatenaryLine &cl,
+                                 mathutils::Vector3d<double> &vec) {
+      double gama = sl.gamma();
+//      mathutils::Vector3d<double> res;
+      Direction ub = sl.GetCatenaryPlaneIntersectionWithSeabed(NWU); // TODO: mettre en cache
+      Force tb = sl.t_seabed(sl.m_Lb); // TODO: mettre en cache
+
+      double qL_EA = sl.c_qL / sl.m_properties->GetEA();
+
+      if (gama > 0.) {
+        vec = ub;
+      } else {
+        vec = (1. + qL_EA * (tb.norm() - sl.m_Cb * sl.m_Lb)) * ub;
+      }
+
+      Force t1 = cl.t(1.);
+      Force t1_n = t1.normalized();
+
+      vec -= (cl.m_pi.dot(t1_n)) * cl.m_pi;
+
+      if (!cl.IsSingular()) {
+        vec += cl.c_U * ((cl.m_t0 - cl.Fi(cl.N())) / cl.rho(cl.N(), 1.)) *
+               (cl.m_pi.transpose() * t1_n - 1.);
+      } else {
+        // Ne devrait jamais arriver...
+        std::cerr << "A line with seabed interaction should never become singular. Please contact developpers"
+                  << std::endl;
+      }
+
+      if (cl.m_elastic) {
+        vec -= qL_EA * t1;
+      }
+    }
+
+    void JacobianBuilder::catenary_residue(const FrCatenaryLine &cl, mathutils::Vector3d<double> &vec) {
+      vec = cl.GetResidue();
+    }
+
+    void JacobianBuilder::Lb_residue(const FrCatenaryLineSeabed &sl, double &scalar) {
+      scalar = sl.m_pi.transpose() * sl.t(1.) + sl.m_Lb - 1.;
+    }
+
+
+  }  // end namespace frydom::internal
+
+
+}  // end namespace frydom
+
+
 //
 //
 //  FrCatenaryLineSeabed::FrCatenaryLineSeabed(const std::string &name,

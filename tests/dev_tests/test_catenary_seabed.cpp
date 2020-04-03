@@ -12,6 +12,10 @@ int main() {
 
   system.GetEnvironment()->GetOcean()->GetSeabed()->SetBathymetry(-100, NWU);
   system.GetEnvironment()->GetOcean()->GetSeabed()->GetSeabedGridAsset()->SetGrid(-50, 600, 50, -50, 50, 50);
+  // FIXME: par defaut, le seabed semble off... Si on set une bathymetrie, il faudrait que ca l'active automatiquement...
+  system.GetEnvironment()->GetOcean()->ShowSeabed(true); // FIXME: on ne parvient plus a monter le seabed
+
+
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-50, 600, 50, -50, 50, 50);
 
 
