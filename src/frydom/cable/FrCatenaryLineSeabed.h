@@ -29,7 +29,9 @@ namespace frydom {
                          const FrCatenaryLine &cl,
                          mathutils::Vector3d<double> &vec);
 
-      static void catenary_residue(const FrCatenaryLine &cl, mathutils::Vector3d<double> &vec);
+      static void catenary_residue(const FrCatenaryLineSeabed &sl,
+                                   const FrCatenaryLine &cl,
+                                   mathutils::Vector3d<double> &vec);
 
       static void Lb_residue(const FrCatenaryLineSeabed &sl, double &scalar);
 
@@ -83,7 +85,7 @@ namespace frydom {
 
     void FirstGuess() override;
 
-    void BuildCache();
+    void BuildCache() override;
 
     double gamma() const;
 

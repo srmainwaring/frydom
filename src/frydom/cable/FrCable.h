@@ -218,8 +218,6 @@ namespace frydom {
             const std::shared_ptr<FrCableProperties> &properties,
             double unstretchedLength);
 
-//        /// Default destructor
-//        ~FrCable();
     void Initialize();
 
     //--------------------------------------------------------------------------------------------------------------
@@ -304,6 +302,10 @@ namespace frydom {
 
     /// Update the length of the cable if unrolling speed is defined.
     virtual void UpdateState();
+
+
+   protected:
+    virtual void BuildCache() = 0;
 
   };
 

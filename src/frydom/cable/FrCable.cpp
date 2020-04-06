@@ -142,6 +142,7 @@ namespace frydom {
 
   void FrCable::SetUnstretchedLength(double L) {
     m_unstretchedLength = L;
+    BuildCache();
   }
 
   double FrCable::GetUnstretchedLength() const {

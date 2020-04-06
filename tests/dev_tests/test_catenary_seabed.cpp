@@ -41,7 +41,7 @@ int main() {
   cable_properties->SetHydrodynamicDiameter(0.168);
   cable_properties->SetRayleighDamping(1e4);
 
-  double seabed_friction_coeff = 1.;
+  double seabed_friction_coeff = 3.;
 
   auto cable = make_catenary_line_seabed("cable",
                                          anchor,

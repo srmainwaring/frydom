@@ -156,7 +156,7 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
-    void BuildCache();
+    void BuildCache() override;
 
 
     // Friends declarations
@@ -165,11 +165,7 @@ namespace frydom {
 
     friend class internal::JacobianBuilder;
 
-    friend void FrCatenaryLineSeabed::solve();
-
-    // TODO: declarer toute la classe comme amie !
-//    friend Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION) const;
-//    friend void FrCatenaryLineSeabed::FirstGuess();
+    friend class FrCatenaryLineSeabed;
 
    private:
     Tension m_t0;
@@ -199,7 +195,7 @@ namespace frydom {
 //
 //
 //
-//  ////////////// ANCIEN CODE ---->
+//  ////////////// OLD CODE ---->
 //
 //
 //  // Forward declarations:

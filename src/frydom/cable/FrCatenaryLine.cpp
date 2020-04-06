@@ -9,8 +9,6 @@
 //
 // ==========================================================================
 
-#include <Eigen/Dense>
-
 #include "FrCatenaryLine.h"
 
 #include "frydom/core/common/FrNode.h"
@@ -145,7 +143,7 @@ namespace frydom {
     if (iter == m_maxiter) {
       std::cout << "NO CONVERGENCE" << std::endl;
     } else {
-      std::cout << "CONVERGENCE IN " << iter << std::endl;
+//      std::cout << "CONVERGENCE IN " << iter << std::endl;
     }
 
   }
@@ -159,6 +157,7 @@ namespace frydom {
     }
     pos++;
     m_point_forces.insert(pos, internal::PointForce(this, s, force));
+    BuildCache();
   }
 
   auto FrCatenaryLine::ti(const unsigned int &i, const double &s) const {
@@ -194,6 +193,7 @@ namespace frydom {
 
   unsigned int FrCatenaryLine::SToI(const double &s) const {
     assert(0. <= s && s <= 1.);
+    // This method has a cost that is linear with respect to the number of localized forces.
     for (unsigned int j = 1; j <= N(); j++) {
       if (s <= si(j)) return j - 1;
     }

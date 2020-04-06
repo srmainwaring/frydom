@@ -255,6 +255,9 @@ namespace frydom {
 
     void Relax() override;
 
+   protected:
+    void BuildCache() override {}
+
 
     // Friend definitions
 

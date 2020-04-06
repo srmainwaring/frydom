@@ -110,7 +110,9 @@ namespace frydom {
   }
 
   double FrCatenaryLineSeabed::gamma() const {
-    return m_Lb - t_TDP().norm() / m_Cb;
+//    return m_Lb - t_TDP().norm() / m_Cb; // FIXME: doit-on l'extraire de la ligne catenaire ou bien le calculer avec un t(m_Lb) ??
+    return m_Lb - t_TDP().dot(GetCatenaryPlaneIntersectionWithSeabed(NWU)) /
+                  m_Cb; // FIXME: on est en mode seabed, on ne prend normalement que la composante suivant uB
   }
 
   Position FrCatenaryLineSeabed::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
@@ -137,62 +139,149 @@ namespace frydom {
     return m_Lb;
   }
 
-  void FrCatenaryLineSeabed::solve() {  // TODO: voir a factoriser et mettre ce solveur dans la classe de base en templatant???
+  void
+  FrCatenaryLineSeabed::solve() {  // TODO: voir a factoriser et mettre ce solveur dans la classe de base en templatant???
 
-    unsigned int iter = 0;
+    // TODO: Essais de debug
 
-    // Defining the linear solver
-    Eigen::FullPivLU<Eigen::Matrix4d> linear_solver;
+    // Utiliser ces lignes pour faire du test unitaire !!!
 
-    Residue4 residue;
-    GetResidue(residue);
-    double err = residue.norm();
+    // Tension au touchdown
+    Force tb_s = t_seabed(m_Lb) * c_qL; // adim par L
+    Force tb_c = m_catenary_line->m_t0 * m_catenary_line->c_qL; // adim par L-Lb
+    // En z, tb_s est nul mais c'est normal.  ---- > OK !
 
-    if (err < m_tolerance) {
-//      std::cout << "Already at equilibrium" << std::endl;
+    // Quand on construit la matrice jacobienne et qu'on importe des infos de la partie catenaire, il faut readimensionnaliser
+    // par l'adimensionnalisation globale !!
+
+    // Position du touchdown
+    Position p_TDP_s = m_startingNode->GetPositionInWorld(NWU) + p(m_Lb) * m_unstretchedLength;
+    Position p_TDP_c = m_catenary_line->m_startingNode->GetPositionInWorld(NWU);
+    Position p_TDP_node = m_touch_down_node->GetPositionInWorld(NWU);
+    // C'est OK !!!
+
+    // Tension au fairlead
+    Force t1_s = t(1.) * c_qL;
+    Force t1_c = m_catenary_line->t(1.) *
+                 m_catenary_line->c_qL; // FIXME: la valeur en x est bonne mais erreur sur la valeur en z -> fixer !!
+    // C'est OK !!
+
+    Force t_400_s = GetTension(400, NWU);
+    Force t_400_c = m_catenary_line->GetTension(400 - m_Lb * m_unstretchedLength, NWU);
+    // C'est OK !!
+
+    // Position au fairlead
+    Position p_fairlead_node = m_endingNode->GetPositionInWorld(NWU);
+    Position p_fairlead_c = m_catenary_line->GetPositionInWorld(m_unstretchedLength - m_Lb * m_unstretchedLength, NWU);
+    Position p_fairlead_s = GetPositionInWorld(m_unstretchedLength, NWU);
+    // Ca semble OK !! c et s sont egaux, pas exactement sur le node mais certainement a la tolerance du solveur catenaire
+
+    // TODO: FIN essais de debug
+
+
+
+    // Checking the weight of the cable
+    double vertical_tension_at_fairlead = -m_catenary_line->m_pi.dot(GetTension(m_unstretchedLength, NWU));
+    double weight = (m_unstretchedLength - m_Lb * m_unstretchedLength) * m_q;
+
+    if (std::fabs(vertical_tension_at_fairlead - weight) / std::min(vertical_tension_at_fairlead, weight) < 1e-4) {
+//      std::cout << "already at equilibrium" << std::endl;
       return;
     }
 
 
-    // Essais de debug
-    Force t1_s = t(1.);
-    Force t1_c = m_catenary_line->t(1.); // FIXME: la valeur en x correspond mais pas en z !!!
 
-    Force tb_s = t_seabed(m_Lb);
-    Force tb_c = m_catenary_line->m_t0; // Petite diff en x mais la catenaire a une composante verticale positive... -> il faut diminuer Lb
+    Position pa = m_startingNode->GetPositionInWorld(NWU);
+    Direction ub = GetCatenaryPlaneIntersectionWithSeabed(NWU);
 
-    // FIN essais de debug
-
-
-
-
-    while (iter < m_maxiter) {
+    // Essai d'une dichotomie pour trouver le Lb...
+    double sa = 0.;
+    double sb = 1.;
+    int iter = 0;
+    while (std::fabs(sb - sa) > 1e-4) {
 
       iter++;
 
-      Jacobian44 jacobian;
-      GetJacobian(jacobian);
+      double sm = 0.5 * (sa + sb);
 
-      linear_solver.compute(jacobian);
-      Eigen::Vector4d correction = linear_solver.solve(-residue);
+      SetLb(sm);
+      Position pb = pa / m_unstretchedLength + sm * ub;
+      Position pb_prec;
 
-//      m_catenary_line->m_t0 += correction.head(3);
-//      SetLb(m_Lb + correction(3));
+      // Finding the correct position of the TDP
+//      for (int i = 0; i < 15; i++) {
+      int iter_tdp = 0;
+      while ((pb-pb_prec).norm() > 1e-4) {
+        pb_prec = pb;
+        iter_tdp++;
+        m_touch_down_node->SetPositionInWorld(pb * m_unstretchedLength, NWU);
+        m_catenary_line->FirstGuess();
+        m_catenary_line->solve();
+        pb = pa/m_unstretchedLength + p_seabed(sm);
+        // TODO: etablir un critere de convergence !!
 
-      GetResidue(residue);
-      err = residue.norm();
-
-      if (err < m_tolerance) {
-        break;
       }
 
+      double tbz = m_catenary_line->m_t0.z();
+
+      if (tbz > 0.) {
+        sb = sm;
+      } else if (tbz < 0.) {
+        sa = sm;
+      } else {
+        break;
+      }
     }
 
-    if (iter == m_maxiter) {
-      std::cout << "NO CONVERGENCE" << std::endl;
-    } else {
-      std::cout << "CONVERGENCE IN " << iter << std::endl;
-    }
+
+    // Les 2 valeurs doivent etre egales...
+
+
+
+
+
+
+//    unsigned int iter = 0;
+//
+//    // Defining the linear solver
+//    Eigen::FullPivLU<Eigen::Matrix4d> linear_solver;
+//
+//    Residue4 residue;
+//    GetResidue(residue);
+//    double err = residue.norm();
+//
+//    if (err < m_tolerance) {
+////      std::cout << "Already at equilibrium" << std::endl;
+//      return;
+//    }
+//
+//    while (iter < m_maxiter) {
+//
+//      iter++;
+//
+//      Jacobian44 jacobian;
+//      GetJacobian(jacobian);
+//
+//      linear_solver.compute(jacobian);
+//      Eigen::Vector4d correction = linear_solver.solve(-residue);
+//
+////      m_catenary_line->m_t0 += correction.head(3);
+////      SetLb(m_Lb + correction(3));
+//
+//      GetResidue(residue);
+//      err = residue.norm();
+//
+//      if (err < m_tolerance) {
+//        break;
+//      }
+//
+//    }
+//
+//    if (iter == m_maxiter) {
+//      std::cout << "NO CONVERGENCE" << std::endl;
+//    } else {
+//      std::cout << "CONVERGENCE IN " << iter << std::endl;
+//    }
   }
 
   void FrCatenaryLineSeabed::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
@@ -213,58 +302,7 @@ namespace frydom {
     m_catenary_line->SetUnstretchedLength((1. - Lb) * m_unstretchedLength);
   }
 
-  void FrCatenaryLineSeabed::FirstGuess() {
-
-    // We take for Lb as a first approximate the abscissae of the cable which is clipping the seabed
-    auto seabed = GetSystem()->GetEnvironment()->GetOcean()->GetSeabed();
-
-    // Necessary for the bisection algorithm not to converge to the anchor position which is by definition on seabed
-    double L = m_catenary_line->GetUnstretchedLength();
-    double ds = L * 1e-3 / L;
-    double sa = ds;
-
-    Position position = m_catenary_line->GetPositionInWorld(sa, NWU);
-    while (seabed->IsOnSeabed(position, NWU) ||
-           seabed->IsAboveSeabed(position, NWU)) {
-      sa += ds;
-      if (sa > L) {
-        event_logger::error(GetTypeName(), GetName(),
-                            "This line {} is declared to have seabed interaction but seems too taut to lie on seabed",
-                            GetName());
-        exit(EXIT_FAILURE);
-      }
-      position = m_catenary_line->GetPositionInWorld(sa, NWU);
-    }
-
-    // Intersection point searching using a bisection algorithm
-    double sb = L;
-    while (std::fabs(sb - sa) > 1e-6) {
-
-      double sm = 0.5 * (sa + sb);
-
-      Position Pa = m_catenary_line->GetPositionInWorld(sa, NWU);
-      double da = Pa.z() - seabed->GetBathymetry(Pa.x(), Pa.y(), NWU);
-
-      Position Pm = m_catenary_line->GetPositionInWorld(sm, NWU);
-      double dm = Pm.z() - seabed->GetBathymetry(Pm.x(), Pm.y(), NWU);
-
-      if (da * dm <= 0.) {
-        sb = sm;
-      } else {
-        sa = sm;
-      }
-    }
-
-    SetLb(sa / m_unstretchedLength);
-    m_touch_down_node->SetPositionInWorld(GetPositionInWorld(sa, NWU), NWU);
-
-    // Solving catenary line with this new starting node (TDP) and new unstreteched length
-    // FIXME: for speed, il semblerait qu'il soit mieux de refaire un guess pour la ligne catenaire plutot que de
-    //  repartir sur la solution precedente...
-//    m_catenary_line->FrCatenaryLineBase::FirstGuess(); // protected... --> ou peut faire une methode generique protected Guess dans la classe de base...
-    m_catenary_line->solve();
-
-  }
+  void FrCatenaryLineSeabed::FirstGuess() {}
 
   void FrCatenaryLineSeabed::BuildCache() {
     c_qL = m_q * m_unstretchedLength;
@@ -280,16 +318,16 @@ namespace frydom {
     internal::JacobianBuilder::dp_dLb(*this, *m_catenary_line, jac_dp_dLb);
     jacobian.topRightCorner(3, 1) = jac_dp_dLb;
 
-    jacobian.bottomLeftCorner(1, 3) = m_pi.transpose();
+    jacobian.bottomLeftCorner(1, 3) = -m_pi.transpose();
 
-    jacobian(3, 3) = 2;
+    jacobian(3, 3) = 0.;
 
   }
 
   void FrCatenaryLineSeabed::GetResidue(Residue4 &residue) const {
 
     mathutils::Vector3d<double> cat_residue;
-    internal::JacobianBuilder::catenary_residue(*m_catenary_line, cat_residue);
+    internal::JacobianBuilder::catenary_residue(*this, *m_catenary_line, cat_residue);
 
     double Lb_residue;
     internal::JacobianBuilder::Lb_residue(*this, Lb_residue);
@@ -314,7 +352,7 @@ namespace frydom {
   Position FrCatenaryLineSeabed::p(const double &s) const {
     assert(0. <= s && s <= 1.);
     Position position;
-    if (0. <= s && s <= m_Lb) {
+    if (0. <= s && s <= m_Lb) { // TODO: voir si on ne balance pas le cas Lb au catenaire...
       position = p_seabed(s);
     } else if (m_Lb < s && s <= 1.) {
       position = p_catenary(s);
@@ -336,7 +374,7 @@ namespace frydom {
       l = s;
     } else {
       double alpha = (gama > 0.) ? 1. : 0.;
-      l = s + 0.5 * m_Cb * c_qL / m_properties->GetEA() * (s * s - 2. * s * gama + alpha * gama * gama);
+      l = s + 0.5 * (m_Cb * c_qL / m_properties->GetEA()) * (s * s - 2. * s * gama + alpha * gama * gama);
     }
 
     return l * GetCatenaryPlaneIntersectionWithSeabed(NWU);
@@ -361,17 +399,19 @@ namespace frydom {
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t_seabed(const double &s) const {
     assert(0. <= s && s <= m_Lb);
-    double ts = t_TDP().norm() + m_Cb * (s - m_Lb);
+//    double ts = t_TDP().norm() + m_Cb * (s - m_Lb); // Bug ici... on ne prend pas la norme mais la projection sur ub
+    double ts = t_TDP().dot(GetCatenaryPlaneIntersectionWithSeabed(NWU)) + m_Cb * (s - m_Lb);
+
     return std::max(0., ts) * GetCatenaryPlaneIntersectionWithSeabed(NWU);
   }
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t_catenary(const double &s) const {
-    assert(m_Lb <= s && s <= 1.);
-    return m_catenary_line->GetTension(s - m_Lb, NWU) / c_qL;
+    assert(m_Lb <= s && s <= 1.); // FIXME: on ne fournit pas le bon s...
+    return m_catenary_line->GetTension((s - m_Lb) * m_unstretchedLength, NWU) / c_qL;
   }
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t_TDP() const {
-    Tension tb = m_catenary_line->GetTension(0., NWU) / c_qL;
+    Tension tb = m_catenary_line->GetTension(0., NWU) / c_qL; // On readimentionnalise
     if (tb.dot(Direction(0, 0, 1)) != 0.) {
 //      std::cerr << "Tension at touch down is not horizontal, line is not solved" << std::endl;
     }
@@ -407,7 +447,7 @@ namespace frydom {
                                 const FrCatenaryLine &cl,
                                 mathutils::Matrix33<double> &mat) {
 
-      mat = cl.GetJacobian();
+      mat = cl.GetJacobian();  // FIXME: renormaliser fonction de la longueur totale (* L_catenary / L_total un truc du genre...)
 
       double gama = sl.gamma();
       Force tb = sl.t_seabed(sl.m_Lb); // TODO: mettre en cache
@@ -457,12 +497,14 @@ namespace frydom {
       }
     }
 
-    void JacobianBuilder::catenary_residue(const FrCatenaryLine &cl, mathutils::Vector3d<double> &vec) {
-      vec = cl.GetResidue();
+    void JacobianBuilder::catenary_residue(const FrCatenaryLineSeabed &sl,
+                                           const FrCatenaryLine &cl,
+                                           mathutils::Vector3d<double> &vec) {
+      vec = cl.GetResidue() * cl.m_unstretchedLength / sl.m_unstretchedLength; // FIXME: verifier que c'est juste !
     }
 
     void JacobianBuilder::Lb_residue(const FrCatenaryLineSeabed &sl, double &scalar) {
-      scalar = sl.m_pi.transpose() * sl.t(1.) + sl.m_Lb - 1.;
+      scalar = sl.m_Lb - sl.m_pi.transpose() * sl.t(1.) - 1.;
     }
 
 

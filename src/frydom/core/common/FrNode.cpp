@@ -48,7 +48,7 @@ namespace frydom {
   void FrNode::Set(const Position &position, const Direction &e1, const Direction &e2, const Direction &e3,
                    FRAME_CONVENTION fc) {
 
-    mathutils::Matrix33<double> matrix;                 // FIXME : passer un FrRotation plutôt que matrix33
+    mathutils::Matrix33<double> matrix;   // FIXME : passer un FrRotation plutôt que matrix33
     matrix << e1.Getux(), e2.Getux(), e3.Getux(),
         e1.Getuy(), e2.Getuy(), e3.Getuy(),
         e1.Getuz(), e2.Getuz(), e3.Getuz();
@@ -91,8 +91,8 @@ namespace frydom {
   FrFrame FrNode::GetFrameInBody() const {
     auto frame = GetFrameWRT_COG_InBody();
 //        frame.SetPosition(frame.GetPosition(NWU) + m_body->GetCOG(NWU), NWU);
-    frame.TranslateInParent(GetBody()->GetCOG(NWU),
-                            NWU);  // TODO : comparer cette implementation a la ligne precendente...
+    frame.TranslateInParent(GetBody()->GetCOG(NWU), NWU);
+    // TODO : comparer cette implementation a la ligne precendente...
     return frame;
   }
 
@@ -224,7 +224,6 @@ namespace frydom {
   Position FrNode::GetNodePositionInBody(FRAME_CONVENTION fc) const {
     return GetFrameInBody().GetPosition(fc);
   }
-
 
   Position FrNode::GetPositionInWorld(FRAME_CONVENTION fc) const {
     return GetFrameInWorld().GetPosition(fc);

@@ -274,6 +274,8 @@ namespace frydom {
 //   private:
     void UpdateNodesMasses();
 
+   protected:
+    void BuildCache() override {}
 
    private:
     using NodeContainer = std::deque<std::shared_ptr<internal::FrLMNodeBase>>;
