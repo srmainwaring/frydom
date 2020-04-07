@@ -141,7 +141,8 @@ namespace frydom {
     }
 
     if (iter == m_maxiter) {
-      std::cout << "NO CONVERGENCE" << std::endl;
+      event_logger::warn(GetTypeName(), GetName(),
+                         "No convergence of the solver after {} max iterations", m_maxiter);
     } else {
 //      std::cout << "CONVERGENCE IN " << iter << std::endl;
     }
@@ -320,7 +321,8 @@ namespace frydom {
 
   void FrCatenaryLine::dpe_dt(Jacobian33 &jacobian) const {
     // FIXME: il semblerait qu'il manque un L !!!!! --> ben non en fait vu la diff dans la convergence... voir pourquoi j'ai pense ca...
-    jacobian += (m_q * m_unstretchedLength  / m_properties->GetEA()) * Eigen::Matrix3d::Identity(); // TODO: utiliser Eigen pour faire une matrice diag a partir du scalaire...
+    jacobian += (m_q * m_unstretchedLength / m_properties->GetEA()) *
+                Eigen::Matrix3d::Identity(); // TODO: utiliser Eigen pour faire une matrice diag a partir du scalaire...
   }
 
   FrCatenaryLine::Jacobian33 FrCatenaryLine::GetJacobian() const {
