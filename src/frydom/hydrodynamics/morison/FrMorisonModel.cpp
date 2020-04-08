@@ -66,7 +66,7 @@ namespace frydom {
   FrMorisonElement::FrMorisonElement() : m_node(nullptr), m_force(), m_torque(),
   m_includeCurrent(false), m_extendedModel(false), m_isImmerged(false),
   m_force_added_mass(), m_torque_added_mass(),
-  m_AM(6, 6) {}
+  m_AMInFrame(6, 6), m_AMInWorld(6, 6), m_AMInBody(6, 6) {}
 
   void FrMorisonElement::SetFrame(FrBody *body, Position posA, Position posB, Direction vect) {
 
@@ -118,10 +118,17 @@ namespace frydom {
 
   FrFrame FrMorisonElement::GetFrame() const { return m_node->GetFrameInWorld(); }
 
-  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAM() {
-    return m_AM;
+  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInFrame() {
+    return m_AMInFrame;
   }
 
+  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInBody() {
+    return m_AMInBody;
+  }
+
+  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInWorld() {
+    return m_AMInWorld;
+  }
 
   // ---------------------------------------------------------------------
   // MORISON SINGLE ELEMENT
@@ -221,45 +228,44 @@ namespace frydom {
     m_property.volume = MU_PI_4 * GetDiameter() * GetDiameter() * GetLength();
   }
 
-  void FrMorisonSingleElement::SetAM() {
 
-    m_AM.setZero();
+  void FrMorisonSingleElement::SetAMInFrame() {
+
+    m_AMInFrame.setZero();
 
     auto body = m_node->GetBody();
     auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
 
-    auto coeff = Vector3d<double>(m_property.ca.x, m_property.ca.y, 0.);
-    //auto coeffInBody = m_node->GetFrameInBody().ProjectVectorFrameInParent(coeff, NWU);
-    //auto relPos = m_node->GetNodePositionInBody(NWU) - body->GetCOG(NWU);
-    //auto coeffInBody = m_node->GetFrameInWorld().ProjectVectorFrameInParent(coeff, NWU);
-    //coeffInBody[0] = std::abs(coeffInBody[0]);
-    //coeffInBody[1] = std::abs(coeffInBody[1]);
-    //coeffInBody[2] = std::abs(coeffInBody[2]);
-    auto coeffInBody = Vector3d<double>(1., 0., 1.);
-    auto relPos = m_node->GetPositionInWorld(NWU) - body->GetCOGPositionInWorld(NWU);
-    /*
-    m_AM.insert(0, 0) =  coeffInBody[0];
-    m_AM.insert(0, 4) =  coeffInBody[0] * relPos[2];
-    m_AM.insert(0, 5) = -coeffInBody[0] * relPos[1];
-    m_AM.insert(1, 1) =  coeffInBody[1];
-    m_AM.insert(1, 3) = -coeffInBody[1] * relPos[2];
-    m_AM.insert(1, 5) =  coeffInBody[1] * relPos[0];
-    m_AM.insert(2, 2) =  coeffInBody[2];
-    m_AM.insert(2, 3) =  coeffInBody[2] * relPos[1];
-    m_AM.insert(2, 4) = -coeffInBody[2] * relPos[0];
-    */
-    m_AM(0, 0) =  coeffInBody[0];
-    m_AM(0, 4) =  coeffInBody[0] * relPos[2];
-    m_AM(0, 5) = -coeffInBody[0] * relPos[1];
-    m_AM(1, 1) =  coeffInBody[1];
-    m_AM(1, 3) = -coeffInBody[1] * relPos[2];
-    m_AM(1, 5) =  coeffInBody[1] * relPos[0];
-    m_AM(2, 2) =  coeffInBody[2];
-    m_AM(2, 3) =  coeffInBody[2] * relPos[1];
-    m_AM(2, 4) = -coeffInBody[2] * relPos[0];
+    auto ca = Vector3d<double>(m_property.ca.x, m_property.ca.y, 0.);
 
-    m_AM *= rho * GetVolume();
+    Position posInBody = m_node->GetNodePositionInBody(NWU) - body->GetCOG(NWU);
+    Position posInFrame = m_node->GetFrameInBody().ProjectVectorParentInFrame(posInBody, NWU);
 
+    m_AMInFrame(0, 0) =  ca[0];
+    m_AMInFrame(0, 4) =  ca[0] * posInFrame[2];
+    m_AMInFrame(0, 5) = -ca[0] * posInFrame[1];
+    m_AMInFrame(1, 1) =  ca[1];
+    m_AMInFrame(1, 3) = -ca[1] * posInFrame[2];
+    m_AMInFrame(1, 5) =  ca[1] * posInFrame[0];
+    //m_AM(2, 2) =  ca[2]; // = 0
+    //m_AM(2, 3) =  ca[2] * posInFrame[1];  // = 0
+    //m_AM(2, 4) = -ca[2] * posInFrame[0]; // = 0
+
+    m_AMInFrame *= rho * GetVolume();
+  }
+
+  void FrMorisonSingleElement::SetAMInBody() {
+    m_AMInBody.setZero();
+    auto matrix = m_node->GetFrameInBody().GetRotation().GetRotationMatrix();
+    m_AMInBody.block<3, 3>(0, 0) = matrix * m_AMInFrame.block<3, 3>(0, 0) * matrix.inverse();
+    m_AMInBody.block<3, 3>(0, 3) = matrix * m_AMInFrame.block<3, 3>(0, 3) * matrix.inverse();
+  }
+
+  void FrMorisonSingleElement::SetAMInWorld() {
+    m_AMInWorld.setZero();
+    auto matrix = m_node->GetFrameInWorld().GetRotation().GetRotationMatrix();
+    m_AMInWorld.block<3, 3>(0, 0) = matrix * m_AMInFrame.block<3, 3>(0, 0) * matrix.inverse();
+    m_AMInWorld.block<3, 3>(0, 3) = matrix * m_AMInFrame.block<3, 3>(0, 3) * matrix.inverse();
   }
 
   void FrMorisonSingleElement::CheckImmersion() {
@@ -366,35 +372,39 @@ namespace frydom {
     // Part the added mass term due to the body's angular speed (in world ref frame)
     if (m_extendedModel and m_isImmerged) {
 
-      SetAM();
-
       Vector3d<double> ca = {m_property.ca.x, m_property.ca.y, 0.};
-      Force forceAngSpeed;
 
-      AngularVelocity omega = body->GetAngularVelocityInWorld(NWU);
+      AngularVelocity omegaInWorld = body->GetAngularVelocityInWorld(NWU);
+      AngularVelocity omegaInFrame = m_node->GetFrameInWorld().ProjectVectorParentInFrame(omegaInWorld, NWU);
+
       Position relPosInWorld = m_node->GetPositionInWorld(NWU) - body->GetCOGPositionInWorld(NWU);
-      Vector3d<double> caInWorld = m_node->GetFrameInBody().ProjectVectorFrameInParent(ca, NWU);
-      caInWorld = body->GetFrame().ProjectVectorFrameInParent(caInWorld, NWU);
-      caInWorld[0] = std::abs(caInWorld[0]);
-      caInWorld[1] = std::abs(caInWorld[1]);
-      caInWorld[2] = std::abs(caInWorld[2]);
+      Position relPosInBody = m_node->GetNodePositionInBody(NWU) - body->GetCOG(NWU);
+      Position relPosInFrame = m_node->GetFrameInBody().ProjectVectorParentInFrame(relPosInBody, NWU);
 
-      //Vector3d<double> caInWorld(1., 0., 1.);
-      //forceAngSpeed = -cdInWorld * omega.cross(omega.cross(relPosInWorld));
-      forceAngSpeed = omega.cross(omega.cross(relPosInWorld));
-      forceAngSpeed = -rho * GetVolume() * caInWorld.cwiseProduct(forceAngSpeed);
-      m_force += forceAngSpeed;
-      localForce -= m_node->GetFrameInWorld().ProjectVectorParentInFrame(forceAngSpeed, NWU);
+      Force forceAngSpeedInFrame;
+      forceAngSpeedInFrame = omegaInFrame.cross(omegaInFrame.cross(relPosInFrame));
+      forceAngSpeedInFrame = -rho * GetVolume() * ca.cwiseProduct(forceAngSpeedInFrame);
+      m_force += m_node->GetFrameInWorld().ProjectVectorFrameInParent(forceAngSpeedInFrame, NWU);
+      localForce += forceAngSpeedInFrame;
     }
 
     //##CC Check extended model
     //auto angAcc = body->GetAngularAccelerationInBody(NWU);
     //auto linAcc = body->GetAccelerationInBody(NWU);
-    auto angAcc = body->GetAngularAccelerationInWorld(NWU);
-    auto linAcc = body->GetLinearAccelerationInWorld(NWU);
-    GeneralizedAcceleration genAcc(linAcc, angAcc);
 
-    Vector6d<double> forceAM = m_AM * genAcc;
+    SetAMInWorld();
+
+    // -- In World
+    //auto angAcc = body->GetAngularAccelerationInWorld(NWU);
+    //auto linAcc = body->GetLinearAccelerationInWorld(NWU);
+    //GeneralizedAcceleration genAcc(linAcc, angAcc);
+    //Vector6d<double> forceAM = m_AMInWorld * genAcc;
+    // -- In body
+    auto angAcc = body->GetAngularAccelerationInBody(NWU);
+    auto linAcc = body->GetAccelerationInBody(NWU);
+    GeneralizedAcceleration genAcc(linAcc, angAcc);
+    Vector6d<double> forceAM = m_AMInBody * genAcc;
+
     m_force -= Vector3d<double>(forceAM[0], forceAM[1], forceAM[2]);
     m_force /= (-rho * GetVolume());
     //##CC
@@ -414,7 +424,8 @@ namespace frydom {
     SetVolume();  // FIXME : interpolation lineaire a mettre en place ?
 
     if (m_extendedModel) {
-      SetAM();
+      SetAMInFrame();
+      SetAMInBody();
     }
   }
 
@@ -562,15 +573,15 @@ namespace frydom {
 
   }
 
-  const Eigen::Matrix<double, 6, 6>& FrMorisonCompositeElement::GetAM() {
-    m_AM.setZero();
-    for (auto& element: m_morison) {
-      if (element->IsImmerged()) {
-        m_AM += element->GetAM();
-      }
-    }
-    return m_AM;
-
-  }
+  //const Eigen::Matrix<double, 6, 6>& FrMorisonCompositeElement::GetAM() {
+  //  m_AMInW.setZero();
+  //  for (auto& element: m_morison) {
+  //    if (element->IsImmerged()) {
+  //      m_AM += element->GetAM();
+  //    }
+  //  }
+  //  return m_AM;
+//
+  //}
 
 }  // end namespace frydom

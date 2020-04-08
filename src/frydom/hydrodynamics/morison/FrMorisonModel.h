@@ -59,7 +59,10 @@ namespace frydom {
     Torque m_torque_added_mass;
 
     bool m_isImmerged;
-    Eigen::Matrix<double, 6, 6> m_AM; // FIXME : modifier type et nom
+
+    Eigen::Matrix<double, 6, 6> m_AMInFrame; // FIXME : modifier type et nom
+    Eigen::Matrix<double, 6, 6> m_AMInBody;
+    Eigen::Matrix<double, 6, 6> m_AMInWorld;
 
    public:
     FrMorisonElement();
@@ -108,7 +111,11 @@ namespace frydom {
 
     bool IsExtendedModel() const { return m_extendedModel; }
 
-    virtual const Eigen::Matrix<double, 6, 6>& GetAM();
+    virtual const Eigen::Matrix<double, 6, 6>& GetAMInFrame();
+
+    virtual const Eigen::Matrix<double, 6, 6>& GetAMInBody();
+
+    virtual const Eigen::Matrix<double, 6, 6>& GetAMInWorld();
 
     bool IsImmerged() const { return m_isImmerged; }
 
@@ -290,7 +297,11 @@ namespace frydom {
     /// Set volume of the morison element
     void SetVolume();
 
-    void SetAM();
+    void SetAMInFrame();
+
+    void SetAMInBody();
+
+    void SetAMInWorld();
 
     void CheckImmersion();
 
@@ -425,7 +436,7 @@ namespace frydom {
     /// \return Added mass
     MorisonCoeff GetAddedMass() const { return m_property.ca; }
 
-    const Eigen::Matrix<double, 6, 6>& GetAM() override;
+    //const Eigen::Matrix<double, 6, 6>& GetAMInWorld() override;
 
     //
     // UPDATE
