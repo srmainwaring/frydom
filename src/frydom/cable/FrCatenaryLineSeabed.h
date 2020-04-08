@@ -85,6 +85,8 @@ namespace frydom {
 
     void FirstGuess() override;
 
+    int SolveTDPPosition();
+
     void BuildCache() override;
 
     double gamma() const;

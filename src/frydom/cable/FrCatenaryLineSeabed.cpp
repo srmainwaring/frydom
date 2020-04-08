@@ -37,6 +37,7 @@ namespace frydom {
     // Creating the touchdown point node
     m_touch_down_node = GetSystem()->GetWorldBody()->NewNode(name + "_TouchDownPoint");
 
+
     m_catenary_line = std::make_unique<FrCatenaryLine>(
         name + "catenary_part",
         m_touch_down_node,
@@ -189,9 +190,19 @@ namespace frydom {
       return;
     }
 
+    // Testing if
+    double sa, sb;
+    double tbz = m_catenary_line->m_t0.z();
+    if (tbz > 0.) {
+      sa = 0.;
+      sb = m_Lb;
+    } else {
+      sa = m_Lb;
+      sb = 1.;
+    }
 
-    Position pa = m_startingNode->GetPositionInWorld(NWU);
-    Direction ub = GetCatenaryPlaneIntersectionWithSeabed(NWU);
+//    Position pa = m_startingNode->GetPositionInWorld(NWU);
+//    Direction ub = GetCatenaryPlaneIntersectionWithSeabed(NWU);
 
     // TODO: plutot que de prendre a chaque fois 0 et 1 comme bornes dans la dichotomie, il conviendrait de s'appuyer
     // sur la valeur courante de Lb... On pourra prendre les bornes 0 et 1 dans un appel a first guess...
@@ -199,8 +210,8 @@ namespace frydom {
 
 
     // Essai d'une dichotomie pour trouver le Lb...
-    double sa = 0.;
-    double sb = 1.;
+//    double sa = 0.;
+//    double sb = 1.;
     int iter_Lb = 0;
     while (std::fabs(sb - sa) / std::min(sb, sa) > 1e-4) {
 
@@ -216,28 +227,29 @@ namespace frydom {
       double sm = 0.5 * (sa + sb);
 
       SetLb(sm);
-      Position position_TDP = pa / m_unstretchedLength + sm * ub;
-      Position position_TDP_prec;
+      SolveTDPPosition();
+//      Position position_TDP = pa / m_unstretchedLength + sm * ub;
+//      Position position_TDP_prec;
+//
+//      // Finding the correct position of the TDP
+//      int iter_tdp = 0;
+//      while ((position_TDP - position_TDP_prec).norm() > 1e-4) {
+//        position_TDP_prec = position_TDP;
+//        iter_tdp++;
+//        if (iter_tdp == m_maxiter) {
+//          event_logger::warn(GetTypeName(), GetName(),
+//                             "Failed to find the Touchdown Point position in {} max iterations", m_maxiter);
+//          break;
+//        }
+//        m_touch_down_node->SetPositionInWorld(position_TDP * m_unstretchedLength, NWU);
+//        m_catenary_line->FirstGuess();
+//        m_catenary_line->solve();
+//        position_TDP = pa / m_unstretchedLength + p_seabed(sm);
+//        // TODO: etablir un critere de convergence !!
+//
+//      }
 
-      // Finding the correct position of the TDP
-      int iter_tdp = 0;
-      while ((position_TDP - position_TDP_prec).norm() > 1e-4) {
-        position_TDP_prec = position_TDP;
-        iter_tdp++;
-        if (iter_tdp == m_maxiter) {
-          event_logger::warn(GetTypeName(), GetName(),
-                             "Failed to find the Touchdown Point position in {} max iterations", m_maxiter);
-          break;
-        }
-        m_touch_down_node->SetPositionInWorld(position_TDP * m_unstretchedLength, NWU);
-        m_catenary_line->FirstGuess();
-        m_catenary_line->solve();
-        position_TDP = pa / m_unstretchedLength + p_seabed(sm);
-        // TODO: etablir un critere de convergence !!
-
-      }
-
-      double tbz = m_catenary_line->m_t0.z();
+      tbz = m_catenary_line->m_t0.z();
 
       if (tbz > 0.) {
         sb = sm;
@@ -311,7 +323,36 @@ namespace frydom {
     m_catenary_line->SetUnstretchedLength((1. - Lb) * m_unstretchedLength);
   }
 
-  void FrCatenaryLineSeabed::FirstGuess() {}
+  void FrCatenaryLineSeabed::FirstGuess() {
+    double Lb_guessed = 0.5;
+    SetLb(Lb_guessed);
+    SolveTDPPosition();
+  }
+
+  int FrCatenaryLineSeabed::SolveTDPPosition() {
+    Position pa = m_startingNode->GetPositionInWorld(NWU) / m_unstretchedLength;
+    Direction ub = GetCatenaryPlaneIntersectionWithSeabed(NWU);
+
+    Position p_TDP = pa + m_Lb * ub;
+    Position p_TDP_prec = pa;
+
+    int iter = 0;
+    while ((p_TDP - p_TDP_prec).norm() > 1e-4) {
+      p_TDP_prec = p_TDP;
+      iter++;
+      if (iter == m_maxiter) {
+        event_logger::warn(GetTypeName(), GetName(),
+                           "Failed to find the Touchdown Point position in {} max iterations", m_maxiter);
+        break;
+      }
+      m_touch_down_node->SetPositionInWorld(p_TDP*m_unstretchedLength, NWU);
+      m_catenary_line->FirstGuess();
+      m_catenary_line->solve();
+      p_TDP = pa + p_seabed(m_Lb);
+    }
+
+    return iter;
+  }
 
   void FrCatenaryLineSeabed::BuildCache() {
     c_qL = m_q * m_unstretchedLength;

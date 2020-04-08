@@ -70,6 +70,7 @@ namespace frydom {
 
     Position anchor_position = {x, y, GetBathymetry(x, y, fc)};
 
+    // FIXME: plutot permettre d'ajouter des asset sur les FrNode !! Du coup, on ne cree pas de nouveau corps pour visualiser.
     auto anchor_body = m_ocean->GetEnvironment()->GetSystem()->NewBody(name + "_body");
     anchor_body->SetPosition(anchor_position, fc);
     makeItBox(anchor_body, 1, 1, 1, 1);
