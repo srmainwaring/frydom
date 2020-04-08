@@ -7,6 +7,7 @@ set(REFACTORING_TESTS
         test_FrFunction
         test_FrFileSystem
         test_spdlog
+        test_MorisonExtended
         )
 
 foreach (test ${REFACTORING_TESTS})

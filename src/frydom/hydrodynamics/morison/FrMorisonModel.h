@@ -14,6 +14,7 @@
 #define FRYDOM_FRMORISONMODEL_H
 
 #include <memory>
+#include <Eigen/Sparse> // FIXME : a passer dans mathutils ?
 
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrFrame.h"
@@ -52,9 +53,17 @@ namespace frydom {
     Torque m_torque;                    ///< Torque at COG of the body in body-coordinates
 
     bool m_includeCurrent;              ///< Include current flow in morison element model
-    bool m_extendedModel = false;                   ///< If true the inertial component of the morison force is used (false by dafault)
+
+    bool m_extendedModel;                   ///< If true the inertial component of the morison force is used (false by dafault)
+    Force m_force_added_mass;
+    Torque m_torque_added_mass;
+
+    bool m_isImmerged;
+    Eigen::Matrix<double, 6, 6> m_AM; // FIXME : modifier type et nom
 
    public:
+    FrMorisonElement();
+
     /// Set the local frame of the morison model from node positions
     /// \param body Body to which the frame is attached
     /// \param posA Position of the first extremity of the morison element
@@ -84,6 +93,11 @@ namespace frydom {
     /// \return Torque vector
     Torque GetTorqueInBody() const;
 
+    /// Get
+    Force GetForceAddedMassInWorld(FRAME_CONVENTION fc) const;
+
+    Torque GetTorqueAddedMassInWorld() const;
+
     /// Include current flow in the morison model
     /// \param includeCurrent Boolean, if true the current is included in morison model
     virtual void SetIncludeCurrent(bool includeCurrent) { m_includeCurrent = includeCurrent; }
@@ -91,6 +105,12 @@ namespace frydom {
     /// Defines if the inertial component with added mass is used (false by default)
     /// \param extendedModel Boolean, if true inertial component is used
     void SetExtendedModel(bool extendedModel) { m_extendedModel = extendedModel; }
+
+    bool IsExtendedModel() const { return m_extendedModel; }
+
+    virtual const Eigen::Matrix<double, 6, 6>& GetAM();
+
+    bool IsImmerged() const { return m_isImmerged; }
 
     /// Update the force of the morison model
     /// \param time Current time of the simulation from begining (in seconds)
@@ -101,6 +121,8 @@ namespace frydom {
 
     /// Method to be applied at the end of each time step
     virtual void StepFinalize() = 0;
+
+    virtual void ComputeForceAddedMass() = 0;
 
   };
 
@@ -252,6 +274,8 @@ namespace frydom {
     /// Methods to be applied at the end of each time step
     void StepFinalize() override;
 
+    void ComputeForceAddedMass() override;
+
    protected:
 
     /// Set length of the morison element from node positions
@@ -265,6 +289,10 @@ namespace frydom {
 
     /// Set volume of the morison element
     void SetVolume();
+
+    void SetAM();
+
+    void CheckImmersion();
 
     /// Get the relative flow velocity at frame position in local frame
     /// \return  Flow velocity
@@ -397,6 +425,8 @@ namespace frydom {
     /// \return Added mass
     MorisonCoeff GetAddedMass() const { return m_property.ca; }
 
+    const Eigen::Matrix<double, 6, 6>& GetAM() override;
+
     //
     // UPDATE
     //
@@ -410,6 +440,8 @@ namespace frydom {
 
     /// Methods to be applied at the end of each time step of the simulation
     void StepFinalize() override {}
+
+    void ComputeForceAddedMass() override;
   };
 
 }  // end namespace frydom
