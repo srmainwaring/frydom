@@ -556,6 +556,7 @@ namespace frydom {
         m_torque_added_mass += element->GetTorqueAddedMassInWorld();
       }
     }
+
   }
 
 }  // end namespace frydom

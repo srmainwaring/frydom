@@ -41,9 +41,10 @@ if (NOT GeographicLib_FOUND)
     message(STATUS ${magneticmodel_SOURCE_DIR})
     message(STATUS ${magneticmodel_BINARY_DIR})
 
+    ## FIXME : erreur de chargement de magnetic model a fixer
     if(NOT magneticmodel_POPULATED)
         message(STATUS "Downloading, Configuring and Generating magnetic models for 'GeographicLib' dependency")
-        FetchContent_Populate(MagneticModel)
+        #FetchContent_Populate(MagneticModel)
 
         # GeographicLib BUILD OPTIONS
         #set(GEOGRAPHICLIB_LIB_TYPE SHARED)
