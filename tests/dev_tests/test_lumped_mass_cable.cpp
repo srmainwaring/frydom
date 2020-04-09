@@ -11,10 +11,11 @@ int main() {
 
   FrOffshoreSystem system("test_lumped_mass_cable");
 
-  system.GetEnvironment()->GetOcean()->ShowSeabed(true);
+  auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
+  seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
-  system.GetEnvironment()->GetOcean()->GetSeabed()->SetBathymetry(-100, NWU);
-  system.GetEnvironment()->GetOcean()->GetSeabed()->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
+  seabed->SetBathymetry(-100, NWU);
+  seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-500, 500, 500, -50, 50,
@@ -25,21 +26,24 @@ int main() {
 
   auto world_body = system.GetWorldBody();
 
+
+//  auto anchor = seabed->NewAnchor("anchor", -500., 0., NWU);
   auto anchor = world_body->NewNode("anchor");
+  anchor->SetPositionInWorld({-500, 0, -100}, NWU);
 
 
   auto sphere = system.NewBody("sphere");
   makeItSphere(sphere, 1, 1000);
-  sphere->SetPosition({500, 0., -100.}, NWU);
+  sphere->SetPosition({0., 0., 0.}, NWU);
   sphere->SetFixedInWorld(true);
 
 
   auto cylinder_anchor = sphere->NewNode("cylinder_anchor");
 
 //  double cable_length = 64 + 425;
-  double cable_length = 64 + 425 +30; // Adding more length...
+  double cable_length = 64 + 425 + 30; // Adding more length...
 //  double cable_length = 515;
-  int nb_elements = 20; // TODO: voir dans quelle mesure on peut augmenter la discretisation
+  int nb_elements = 2; // TODO: voir dans quelle mesure on peut augmenter la discretisation
 
 
   auto cable_properties = make_cable_properties();
@@ -49,7 +53,19 @@ int main() {
       141); // FIXME: submerged weight = 122... Comment le prendre en compte comme cela ??? --> trouver un diametre equivalent...
   cable_properties->SetDiameter(0.168); // Vrai valeur
   //  cable_properties->SetEA(602.59e6); // Vrai valeur // FIXME: EA est systematiquement calcule alors que c'est ca qu'on veut...
-  cable_properties->SetYoungModulus(602.58e6 / cable_properties->GetSectionArea());
+  cable_properties->SetYoungModulus(602.59e6 / cable_properties->GetSectionArea());
+  cable_properties->SetDragCoefficients(1.2, 0.);
+  cable_properties->SetAddedMassCoefficients(2, 0.);
+  cable_properties->SetHydrodynamicDiameter(0.168);
+  cable_properties->SetRayleighDamping(1e4);
+
+
+
+  // FIXME: submerged weight = 122... Comment le prendre en compte comme cela ??? --> trouver un diametre equivalent...
+  cable_properties->SetLinearDensity(122);
+  cable_properties->SetDiameter(0.168); // Vrai valeur
+  //  cable_properties->SetEA(602.59e6); // Vrai valeur // FIXME: EA est systematiquement calcule alors que c'est ca qu'on veut...
+  cable_properties->SetYoungModulus(602.59e4 / cable_properties->GetSectionArea());
   cable_properties->SetDragCoefficients(1.2, 0.);
   cable_properties->SetAddedMassCoefficients(2, 0.);
   cable_properties->SetHydrodynamicDiameter(0.168);
@@ -63,7 +79,11 @@ int main() {
 //  auto cable_properties = make_cable_properties(diameter, linear_density, E, rayleighDamping);
 
   auto cat_cable = make_catenary_line("catenary_cable", anchor, cylinder_anchor,
-                                      cable_properties, true, cable_length); // TODO: devrait y avoir une detection auto du fluide...
+                                      cable_properties, true, cable_length,
+                                      AIR); // TODO: devrait y avoir une detection auto du fluide...
+
+  auto cat_seabed_cable = make_catenary_line_seabed("catenary_cable_seabed", anchor, cylinder_anchor, cable_properties,
+                                                    true, cable_length, WATER, 1.);
 
   auto cable = FrLumpedMassCable("cable",
                                  anchor,
@@ -74,7 +94,7 @@ int main() {
 
   cable.UpdateNodesMasses();
 
-  cable.SetSpeedLimit(10);
+  cable.SetSpeedLimit(1.);
   cable.ActivateSpeedLimit(true);
 
 
@@ -90,7 +110,7 @@ int main() {
 
   system.Initialize();
 
-  system.SetTimeStep(1e-2);
+  system.SetTimeStep(1e-8);
   system.RunInViewer();
 
   return 0;

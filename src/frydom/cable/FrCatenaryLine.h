@@ -82,11 +82,21 @@ namespace frydom {
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
+    Direction GetTangent(const double s, FRAME_CONVENTION fc) const override;
+
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
 
     double GetUnstretchedLength() const override;
 
     void solve() override;
+
+    bool HasSeabedInteraction() const override;
+
+    void GetLowestPoint(Position &position,
+                        double &s,
+                        FRAME_CONVENTION fc,
+                        const double tol,
+                        const unsigned int maxIter) const override;
 
     using Residue3 = mathutils::Vector3d<double>;
     using Jacobian33 = mathutils::Matrix33<double>;

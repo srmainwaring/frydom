@@ -80,6 +80,8 @@ namespace frydom {
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override = 0;
 
+    virtual Direction GetTangent(const double s, FRAME_CONVENTION fc) const = 0;
+
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override = 0;
 
     double GetUnstretchedLength() const override = 0;
@@ -88,9 +90,14 @@ namespace frydom {
       return GetUnstretchedLength() * m_properties->GetLinearDensity();
     }
 
-    virtual bool HasSeabedInteraction() const {
-      // TODO
-    }
+    virtual bool HasSeabedInteraction() const = 0;
+
+    /// Get the lagrangian coordinate and the position of the lowest point on the line by bisection algorithm
+    virtual void GetLowestPoint(Position &position,
+                                double &s,
+                                FRAME_CONVENTION fc,
+                                const double tol,
+                                const unsigned int maxIter) const = 0;
 
     virtual void solve() = 0;
 

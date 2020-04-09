@@ -107,15 +107,13 @@ namespace frydom {
   }
 
   void FrOcean::ShowSeabed(bool showSeabed) {
-    if (!showSeabed) {
-      m_seabed->DontShow();
-    }
+    m_seabed->Show(showSeabed);
   }
 
   void FrOcean::ShowFreeSurface(bool showFreeSurface) {
     m_freeSurface->Show(showFreeSurface);
   }
 
-  void FrOcean::SetInfiniteDepth() { ShowSeabed(false); }
+  void FrOcean::SetInfiniteDepth() { m_seabed->Show(false); }
 
 }  // end namespace frydom

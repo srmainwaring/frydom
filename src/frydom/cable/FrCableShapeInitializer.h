@@ -35,6 +35,8 @@ namespace frydom {
 
   class FrCatenaryLine;
 
+  class FrCatenaryLineSeabed;
+
   namespace internal {
 
     class FrCableShapeInitializerTaut : public FrCableShapeInitializer {
@@ -68,12 +70,7 @@ namespace frydom {
 
      private:
       FrEnvironment *m_environment;
-
-      Position m_origin_position;
-      Position m_touch_down_point_position;
-      Direction m_horizontal_direction;
-      Direction m_raising_direction;
-      double m_lying_distance;
+      std::unique_ptr<FrCatenaryLineSeabed> m_catenary_line_seabed;
 
       bool m_reversed;
 

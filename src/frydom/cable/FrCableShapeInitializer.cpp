@@ -48,8 +48,9 @@ namespace frydom {
 
       if (catenary_line->HasSeabedInteraction()) {
         // Slack with seabed interactions
-//        return std::make_unique<internal::FrCableShapeInitializerSlackSeabed>(cable, environment); // FIXME: reactiver !!
-        return std::make_unique<internal::FrCableShapeInitializerSlack>(cable, std::move(catenary_line));
+        return std::make_unique<internal::FrCableShapeInitializerSlackSeabed>(cable,
+                                                                              environment); // FIXME: reactiver !!
+//        return std::make_unique<internal::FrCableShapeInitializerSlack>(cable, std::move(catenary_line));
 
       } else {
         // Only slack
@@ -121,45 +122,66 @@ namespace frydom {
         assert(false); // Pas pris en charge !!!
       }
 
-      m_origin_position = origin_node->GetPositionInWorld(NWU);
-      Position final_position = final_node->GetPositionInWorld(NWU);
+      auto ocean = environment->GetOcean();
+      auto fluid_type = FLUID_TYPE::AIR;
+      if (ocean->GetFreeSurface()->IsInWater(origin_node->GetPositionInWorld(NWU), NWU) ||
+          ocean->GetFreeSurface()->IsInWater(final_node->GetPositionInWorld(NWU), NWU)) {
+        fluid_type = FLUID_TYPE::WATER;
+      }
 
-      m_horizontal_direction = final_position - m_origin_position;
-      double vertical_spreading = m_horizontal_direction.z(); // d
+      // FIXME: pour le moment, le frottement n'est pas reglable et est nul... (en plus d'etre code en dur)
+      double seabed_friction_coeff = 1.;
 
-      m_horizontal_direction.z() = 0.;
-      double horizontal_spreading = m_horizontal_direction.norm(); // h
+      m_catenary_line_seabed = std::make_unique<FrCatenaryLineSeabed>("initialize",
+                                                                      origin_node,
+                                                                      final_node,
+                                                                      cable->GetCableProperties(),
+                                                                      true,
+                                                                      cable->GetUnstretchedLength(),
+                                                                      fluid_type,
+                                                                      seabed_friction_coeff);
+      m_catenary_line_seabed->UseForShapeInitialization(true);
+      m_catenary_line_seabed->Initialize();
 
-      m_horizontal_direction.normalize();
-
-      double L = m_cable->GetUnstretchedLength();
-      m_lying_distance = 0.5 * (L + horizontal_spreading -
-          (vertical_spreading * vertical_spreading) / (L - horizontal_spreading));
-
-      m_touch_down_point_position = m_origin_position + m_lying_distance * m_horizontal_direction;
-
-      m_raising_direction = (final_position - m_touch_down_point_position).normalized();
+//      m_origin_position = origin_node->GetPositionInWorld(NWU);
+//      Position final_position = final_node->GetPositionInWorld(NWU);
+//
+//      m_horizontal_direction = final_position - m_origin_position;
+//      double vertical_spreading = m_horizontal_direction.z(); // d
+//
+//      m_horizontal_direction.z() = 0.;
+//      double horizontal_spreading = m_horizontal_direction.norm(); // h
+//
+//      m_horizontal_direction.normalize();
+//
+//      double L = m_cable->GetUnstretchedLength();
+//      m_lying_distance = 0.5 * (L + horizontal_spreading -
+//          (vertical_spreading * vertical_spreading) / (L - horizontal_spreading));
+//
+//      m_touch_down_point_position = m_origin_position + m_lying_distance * m_horizontal_direction;
+//
+//      m_raising_direction = (final_position - m_touch_down_point_position).normalized();
 
     }
 
     Position FrCableShapeInitializerSlackSeabed::GetPosition(const double &s, FRAME_CONVENTION fc) const {
       assert(0. <= s <= m_cable->GetUnstretchedLength());
-
-      double stmp;
-      if (m_reversed)
-        stmp = m_cable->GetUnstretchedLength() - s;
-      else {
-        stmp = s;
-      }
-
-      Position position;
-      if (stmp <= m_lying_distance) {
-        position = m_origin_position + stmp * m_horizontal_direction;
-      } else {
-        position = m_touch_down_point_position + (stmp - m_lying_distance) * m_raising_direction;
-      }
-
-      return position;
+      return m_catenary_line_seabed->GetPositionInWorld(s, fc);
+//      double stmp;
+//      if (m_reversed)
+//        stmp = m_cable->GetUnstretchedLength() - s;
+//      else {
+//        stmp = s;
+//      }
+//
+//      Position position;
+//      if (stmp <= m_lying_distance) {
+//        position = m_origin_position + stmp * m_horizontal_direction;
+//      } else {
+//        position = m_touch_down_point_position + (stmp - m_lying_distance) * m_raising_direction;
+//      }
+//
+//      return position;
     }
 
   }  // end namespace frydom::internal

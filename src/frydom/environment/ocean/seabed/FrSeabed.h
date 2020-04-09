@@ -56,7 +56,7 @@ namespace frydom {
     /// \return seabed grid asset
     virtual FrSeabedGridAsset *GetSeabedGridAsset() = 0;
 
-    virtual void DontShow() = 0;
+    virtual void Show(bool val) = 0;
 
     //---------------------------- Seabed elements Getters ----------------------------//
 
@@ -190,7 +190,7 @@ namespace frydom {
     /// \return seabed grid asset
     FrSeabedGridAsset *GetSeabedGridAsset() override;
 
-    void DontShow() override;
+    void Show(bool val) override;
 
     //---------------------------- Seabed elements Getters ----------------------------//
 

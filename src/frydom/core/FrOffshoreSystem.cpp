@@ -1370,6 +1370,10 @@ namespace frydom {
       AddPhysicsItem(catenary_line, catenary_line->GetChronoPhysicsItem());
       m_pathManager->RegisterTreeNode(catenary_line.get());
 
+    } else if (auto catenary_line_seabed = std::dynamic_pointer_cast<FrCatenaryLineSeabed>(item)) {
+      AddPhysicsItem(catenary_line_seabed, catenary_line_seabed->GetChronoPhysicsItem());
+      m_pathManager->RegisterTreeNode(catenary_line_seabed.get());
+
     } else if (auto equilibrium_frame = std::dynamic_pointer_cast<FrEquilibriumFrame>(item)) {
       AddPhysicsItem(equilibrium_frame, equilibrium_frame->GetChronoPhysicsItem());
       m_pathManager->RegisterTreeNode(equilibrium_frame.get());

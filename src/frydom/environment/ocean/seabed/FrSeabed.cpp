@@ -143,9 +143,13 @@ namespace frydom {
     m_SeabedGridAsset = std::make_shared<FrSeabedGridAsset>(this);
   }
 
-  void FrFlatSeabed::DontShow() {
-    m_SeabedGridAsset = nullptr;
-    m_showSeabed = false;
+  void FrFlatSeabed::Show(bool val) {
+    if (val) {
+      m_showSeabed = true;
+    } else {
+      m_SeabedGridAsset = nullptr;
+      m_showSeabed = false;
+    }
   }
 
   void FrFlatSeabed::SetBathymetry(double bathymetry, FRAME_CONVENTION fc) {

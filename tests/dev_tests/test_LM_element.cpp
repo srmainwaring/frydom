@@ -42,7 +42,7 @@ int main() {
                                                    node2,
                                                    props,
                                                    4.8,
-                                                   2);
+                                                   6);
 
 
   system.SetTimeStep(1e-3);

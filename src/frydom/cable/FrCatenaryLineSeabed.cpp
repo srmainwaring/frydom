@@ -74,7 +74,7 @@ namespace frydom {
     BuildCache();
 
     FirstGuess();
-    solve();
+    solve(); // FIXME: n'est a priori pas utile,
 
     FrCatenaryLineBase::Initialize();
 
@@ -85,6 +85,20 @@ namespace frydom {
     if (IsNED(fc))
       internal::SwapFrameConvention(tension);
     return tension;
+  }
+
+  Direction FrCatenaryLineSeabed::GetTangent(const double s, FRAME_CONVENTION fc) const {
+    assert(0. <= s && s <= m_unstretchedLength);
+
+    double s_ = s / m_unstretchedLength;
+
+    Direction direction;
+    if (0. <= s_ && s_ <= m_Lb) { // TODO: voir si on ne balance pas le cas Lb au catenaire...
+      direction = GetCatenaryPlaneIntersectionWithSeabed(fc);
+    } else if (m_Lb < s_ && s_ <= 1.) {
+      direction = m_catenary_line->GetTangent(s - m_Lb * m_unstretchedLength, fc);
+    }
+    return direction;
   }
 
   Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION fc) const {
@@ -305,6 +319,19 @@ namespace frydom {
 //    }
   }
 
+  bool FrCatenaryLineSeabed::HasSeabedInteraction() const {
+    return true; // Obviously
+  }
+
+  void FrCatenaryLineSeabed::GetLowestPoint(Position &position,
+                                            double &s,
+                                            FRAME_CONVENTION fc,
+                                            const double tol,
+                                            const unsigned int maxIter) const {
+    s = m_Lb * m_unstretchedLength;
+    position = m_touch_down_node->GetPositionInWorld(fc);
+  }
+
   void FrCatenaryLineSeabed::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
   }
@@ -345,7 +372,7 @@ namespace frydom {
                            "Failed to find the Touchdown Point position in {} max iterations", m_maxiter);
         break;
       }
-      m_touch_down_node->SetPositionInWorld(p_TDP*m_unstretchedLength, NWU);
+      m_touch_down_node->SetPositionInWorld(p_TDP * m_unstretchedLength, NWU);
       m_catenary_line->FirstGuess();
       m_catenary_line->solve();
       p_TDP = pa + p_seabed(m_Lb);
