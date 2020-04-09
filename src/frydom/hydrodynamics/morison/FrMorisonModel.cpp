@@ -365,9 +365,7 @@ namespace frydom {
     }
 
     // Project local force in world at COG
-    //##CC m_force = m_node->GetFrameInWorld().ProjectVectorFrameInParent(localForce, NWU);
-    m_force.SetNull();
-
+    m_force = m_node->GetFrameInWorld().ProjectVectorFrameInParent(localForce, NWU);
 
     // Part the added mass term due to the body's angular speed (in world ref frame)
     if (m_extendedModel and m_isImmerged) {
@@ -386,28 +384,10 @@ namespace frydom {
       forceAngSpeedInFrame = -rho * GetVolume() * ca.cwiseProduct(forceAngSpeedInFrame);
       m_force += m_node->GetFrameInWorld().ProjectVectorFrameInParent(forceAngSpeedInFrame, NWU);
       localForce += forceAngSpeedInFrame;
+
+      // Update added mass matrix in world
+      SetAMInWorld();
     }
-
-    //##CC Check extended model
-    //auto angAcc = body->GetAngularAccelerationInBody(NWU);
-    //auto linAcc = body->GetAccelerationInBody(NWU);
-
-    SetAMInWorld();
-
-    // -- In World
-    //auto angAcc = body->GetAngularAccelerationInWorld(NWU);
-    //auto linAcc = body->GetLinearAccelerationInWorld(NWU);
-    //GeneralizedAcceleration genAcc(linAcc, angAcc);
-    //Vector6d<double> forceAM = m_AMInWorld * genAcc;
-    // -- In body
-    auto angAcc = body->GetAngularAccelerationInBody(NWU);
-    auto linAcc = body->GetAccelerationInBody(NWU);
-    GeneralizedAcceleration genAcc(linAcc, angAcc);
-    Vector6d<double> forceAM = m_AMInBody * genAcc;
-
-    m_force -= Vector3d<double>(forceAM[0], forceAM[1], forceAM[2]);
-    m_force /= (-rho * GetVolume());
-    //##CC
 
     // Compute the corresponding torque at COG in body reference frame
     auto forceBody = m_node->GetFrameInBody().ProjectVectorFrameInParent(localForce, NWU);
