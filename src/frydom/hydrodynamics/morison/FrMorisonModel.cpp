@@ -434,6 +434,7 @@ namespace frydom {
   }
 
   void FrMorisonSingleElement::ComputeForceAddedMass() {
+    // FIXME : a voir si on utilise la matrice de masse d'eau ajoutée ou ce calcul direct
 
     auto body = m_node->GetBody();
     auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
@@ -530,6 +531,10 @@ namespace frydom {
       element->SetExtendedModel(m_extendedModel);
       element->Initialize();
     }
+
+    m_AMInBody.setZero();
+    m_AMInFrame.setZero();
+    m_AMInWorld.setZero();
   }
 
   void FrMorisonCompositeElement::Update(double time) {
@@ -545,43 +550,32 @@ namespace frydom {
       m_isImmerged = m_isImmerged or element->IsImmerged();
     }
 
+    if (m_extendedModel) {
+      m_AMInBody.setZero();
+      m_AMInWorld.setZero();
+      for (auto& element: m_morison) {
+        if (element->IsImmerged()) {
+          m_AMInBody += element->GetAMInBody();
+          m_AMInWorld += element->GetAMInWorld();
+        }
+      }
+    }
+
   }
 
   void FrMorisonCompositeElement::ComputeForceAddedMass() {
-
-    //##CC
-    std::cout << "debug : FrMorisonCompositeElement : ComputeForceAddedMass ..." << std::endl;
-    //##CC
-
+    // FIXME : a voir si on utilise la matrice de masse d'eau ajoutée ou le calcul direct
     // Added mass force and torque
     m_force_added_mass.SetNull();
     m_torque_added_mass.SetNull();
 
     for (auto& element: m_morison) {
-      if (element->IsExtendedModel()) {
+      if (element->IsImmerged()) {
         element->ComputeForceAddedMass();
         m_force_added_mass += element->GetForceAddedMassInWorld(NWU);
         m_torque_added_mass += element->GetTorqueAddedMassInWorld();
       }
     }
-
-    //##CC
-    std::cout << "debug: FrMorisonCompositeElement : force "
-              << m_force_added_mass.GetFx() << " ; " << m_force_added_mass.GetFy()
-              << " ; " << m_force_added_mass.GetFz() << std::endl;
-    //##CC
-
   }
-
-  //const Eigen::Matrix<double, 6, 6>& FrMorisonCompositeElement::GetAM() {
-  //  m_AMInW.setZero();
-  //  for (auto& element: m_morison) {
-  //    if (element->IsImmerged()) {
-  //      m_AM += element->GetAM();
-  //    }
-  //  }
-  //  return m_AM;
-//
-  //}
 
 }  // end namespace frydom
