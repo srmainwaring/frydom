@@ -82,46 +82,6 @@ namespace frydom {
     return (std::find(m_loggable_list.begin(), m_loggable_list.end(), obj) != m_loggable_list.end());
   }
 
-//  std::string FrLogManager::InitializeLogFolder() {
-//
-//    /*
-//     * 1 - looking for a local CONFIG_FILE_NAME file
-//     * 2 - looking for a CONFIG_FILE_NAME file into home
-//     * 3 - taking the current directory;
-//     */
-//
-//    std::string log_folder;
-//
-//    // Looking for a file CONFIG_FILE_NAME into the CURRENT directory (local project config)
-//    std::string local_config_file = FrFileSystem::join({FrFileSystem::cwd(), CONFIG_FILE_NAME});
-//    if (FrFileSystem::exists(local_config_file)) {
-////      event_logger::info("LogManager", "", "Configuration file for FRyDoM instance found in local folder \"{}\"",
-////                         local_config_file);
-//      log_folder = LogFolderFromFrydomConfigFile(local_config_file);
-//    }
-//
-//    // Looking for a file CONFIG_FILE_NAME into the HOME directory (session config))
-//    std::string session_file = FrFileSystem::join({FrFileSystem::get_home(), CONFIG_FILE_NAME});
-//    if (FrFileSystem::exists(session_file) && log_folder.empty()) {
-////      event_logger::info("LogManager", "", "Configuration file for FRyDoM instance found in home directory \"{}\"",
-////                         session_file);
-//      log_folder = LogFolderFromFrydomConfigFile(session_file);
-//    }
-//
-//    if (log_folder.empty()) {
-////      event_logger::info("LogManager", "", "No configuration file found. Logging into current directory \"{}\"",
-////                         log_folder);
-//      log_folder = FrFileSystem::cwd();
-//    }
-//
-//    log_folder = FrFileSystem::join({log_folder, GetDateFolder()});
-//    FrFileSystem::mkdir(log_folder);
-//
-//    WriteMetaDataFile(log_folder);
-//
-//    return log_folder;
-//  }
-
   void FrLogManager::WriteMetaDataFile(const std::string &log_folder) {
 
     json j;

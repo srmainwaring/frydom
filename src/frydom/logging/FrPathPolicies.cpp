@@ -53,6 +53,10 @@ namespace frydom {
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrCatenaryLineSeabed, "CABLES/CATENARY_CABLE_");
 
+  class FrLumpedMassCable;
+
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrLumpedMassCable, "CABLES/LUMPED_MASS_CABLE_");
+
   //
 
   class FrEquilibriumFrame;

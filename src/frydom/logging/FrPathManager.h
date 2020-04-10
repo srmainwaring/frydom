@@ -21,22 +21,22 @@
 
 namespace frydom {
 
-  template<class ParentType>
-  class FrTreeNode;
-
-  class FrOffshoreSystem;
-
-  class FrBody;
-
-  class FrLinkBase;
-
-  class FrForce;
-
-  class FrNode;
-
-  class FrActuator;
-
-  class FrCatenaryLine;
+//  template<class ParentType>
+//  class FrTreeNode;
+//
+//  class FrOffshoreSystem;
+//
+//  class FrBody;
+//
+//  class FrLinkBase;
+//
+//  class FrForce;
+//
+//  class FrNode;
+//
+//  class FrActuator;
+//
+//  class FrCatenaryLine;
 
 
   // TODO : renommer en TreeManager ??
@@ -67,11 +67,7 @@ namespace frydom {
             "Object with name " + node->GetName() + " already exists in this context. Defined twice.");
       }
 
-//      if (RegisterPath(path)) {
       node->SetTreePath(path);
-//        return true;
-//      }
-//      return false;
     }
 
    private:
@@ -86,37 +82,6 @@ namespace frydom {
     static std::string GetNormalizedPathName(NodeType *node) {
       return TypeToNormalizedPathPrefix(node) + node->GetName() + "/";
     }
-
-//   public:
-//
-//    template <class ParentType>
-//    static std::string GetNormalizedTypeName(const FrTreeNode<ParentType> *node) {
-//
-//      std::string type_name;
-//
-//      if (dynamic_cast<const FrOffshoreSystem *>(node)) {
-//        type_name = "System";
-//
-//      } else if (dynamic_cast<const FrBody *>(node)) {
-//        type_name = "Body";
-//
-////      } else if (dynamic_cast<const FrForce *>(node)) {
-////        type_name = "FORCE/FORCE_";
-//
-//      } else if (dynamic_cast<const FrNode *>(node)) {
-//        type_name = "Node";
-//
-////      } else if (dynamic_cast<const FrLink *>(node)) {
-////        type_name = "LINK/LINK_";
-//
-//      } else {
-//        std::cerr << "No known policy for building normalized path name of " << typeid(node).name() << std::endl;
-//        exit(EXIT_FAILURE);
-//      }
-//
-//
-//
-//    }
 
    private:
     std::unordered_set<std::string> m_used_paths;

@@ -474,6 +474,10 @@ namespace frydom {
     m_chronoSystem->AddLink(lm_element->GetLink());
   }
 
+  void FrOffshoreSystem::AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable) {
+    // Nothing to do ??
+  }
+
 
   void FrOffshoreSystem::MonitorRealTimePerfs(bool val) {
     m_monitor_real_time = val;
@@ -929,46 +933,50 @@ namespace frydom {
 
     using timeStepperType = chrono::ChTimestepper::Type;
 
+    std::string timestepper_str;
+
     switch (type) {
       case EULER_IMPLICIT_LINEARIZED:
         m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT_LINEARIZED);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to EULER_IMPLICIT_LINEARIZED");
+        timestepper_str = "EULER_IMPLICIT_LINEARIZED";
         break;
       case EULER_IMPLICIT_PROJECTED:
         m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT_PROJECTED);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to EULER_IMPLICIT_PROJECTED");
+        timestepper_str = "EULER_IMPLICIT_PROJECTED";
         break;
       case EULER_IMPLICIT:
         m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to EULER_IMPLICIT");
+        timestepper_str = "EULER_IMPLICIT";
         break;
       case TRAPEZOIDAL:
         m_chronoSystem->SetTimestepperType(timeStepperType::TRAPEZOIDAL);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to TRAPEZOIDAL");
+        timestepper_str = "TRAPEZOIDAL";
         break;
       case TRAPEZOIDAL_LINEARIZED:
         m_chronoSystem->SetTimestepperType(timeStepperType::TRAPEZOIDAL_LINEARIZED);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to TRAPEZOIDAL_LINEARIZED");
+        timestepper_str = "TRAPEZOIDAL_LINEARIZED";
         break;
       case HHT:
         m_chronoSystem->SetTimestepperType(timeStepperType::HHT);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to HHT");
+        timestepper_str = "HHT";
         break;
       case RUNGEKUTTA45:
         m_chronoSystem->SetTimestepperType(timeStepperType::RUNGEKUTTA45);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to RUNGEKUTTA45");
+        timestepper_str = "RUNGEKUTTA45";
         break;
       case EULER_EXPLICIT:
         m_chronoSystem->SetTimestepperType(timeStepperType::EULER_EXPLICIT);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to EULER_EXPLICIT");
+        timestepper_str = "EULER_EXPLICIT";
         break;
       case NEWMARK:
         m_chronoSystem->SetTimestepperType(timeStepperType::NEWMARK);
-        event_logger::info(GetTypeName(), GetName(), "Time stepper set to NEWMARK");
+        timestepper_str = "NEWMARK";
         break;
     }
 
     m_timeStepper = type;
+
+    event_logger::info(GetTypeName(), GetName(), "Time stepper set to {}", timestepper_str);
 
     if (check_compatibility) CheckCompatibility();
 
@@ -1018,6 +1026,8 @@ namespace frydom {
   bool FrOffshoreSystem::RunDynamics(double frameStep) {
     Initialize();
     event_logger::info(GetTypeName(), GetName(), "Dynamic simulation STARTED");
+    event_logger::switch_to_simulation_formatter(this);
+    event_logger::flush();
     m_chronoSystem->Setup();
     m_chronoSystem->DoAssembly(chrono::AssemblyLevel::POSITION |
                                chrono::AssemblyLevel::VELOCITY |
@@ -1026,8 +1036,9 @@ namespace frydom {
     while (true) {
       double nextTime = m_chronoSystem->GetChTime() + frameStep;
       if (!AdvanceTo(nextTime))
-        return false;
+        break;
     }
+    FinalizeDynamicSimulation();
     return true;
   }
 
@@ -1091,7 +1102,6 @@ namespace frydom {
     Initialize();
 
     // Definition and initialization of the Irrlicht application.
-    // Definition and initialization of the Irrlicht application.
     m_irrApp = std::make_unique<FrIrrApp>(this, m_chronoSystem.get(), dist);
 
     m_irrApp->SetTimestep(m_chronoSystem->GetStep());
@@ -1101,8 +1111,12 @@ namespace frydom {
     event_logger::info(GetTypeName(), GetName(),
                        "Dynamic simulation STARTED in viewer with endTime = {} s, video recording set to {}",
                        endTime, recordVideo);
+    event_logger::switch_to_simulation_formatter(this);
+    event_logger::flush();
 
     m_irrApp->Run(endTime); // The temporal loop is here.
+
+    FinalizeDynamicSimulation();
 
   }
 
@@ -1172,6 +1186,12 @@ namespace frydom {
 
   FrPathManager *FrOffshoreSystem::GetPathManager() const {
     return m_pathManager.get();
+  }
+
+  void FrOffshoreSystem::FinalizeDynamicSimulation() const {
+    event_logger::back_to_default_formatter();
+    event_logger::info(GetTypeName(), GetName(),
+        "END OF DYNAMIC SIMULATION AT SIMULATION TIME: {} s", GetTime());
   }
 
 // Iterators
@@ -1403,6 +1423,11 @@ namespace frydom {
     } else if (auto lumped_mass_element = std::dynamic_pointer_cast<internal::FrLMElement>(item)) {
       AddLumpedMassElement(lumped_mass_element);
 
+    // LUMPED MASS CABLE
+    } else if (auto lumped_mass_cable = std::dynamic_pointer_cast<FrLumpedMassCable>(item)) {
+      AddLumpedMassCable(lumped_mass_cable);
+      m_pathManager->RegisterTreeNode(lumped_mass_cable.get());
+
       // UNKNOWN
     } else {
       added = false;
@@ -1415,6 +1440,8 @@ namespace frydom {
 //    }
 
     if (added) {
+//      m_pathManager->RegisterTreeNode(item.get());
+
       if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
         m_LogManager->Add(loggable);
       }

@@ -246,7 +246,7 @@ namespace frydom {
     BuildCache();
   }
 
-  auto FrCatenaryLine::ti(const unsigned int &i, const double &s) const {
+  Force FrCatenaryLine::ti(const unsigned int &i, const double &s) const {
     return m_t0 - Fi(i) - m_pi * s;
   }
 
@@ -287,11 +287,11 @@ namespace frydom {
   }
 
   void FrCatenaryLine::p_pi(Position &position, const unsigned int &i, const double &s) const {
-    auto scalar = ti(i, s).norm() - ti(i, si(i)).norm();
+    double scal = ti(i, s).norm() - ti(i, si(i)).norm();
     for (int j = 0; j < i; j++) {
-      scalar += ti(j, si(j + 1)).norm() - ti(j, si(j)).norm();
+      scal += ti(j, si(j + 1)).norm() - ti(j, si(j)).norm();
     }
-    position -= m_pi * scalar;
+    position -= m_pi * scal;
   }
 
   void FrCatenaryLine::p_perp(Position &position, const unsigned int &i, const double &s) const {
@@ -324,7 +324,8 @@ namespace frydom {
   }
 
   void FrCatenaryLine::p(const double &s, Position &position) const {
-    pi(position, SToI(s), s);
+    unsigned int i = SToI(s);
+    pi(position, i, s);
   }
 
   Position FrCatenaryLine::p(const double &s) const {
@@ -470,11 +471,6 @@ namespace frydom {
     return line;
 
   }
-
-
-
-
-
 
 
 

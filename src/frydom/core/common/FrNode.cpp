@@ -41,7 +41,8 @@ namespace frydom {
     //Chrono body can be retrieved because this constructor is a friend of FrBody
     body->GetChronoBody()->AddMarker(m_chronoMarker);
 
-    event_logger::info(GetTypeName(), GetName(), "Node created");
+    event_logger::info(GetTypeName(), GetName(),
+                       "Node created, attached to body {}", body->GetName());
 
   }
 

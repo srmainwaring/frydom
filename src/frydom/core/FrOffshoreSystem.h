@@ -121,6 +121,8 @@ namespace frydom {
     class FrLMElement;
   }
 
+  class FrLumpedMassCable;
+
   /// Main class for a FRyDoM offshore system. This class is used to represent a multibody physical system,
   /// so it acts also as a database for most items involved in simulations, most noticeably objects of FrBody and FrLink
   /// classes, which are used to represent mechanisms.
@@ -788,6 +790,8 @@ namespace frydom {
     /// Add a lumped mass element to the offshore system
     void AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element);
 
+    void AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable);
+
    private:
 
     /// Create the world body (fixed body that span the world and where things may be attached) and
@@ -799,6 +803,8 @@ namespace frydom {
 
     /// Check the compatibility between the system contact method and the specified body contact type
     bool CheckBodyContactMethod(std::shared_ptr<FrBody> body);
+
+    void FinalizeDynamicSimulation() const;
 
    public:
 

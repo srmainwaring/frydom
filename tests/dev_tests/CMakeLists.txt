@@ -12,6 +12,7 @@ set(REFACTORING_TESTS
         test_LM_element
         test_catenary_clump_weight
         test_catenary_seabed
+        test_pendulum_lumped_mass
         )
 
 foreach (test ${REFACTORING_TESTS})

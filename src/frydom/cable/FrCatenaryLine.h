@@ -124,7 +124,7 @@ namespace frydom {
 
     unsigned int N() const; // inline en priorite !!
 
-    auto ti(const unsigned int &i, const double &s) const; // inline
+    Force ti(const unsigned int &i, const double &s) const; // inline
 
     Tension t(const double &s) const; // inline
 

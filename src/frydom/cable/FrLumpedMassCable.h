@@ -35,7 +35,8 @@ namespace frydom {
 
       virtual void SetSpeedLimit(const double &speed_limit) {}
 
-      virtual double GetTension() const {} // FIXME: quelle est la signification de la tension sur un noeud ??? Pour un boundary node ok mais sinon ???
+      virtual double
+      GetTension() const {} // FIXME: quelle est la signification de la tension sur un noeud ??? Pour un boundary node ok mais sinon ???
 
       virtual double GetMass() const { return 0.; }
 
@@ -216,6 +217,8 @@ namespace frydom {
 
       std::shared_ptr<chrono::ChLinkSpringCB> GetLink();
 
+      double GetTension() const;
+
       double GetMass() const;
 
       double GetVolume() const;
@@ -277,6 +280,9 @@ namespace frydom {
    protected:
     void BuildCache() override {}
 
+    std::vector<double> GetTensionVectorAtElements() const;
+
+
    private:
     using NodeContainer = std::deque<std::shared_ptr<internal::FrLMNodeBase>>;
     using ElementContainer = std::deque<std::shared_ptr<internal::FrLMElement>>;
@@ -285,6 +291,15 @@ namespace frydom {
     ElementContainer m_elements;
 
   };
+
+  std::shared_ptr<FrLumpedMassCable>
+  make_lumped_mass_cable(const std::string &name,
+                         const std::shared_ptr<FrNode> &startingNode,
+                         const std::shared_ptr<FrNode> &endingNode,
+                         const std::shared_ptr<FrCableProperties> &properties,
+                         double unstretchedLength,
+                         unsigned int nbElements);
+
 
 }  // end namespace frydom
 

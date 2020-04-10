@@ -137,7 +137,8 @@ namespace frydom {
 
       auto sphere_shape = std::make_shared<chrono::ChSphereShape>();
 //      sphere_shape->GetSphereGeometry().center = internal::Vector3dToChVector(position);
-      sphere_shape->GetSphereGeometry().rad = cable->GetCableProperties()->GetRadius() * 10;
+      sphere_shape->GetSphereGeometry().rad =
+          cable->GetCableProperties()->GetRadius() * 10; // FIXME: prendre la bonne dimension apres...
       sphere_shape->SetColor(chrono::ChColor(0, 0, 0));
 
       m_body->AddAsset(sphere_shape);
@@ -320,7 +321,7 @@ namespace frydom {
 
       // Stiffness part
       if (length > rest_length) {
-        tension = - m_cable_properties->GetEA() * (length / rest_length - 1.);
+        tension = -m_cable_properties->GetEA() * (length / rest_length - 1.);
       }
 
       // Damping part
@@ -352,6 +353,10 @@ namespace frydom {
 
     std::shared_ptr<chrono::ChLinkSpringCB> FrLMElement::GetLink() {
       return m_link;
+    }
+
+    double FrLMElement::GetTension() const {
+      return std::fabs(m_link->GetSpringReact());
     }
 
     double FrLMElement::GetMass() const {
@@ -400,7 +405,9 @@ namespace frydom {
     for (unsigned int i = 0; i < nbElements - 1; i++) {
       s += element_rest_length;
 
-      auto new_node = std::make_shared<internal::FrLMNode>(this, shape_initializer->GetPosition(s, NWU));
+      Position initial_position = shape_initializer->GetPosition(s, NWU);
+
+      auto new_node = std::make_shared<internal::FrLMNode>(this, initial_position);
       system->Add(new_node);
       m_nodes.push_back(new_node);
 
@@ -479,6 +486,10 @@ namespace frydom {
     msg->AddField<double>("StrainedLength", "m", "Strained length of the catenary line",
                           [this]() { return GetStrainedLength(); });
 
+
+    msg->AddField<std::vector<double>>("tension", "N", "Tension at the element",
+                                       [this]() { return GetTensionVectorAtElements(); });
+
 //    msg->AddField<Eigen::Matrix<double, 3, 1>>
 //        ("StartingNodeTension", "N", fmt::format("Starting node tension in world reference frame in {}", GetLogFC()),
 //         [this]() { return GetStartingNode()(GetLogFC()); });
@@ -497,6 +508,35 @@ namespace frydom {
     for (auto &node: m_nodes) {
       node->UpdateMass();
     }
+  }
+
+  std::vector<double> FrLumpedMassCable::GetTensionVectorAtElements() const {
+    std::vector<double> tension_vector;
+    tension_vector.reserve(m_elements.size());
+    for (const auto &element: m_elements) {
+      tension_vector.push_back(element->GetTension());
+    }
+    return tension_vector;
+  }
+
+
+  std::shared_ptr<FrLumpedMassCable>
+  make_lumped_mass_cable(const std::string &name,
+                         const std::shared_ptr<FrNode> &startingNode,
+                         const std::shared_ptr<FrNode> &endingNode,
+                         const std::shared_ptr<FrCableProperties> &properties,
+                         double unstretchedLength,
+                         unsigned int nbElements) {
+
+    auto cable = std::make_shared<FrLumpedMassCable>(name,
+                                                     startingNode,
+                                                     endingNode,
+                                                     properties,
+                                                     unstretchedLength,
+                                                     nbElements);
+    startingNode->GetSystem()->Add(cable);
+    return cable;
+
   }
 
 

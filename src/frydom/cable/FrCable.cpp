@@ -209,7 +209,7 @@ namespace frydom {
     }
   }
 
-  double FrCable::GetStrainedLength() const {
+  double FrCable::GetStrainedLength() const { // FIXME: ne fonctionne pas, retourne 0. !!
     double cl = 0.;
     int n = 1000;
 
