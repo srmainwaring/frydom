@@ -12,6 +12,9 @@
 
 namespace frydom {
 
+  // foward declaration
+  class FrBody;
+
  namespace internal {
 
   class FrVariablesBodyBase : public chrono::ChVariablesBody {
@@ -26,11 +29,7 @@ namespace frydom {
 
     // Constructor
 
-    FrVariablesBodyBase() : ChVariablesBody() {}
-
-    explicit FrVariablesBodyBase(chrono::ChVariablesBodyOwnMass* variables);
-
-    void SetMass(const mathutils::Matrix66<double>& mass);
+    FrVariablesBodyBase(FrBody* body);
 
     // Compute
 

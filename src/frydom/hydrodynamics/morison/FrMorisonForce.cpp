@@ -13,6 +13,7 @@
 #include "FrMorisonForce.h"
 
 #include "frydom/hydrodynamics/morison/FrMorisonModel.h"
+#include "frydom/core/common/FrVariablesAddedMass.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrNode.h"
 #include "frydom/logging/FrTypeNames.h"
@@ -30,7 +31,7 @@ namespace frydom {
   }
 
   FrMorisonForce::FrMorisonForce(const std::string &name, FrBody *body, std::shared_ptr<FrMorisonElement> model)
-      : FrForce(name, TypeToString(this), body), m_model(model) {}
+      : FrForce(name, TypeToString(this), body), m_model(model), m_variables(nullptr) {}
 
   void FrMorisonForce::Compute(double time) {
 
@@ -38,12 +39,27 @@ namespace frydom {
 
     SetForceInWorldAtCOG(m_model->GetForceInWorld(NWU), NWU);
     SetTorqueInBodyAtCOG(m_model->GetTorqueInBody(), NWU);
+
+    if (m_model->IsExtendedModel()) {
+
+      mathutils::Matrix66<double> added_mass;
+      added_mass << m_model->GetAMInWorld().block<6, 3>(0, 0),
+                    m_model->GetAMInBody().block<6, 3>(0, 3);
+
+      m_variables->SetAddedMass(added_mass);
+    }
   }
 
   void FrMorisonForce::Initialize() {
 
     FrForce::Initialize();
     m_model->Initialize();
+
+    if (m_model->IsExtendedModel()) {
+      m_variables = std::make_shared<internal::FrVariablesAddedMass>(
+          mathutils::Matrix66<double>(), GetBody());
+    }
+
   }
 
   std::shared_ptr<FrMorisonForce>

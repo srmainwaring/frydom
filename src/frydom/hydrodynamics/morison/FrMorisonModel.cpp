@@ -513,7 +513,6 @@ namespace frydom {
     }
 
     m_AMInBody.setZero();
-    m_AMInFrame.setZero();
     m_AMInWorld.setZero();
   }
 

@@ -2,6 +2,7 @@
 // Created by camille on 09/04/2020.
 //
 
+#include <frydom/core/body/FrBody.h>
 #include "FrVariablesBodyBase.h"
 #include "MathUtils/Vector6d.h"
 #include "frydom/core/math/FrMatrix.h"
@@ -10,18 +11,24 @@ namespace frydom {
 
   namespace internal {
 
-    FrVariablesBodyBase::FrVariablesBodyBase(chrono::ChVariablesBodyOwnMass *variables)
-      : chrono::ChVariablesBody(*variables)
-    {
-      m_variablesBodyOwnMass = variables;
+    FrVariablesBodyBase::FrVariablesBodyBase(FrBody* body)
+    : chrono::ChVariablesBody(body->GetChronoBody()->VariablesBody()) {
 
+      // Get the body own mass variables from ChBody
+      m_variablesBodyOwnMass = &body->GetChronoBody()->VariablesBody();
+
+      // Set mass matrix 6x6
       m_mass.setZero();
-      m_mass(0, 0) = variables->GetBodyMass();
-      m_mass(1, 1) = variables->GetBodyMass();
-      m_mass(2, 2) = variables->GetBodyMass();
-      m_mass.block<3,3>(3, 3) = ChMatrix33ToMatrix33(variables->GetBodyInertia());
+      m_mass(0, 0) = m_variablesBodyOwnMass->GetBodyMass();
+      m_mass(1, 1) = m_variablesBodyOwnMass->GetBodyMass();
+      m_mass(2, 2) = m_variablesBodyOwnMass->GetBodyMass();
+      m_mass.block<3,3>(3, 3) = ChMatrix33ToMatrix33(m_variablesBodyOwnMass->GetBodyInertia());
 
+      // Compute the inverse mass matrix
       m_inv_mass = m_mass.inverse();
+
+      // Replace chrono variables with this new variables
+      body->GetChronoBody()->SetVariables(std::shared_ptr<FrVariablesBodyBase>(this));
     }
 
     void FrVariablesBodyBase::Compute_invMb_v(chrono::ChMatrix<double> &result,

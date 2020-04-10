@@ -32,6 +32,8 @@
 #include "frydom/logging/FrPathManager.h"
 #include "frydom/logging/FrTypeNames.h"
 
+#include "frydom/core/common/FrVariablesBodyBase.h"
+
 
 namespace frydom {
 

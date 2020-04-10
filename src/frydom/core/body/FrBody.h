@@ -30,6 +30,8 @@
 // TODO : voir si il n'y a pas moyen de passer ces includes
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBase.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrVariablesBEMBodyBase.h"
+#include "frydom/core/common/FrVariablesBodyBase.h"
+
 
 #define DEFAULT_MAX_SPEED (float)10.
 #define DEFAULT_MAX_ROTATION_SPEED (float)(180.*DEG2RAD)
@@ -44,10 +46,10 @@ namespace frydom {
 
   class FrForce;
 
-
   namespace internal {
 
     // Forward declarations
+    class FrVariablesBodyBase;
 
     /// Base class inheriting from chrono ChBodyAuxRef
     /// This class must not be used by external FRyDoM users. It is used in composition rule along with the FrBody_ FRyDoM class
@@ -1025,6 +1027,9 @@ namespace frydom {
     friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesFb(FrBody *body) const;
 
     friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *) const;
+
+    // Variables
+    friend internal::FrVariablesBodyBase::FrVariablesBodyBase(FrBody* body);
 
   };
 

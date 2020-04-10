@@ -17,15 +17,16 @@
 
 #include "frydom/core/force/FrForce.h"
 
-
 namespace frydom {
 
   // Forward declarations
   class FrMorisonElement;
-
   class FrMorisonSingleElement;
-
   class FrMorisonCompositeElement;
+
+  namespace internal {
+    class FrVariablesAddedMass;
+  }
 
 
   /**
@@ -34,9 +35,9 @@ namespace frydom {
    */
   class FrMorisonForce : public FrForce {
 
-
    private:
     std::shared_ptr<FrMorisonElement> m_model;      ///< Morison model linked with the morison force
+    std::shared_ptr<internal::FrVariablesAddedMass> m_variables;
 
    public:
 
@@ -65,6 +66,9 @@ namespace frydom {
     /// Compute the Morison force
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
+
+    mathutils::Matrix66<double> c_AM;
+
   };
 
   /// Maker of a Morison model force : instantiate and return a FrMorisonForce, based on a Morison element.

@@ -15,10 +15,7 @@ namespace frydom {
 
      public:
 
-      FrVariablesAddedMass();
-
-      FrVariablesAddedMass(const mathutils::Matrix66<double> &added_mass,
-                           chrono::ChVariablesBodyOwnMass *variables);
+      FrVariablesAddedMass(const mathutils::Matrix66<double> &added_mass, FrBody* body);
 
       void SetAddedMass(const mathutils::Matrix66<double>& added_mass);
 
