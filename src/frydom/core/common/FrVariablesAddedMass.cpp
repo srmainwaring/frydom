@@ -21,6 +21,7 @@ namespace frydom {
       m_added_mass = added_mass;
       auto genMass = m_body_mass + m_added_mass;
       m_mass = genMass;
+      m_inv_mass = m_mass.inverse();
     }
 
     mathutils::Matrix66<double>& FrVariablesAddedMass::GetAddedMass() {
