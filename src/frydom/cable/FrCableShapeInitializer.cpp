@@ -48,9 +48,7 @@ namespace frydom {
 
       if (catenary_line->HasSeabedInteraction()) {
         // Slack with seabed interactions
-        return std::make_unique<internal::FrCableShapeInitializerSlackSeabed>(cable,
-                                                                              environment); // FIXME: reactiver !!
-//        return std::make_unique<internal::FrCableShapeInitializerSlack>(cable, std::move(catenary_line));
+        return std::make_unique<internal::FrCableShapeInitializerSlackSeabed>(cable, environment);
 
       } else {
         // Only slack
@@ -82,6 +80,10 @@ namespace frydom {
       return position;
     }
 
+    Direction FrCableShapeInitializerTaut::GetTangent(const double &s, FRAME_CONVENTION fc) const {
+      return m_unit_vector;
+    }
+
     FrCableShapeInitializerSlack::FrCableShapeInitializerSlack(FrCable *cable,
                                                                std::unique_ptr<FrCatenaryLine> catenary_cable)
         :
@@ -91,6 +93,10 @@ namespace frydom {
     Position FrCableShapeInitializerSlack::GetPosition(const double &s, FRAME_CONVENTION fc) const {
       assert(0. <= s <= m_cable->GetUnstretchedLength());
       return m_catenary_line->GetPositionInWorld(s, fc);
+    }
+
+    Direction FrCableShapeInitializerSlack::GetTangent(const double &s, FRAME_CONVENTION fc) const {
+      return m_catenary_line->GetTangent(s, fc);
     }
 
     FrCableShapeInitializerSlackSeabed::FrCableShapeInitializerSlackSeabed(FrCable *cable,
@@ -182,6 +188,10 @@ namespace frydom {
 //      }
 //
 //      return position;
+    }
+
+    Direction FrCableShapeInitializerSlackSeabed::GetTangent(const double &s, FRAME_CONVENTION fc) const {
+      return m_catenary_line_seabed->GetTangent(s, fc);
     }
 
   }  // end namespace frydom::internal

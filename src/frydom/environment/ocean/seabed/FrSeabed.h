@@ -173,6 +173,8 @@ namespace frydom {
     std::shared_ptr<FrSeabedGridAsset> m_SeabedGridAsset;    ///> Seabed grid asset, containing also its asset visualization
     double m_bathymetry;    ///< Mean bathymetry, in NWU
 
+    std::shared_ptr<FrBody> m_seabed_body; // TODO: voir si on n'utilise pas un FrBody
+
     //TODO : consider varying bathymetry
 
    public:
@@ -221,6 +223,9 @@ namespace frydom {
 
     /// Method called at the send of a time step. Logging may be used here
     void StepFinalize() override;
+
+//   private:
+    void CreateContactBox(); // TODO: mettre en prive
 
   };
 

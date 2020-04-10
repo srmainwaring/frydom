@@ -26,6 +26,7 @@
 #include "frydom/core/misc/FrColors.h"
 #include "frydom/mesh/FrMesh.h"
 #include "frydom/logging/FrLoggable.h"
+#include "frydom/environment/ocean/seabed/FrSeabed.h"
 
 // TODO : voir si il n'y a pas moyen de passer ces includes
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBase.h"
@@ -1028,6 +1029,8 @@ namespace frydom {
     friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesFb(FrBody *body) const;
 
     friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *) const;
+
+    friend void FrFlatSeabed::CreateContactBox();
 
   };
 

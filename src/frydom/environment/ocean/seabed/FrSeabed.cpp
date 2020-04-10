@@ -141,6 +141,7 @@ namespace frydom {
 
     m_is_infinite_depth = true;
     m_SeabedGridAsset = std::make_shared<FrSeabedGridAsset>(this);
+
   }
 
   void FrFlatSeabed::Show(bool val) {
@@ -194,9 +195,39 @@ namespace frydom {
     } else {
 //      m_SeabedGridAsset->SetNoGrid();
     }
+
+    CreateContactBox();
   }
 
-  void FrFlatSeabed::StepFinalize() {
+  void FrFlatSeabed::StepFinalize() {}
+
+  void FrFlatSeabed::CreateContactBox() {
+    auto system = GetOcean()->GetEnvironment()->GetSystem();
+
+    // Making the seabed contactable
+    m_seabed_body = std::make_shared<FrBody>("seabed_body", system);
+    m_seabed_body->SetFixedInWorld(true);
+    m_seabed_body->LogThis(false);
+
+
+    auto collision_model = m_seabed_body->GetChronoBody()->GetCollisionModel();
+    collision_model->ClearModel();
+
+    double hx = 500;
+    double hy = 500;
+    double hz = 10;
+
+    collision_model->AddBox(0.5*hx, 0.5*hy, 0.5*hz, {0., 0., -0.5*hz});
+    collision_model->BuildModel();
+
+    m_seabed_body->AllowCollision(true);
+    m_seabed_body->SetSmoothContact();
+
+//    m_seabed_body->AddBoxShape(hx, hy, hz, {0, 0, -0.5*hz}, NWU);
+
+    system->Add(m_seabed_body);
+
+    m_seabed_body->SetPosition({0., 0., GetBathymetry(NWU)}, NWU);
 
   }
 

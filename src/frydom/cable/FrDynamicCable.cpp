@@ -10,12 +10,15 @@
 
 #include "FrDynamicCable.h"
 
-#include "frydom/cable/FrCatenaryLine.h"
+//#include "frydom/core/FrOffshoreSystem.h"
+//#include "frydom/cable/FrCatenaryLine.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
 
 #include "frydom/logging/FrTypeNames.h"
+
+#include "FrCableShapeInitializer.h"
 
 namespace frydom {
 
@@ -124,27 +127,31 @@ namespace frydom {
 
         InitializeSection();
 
-        // TODO: avoir un constructeur pour juste specifier les parametres du cable, pas les frontieres  -->  degager le constructeur par defaut
+//        // TODO: avoir un constructeur pour juste specifier les parametres du cable, pas les frontieres  -->  degager le constructeur par defaut
         Position distanceBetweenNodes = (m_frydomCable->GetEndingNode()->GetPositionInWorld(NWU) -
                                          m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU));
 
-        // check if the distance is greater than the length
-        bool elastic = distanceBetweenNodes.norm() >= m_frydomCable->GetUnstretchedLength();
-
+//         check if the distance is greater than the length
+        bool is_taut = distanceBetweenNodes.norm() >= m_frydomCable->GetUnstretchedLength();
+//
         // First, creating a catenary line to initialize finite element mesh node positions
-        std::shared_ptr<FrCatenaryLine> catenaryLine;
+//        std::shared_ptr<FrCatenaryLine> catenaryLine;
 
-        if (!elastic) { // distance between the nodes is smaller thant the unstrained length of the line
-          // Initializing the finite element model so that it fits the catenary line to get close from the
-          // equilibrium solution
-          catenaryLine = make_catenary_line("dynamicCableInitialization",
-                                            m_frydomCable->GetStartingNode(),
-                                            m_frydomCable->GetEndingNode(),
-                                            m_frydomCable->GetCableProperties(),
-                                            elastic,
-                                            m_frydomCable->GetUnstretchedLength(), WATER); // FIXME: determiner le fluide...
-          catenaryLine->Initialize();
-        }
+//        if (!is_taut) { // distance between the nodes is smaller thant the unstrained length of the line
+//          // Initializing the finite element model so that it fits the catenary line to get close from the
+//          // equilibrium solution
+//          catenaryLine = make_catenary_line("dynamicCableInitialization",
+//                                            m_frydomCable->GetStartingNode(),
+//                                            m_frydomCable->GetEndingNode(),
+//                                            m_frydomCable->GetCableProperties(),
+//                                            is_taut,
+//                                            m_frydomCable->GetUnstretchedLength(), WATER); // FIXME: determiner le fluide...
+//          catenaryLine->Initialize();
+//        }
+
+        auto shape_initializer = FrCableShapeInitializer::Create(m_frydomCable, m_frydomCable->GetSystem()->GetEnvironment());
+
+//        bool is_taut = true; // TODO: tester cela
 
         double s = 0.;
         double ds = m_frydomCable->GetUnstretchedLength() / m_frydomCable->GetNumberOfElements();
@@ -160,9 +167,10 @@ namespace frydom {
         chrono::ChVector<double> e1, e2, e3;
         chrono::ChMatrix33<double> RotMat;
 
-        if (!elastic) {
-          e1 = internal::Vector3dToChVector(catenaryLine->GetTension(0., NWU));
-          e1.Normalize();
+        if (!is_taut) {
+          e1 = internal::Vector3dToChVector(shape_initializer->GetTangent(0., NWU));
+//          e1 = internal::Vector3dToChVector(catenaryLine->GetTension(0., NWU));
+//          e1.Normalize();
           e3 = e1.Cross(AB);
           e3.Normalize();
           e2 = e3.Cross(e1);
@@ -171,7 +179,7 @@ namespace frydom {
           RotMat.Set_A_axis(e1, e2, e3);
 
           ChronoFrame.SetPos(
-              internal::Vector3dToChVector(catenaryLine->GetStartingNode()->GetPositionInWorld(NWU)));
+              internal::Vector3dToChVector(m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU)));
           ChronoFrame.SetRot(RotMat);
         }
 
@@ -186,12 +194,12 @@ namespace frydom {
           s += ds;
 
           // Get the position and direction of the line for the curvilinear coord s
-          if (elastic) {
+          if (is_taut) {
             ChronoFrame.SetPos(ChronoFrame.GetPos() + ds * AB);
           } else {
-            ChronoFrame.SetPos(internal::Vector3dToChVector(catenaryLine->GetPositionInWorld(s, NWU)));
-            e1 = internal::Vector3dToChVector(catenaryLine->GetTension(s, NWU));
-            e1.Normalize();
+            ChronoFrame.SetPos(internal::Vector3dToChVector(shape_initializer->GetPosition(s, NWU)));
+            e1 = internal::Vector3dToChVector(shape_initializer->GetTangent(s, NWU));
+//            e1.Normalize();
             e2 = e3.Cross(e1);
             e2.Normalize();
             RotMat.Set_A_axis(e1, e2, e3);
@@ -221,12 +229,12 @@ namespace frydom {
 
         if (m_frydomCable->GetBreakingTension() == 0.) {
 
-          if (elastic) {
+          if (is_taut) {
             double tensionMax = (distanceBetweenNodes.norm() - m_frydomCable->GetUnstretchedLength()) *
                                 m_frydomCable->GetCableProperties()->GetEA() / m_frydomCable->GetUnstretchedLength();
             m_frydomCable->SetBreakingTension(1.2 * tensionMax);
           } else {
-            m_frydomCable->SetBreakingTension(1.2 * catenaryLine->GetMaxTension());
+//            m_frydomCable->SetBreakingTension(1.2 * catenaryLine->GetMaxTension());
           }
 
         }
@@ -234,12 +242,12 @@ namespace frydom {
         // Generate assets for the cable
         GenerateAssets();
 
-        if (!elastic) {
-          // Remove the catenary line used for initialization
-          m_frydomCable->GetSystem()->Remove(catenaryLine);
-          m_frydomCable->GetStartingNode()->GetBody()->RemoveExternalForce(catenaryLine->GetStartingForce());
-          m_frydomCable->GetEndingNode()->GetBody()->RemoveExternalForce(catenaryLine->GetEndingForce());
-        }
+//        if (!is_taut) {
+//          // Remove the catenary line used for initialization
+//          m_frydomCable->GetSystem()->Remove(catenaryLine);
+//          m_frydomCable->GetStartingNode()->GetBody()->RemoveExternalForce(catenaryLine->GetStartingForce());
+//          m_frydomCable->GetEndingNode()->GetBody()->RemoveExternalForce(catenaryLine->GetEndingForce());
+//        }
 
       }
 

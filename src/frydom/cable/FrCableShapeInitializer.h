@@ -21,9 +21,9 @@ namespace frydom {
     // Factory static method to get the correct Shape initializer for the given cable
     static std::unique_ptr<FrCableShapeInitializer> Create(FrCable *cable, FrEnvironment *environment);
 
-    virtual Position GetPosition(const double &s, FRAME_CONVENTION fc) const {
-      assert(false); // We should never pass here !
-    };
+    virtual Position GetPosition(const double &s, FRAME_CONVENTION fc) const = 0;
+
+    virtual Direction GetTangent(const double &s, FRAME_CONVENTION fc) const = 0;
 
    protected:
     // info: constructor is protected as we must use the static Create method which is a factory method
@@ -45,6 +45,8 @@ namespace frydom {
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;
 
+      Direction GetTangent(const double &s, FRAME_CONVENTION fc) const override;
+
      private:
       Direction m_unit_vector;
 
@@ -55,6 +57,8 @@ namespace frydom {
       explicit FrCableShapeInitializerSlack(FrCable *cable, std::unique_ptr<FrCatenaryLine> catenary_cable);
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;
+
+      Direction GetTangent(const double &s, FRAME_CONVENTION fc) const override;
 
      private:
       std::unique_ptr<FrCatenaryLine> m_catenary_line;
@@ -67,6 +71,8 @@ namespace frydom {
                                          FrEnvironment *environment);
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;
+
+      Direction GetTangent(const double &s, FRAME_CONVENTION fc) const override;
 
      private:
       FrEnvironment *m_environment;
