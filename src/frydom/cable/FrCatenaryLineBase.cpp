@@ -8,6 +8,7 @@
 #include "frydom/environment/ocean/freeSurface/FrFreeSurface.h"
 
 #include "FrCatenaryLineBase.h"
+#include "FrCableProperties.h"
 
 
 namespace frydom {
@@ -71,44 +72,40 @@ namespace frydom {
     FrCableBase::Initialize();
   }
 
-//  FLUID_TYPE FrCatenaryLineBase::GetFluidType() const {
-//    auto environment = GetSystem()->GetEnvironment();
-//    auto start_fluid = environment->GetFluidTypeAtPointInWorld(m_startingNode->GetPositionInWorld(NWU), NWU, false);
-//    auto end_fluid = environment->GetFluidTypeAtPointInWorld(m_startingNode->GetPositionInWorld(NWU), NWU, false);
-//
-//    FLUID_TYPE fluidType;
-//
-//    auto free_surface = GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface();
-//    if (start_fluid != end_fluid) {
-//      // Determining the absissae of the intersection of the cable with free surface by a bisection algorithm
-//      double sa = 0.;
-//      double sb = GetUnstretchedLength();
-//      while (std::fabs(sb - sa) > 1e-6) {
-//
-//        double sm = 0.5 * (sa + sb);
-//
-//        Position Pa = GetPositionInWorld(sa, NWU);
-//
-//        double da = Pa.z() - free_surface->GetElevation(Pa.x(), Pa.y(), NWU);
-//
-//        Position Pm = GetPositionInWorld(sm, NWU);
-//        double dm = Pm.z() - free_surface->GetElevation(Pm.x(), Pm.y(), NWU);
-//
-//        if (da * dm <= 0.) {
-//          sb = sm;
-//        } else {
-//          sa = sm;
-//        }
-//      }
-//
-//      fluidType = (sa > 0.5 * GetUnstretchedLength()) ? start_fluid : end_fluid;
-//
-//    } else {
-//      fluidType = start_fluid;
-//    }
-//
-//    return start_fluid;
-//  }
+  FrCatenaryLineBase::FrCatenaryLineBase(const std::string &name, const std::string &type,
+                                         const std::shared_ptr<FrNode> &startingNode,
+                                         const std::shared_ptr<FrNode> &endingNode,
+                                         const std::shared_ptr<FrCableProperties> &properties, bool elastic,
+                                         double unstretchedLength) :
+      FrLoggable(name, type, startingNode->GetSystem()),
+      FrPrePhysicsItem(),
+      FrCableBase(startingNode, endingNode, properties, unstretchedLength),
+      m_elastic(elastic),
+      m_use_for_shape_initialization(false),
+      m_tolerance(1e-6),
+      m_maxiter(100),
+      m_q(0.),
+      m_startingForce(nullptr),
+      m_endingForce(nullptr) {}
 
+  void FrCatenaryLineBase::SetSolverTolerance(double tol) { m_tolerance = tol; }
+
+  void FrCatenaryLineBase::SetSolverMaxIter(unsigned int maxiter) { m_maxiter = maxiter; }
+
+  void FrCatenaryLineBase::UseForShapeInitialization(bool use) {
+    m_use_for_shape_initialization = use;
+  }
+
+  std::shared_ptr<FrCatenaryForce> FrCatenaryLineBase::GetStartingForce() {
+    return m_startingForce;
+  }
+
+  std::shared_ptr<FrCatenaryForce> FrCatenaryLineBase::GetEndingForce() {
+    return m_endingForce;
+  }
+
+  double FrCatenaryLineBase::GetTotalMass() const {
+    return GetUnstretchedLength() * m_properties->GetLinearDensity();
+  }
 
 }  // end namespace frydom

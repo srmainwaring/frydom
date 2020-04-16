@@ -3,14 +3,11 @@
 //
 
 #include "FrCatenaryLineSeabed.h"
+#include "FrCableProperties.h"
 
 #include "FrCatenaryLine.h"
 #include "frydom/logging/FrTypeNames.h"
 #include "frydom/logging/FrEventLogger.h"
-//
-//#include "frydom/core/common/FrNode.h"
-//#include "frydom/core/body/FrBody.h"
-//
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/environment/ocean/FrOcean.h"
 #include "frydom/environment/ocean/seabed/FrSeabed.h"

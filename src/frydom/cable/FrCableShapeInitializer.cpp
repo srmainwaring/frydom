@@ -141,7 +141,7 @@ namespace frydom {
       m_catenary_line_seabed = std::make_unique<FrCatenaryLineSeabed>("initialize",
                                                                       origin_node,
                                                                       final_node,
-                                                                      cable->GetCableProperties(),
+                                                                      cable->GetProperties(),
                                                                       true,
                                                                       cable->GetUnstretchedLength(),
                                                                       fluid_type,

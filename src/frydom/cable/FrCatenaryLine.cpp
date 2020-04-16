@@ -10,6 +10,7 @@
 // ==========================================================================
 
 #include "FrCatenaryLine.h"
+#include "FrCableProperties.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
@@ -45,7 +46,7 @@ namespace frydom {
       FrCatenaryLine(name,
                      cable->GetStartingNode(),
                      cable->GetEndingNode(),
-                     cable->GetCableProperties(),
+                     cable->GetProperties(),
                      elastic,
                      cable->GetUnstretchedLength(),
                      fluid_type) {}
@@ -553,7 +554,7 @@ namespace frydom {
 //      FrCatenaryLine_(name,
 //                      cable->GetStartingNode(),
 //                      cable->GetEndingNode(),
-//                      cable->GetCableProperties(),
+//                      cable->GetProperties(),
 //                      elastic,
 //                      cable->GetUnstretchedLength(),
 //                      fluid_type) {}

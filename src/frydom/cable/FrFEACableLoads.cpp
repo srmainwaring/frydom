@@ -44,7 +44,7 @@ namespace frydom {
     auto fluid_type = m_system->GetEnvironment()->GetFluidTypeAtPointInWorld(position, NWU,true);
     auto fluid_density = m_system->GetEnvironment()->GetFluidDensity(fluid_type);
 
-//      double diameter = m_cable->GetCableProperties()->GetDiameter();
+//      double diameter = m_cable->GetProperties()->GetDiameter();
 //      chrono::ChVector<double> unit_force = {0., 0., fluid_density * diameter};
 
 

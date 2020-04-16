@@ -10,6 +10,7 @@
 #include "frydom/environment/FrEnvironmentInc.h"
 
 #include "FrCatenaryLine.h"
+#include "FrCableProperties.h"
 #include "FrCableShapeInitializer.h"
 
 #include "FrLumpedMassCable.h"
@@ -129,7 +130,7 @@ namespace frydom {
       // ideally placed on elements better than on nodes... Is it possible to place collision shapes on links ???
 //      auto collision_model = m_body->GetCollisionModel();
 //      collision_model->ClearModel();
-//      collision_model->AddSphere(m_cable->GetCableProperties()->GetRadius(), {0., 0., 0.});
+//      collision_model->AddSphere(m_cable->GetProperties()->GetRadius(), {0., 0., 0.});
 //      collision_model->BuildModel();
 //      m_body->SetCollide(true);
 //      m_body->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceSMC>()); // FIXME: it will not work when going into NSC !
@@ -138,7 +139,7 @@ namespace frydom {
       auto sphere_shape = std::make_shared<chrono::ChSphereShape>();
 //      sphere_shape->GetSphereGeometry().center = internal::Vector3dToChVector(position);
       sphere_shape->GetSphereGeometry().rad =
-          cable->GetCableProperties()->GetRadius() * 10; // FIXME: prendre la bonne dimension apres...
+          cable->GetProperties()->GetRadius() * 10; // FIXME: prendre la bonne dimension apres...
       sphere_shape->SetColor(chrono::ChColor(0, 0, 0));
 
       m_body->AddAsset(sphere_shape);
@@ -301,7 +302,7 @@ namespace frydom {
     }
 
     FrCableProperties *FrLMNode::GetCableProperties() const {
-      return m_cable->GetCableProperties().get();
+      return m_cable->GetProperties().get();
     }
 
     double FrLMNode::GetMass() const {
@@ -343,7 +344,7 @@ namespace frydom {
         m_left_node(left_node),
         m_right_node(right_node),
         m_link(std::make_shared<chrono::ChLinkSpringCB>()),
-        m_force_functor(std::make_unique<FrLMCableTensionForceFunctor>(cable->GetCableProperties().get())) {
+        m_force_functor(std::make_unique<FrLMCableTensionForceFunctor>(cable->GetProperties().get())) {
 
       m_link->SetSpringRestLength(rest_length);
       m_link->ReferenceMarkers(left_node->GetMarker(), right_node->GetMarker());
@@ -360,11 +361,11 @@ namespace frydom {
     }
 
     double FrLMElement::GetMass() const {
-      return m_cable->GetCableProperties()->GetLinearDensity() * m_link->GetSpringRestLength();
+      return m_cable->GetProperties()->GetLinearDensity() * m_link->GetSpringRestLength();
     }
 
     double FrLMElement::GetVolume() const {
-      return m_cable->GetCableProperties()->GetSectionArea() * m_link->GetSpringRestLength();
+      return m_cable->GetProperties()->GetSectionArea() * m_link->GetSpringRestLength();
     }
 
     double FrLMElement::GetUnstretchedLength() const {

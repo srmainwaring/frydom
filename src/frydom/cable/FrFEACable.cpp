@@ -14,6 +14,7 @@
 #include "FrFEACable.h"
 
 #include "FrFEACableLoads.h"
+#include "FrCableProperties.h"
 
 //#include "frydom/core/FrOffshoreSystem.h"
 //#include "frydom/cable/FrCatenaryLine.h"
@@ -39,10 +40,10 @@ namespace frydom {
 
     void FrDynamicCableBase::InitializeSection() {
 
-      m_section->SetAsCircularSection(m_frydomCable->GetCableProperties()->GetDiameter());
+      m_section->SetAsCircularSection(m_frydomCable->GetProperties()->GetDiameter());
       m_section->SetBeamRaleyghDamping(m_frydomCable->GetRayleighDamping());
-      m_section->SetDensity(m_frydomCable->GetCableProperties()->GetDensity());
-      m_section->SetYoungModulus(m_frydomCable->GetCableProperties()->GetYoungModulus());
+      m_section->SetDensity(m_frydomCable->GetProperties()->GetDensity());
+      m_section->SetYoungModulus(m_frydomCable->GetProperties()->GetYoungModulus());
     }
 
     void FrDynamicCableBase::InitializeContact() {
@@ -64,7 +65,7 @@ namespace frydom {
 
       auto contact_surface = std::make_shared<chrono::fea::ChContactSurfaceNodeCloud>();
       AddContactSurface(contact_surface);
-      contact_surface->AddAllNodes(m_frydomCable->GetCableProperties()->GetRadius());
+      contact_surface->AddAllNodes(m_frydomCable->GetProperties()->GetRadius());
       contact_surface->SetMaterialSurface(surface_material);
 
     }
@@ -267,7 +268,7 @@ namespace frydom {
 
           if (is_taut) {
             double tensionMax = (distanceBetweenNodes.norm() - m_frydomCable->GetUnstretchedLength()) *
-                                m_frydomCable->GetCableProperties()->GetEA() / m_frydomCable->GetUnstretchedLength();
+                m_frydomCable->GetProperties()->GetEA() / m_frydomCable->GetUnstretchedLength();
             m_frydomCable->SetBreakingTension(1.2 * tensionMax);
           } else {
             // TODO: remettre en place le mecanisme ...

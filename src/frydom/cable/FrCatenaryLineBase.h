@@ -19,6 +19,8 @@ namespace frydom {
   // Forward declaration
   class FrCatenaryForce;
 
+  class FrCableProperties;
+
   class FrCatenaryLineBase : public FrLoggable<FrOffshoreSystem>,
                              public FrCableBase,
                              public FrPrePhysicsItem,
@@ -39,42 +41,28 @@ namespace frydom {
                        const std::shared_ptr<FrNode> &endingNode,
                        const std::shared_ptr<FrCableProperties> &properties,
                        bool elastic,
-                       double unstretchedLength) :
-        FrLoggable(name, type, startingNode->GetSystem()),
-        FrPrePhysicsItem(),
-        FrCableBase(startingNode, endingNode, properties, unstretchedLength),
-        m_elastic(elastic),
-        m_use_for_shape_initialization(false),
-        m_tolerance(1e-4),
-        m_maxiter(100),
-        m_q(0.) {}
+                       double unstretchedLength);
 
 
     /// Set the Newton-Raphson solver tolerance
     /// \param tol solver tolerance
-    void SetSolverTolerance(double tol) { m_tolerance = tol; }
+    void SetSolverTolerance(double tol);
 
     /// Set the Newton-Raphson solver maximum number of iterations
     /// \param maxiter maximum number of iterations
-    void SetSolverMaxIter(unsigned int maxiter) { m_maxiter = maxiter; }
+    void SetSolverMaxIter(unsigned int maxiter);
 
     /// Tells the line it is only for shape initialization and not for a real cable usage so that
     /// no force is added to boundary bodies
-    void UseForShapeInitialization(bool use) {
-      m_use_for_shape_initialization = use;
-    };
+    void UseForShapeInitialization(bool use);
 
     /// Get the starting force of the line
     /// \return the starting force of the line
-    std::shared_ptr<FrCatenaryForce> GetStartingForce() {
-      return m_startingForce;
-    }
+    std::shared_ptr<FrCatenaryForce> GetStartingForce();
 
     /// Get the ending force of the line
     /// \return the ending force of the line
-    std::shared_ptr<FrCatenaryForce> GetEndingForce() {
-      return m_endingForce;
-    }
+    std::shared_ptr<FrCatenaryForce> GetEndingForce();
 
     void Initialize() override;
 
@@ -86,9 +74,7 @@ namespace frydom {
 
     double GetUnstretchedLength() const override = 0;
 
-    double GetTotalMass() const {
-      return GetUnstretchedLength() * m_properties->GetLinearDensity();
-    }
+    double GetTotalMass() const;
 
     virtual bool HasSeabedInteraction() const = 0;
 
@@ -104,8 +90,6 @@ namespace frydom {
    protected:
     virtual void FirstGuess() = 0;
 
-//    void Initialize
-
 
    protected:
     bool m_use_for_shape_initialization;
@@ -117,20 +101,11 @@ namespace frydom {
     std::shared_ptr<FrCatenaryForce> m_endingForce;     ///< Force applied by the catenary line to the body at the
     ///< ending node
 
-    double m_tolerance = 1e-6;
-    unsigned int m_maxiter = 100;
-    const double Lmin = 1e-10;
+    double m_tolerance;
+    unsigned int m_maxiter;
 
     Direction m_pi;
     double m_q;
-
-//    double m_unstretchedLength;
-
-
-
-
-
-
 
   };
 
