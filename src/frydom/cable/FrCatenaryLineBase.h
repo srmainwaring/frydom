@@ -5,7 +5,7 @@
 #ifndef FRYDOM_FRCATENARYLINEBASE_H
 #define FRYDOM_FRCATENARYLINEBASE_H
 
-#include "FrCable.h"
+#include "FrCableBase.h"
 #include "frydom/core/common/FrPhysicsItem.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/math/FrVector.h"
@@ -20,7 +20,7 @@ namespace frydom {
   class FrCatenaryForce;
 
   class FrCatenaryLineBase : public FrLoggable<FrOffshoreSystem>,
-                             public FrCable,
+                             public FrCableBase,
                              public FrPrePhysicsItem,
                              public FrCatenaryAssetOwner {
 
@@ -42,7 +42,7 @@ namespace frydom {
                        double unstretchedLength) :
         FrLoggable(name, type, startingNode->GetSystem()),
         FrPrePhysicsItem(),
-        FrCable(startingNode, endingNode, properties, unstretchedLength),
+        FrCableBase(startingNode, endingNode, properties, unstretchedLength),
         m_elastic(elastic),
         m_use_for_shape_initialization(false),
         m_tolerance(1e-4),

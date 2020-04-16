@@ -7,7 +7,7 @@
 
 #include "frydom/environment/FrEnvironmentInc.h"
 
-#include "frydom/cable/FrCable.h"
+#include "frydom/cable/FrCableBase.h"
 #include "frydom/cable/FrCatenaryLine.h"
 
 
@@ -15,7 +15,7 @@ namespace frydom {
 
 
   std::unique_ptr<FrCableShapeInitializer>
-  FrCableShapeInitializer::Create(FrCable *cable, FrEnvironment *environment) {
+  FrCableShapeInitializer::Create(FrCableBase *cable, FrEnvironment *environment) {
 
     auto startNode = cable->GetStartingNode();
     auto endNode = cable->GetEndingNode();
@@ -58,14 +58,14 @@ namespace frydom {
     }
   }
 
-  FrCableShapeInitializer::FrCableShapeInitializer(FrCable *cable) :
+  FrCableShapeInitializer::FrCableShapeInitializer(FrCableBase *cable) :
       m_cable(cable) {}
 
 
   namespace internal {
 
 
-    FrCableShapeInitializerTaut::FrCableShapeInitializerTaut(FrCable *cable) :
+    FrCableShapeInitializerTaut::FrCableShapeInitializerTaut(FrCableBase *cable) :
         FrCableShapeInitializer(cable),
         m_unit_vector((cable->GetEndingNode()->GetPositionInWorld(NWU) -
                        cable->GetStartingNode()->GetPositionInWorld(NWU)).normalized()) {
@@ -84,7 +84,7 @@ namespace frydom {
       return m_unit_vector;
     }
 
-    FrCableShapeInitializerSlack::FrCableShapeInitializerSlack(FrCable *cable,
+    FrCableShapeInitializerSlack::FrCableShapeInitializerSlack(FrCableBase *cable,
                                                                std::unique_ptr<FrCatenaryLine> catenary_cable)
         :
         FrCableShapeInitializer(cable),
@@ -99,7 +99,7 @@ namespace frydom {
       return m_catenary_line->GetTangent(s, fc);
     }
 
-    FrCableShapeInitializerSlackSeabed::FrCableShapeInitializerSlackSeabed(FrCable *cable,
+    FrCableShapeInitializerSlackSeabed::FrCableShapeInitializerSlackSeabed(FrCableBase *cable,
                                                                            FrEnvironment *environment) :
         m_environment(environment),
         FrCableShapeInitializer(cable) {

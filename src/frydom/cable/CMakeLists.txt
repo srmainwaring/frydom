@@ -1,17 +1,18 @@
 message(STATUS "    ...Cable")
 
 set(SRC_FILES
-        FrCable.cpp
+        FrCableProperties.cpp
+        FrCableBase.cpp
         FrCatenaryLineBase.cpp
         FrCatenaryLine.cpp
         FrCatenaryLineSeabed.cpp
         FrMooringBuoy.cpp
-        FrDynamicCable.cpp
+        FrFEACable.cpp
         FrLumpedMassCable.cpp
         FrCableShapeInitializer.cpp
         FrAnchor.cpp
         FrClumpedMass.cpp
-        FrHydroFEACableLoads.cpp
+        FrFEACableLoads.cpp
 )
 
 set(FRYDOM_CABLE_SOURCES "")

@@ -68,7 +68,7 @@ namespace frydom {
       FrCatenaryAssetOwner::Initialize();
     }
 
-    FrCable::Initialize();
+    FrCableBase::Initialize();
   }
 
 //  FLUID_TYPE FrCatenaryLineBase::GetFluidType() const {

@@ -41,7 +41,7 @@ namespace frydom {
     m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
   }
 
-  FrCatenaryLine::FrCatenaryLine(const std::string &name, FrCable *cable, bool elastic, FLUID_TYPE fluid_type) :
+  FrCatenaryLine::FrCatenaryLine(const std::string &name, FrCableBase *cable, bool elastic, FLUID_TYPE fluid_type) :
       FrCatenaryLine(name,
                      cable->GetStartingNode(),
                      cable->GetEndingNode(),
@@ -538,7 +538,7 @@ namespace frydom {
 //                                   FLUID_TYPE fluid) :
 //      FrLoggable(name, TypeToString(this), startingNode->GetBody()->GetSystem()),
 //      FrPrePhysicsItem(),
-//      FrCable(startingNode, endingNode, properties, unstretchedLength),
+//      FrCableBase(startingNode, endingNode, properties, unstretchedLength),
 //      m_elastic(elastic),
 //      c_fluid(fluid),
 //      m_is_for_shape_initialization(false) {
@@ -547,7 +547,7 @@ namespace frydom {
 //  }
 //
 //  FrCatenaryLine_::FrCatenaryLine_(const std::string &name,
-//                                   FrCable *cable,
+//                                   FrCableBase *cable,
 //                                   bool elastic,
 //                                   FLUID_TYPE fluid_type) :
 //      FrCatenaryLine_(name,
@@ -908,7 +908,7 @@ namespace frydom {
 //      FrCatenaryAssetOwner::Initialize();
 //    }
 //
-//    FrCable::Initialize();
+//    FrCableBase::Initialize();
 //  }
 //
 //  void FrCatenaryLine_::Compute(double time) {
@@ -919,7 +919,7 @@ namespace frydom {
 //  }
 //
 //  void FrCatenaryLine_::UpdateState() {
-//    FrCable::UpdateState();
+//    FrCableBase::UpdateState();
 //    FrCatenaryLine_::solve();
 //  }
 //

@@ -10,8 +10,8 @@
 // ==========================================================================
 
 
-#ifndef FRYDOM_FRCABLE_H
-#define FRYDOM_FRCABLE_H
+#ifndef FRYDOM_FRCABLEBASE_H
+#define FRYDOM_FRCABLEBASE_H
 
 
 #include "frydom/core/math/FrVector.h"
@@ -168,17 +168,17 @@ namespace frydom {
 
 
   /**
-   * \class FrCable FrCable.h
+   * \class FrCableBase FrCableBase.h
    * \brief Abstract base class for cables, superclass of FrCatenaryLine and
-   * FrDynamicCable .
+   * FrFEACable .
    * This means cables are updated between bodies and links.
    * A cable is connected to two nodes : a starting node and an ending node. Nodes are contained by at
    * least one body, and used to connect bodies to other components (cables, links,etc.)
-   * \see FrCatenaryLine, FrDynamicCable, FrNode
+   * \see FrCatenaryLine, FrFEACable, FrNode
    *
    */
-  class FrCable {
-    // TODO: voir pourquoi FrCable n'est pas un TreeNode<FrOffshoreSystem> ou un FrLoggable<FrOffshoreSystem>...
+  class FrCableBase {
+    // TODO: voir pourquoi FrCableBase n'est pas un TreeNode<FrOffshoreSystem> ou un FrLoggable<FrOffshoreSystem>...
 
    protected:
 
@@ -202,21 +202,21 @@ namespace frydom {
 
    public:
 
-    /// FrCable constructor, using two nodes
+    /// FrCableBase constructor, using two nodes
     /// \param startingNode starting node
     /// \param endingNode ending node
-    FrCable(const std::shared_ptr<FrNode> &startingNode,
-            const std::shared_ptr<FrNode> &endingNode);
+    FrCableBase(const std::shared_ptr<FrNode> &startingNode,
+                const std::shared_ptr<FrNode> &endingNode);
 
-    /// FrCable constructor, using two nodes and cable properties
+    /// FrCableBase constructor, using two nodes and cable properties
     /// \param startingNode starting node
     /// \param endingNode ending node
     /// \param properties cable properties
     /// \param unstretchedLength unstrained length, in m
-    FrCable(const std::shared_ptr<FrNode> &startingNode,
-            const std::shared_ptr<FrNode> &endingNode,
-            const std::shared_ptr<FrCableProperties> &properties,
-            double unstretchedLength);
+    FrCableBase(const std::shared_ptr<FrNode> &startingNode,
+                const std::shared_ptr<FrNode> &endingNode,
+                const std::shared_ptr<FrCableProperties> &properties,
+                double unstretchedLength);
 
     void Initialize();
 
@@ -313,4 +313,4 @@ namespace frydom {
 }  // end namespace frydom
 
 
-#endif //FRYDOM_FRCABLE_H
+#endif //FRYDOM_FRCABLEBASE_H

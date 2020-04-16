@@ -11,9 +11,9 @@
 #include <chrono/fea/ChContactSurfaceMesh.h>
 #include <chrono/physics/ChLoadContainer.h>
 
-#include "FrDynamicCable.h"
+#include "FrFEACable.h"
 
-#include "FrHydroFEACableLoads.h"
+#include "FrFEACableLoads.h"
 
 //#include "frydom/core/FrOffshoreSystem.h"
 //#include "frydom/cable/FrCatenaryLine.h"
@@ -29,7 +29,7 @@ namespace frydom {
 
   namespace internal {
 
-    FrDynamicCableBase::FrDynamicCableBase(FrDynamicCable *cable) : chrono::fea::ChMesh(), m_frydomCable(cable) {
+    FrDynamicCableBase::FrDynamicCableBase(FrFEACable *cable) : chrono::fea::ChMesh(), m_frydomCable(cable) {
 
       m_startingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
       m_endingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
@@ -120,25 +120,25 @@ namespace frydom {
     void FrDynamicCableBase::HingesConstraints() {
 
       switch (m_frydomCable->GetStartingHingeType()) {
-        case FrDynamicCable::NONE:
+        case FrFEACable::NONE:
           m_startingHinge->SetConstrainedCoords(false, false, false, false, false, false);
           break;
-        case FrDynamicCable::SPHERICAL:
+        case FrFEACable::SPHERICAL:
           m_startingHinge->SetConstrainedCoords(true, true, true, false, false, false);
           break;
-        case FrDynamicCable::CONSTRAINED:
+        case FrFEACable::CONSTRAINED:
           m_startingHinge->SetConstrainedCoords(true, true, true, true, true, true);
           break;
       }
 
       switch (m_frydomCable->GetEndingHingeType()) {
-        case FrDynamicCable::NONE:
+        case FrFEACable::NONE:
           m_endingHinge->SetConstrainedCoords(false, false, false, false, false, false);
           break;
-        case FrDynamicCable::SPHERICAL:
+        case FrFEACable::SPHERICAL:
           m_endingHinge->SetConstrainedCoords(true, true, true, false, false, false);
           break;
-        case FrDynamicCable::CONSTRAINED:
+        case FrFEACable::CONSTRAINED:
           m_endingHinge->SetConstrainedCoords(true, true, true, true, true, true);
           break;
       }
@@ -339,16 +339,16 @@ namespace frydom {
     }
   }
 
-  FrDynamicCable::FrDynamicCable(const std::string &name,
-                                 const std::shared_ptr<frydom::FrNode> &startingNode,
-                                 const std::shared_ptr<frydom::FrNode> &endingNode,
-                                 const std::shared_ptr<FrCableProperties> &properties,
-                                 double unstrainedLength,
-                                 double rayleighDamping,
-                                 unsigned int nbElements) :
+  FrFEACable::FrFEACable(const std::string &name,
+                         const std::shared_ptr<frydom::FrNode> &startingNode,
+                         const std::shared_ptr<frydom::FrNode> &endingNode,
+                         const std::shared_ptr<FrCableProperties> &properties,
+                         double unstrainedLength,
+                         double rayleighDamping,
+                         unsigned int nbElements) :
       FrLoggable(name, TypeToString(this), startingNode->GetBody()->GetSystem()),
       FrFEAMesh(),
-      FrCable(startingNode, endingNode, properties, unstrainedLength),
+      FrCableBase(startingNode, endingNode, properties, unstrainedLength),
       m_rayleighDamping(rayleighDamping),
       m_nbElements(nbElements) {
 
@@ -358,28 +358,28 @@ namespace frydom {
   }
 
 
-  void FrDynamicCable::SetRayleighDamping(double damping) {
+  void FrFEACable::SetRayleighDamping(double damping) {
     m_rayleighDamping = damping;
   }
 
-  double FrDynamicCable::GetRayleighDamping() const {
+  double FrFEACable::GetRayleighDamping() const {
     return m_rayleighDamping;
   }
 
-  void FrDynamicCable::SetNumberOfElements(unsigned int nbElements) {
+  void FrFEACable::SetNumberOfElements(unsigned int nbElements) {
     m_nbElements = nbElements;
   }
 
-  unsigned int FrDynamicCable::GetNumberOfElements() const {
+  unsigned int FrFEACable::GetNumberOfElements() const {
     return m_nbElements;
   }
 
-  void FrDynamicCable::SetTargetElementLength(double elementLength) {
+  void FrFEACable::SetTargetElementLength(double elementLength) {
     assert(elementLength > 0. && elementLength < GetUnstretchedLength());
     m_nbElements = static_cast<unsigned int>(int(floor(GetUnstretchedLength() / elementLength)));
   }
 
-  void FrDynamicCable::DefineLogMessages() {
+  void FrFEACable::DefineLogMessages() {
 
     auto msg = NewMessage("State", "State message");
 
@@ -399,38 +399,38 @@ namespace frydom {
 
   }
 
-  void FrDynamicCable::SetBreakingTension(double tension) {
+  void FrFEACable::SetBreakingTension(double tension) {
     m_maxTension = tension;
   }
 
-  double FrDynamicCable::GetBreakingTension() const {
+  double FrFEACable::GetBreakingTension() const {
     return m_maxTension;
   }
 
-  void FrDynamicCable::SetDrawElementRadius(double radius) {
+  void FrFEACable::SetDrawElementRadius(double radius) {
     m_drawCableElementRadius = radius;
   }
 
-  double FrDynamicCable::GetDrawElementRadius() {
+  double FrFEACable::GetDrawElementRadius() {
     return m_drawCableElementRadius;
   }
 
-  void FrDynamicCable::SetDrawNodeSize(double size) {
+  void FrFEACable::SetDrawNodeSize(double size) {
     m_drawCableNodeSize = size;
   }
 
-  double FrDynamicCable::GetDrawNodeSize() const {
+  double FrFEACable::GetDrawNodeSize() const {
     return m_drawCableElementRadius;
   }
 
-  void FrDynamicCable::Initialize() {
+  void FrFEACable::Initialize() {
 
     m_chronoCable->Initialize();
 
     GetTension(0., NWU);
   }
 
-  Force FrDynamicCable::GetTension(const double &s, FRAME_CONVENTION fc) const {
+  Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
 
     assert(0. <= s && s <= GetUnstretchedLength());
 
@@ -456,11 +456,11 @@ namespace frydom {
 
   }
 
-  Direction FrDynamicCable::GetTangent(const double &s, FRAME_CONVENTION fc) const {
+  Direction FrFEACable::GetTangent(const double &s, FRAME_CONVENTION fc) const {
     return GetTension(s, fc).normalized();
   }
 
-  Position FrDynamicCable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
+  Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
 
     assert(s <= GetUnstretchedLength());
 
@@ -482,7 +482,7 @@ namespace frydom {
 
   }
 
-//    void FrDynamicCable::AddFields() {
+//    void FrFEACable::AddFields() {
 ////        if (IsLogged()) {
 ////
 ////            // Add the fields to be logged here
@@ -506,23 +506,23 @@ namespace frydom {
 ////        }
 //    }
 
-  void FrDynamicCable::SetStartingHingeType(FrDynamicCable::HingeType type) {
+  void FrFEACable::SetStartingHingeType(FrFEACable::HingeType type) {
     m_startingHingeType = type;
   }
 
-  FrDynamicCable::HingeType FrDynamicCable::GetStartingHingeType() const {
+  FrFEACable::HingeType FrFEACable::GetStartingHingeType() const {
     return m_startingHingeType;
   }
 
-  void FrDynamicCable::SetEndingHingeType(FrDynamicCable::HingeType type) {
+  void FrFEACable::SetEndingHingeType(FrFEACable::HingeType type) {
     m_endingHingeType = type;
   }
 
-  FrDynamicCable::HingeType FrDynamicCable::GetEndingHingeType() const {
+  FrFEACable::HingeType FrFEACable::GetEndingHingeType() const {
     return m_endingHingeType;
   }
 
-  double FrDynamicCable::GetStaticResidual() {
+  double FrFEACable::GetStaticResidual() {
 
     double residual = 0;
 
@@ -533,13 +533,13 @@ namespace frydom {
     return residual;
   }
 
-  void FrDynamicCable::Relax() {
+  void FrFEACable::Relax() {
 
     m_chronoCable->SetNoSpeedNoAcceleration();
 
   }
 
-  std::shared_ptr<FrDynamicCable>
+  std::shared_ptr<FrFEACable>
   make_dynamic_cable(const std::string &name,
                      const std::shared_ptr<FrNode> &startingNode,
                      const std::shared_ptr<FrNode> &endingNode,
@@ -548,13 +548,13 @@ namespace frydom {
                      double rayleighDamping,
                      unsigned int nbElements) {
 
-    auto Cable = std::make_shared<FrDynamicCable>(name,
-                                                  startingNode,
-                                                  endingNode,
-                                                  properties,
-                                                  unstrainedLength,
-                                                  rayleighDamping,
-                                                  nbElements);
+    auto Cable = std::make_shared<FrFEACable>(name,
+                                              startingNode,
+                                              endingNode,
+                                              properties,
+                                              unstrainedLength,
+                                              rayleighDamping,
+                                              nbElements);
 
     startingNode->GetBody()->GetSystem()->Add(Cable);
     return Cable;

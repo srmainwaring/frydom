@@ -106,9 +106,9 @@ namespace frydom {
 
   class FrEnvironment;
 
-  class FrCable;
+  class FrCableBase;
 
-  class FrDynamicCable;
+  class FrFEACable;
 
   class FrPathManager;
 
@@ -776,12 +776,12 @@ namespace frydom {
 
     /// Add a Dynamic Cable to the offshore system
     /// \param cable dynamic cable to be added
-    void AddDynamicCable(std::shared_ptr<FrDynamicCable> cable,
+    void AddDynamicCable(std::shared_ptr<FrFEACable> cable,
                          std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
 
     /// Remove a Dynamic Cable from the offshore system
     /// \param cable dynamic cable to be added
-    void RemoveDynamicCable(std::shared_ptr<FrDynamicCable> cable,
+    void RemoveDynamicCable(std::shared_ptr<FrFEACable> cable,
                             std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
 
     /// Add a lumped mass node to the offshore system

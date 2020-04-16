@@ -9,7 +9,7 @@
 #include <vector>
 #include <deque>
 
-#include "FrCable.h"
+#include "FrCableBase.h"
 #include "frydom/core/FrOffshoreSystem.h"
 
 #include <chrono/physics/ChBody.h>
@@ -241,7 +241,7 @@ namespace frydom {
 
   }  // end namespace internal
 
-  class FrLumpedMassCable : public FrLoggable<FrOffshoreSystem>, public FrCable {
+  class FrLumpedMassCable : public FrLoggable<FrOffshoreSystem>, public FrCableBase {
 
    public:
 

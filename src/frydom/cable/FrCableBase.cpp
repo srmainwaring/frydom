@@ -10,7 +10,7 @@
 // ==========================================================================
 
 
-#include "FrCable.h"
+#include "FrCableBase.h"
 #include "frydom/core/common/FrObject.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/logging/FrLogManager.h"
@@ -111,72 +111,72 @@ namespace frydom {
   }
 
   //------------------------------------------------------------------------------------------------------------------
-  // FrCable
+  // FrCableBase
 
-  FrCable::FrCable(const std::shared_ptr<FrNode> &startingNode,
-                   const std::shared_ptr<FrNode> &endingNode) :
+  FrCableBase::FrCableBase(const std::shared_ptr<FrNode> &startingNode,
+                           const std::shared_ptr<FrNode> &endingNode) :
       m_startingNode(startingNode),
       m_endingNode(endingNode) {
 
     m_properties = std::make_shared<FrCableProperties>();
   }
 
-  FrCable::FrCable(const std::shared_ptr<FrNode> &startingNode,
-                   const std::shared_ptr<FrNode> &endingNode,
-                   const std::shared_ptr<FrCableProperties> &properties,
-                   double unstretchedLength) :
+  FrCableBase::FrCableBase(const std::shared_ptr<FrNode> &startingNode,
+                           const std::shared_ptr<FrNode> &endingNode,
+                           const std::shared_ptr<FrCableProperties> &properties,
+                           double unstretchedLength) :
       m_startingNode(startingNode),
       m_endingNode(endingNode),
       m_unstretchedLength(unstretchedLength),
       m_properties(properties) {}
 
-  void FrCable::Initialize() {}
+  void FrCableBase::Initialize() {}
 
-  void FrCable::SetCableProperties(const std::shared_ptr<FrCableProperties> prop) {
+  void FrCableBase::SetCableProperties(const std::shared_ptr<FrCableProperties> prop) {
     m_properties = prop;
   }
 
-  std::shared_ptr<FrCableProperties> FrCable::GetCableProperties() const {
+  std::shared_ptr<FrCableProperties> FrCableBase::GetCableProperties() const {
     return m_properties;
   }
 
-  void FrCable::SetUnstretchedLength(double L) {
+  void FrCableBase::SetUnstretchedLength(double L) {
     m_unstretchedLength = L;
     BuildCache();
   }
 
-  double FrCable::GetUnstretchedLength() const {
+  double FrCableBase::GetUnstretchedLength() const {
     return m_unstretchedLength;
   }
 
 
-  void FrCable::SetStartingNode(const std::shared_ptr<FrNode> startingNode) {
+  void FrCableBase::SetStartingNode(const std::shared_ptr<FrNode> startingNode) {
     // TODO: permettre de re-attacher le cable a un autre noeud si elle etait deja attachee a un noeud
     m_startingNode = startingNode;
   }
 
-  std::shared_ptr<FrNode> FrCable::GetStartingNode() const {
+  std::shared_ptr<FrNode> FrCableBase::GetStartingNode() const {
     return m_startingNode;
   }
 
-  void FrCable::SetEndingNode(const std::shared_ptr<FrNode> endingNode) {
+  void FrCableBase::SetEndingNode(const std::shared_ptr<FrNode> endingNode) {
     // TODO: permettre de re-attacher le cable a un autre noeud si elle etait deja attachee a un noeud
     m_endingNode = endingNode;
   }
 
-  std::shared_ptr<FrNode> FrCable::GetEndingNode() const {
+  std::shared_ptr<FrNode> FrCableBase::GetEndingNode() const {
     return m_endingNode;
   }
 
-//    void FrCable::SetBreakingTension(double tension) {
+//    void FrCableBase::SetBreakingTension(double tension) {
 //        m_breakingTension = tension;
 //    }
 //
-//    double FrCable::GetBreakingTension() const {
+//    double FrCableBase::GetBreakingTension() const {
 //        return m_breakingTension;
 //    }
 
-//    void FrCable::InitBreakingTension() {
+//    void FrCableBase::InitBreakingTension() {
 //
 //        if (GetBreakingTension()==0){
 //            double ds = GetUnstretchedLength()/ GetAssetElements();
@@ -190,26 +190,26 @@ namespace frydom {
 //
 //    }
 
-  void FrCable::SetUnrollingSpeed(double unrollingSpeed) {
+  void FrCableBase::SetUnrollingSpeed(double unrollingSpeed) {
     m_unrollingSpeed = unrollingSpeed;
   }
 
-  double FrCable::GetUnrollingSpeed() const {
+  double FrCableBase::GetUnrollingSpeed() const {
     return m_unrollingSpeed;
   }
 
-  void FrCable::UpdateTime(double time) {
+  void FrCableBase::UpdateTime(double time) {
     m_time_step = time - m_time;
     m_time = time;
   }
 
-  void FrCable::UpdateState() {
+  void FrCableBase::UpdateState() {
     if (std::abs(m_unrollingSpeed) > DBL_EPSILON and std::abs(m_time_step) > DBL_EPSILON) {
       m_unstretchedLength += m_unrollingSpeed * m_time_step;
     }
   }
 
-  double FrCable::GetStrainedLength() const { // FIXME: ne fonctionne pas, retourne 0. !!
+  double FrCableBase::GetStrainedLength() const { // FIXME: ne fonctionne pas, retourne 0. !!
     double cl = 0.;
     int n = 1000;
 
@@ -225,7 +225,7 @@ namespace frydom {
     return cl;
   }
 
-//  FrOffshoreSystem *FrCable::GetSystem() const {
+//  FrOffshoreSystem *FrCableBase::GetSystem() const {
 //    return GetParent();
 //  }
 

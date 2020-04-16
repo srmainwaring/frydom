@@ -17,7 +17,7 @@
 #include "FrCatenaryLineSeabed.h"
 
 
-//#include "FrCable.h"
+//#include "FrCableBase.h"
 //#include "frydom/core/common/FrPhysicsItem.h"
 //#include "frydom/core/math/FrVector.h"
 #include "frydom/environment/FrFluidType.h"
@@ -68,7 +68,7 @@ namespace frydom {
                    FLUID_TYPE fluid_type);
 
     FrCatenaryLine(const std::string &name,
-                   FrCable *cable,
+                   FrCableBase *cable,
                    bool elastic,
                    FLUID_TYPE fluid_type);
 
@@ -215,7 +215,7 @@ namespace frydom {
 //
 //  /**
 //   * \class FrCatenaryLine FrCatenaryLine.h
-//   * \brief Class for catenary line objects, subclass of FrCable and FrMidPhysicsItem
+//   * \brief Class for catenary line objects, subclass of FrCableBase and FrMidPhysicsItem
 //   * The catenary line can be specified elastic or not. However be careful not to strain the line if it has been
 //   * defined as non elastic. Only an elastic line can be strained !
 //   * The model for the catenary line is a quasi-static approach, based on uniform distributed load. In water, the
@@ -227,7 +227,7 @@ namespace frydom {
 //  //TODO: check that the chrono_objects are deleted correctly, when the frydom objects are deleted (assets included)
 //  class FrCatenaryLine_
 //      : public FrLoggable<FrOffshoreSystem>,
-//        public FrCable,
+//        public FrCableBase,
 //        public FrPrePhysicsItem,
 //        public FrCatenaryAssetOwner {
 //
@@ -284,11 +284,11 @@ namespace frydom {
 //                    FLUID_TYPE fluid  // FIXME : on ne devrait pas specifier le fluide !!! on doit le recuperer de l'environnement...
 //    );
 //
-//    /// Catenary line constructor, based on a generic FrCable pointer. It is used by shape initialization functions
+//    /// Catenary line constructor, based on a generic FrCableBase pointer. It is used by shape initialization functions
 //    /// To get a catenary shape that fit the data of a given uninitialized more complicated cable.
 //    /// Internal use only
 //    explicit FrCatenaryLine_(const std::string &name,
-//                             FrCable *cable,
+//                             FrCableBase *cable,
 //                             bool elastic,
 //                             FLUID_TYPE fluid_type);
 //

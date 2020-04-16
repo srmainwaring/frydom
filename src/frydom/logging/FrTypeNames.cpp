@@ -28,9 +28,9 @@ namespace frydom {
 
   // CABLES
 
-  class FrDynamicCable;
+  class FrFEACable;
 
-  TYPE_TO_STRING(FrDynamicCable, "DynamicCable")
+  TYPE_TO_STRING(FrFEACable, "DynamicCable")
 
   class FrCatenaryLine;
 

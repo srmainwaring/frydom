@@ -389,7 +389,7 @@ namespace frydom {
                                        const std::shared_ptr<FrCableProperties> &properties,
                                        double unstretchedLength,
                                        unsigned int nbElements) :
-      FrCable(startingNode, endingNode, properties, unstretchedLength),
+      FrCableBase(startingNode, endingNode, properties, unstretchedLength),
       FrLoggable<FrOffshoreSystem>(name, TypeToString(this), startingNode->GetSystem()) {
 
 

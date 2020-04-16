@@ -41,9 +41,9 @@ namespace frydom {
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrRootNode, "ROOT_");
 
-  class FrDynamicCable;
+  class FrFEACable;
 
-  TYPE_TO_NORMALIZED_PATH_PREFIX(FrDynamicCable, "CABLES/DYN_CABLE_");
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrFEACable, "CABLES/DYN_CABLE_");
 
   class FrCatenaryLine;
 

@@ -2,31 +2,31 @@
 // Created by frongere on 15/04/2020.
 //
 
-#include "FrHydroFEACableLoads.h"
+#include "FrFEACableLoads.h"
 
 
 namespace frydom {
 
 
-  FrHydroFEACableLoader::FrHydroFEACableLoader(std::shared_ptr<chrono::ChLoadableU> mloadable) :
+  FrFEACableLoader::FrFEACableLoader(std::shared_ptr<chrono::ChLoadableU> mloadable) :
       m_system(nullptr), chrono::ChLoaderUdistributed(mloadable) {}
 
-  void FrHydroFEACableLoader::SetSystem(FrOffshoreSystem *system) {
+  void FrFEACableLoader::SetSystem(FrOffshoreSystem *system) {
     m_system = system;
   }
 
-  int FrHydroFEACableLoader::GetIntegrationPointsU() { return 1; }
+  int FrFEACableLoader::GetIntegrationPointsU() { return 1; }
 
   FrBuoyancyLoader::FrBuoyancyLoader(std::shared_ptr<chrono::ChLoadableU> mloadable) :
-      FrHydroFEACableLoader(mloadable) {}
+      FrFEACableLoader(mloadable) {}
 
   void FrBuoyancyLoader::ComputeF(const double U, chrono::ChVectorDynamic<> &F, chrono::ChVectorDynamic<> *state_x,
                                   chrono::ChVectorDynamic<> *state_w) {  ///< if != 0, update state (speed part) to this, then evaluate F)
 
     // Pas besoin d'agir sur state_x et state_w
 
-    auto element = std::dynamic_pointer_cast<chrono::fea::ChElementBeamEuler>(
-        loadable);  // FIXME: il faudra templater cet element !!
+    // FIXME: il faudra templater cet element !!
+    auto element = std::dynamic_pointer_cast<chrono::fea::ChElementBeamEuler>(loadable);
 
 
     // Get the point position

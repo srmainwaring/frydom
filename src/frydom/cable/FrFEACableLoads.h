@@ -2,8 +2,8 @@
 // Created by frongere on 15/04/2020.
 //
 
-#ifndef FRYDOM_FRHYDROFEACABLELOADS_H
-#define FRYDOM_FRHYDROFEACABLELOADS_H
+#ifndef FRYDOM_FRFEACABLELOADS_H
+#define FRYDOM_FRFEACABLELOADS_H
 
 #include "chrono/physics/ChLoad.h"
 #include "chrono/physics/ChLoaderU.h"
@@ -17,18 +17,14 @@ namespace frydom {
 
 //  class FrOffshoreSystem;
 
-  class FrDynamicCable;
+  class FrFEACable;
 
 
 
-
-
-
-
-  class FrHydroFEACableLoader : public chrono::ChLoaderUdistributed {
+  class FrFEACableLoader : public chrono::ChLoaderUdistributed {
 
    public:
-    explicit FrHydroFEACableLoader(std::shared_ptr<chrono::ChLoadableU> mloadable);
+    explicit FrFEACableLoader(std::shared_ptr<chrono::ChLoadableU> mloadable);
 
     void SetSystem(FrOffshoreSystem *system);
 
@@ -39,7 +35,7 @@ namespace frydom {
 
   };
 
-  class FrBuoyancyLoader : public FrHydroFEACableLoader {
+  class FrBuoyancyLoader : public FrFEACableLoader {
 
    public:
     explicit FrBuoyancyLoader(std::shared_ptr<chrono::ChLoadableU> mloadable);
@@ -60,4 +56,4 @@ namespace frydom {
 
 
 
-#endif //FRYDOM_FRHYDROFEACABLELOADS_H
+#endif //FRYDOM_FRFEACABLELOADS_H

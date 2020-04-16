@@ -22,7 +22,7 @@
 #include "frydom/core/link/constraint/FrConstraint.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrFEAMesh.h"
-#include "frydom/cable/FrDynamicCable.h"
+#include "frydom/cable/FrFEACable.h"
 #include "frydom/cable/FrCatenaryLine.h"
 #include "frydom/cable/FrLumpedMassCable.h"
 #include "frydom/core/force/FrForce.h"
@@ -430,7 +430,7 @@ namespace frydom {
     m_feaMeshList.push_back(feaMesh);
   }
 
-  void FrOffshoreSystem::AddDynamicCable(std::shared_ptr<FrDynamicCable> cable,
+  void FrOffshoreSystem::AddDynamicCable(std::shared_ptr<FrFEACable> cable,
                                          std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
 
     // Add the FEA mesh
@@ -458,7 +458,7 @@ namespace frydom {
 
   }
 
-  void FrOffshoreSystem::RemoveDynamicCable(std::shared_ptr<FrDynamicCable> cable,
+  void FrOffshoreSystem::RemoveDynamicCable(std::shared_ptr<FrFEACable> cable,
                                             std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
 
     Remove(cable);
@@ -1409,7 +1409,7 @@ namespace frydom {
 
       // DYNAMIC CABLE
       // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddDynamicCable also add the hinges)
-    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrDynamicCable>(item)) {
+    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
       AddDynamicCable(dynamic_cable, dynamic_cable->GetChronoMesh());
       m_pathManager->RegisterTreeNode(dynamic_cable.get());
 
@@ -1481,7 +1481,7 @@ namespace frydom {
       RemoveFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
 
       // DYNAMIC CABLE
-    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrDynamicCable>(item)) {
+    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
       RemoveDynamicCable(dynamic_cable, dynamic_cable->GetChronoMesh());
 
       // UNKNOWN

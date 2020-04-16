@@ -13,13 +13,13 @@ namespace frydom {
   // Forward declarations
   class FrEnvironment;
 
-  class FrCable;
+  class FrCableBase;
 
   class FrCableShapeInitializer {
 
    public:
     // Factory static method to get the correct Shape initializer for the given cable
-    static std::unique_ptr<FrCableShapeInitializer> Create(FrCable *cable, FrEnvironment *environment);
+    static std::unique_ptr<FrCableShapeInitializer> Create(FrCableBase *cable, FrEnvironment *environment);
 
     virtual Position GetPosition(const double &s, FRAME_CONVENTION fc) const = 0;
 
@@ -28,9 +28,9 @@ namespace frydom {
    protected:
     // info: constructor is protected as we must use the static Create method which is a factory method
     // and choose the rigth concrete class to implement
-    explicit FrCableShapeInitializer(FrCable *cable);
+    explicit FrCableShapeInitializer(FrCableBase *cable);
 
-    FrCable *m_cable;
+    FrCableBase *m_cable;
   };
 
   class FrCatenaryLine;
@@ -41,7 +41,7 @@ namespace frydom {
 
     class FrCableShapeInitializerTaut : public FrCableShapeInitializer {
      public:
-      explicit FrCableShapeInitializerTaut(FrCable *cable);
+      explicit FrCableShapeInitializerTaut(FrCableBase *cable);
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;
 
@@ -54,7 +54,7 @@ namespace frydom {
 
     class FrCableShapeInitializerSlack : public FrCableShapeInitializer {
      public:
-      explicit FrCableShapeInitializerSlack(FrCable *cable, std::unique_ptr<FrCatenaryLine> catenary_cable);
+      explicit FrCableShapeInitializerSlack(FrCableBase *cable, std::unique_ptr<FrCatenaryLine> catenary_cable);
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;
 
@@ -67,7 +67,7 @@ namespace frydom {
 
     class FrCableShapeInitializerSlackSeabed : public FrCableShapeInitializer {
      public:
-      FrCableShapeInitializerSlackSeabed(FrCable *cable,
+      FrCableShapeInitializerSlackSeabed(FrCableBase *cable,
                                          FrEnvironment *environment);
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;
