@@ -47,12 +47,12 @@ namespace frydom {
     /// Define a single element morison model
     /// \param body Body to which the morison model is applied
     /// \return Single element morison model
-    FrMorisonSingleElement *SetSingleElementModel(FrBody *body);
+    //FrMorisonSingleElement *SetSingleElementModel(FrBody *body);
 
     /// Define a composite element morison model
     /// \param body Body to which the morison model is applied
     /// \return Composite element morison model
-    FrMorisonCompositeElement *SetCompositeElementModel(FrBody *body);
+    //FrMorisonCompositeElement *SetCompositeElementModel(FrBody *body);
 
     /// Method to initialized the morison force
     void Initialize() override;

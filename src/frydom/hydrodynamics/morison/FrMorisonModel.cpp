@@ -21,14 +21,21 @@
 namespace frydom {
 
 
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::shared_ptr<FrBody> &body) {
-    return std::make_shared<FrMorisonCompositeElement>(body.get());
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+                                                                const std::shared_ptr<FrBody> &body,
+                                                                bool extendedModel) {
+    auto model = std::make_shared<FrMorisonCompositeElement>(name, body.get(), extendedModel);
+    body->GetSystem()->Add(model);
+    return model;
   }
 
 
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::shared_ptr<FrBody> &body, const std::string &filename) {
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+                                                                const std::shared_ptr<FrBody> &body,
+                                                                const std::string &filename,
+                                                                bool extendedModel) {
     //TODO ; extend for Cf, double valued Cd and Ca, etc.
-    auto model = std::make_shared<FrMorisonCompositeElement>(body.get());
+    auto model = std::make_shared<FrMorisonCompositeElement>(name, body.get(), extendedModel);
 
     std::ifstream ifs(filename);
     auto json_obj = json::parse(ifs);
@@ -56,6 +63,8 @@ namespace frydom {
       Direction dv = (PosB - PosA);
       model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm-1.), MorisonCoeff(Cd), 0.);
     }
+
+    body->GetSystem()->Add(model);
 
     return model;
   }
@@ -445,15 +454,23 @@ namespace frydom {
   // MORISON COMPOSITE FORCE MODEL
   // -------------------------------------------------------------------
 
-  FrMorisonCompositeElement::FrMorisonCompositeElement(FrBody *body) : m_property() {
+  FrMorisonCompositeElement::FrMorisonCompositeElement(const std::string& name, FrBody *body, bool extendedModel)
+    : FrTreeNode(name, body), m_property() {
     m_node = std::make_shared<FrNode>("", body);
-    m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+    SetExtendedModel(extendedModel);
+    if (m_extendedModel) {
+      m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+    }
   }
 
-  FrMorisonCompositeElement::FrMorisonCompositeElement(FrBody *body, FrFrame &frame) : m_property() {
+  FrMorisonCompositeElement::FrMorisonCompositeElement(const std::string& name, FrBody *body, FrFrame &frame, bool extendedModel)
+    : FrTreeNode(name, body), m_property() {
     m_node = std::make_shared<FrNode>("", body); // TODO : Devrait etre instancie dans la classe de base
     m_node->SetFrameInBody(frame);
-    m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+    SetExtendedModel(extendedModel);
+    if (m_extendedModel) {
+      m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+    }
   }
 
   void

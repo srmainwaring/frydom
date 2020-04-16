@@ -20,15 +20,15 @@
 
 namespace frydom {
 
-  FrMorisonSingleElement *FrMorisonForce::SetSingleElementModel(FrBody *body) {
-    m_model = std::make_shared<FrMorisonSingleElement>(body);
-    return dynamic_cast<FrMorisonSingleElement *>(m_model.get());
-  }
+  //FrMorisonSingleElement *FrMorisonForce::SetSingleElementModel(FrBody *body) {
+  //  m_model = std::make_shared<FrMorisonSingleElement>(body);
+  //  return dynamic_cast<FrMorisonSingleElement *>(m_model.get());
+  //}
 
-  FrMorisonCompositeElement *FrMorisonForce::SetCompositeElementModel(FrBody *body) {
-    m_model = std::make_shared<FrMorisonCompositeElement>(body);
-    return dynamic_cast<FrMorisonCompositeElement *>(m_model.get());
-  }
+  //FrMorisonCompositeElement *FrMorisonForce::SetCompositeElementModel(FrBody *body) {
+  //  m_model = std::make_shared<FrMorisonCompositeElement>(body);
+  //  return dynamic_cast<FrMorisonCompositeElement *>(m_model.get());
+  //}
 
   FrMorisonForce::FrMorisonForce(const std::string &name, FrBody *body, std::shared_ptr<FrMorisonElement> model)
       : FrForce(name, TypeToString(this), body), m_model(model) {}

@@ -103,9 +103,8 @@ int main(int argc, char* argv[]) {
 
   // Morison
 
-  auto morisonModel = make_morison_model(body);
+  auto morisonModel = make_morison_model("morison", body, true);
   morisonModel->AddElement({0., 0., -14}, {0., 0., 6.}, 2., 0.3, 0.1, 0.2, 20);
-  morisonModel->SetExtendedModel(true);
   auto morisonForce = make_morison_force("morison", body, morisonModel);
 
   // Additional spring force

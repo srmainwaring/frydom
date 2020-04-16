@@ -34,12 +34,17 @@ namespace frydom {
   /// Maker for a Morison model : instantiate and return a FrMorisonCompositeElement
   /// \param body body related to the morison model
   /// \return Morison model, as a Morison composite element
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::shared_ptr<FrBody> &body);
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+                                                                const std::shared_ptr<FrBody> &body,
+                                                                bool extendedModel=false);
 
   /// Maker for a Morison model : instantiate and return a FrMorisonCompositeElement
   /// \param body body related to the morison model
   /// \return Morison model, as a Morison composite element
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::shared_ptr<FrBody> &body, const std::string &filename);
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+                                                                const std::shared_ptr<FrBody> &body,
+                                                                const std::string &filename,
+                                                                bool extendedModel=false);
 
 
   // --------------------------------------------------------------------------
@@ -329,7 +334,9 @@ namespace frydom {
   /// The resultant force and torque are the sum of the force and torque of each morison model component
   /// computed at the center of gravity of the body. The force is expressed in the world coordinates system
   /// and the torque in the body coordinate system.
-  class FrMorisonCompositeElement : public FrMorisonElement, public FrPrePhysicsItem {
+  class FrMorisonCompositeElement : public FrMorisonElement,
+                                    public FrPrePhysicsItem,
+                                    public FrTreeNode<FrBody> {
 
    protected:
     std::vector<std::unique_ptr<FrMorisonElement>> m_morison;      ///< morison model components of the composite model
@@ -338,12 +345,12 @@ namespace frydom {
    public:
     /// Constructor of a new composite model of the morison force
     /// \param body Body to which the morison model is applied
-    explicit FrMorisonCompositeElement(FrBody *body);
+    explicit FrMorisonCompositeElement(const std::string& name, FrBody *body, bool extendedModel=false);
 
     /// Constructor of a new composite model of the morison force with frame local frame
     /// \param body BOdy to which the morison model is applied
     /// \param frame Local frame
-    FrMorisonCompositeElement(FrBody *body, FrFrame &frame);
+    FrMorisonCompositeElement(const std::string& name, FrBody *body, FrFrame &frame, bool extendedModel=false);
 
     //TODO: remove unecessary AddElement methods, add if needed the frame convention for the position and complete the
     // doc (pos are in the world reference frame)
