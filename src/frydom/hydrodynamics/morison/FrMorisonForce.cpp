@@ -43,7 +43,7 @@ namespace frydom {
     if (m_model->IsExtendedModel()) {
 
       mathutils::Matrix66<double> added_mass;
-      added_mass << m_model->GetAMInWorld().block<6, 3>(0, 0),
+      added_mass << m_model->GetAMInBody().block<6, 3>(0, 0),
                     m_model->GetAMInBody().block<6, 3>(0, 3);
 
       m_variables->SetAddedMass(added_mass);
@@ -56,8 +56,13 @@ namespace frydom {
     m_model->Initialize();
 
     if (m_model->IsExtendedModel()) {
+      mathutils::Matrix66<double> added_mass;
+      added_mass.setZero();
+      //added_mass << m_model->GetAMInBody().block<6, 3>(0, 0),
+      //    m_model->GetAMInBody().block<6, 3>(0, 3);
+      //added_mass.block<6, 3>(0, 0) = m_model->GetAMInBody().block<6, 3>(0, 0);
       m_variables = std::make_shared<internal::FrVariablesAddedMass>(
-          mathutils::Matrix66<double>(), GetBody());
+          added_mass, GetBody());
     }
 
   }

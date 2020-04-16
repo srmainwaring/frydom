@@ -407,6 +407,8 @@ namespace frydom {
       SetAMInFrame();
       SetAMInBody();
     }
+
+    CheckImmersion();
   }
 
   void FrMorisonSingleElement::StepFinalize() {
@@ -514,6 +516,13 @@ namespace frydom {
 
     m_AMInBody.setZero();
     m_AMInWorld.setZero();
+    // TODO : not mandatory loop
+    for (auto& element: m_morison) {
+      if (element->IsImmerged()) {
+        m_AMInBody += element->GetAMInBody();
+        m_AMInWorld += element->GetAMInWorld();
+      }
+    }
   }
 
   void FrMorisonCompositeElement::Update(double time) {
