@@ -19,6 +19,8 @@
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrFrame.h"
 
+#include "frydom/core/common/FrPhysicsItem.h"
+
 
 namespace frydom {
 
@@ -86,6 +88,8 @@ namespace frydom {
     /// Get the local frame of the morison model as node
     /// \return Node
     std::shared_ptr<FrNode> GetNode() const { return m_node; }
+
+    FrBody* GetBody() const;
 
     /// Get the force vector at COG in world reference frame
     /// \param fc Frame convention
@@ -325,11 +329,11 @@ namespace frydom {
   /// The resultant force and torque are the sum of the force and torque of each morison model component
   /// computed at the center of gravity of the body. The force is expressed in the world coordinates system
   /// and the torque in the body coordinate system.
-  class FrMorisonCompositeElement : public FrMorisonElement {
+  class FrMorisonCompositeElement : public FrMorisonElement, public FrPrePhysicsItem {
 
    protected:
     std::vector<std::unique_ptr<FrMorisonElement>> m_morison;      ///< morison model components of the composite model
-    MorisonElementProperty m_property = MorisonElementProperty();   ///< default element properties
+    MorisonElementProperty m_property ;   ///< default element properties
 
    public:
     /// Constructor of a new composite model of the morison force
@@ -441,6 +445,8 @@ namespace frydom {
     //
     // UPDATE
     //
+
+    void Compute(double time) override;
 
     /// Update the force of the morison composite model
     /// \param time Current time of the simulation from begining

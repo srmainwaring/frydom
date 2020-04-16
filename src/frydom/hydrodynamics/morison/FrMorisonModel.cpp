@@ -15,6 +15,7 @@
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/environment/FrEnvironmentInc.h"
+#include "frydom/hydrodynamics/morison/FrMorisonModelBase.h"
 
 
 namespace frydom {
@@ -117,6 +118,8 @@ namespace frydom {
   }
 
   FrFrame FrMorisonElement::GetFrame() const { return m_node->GetFrameInWorld(); }
+
+  FrBody* FrMorisonElement::GetBody() const { return m_node->GetBody(); }
 
   const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInFrame() {
     return m_AMInFrame;
@@ -442,13 +445,15 @@ namespace frydom {
   // MORISON COMPOSITE FORCE MODEL
   // -------------------------------------------------------------------
 
-  FrMorisonCompositeElement::FrMorisonCompositeElement(FrBody *body) {
+  FrMorisonCompositeElement::FrMorisonCompositeElement(FrBody *body) : m_property() {
     m_node = std::make_shared<FrNode>("", body);
+    m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
   }
 
-  FrMorisonCompositeElement::FrMorisonCompositeElement(FrBody *body, FrFrame &frame) {
+  FrMorisonCompositeElement::FrMorisonCompositeElement(FrBody *body, FrFrame &frame) : m_property() {
     m_node = std::make_shared<FrNode>("", body); // TODO : Devrait etre instancie dans la classe de base
     m_node->SetFrameInBody(frame);
+    m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
   }
 
   void
@@ -523,6 +528,15 @@ namespace frydom {
         m_AMInWorld += element->GetAMInWorld();
       }
     }
+
+    if (m_extendedModel) {
+      m_chronoPhysicsItem->SetupInitial();
+    }
+
+  }
+
+  void FrMorisonCompositeElement::Compute(double time) {
+    this->Update(time);
   }
 
   void FrMorisonCompositeElement::Update(double time) {
@@ -547,6 +561,7 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
+      m_chronoPhysicsItem->Update(time, false);
     }
 
   }

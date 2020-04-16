@@ -37,7 +37,6 @@ namespace frydom {
 
    private:
     std::shared_ptr<FrMorisonElement> m_model;      ///< Morison model linked with the morison force
-    std::shared_ptr<internal::FrVariablesAddedMass> m_variables;
 
    public:
 

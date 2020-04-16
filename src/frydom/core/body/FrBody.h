@@ -31,6 +31,7 @@
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBase.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrVariablesBEMBodyBase.h"
 #include "frydom/core/common/FrVariablesBodyBase.h"
+#include "frydom/hydrodynamics/morison/FrMorisonModelBase.h"
 
 
 #define DEFAULT_MAX_SPEED (float)10.
@@ -1030,6 +1031,8 @@ namespace frydom {
 
     // Variables
     friend internal::FrVariablesBodyBase::FrVariablesBodyBase(FrBody* body);
+
+    friend int internal::FrMorisonModelBase::GetBodyOffset() const;
 
   };
 
