@@ -30,7 +30,7 @@ namespace frydom {
 
   namespace internal {
 
-    FrDynamicCableBase::FrDynamicCableBase(FrFEACable *cable) : chrono::fea::ChMesh(), m_frydomCable(cable) {
+    FrFEACableBase::FrFEACableBase(FrFEACable *cable) : chrono::fea::ChMesh(), m_frydomCable(cable) {
 
       m_startingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
       m_endingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
@@ -38,7 +38,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::InitializeSection() {
+    void FrFEACableBase::InitializeSection() {
 
       m_section->SetAsCircularSection(m_frydomCable->GetProperties()->GetDiameter());
       m_section->SetBeamRaleyghDamping(m_frydomCable->GetRayleighDamping());
@@ -46,7 +46,7 @@ namespace frydom {
       m_section->SetYoungModulus(m_frydomCable->GetProperties()->GetYoungModulus());
     }
 
-    void FrDynamicCableBase::InitializeContact() {
+    void FrFEACableBase::InitializeContact() {
 
       auto surface_material = std::make_shared<chrono::ChMaterialSurfaceSMC>();
       surface_material->SetYoungModulus(2e12f);
@@ -70,7 +70,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::InitializeHydrodynamicLoads() {
+    void FrFEACableBase::InitializeHydrodynamicLoads() {
 
       // Loads must be added to a load container
       auto load_container = std::make_shared<chrono::ChLoadContainer>();
@@ -95,7 +95,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::InitializeLinks() {
+    void FrFEACableBase::InitializeLinks() {
 
       // Starting hinge
       auto starting_body = m_frydomCable->GetStartingNode()->GetBody()->m_chronoBody;
@@ -118,7 +118,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::HingesConstraints() {
+    void FrFEACableBase::HingesConstraints() {
 
       switch (m_frydomCable->GetStartingHingeType()) {
         case FrFEACable::NONE:
@@ -146,7 +146,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::GenerateAssets() {
+    void FrFEACableBase::GenerateAssets() {
       // Assets for the cable visualisation
       if (m_drawCableElements) {
         auto elements_assets = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*this);
@@ -175,7 +175,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::Initialize() {
+    void FrFEACableBase::Initialize() {
 
       if (m_starting_node_fea == nullptr) {
 
@@ -295,7 +295,7 @@ namespace frydom {
 
     }
 
-    void FrDynamicCableBase::Update(double time, bool update_assets) {
+    void FrFEACableBase::Update(double time, bool update_assets) {
 
 //      UpdateForces(time);
 
@@ -304,7 +304,7 @@ namespace frydom {
 
     }
 
-//    void FrDynamicCableBase::UpdateForces(double time) {
+//    void FrFEACableBase::UpdateForces(double time) {
 //
 //      // FIXME: ce n'est peut-etre pas ici qu'il faut faire qqch...
 //
@@ -313,7 +313,7 @@ namespace frydom {
 //
 //    }
 
-    Position FrDynamicCableBase::GetNodePositionInWorld(int index, double eta) {
+    Position FrFEACableBase::GetNodePositionInWorld(int index, double eta) {
 
       chrono::ChVector<double> Pos;
       chrono::ChQuaternion<double> Rot;
@@ -323,7 +323,7 @@ namespace frydom {
       return internal::ChVectorToVector3d<Position>(Pos);
     }
 
-    Force FrDynamicCableBase::GetTension(int index, double eta) {
+    Force FrFEACableBase::GetTension(int index, double eta) {
 
       chrono::ChVector<double> Tension, Torque;
 
@@ -353,7 +353,7 @@ namespace frydom {
       m_rayleighDamping(rayleighDamping),
       m_nbElements(nbElements) {
 
-    m_chronoCable = std::make_shared<internal::FrDynamicCableBase>(this);
+    m_chronoCable = std::make_shared<internal::FrFEACableBase>(this);
     LogThis(true);
 
   }

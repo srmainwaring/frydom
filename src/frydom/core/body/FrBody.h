@@ -1018,7 +1018,7 @@ namespace frydom {
 
     friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
 
-    friend void internal::FrDynamicCableBase::InitializeLinks();
+    friend void internal::FrFEACableBase::InitializeLinks();
 
 
     // For radiation model purpose

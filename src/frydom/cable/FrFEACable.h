@@ -6,6 +6,10 @@
 #define FRYDOM_FRFEACABLE_H
 
 #include <chrono/fea/ChMesh.h>
+#include <chrono/fea/ChElementBeamEuler.h>
+#include <chrono/fea/ChElementBeamANCF.h>
+#include <chrono/fea/ChElementBeamIGA.h>
+#include <chrono/fea/ChElementCableANCF.h>
 
 #include "FrCableBase.h"
 #include "frydom/core/common/FrFEAMesh.h"
@@ -29,15 +33,28 @@ namespace frydom {
 
   namespace internal {
 
+    class FrElementBeamEuler : public chrono::fea::ChElementBeamEuler {
+    };
+
+    class FrElementBeamANCF : public chrono::fea::ChElementBeamANCF {
+    };
+
+    class FrElementBeamIGA : public chrono::fea::ChElementBeamIGA {
+    };
+
+    class FrElementCableANCF : public chrono::fea::ChElementCableANCF {
+    };
+
+
     /**
-     * /class FrDynamicCableBase
+     * /class FrFEACableBase
      * /Brief Base class for the Dynamic Cable
      * This class contains the Finite Element Analysis (FEA) mesh, starting and ending nodes and hinges, along with
      * the section properties (linear density, section, inertia, Young modulus, Rayleigh damping, etc.)
      *
      * /see FrFEACable
      */
-    struct FrDynamicCableBase : public chrono::fea::ChMesh {
+    struct FrFEACableBase : public chrono::fea::ChMesh {
 
       FrFEACable *m_frydomCable;      ///< pointer to the Dynamic cable containing this base class
 
@@ -52,9 +69,9 @@ namespace frydom {
 
       std::shared_ptr<chrono::fea::ChBeamSectionAdvanced> m_section;      ///< Section properties (linear density, section, inertia, Young modulus, Rayleigh damping, etc.)
 
-      /// Constructor of the FrDynamicCableBase
+      /// Constructor of the FrFEACableBase
       /// \param cable pointer to the FrFEACable containing this base class
-      explicit FrDynamicCableBase(FrFEACable *cable);
+      explicit FrFEACableBase(FrFEACable *cable);
 
       /// Initialize the cable
       void Initialize();
@@ -125,7 +142,7 @@ namespace frydom {
 
    private:
 
-    std::shared_ptr<internal::FrDynamicCableBase> m_chronoCable;    ///< pointer to the Chrono cable
+    std::shared_ptr<internal::FrFEACableBase> m_chronoCable;    ///< pointer to the Chrono cable
 
     double m_rayleighDamping;               ///< Rayleigh damping
     unsigned int m_nbElements;              ///< Number of elements in the finite element cable model
@@ -247,7 +264,8 @@ namespace frydom {
     /// \param s lagrangian coordinate
     /// \param fc frame convention (NED/NWU)
     /// \return line position
-    Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override; // FIXME: verifier que ca fonctionne !!
+    Position
+    GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override; // FIXME: verifier que ca fonctionne !!
 
     // Virtual methods, from FEAMesh
 
