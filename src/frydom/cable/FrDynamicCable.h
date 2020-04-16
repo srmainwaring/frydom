@@ -63,11 +63,13 @@ namespace frydom {
       /// Updates all [A] coord.systems for all (corotational) elements.
       void Update(double time, bool update_assets) override;
 
+//      void UpdateForces(double time);
+
       /// Get the position of the dynamic cable at the local position eta in [-1,1], of the indexth element
       /// \param index index of the cable element
       /// \param eta Local position on the element, in [-1,1]
       /// \return Position of the cable, in the world reference frame
-      Position GetNodePositionInWorld(int index, double eta);
+      Position GetNodePositionInWorld(int index, double eta); // FIXME: le nom de cette methode n'est pas correct !
 
       /// Get the axial tension (compression only, no bending) of the dynamic cable at the local position
       /// eta in [-1,1], of the indexth element
@@ -84,6 +86,10 @@ namespace frydom {
 
       /// Initialize the cable section
       void InitializeSection();
+
+      void InitializeContact();
+
+      void InitializeHydrodynamicLoads();
 
       /// Generate assets for the cable
       void GenerateAssets();
@@ -111,8 +117,10 @@ namespace frydom {
   class FrDynamicCable : public FrLoggable<FrOffshoreSystem>, public FrCable, public FrFEAMesh {
    public:
 
-    enum HingeType {
-      CONSTRAINED, SPHERICAL, NONE
+    enum HingeType { // FIXME: en realite, on va a priori toujours considerer que c'est spherique !!!
+      CONSTRAINED,
+      SPHERICAL,
+      NONE
     };
 
    private:
@@ -123,7 +131,7 @@ namespace frydom {
     unsigned int m_nbElements;              ///< Number of elements in the finite element cable model
 
     // Hinges types
-    HingeType m_startingHingeType = SPHERICAL;
+    HingeType m_startingHingeType = SPHERICAL; // TODO: retirer cette notion ????
     HingeType m_endingHingeType = SPHERICAL;
 
     // Asset parameters
@@ -233,11 +241,13 @@ namespace frydom {
     /// \return inside line tension
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
+    Direction GetTangent(const double &s, FRAME_CONVENTION fc) const;
+
     /// Get the line position at lagrangian coordinate s
     /// \param s lagrangian coordinate
     /// \param fc frame convention (NED/NWU)
     /// \return line position
-    Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
+    Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override; // FIXME: verifier que ca fonctionne !!
 
     // Virtual methods, from FEAMesh
 

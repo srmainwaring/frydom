@@ -209,13 +209,36 @@ namespace frydom {
     m_seabed_body->SetFixedInWorld(true);
     m_seabed_body->LogThis(false);
 
+    // FIXME: rendre possible le reglage externe de ces infos !!
+
+    // Chrono defaults
+//        young_modulus(2e5),
+//        poisson_ratio(0.3f),
+//        static_friction(0.6f),
+//        sliding_friction(0.6f),
+//        restitution(0.4f),
+//        constant_adhesion(0),
+//        adhesionMultDMT(0),
+//        kn(2e5),
+//        kt(2e5),
+//        gn(40),
+//        gt(20)
+    auto surface_material = std::make_shared<chrono::ChMaterialSurfaceSMC>();
+    surface_material->SetYoungModulus(2e12f);
+    surface_material->SetFriction(0.3f); // Devrait venir du modele de cable...
+    surface_material->SetRestitution(0.0f);
+    surface_material->SetAdhesion(0);
+    surface_material->SetKn(2e12);
+    surface_material->SetGn(1e6);
+//    surface_material->SetKt(2e6);
+
 
     auto collision_model = m_seabed_body->GetChronoBody()->GetCollisionModel();
     collision_model->ClearModel();
 
-    double hx = 500;
-    double hy = 500;
-    double hz = 10;
+    double hx = 2000;
+    double hy = 2000;
+    double hz = 100;
 
     collision_model->AddBox(0.5*hx, 0.5*hy, 0.5*hz, {0., 0., -0.5*hz});
     collision_model->BuildModel();

@@ -7,8 +7,13 @@
 #include <chrono/fea/ChNodeFEAxyzrot.h>
 #include <chrono/fea/ChElementBeamEuler.h>
 #include <chrono/fea/ChVisualizationFEAmesh.h>
+#include <chrono/fea/ChContactSurfaceNodeCloud.h>
+#include <chrono/fea/ChContactSurfaceMesh.h>
+#include <chrono/physics/ChLoadContainer.h>
 
 #include "FrDynamicCable.h"
+
+#include "FrHydroFEACableLoads.h"
 
 //#include "frydom/core/FrOffshoreSystem.h"
 //#include "frydom/cable/FrCatenaryLine.h"
@@ -40,6 +45,54 @@ namespace frydom {
       m_section->SetYoungModulus(m_frydomCable->GetCableProperties()->GetYoungModulus());
     }
 
+    void FrDynamicCableBase::InitializeContact() {
+
+      auto surface_material = std::make_shared<chrono::ChMaterialSurfaceSMC>();
+      surface_material->SetYoungModulus(2e12f);
+      surface_material->SetFriction(0.3f);
+      surface_material->SetRestitution(0.0f);
+      surface_material->SetAdhesion(0);
+      surface_material->SetKn(2e12);
+      surface_material->SetGn(1e6);
+
+
+//      auto contact_surface = std::make_shared<chrono::fea::ChContactSurfaceMesh>();
+//      AddContactSurface(contact_surface);
+//      contact_surface->AddFacesFromBoundary(0.008);
+//      contact_surface->SetMaterialSurface(surface_material);
+
+
+      auto contact_surface = std::make_shared<chrono::fea::ChContactSurfaceNodeCloud>();
+      AddContactSurface(contact_surface);
+      contact_surface->AddAllNodes(m_frydomCable->GetCableProperties()->GetRadius());
+      contact_surface->SetMaterialSurface(surface_material);
+
+    }
+
+    void FrDynamicCableBase::InitializeHydrodynamicLoads() {
+
+      // Loads must be added to a load container
+      auto load_container = std::make_shared<chrono::ChLoadContainer>();
+      GetSystem()->Add(load_container);
+
+      for (const auto& element : GetElements()) {
+        auto loadable = std::dynamic_pointer_cast<chrono::fea::ChElementBeamEuler>(element);
+
+        // Adding buoyancy
+        auto load = std::make_shared<FrBuoyancyLoad>(m_frydomCable->GetSystem(), loadable);
+        load_container->Add(load);
+
+
+      }
+
+
+
+//      auto buoyancy_load = std::make_shared<FrBuoyancyLoader>(m_frydomCable->GetSystem());
+
+      // Creer les autres loads !!
+
+
+    }
 
     void FrDynamicCableBase::InitializeLinks() {
 
@@ -131,27 +184,10 @@ namespace frydom {
         Position distanceBetweenNodes = (m_frydomCable->GetEndingNode()->GetPositionInWorld(NWU) -
                                          m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU));
 
-//         check if the distance is greater than the length
         bool is_taut = distanceBetweenNodes.norm() >= m_frydomCable->GetUnstretchedLength();
-//
-        // First, creating a catenary line to initialize finite element mesh node positions
-//        std::shared_ptr<FrCatenaryLine> catenaryLine;
-
-//        if (!is_taut) { // distance between the nodes is smaller thant the unstrained length of the line
-//          // Initializing the finite element model so that it fits the catenary line to get close from the
-//          // equilibrium solution
-//          catenaryLine = make_catenary_line("dynamicCableInitialization",
-//                                            m_frydomCable->GetStartingNode(),
-//                                            m_frydomCable->GetEndingNode(),
-//                                            m_frydomCable->GetCableProperties(),
-//                                            is_taut,
-//                                            m_frydomCable->GetUnstretchedLength(), WATER); // FIXME: determiner le fluide...
-//          catenaryLine->Initialize();
-//        }
+        // TODO: voir si on a besoin de mitiger le fait que le cable est tendu ou pas directement dans cette methode
 
         auto shape_initializer = FrCableShapeInitializer::Create(m_frydomCable, m_frydomCable->GetSystem()->GetEnvironment());
-
-//        bool is_taut = true; // TODO: tester cela
 
         double s = 0.;
         double ds = m_frydomCable->GetUnstretchedLength() / m_frydomCable->GetNumberOfElements();
@@ -159,7 +195,7 @@ namespace frydom {
         // Compute the normal to the plan containing the cable
         auto AB = internal::Vector3dToChVector(m_frydomCable->GetEndingNode()->GetPositionInWorld(NWU) -
                                                m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU));
-        AB.Normalize();
+        AB.Normalize(); // FIXME: polutot travailler avec les objets frydom en premiere instance et les convertir en chrono au dernier moment...
 
         // Init with the starting node
         auto ChronoFrame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInWorld());
@@ -169,8 +205,6 @@ namespace frydom {
 
         if (!is_taut) {
           e1 = internal::Vector3dToChVector(shape_initializer->GetTangent(0., NWU));
-//          e1 = internal::Vector3dToChVector(catenaryLine->GetTension(0., NWU));
-//          e1.Normalize();
           e3 = e1.Cross(AB);
           e3.Normalize();
           e2 = e3.Cross(e1);
@@ -220,6 +254,8 @@ namespace frydom {
           nodeA = nodeB;
 
         }
+
+        // FIXME: c'es etrange ce qui se passe ici, dans ce cas, pourquoi ne pas declarer nodeB avant la boucle ??
         // Add the ending node to the ChMesh
         m_ending_node_fea = nodeA; // nodeB is destroyed after the loop
 //                AddNode(m_ending_node_fea);
@@ -234,22 +270,24 @@ namespace frydom {
                                 m_frydomCable->GetCableProperties()->GetEA() / m_frydomCable->GetUnstretchedLength();
             m_frydomCable->SetBreakingTension(1.2 * tensionMax);
           } else {
+            // TODO: remettre en place le mecanisme ...
 //            m_frydomCable->SetBreakingTension(1.2 * catenaryLine->GetMaxTension());
           }
 
         }
 
+        // Set reference position of nodes as current position, for all nodes.
+        Relax();
+
+        InitializeHydrodynamicLoads();
+
+        InitializeContact();
+
         // Generate assets for the cable
         GenerateAssets();
 
-//        if (!is_taut) {
-//          // Remove the catenary line used for initialization
-//          m_frydomCable->GetSystem()->Remove(catenaryLine);
-//          m_frydomCable->GetStartingNode()->GetBody()->RemoveExternalForce(catenaryLine->GetStartingForce());
-//          m_frydomCable->GetEndingNode()->GetBody()->RemoveExternalForce(catenaryLine->GetEndingForce());
-//        }
-
       }
+
 
       // Absolutely necessary for finite elements !
       SetupInitial();
@@ -258,10 +296,21 @@ namespace frydom {
 
     void FrDynamicCableBase::Update(double time, bool update_assets) {
 
+//      UpdateForces(time);
+
       chrono::fea::ChMesh::Update(time, update_assets);
       m_frydomCable->Update(time);
 
     }
+
+//    void FrDynamicCableBase::UpdateForces(double time) {
+//
+//      // FIXME: ce n'est peut-etre pas ici qu'il faut faire qqch...
+//
+//
+//
+//
+//    }
 
     Position FrDynamicCableBase::GetNodePositionInWorld(int index, double eta) {
 
@@ -374,7 +423,6 @@ namespace frydom {
     return m_drawCableElementRadius;
   }
 
-
   void FrDynamicCable::Initialize() {
 
     m_chronoCable->Initialize();
@@ -384,11 +432,11 @@ namespace frydom {
 
   Force FrDynamicCable::GetTension(const double &s, FRAME_CONVENTION fc) const {
 
-    assert(s <= GetUnstretchedLength());
+    assert(0. <= s && s <= GetUnstretchedLength());
 
     double stmp = s;
 
-    if (s > GetUnstretchedLength()) stmp = GetUnstretchedLength();
+    if (s > GetUnstretchedLength()) stmp = GetUnstretchedLength(); // FIXME: ne devrait pas etre possible
 
     double ds = GetUnstretchedLength() / GetNumberOfElements();
     double a = stmp / ds;
@@ -406,6 +454,10 @@ namespace frydom {
 
     return Tension;
 
+  }
+
+  Direction FrDynamicCable::GetTangent(const double &s, FRAME_CONVENTION fc) const {
+    return GetTension(s, fc).normalized();
   }
 
   Position FrDynamicCable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {

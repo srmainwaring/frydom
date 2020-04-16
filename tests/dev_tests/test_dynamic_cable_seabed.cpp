@@ -35,7 +35,7 @@ int main() {
   auto sphere = system.NewBody("sphere");
   makeItSphere(sphere, 1, 1000);
   sphere->SetPosition({0., 0., 0.}, NWU);
-//  sphere->SetFixedInWorld(true);
+  sphere->SetFixedInWorld(true);
 
 
   auto cylinder_anchor = sphere->NewNode("cylinder_anchor");
@@ -78,7 +78,7 @@ int main() {
   system.Initialize();
 
   system.SetTimeStep(1e-2);
-  system.RunInViewer();
+  system.RunInViewer(0., 500,true);
 
   return 0;
 }

@@ -74,6 +74,10 @@ namespace frydom {
 //            body->Update(ChTime, update_assets);  // FIXME : Appel redondant
       }
 
+      for (auto &physics_item : otherphysicslist) {
+        physics_item->Update(ChTime, update_assets);
+      }
+
       // Links updates  // FIXME : appeler les updates directement des objets frydom !
       for (auto &link : linklist) {
         link->Update(ChTime, update_assets);

@@ -11,6 +11,7 @@ set(SRC_FILES
         FrCableShapeInitializer.cpp
         FrAnchor.cpp
         FrClumpedMass.cpp
+        FrHydroFEACableLoads.cpp
 )
 
 set(FRYDOM_CABLE_SOURCES "")
