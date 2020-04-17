@@ -263,6 +263,18 @@ namespace frydom {
     //m_AM(2, 3) =  ca[2] * posInFrame[1];  // = 0
     //m_AM(2, 4) = -ca[2] * posInFrame[0]; // = 0
 
+    m_AMInFrame(3, 1) = -ca[1] * posInFrame[2];
+    m_AMInFrame(3, 3) =  ca[1] * posInFrame[2] * posInFrame[2];
+    m_AMInFrame(3, 5) = -ca[1] * posInFrame[0] * posInFrame[2];
+    m_AMInFrame(4, 0) =  ca[0] * posInFrame[2];
+    m_AMInFrame(4, 4) =  ca[0] * posInFrame[2] * posInFrame[2];
+    m_AMInFrame(4, 5) = -ca[0] * posInFrame[1] * posInFrame[2];
+    m_AMInFrame(5, 0) = -ca[0] * posInFrame[1];
+    m_AMInFrame(5, 1) =  ca[1] * posInFrame[0];
+    m_AMInFrame(5, 3) = -ca[1] * posInFrame[0] * posInFrame[2];
+    m_AMInFrame(5, 4) = -ca[0] * posInFrame[1] * posInFrame[2];
+    m_AMInFrame(5, 5) =  ca[0] * posInFrame[1] * posInFrame[1] + ca[1] * posInFrame[0] * posInFrame[0];
+
     m_AMInFrame *= rho * GetVolume();
   }
 
@@ -271,6 +283,8 @@ namespace frydom {
     auto matrix = m_node->GetFrameInBody().GetRotation().GetRotationMatrix();
     m_AMInBody.block<3, 3>(0, 0) = matrix * m_AMInFrame.block<3, 3>(0, 0) * matrix.inverse();
     m_AMInBody.block<3, 3>(0, 3) = matrix * m_AMInFrame.block<3, 3>(0, 3) * matrix.inverse();
+    m_AMInBody.block<3, 3>(3, 0) = matrix * m_AMInFrame.block<3, 3>(3, 0) * matrix.inverse();
+    m_AMInBody.block<3, 3>(3, 3) = matrix * m_AMInFrame.block<3, 3>(3, 3) * matrix.inverse();
   }
 
   void FrMorisonSingleElement::SetAMInWorld() {
@@ -278,6 +292,8 @@ namespace frydom {
     auto matrix = m_node->GetFrameInWorld().GetRotation().GetRotationMatrix();
     m_AMInWorld.block<3, 3>(0, 0) = matrix * m_AMInFrame.block<3, 3>(0, 0) * matrix.inverse();
     m_AMInWorld.block<3, 3>(0, 3) = matrix * m_AMInFrame.block<3, 3>(0, 3) * matrix.inverse();
+    m_AMInWorld.block<3, 3>(3, 0) = matrix * m_AMInFrame.block<3, 3>(3, 0) * matrix.inverse();
+    m_AMInWorld.block<3, 3>(3, 3) = matrix * m_AMInFrame.block<3, 3>(3, 3) * matrix.inverse();
   }
 
   void FrMorisonSingleElement::CheckImmersion() {
@@ -580,7 +596,6 @@ namespace frydom {
       }
       m_chronoPhysicsItem->Update(time, false);
     }
-
   }
 
   void FrMorisonCompositeElement::ComputeForceAddedMass() {

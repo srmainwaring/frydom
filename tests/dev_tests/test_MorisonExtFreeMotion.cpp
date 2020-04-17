@@ -67,10 +67,12 @@ int main(int argc, char* argv[]) {
 
   auto body = system.NewBody("cylinder");
   body->SetPosition({0., 0., 0.}, NWU);
-  body->GetDOFMask()->SetLock_Z(true);
-  body->GetDOFMask()->SetLock_Rx(true);
-  body->GetDOFMask()->SetLock_Ry(true);
-  body->GetDOFMask()->SetLock_Rz(true);
+  //body->GetDOFMask()->SetLock_X(true);
+  //body->GetDOFMask()->SetLock_Y(true);
+  //body->GetDOFMask()->SetLock_Z(true);
+  //body->GetDOFMask()->SetLock_Rx(true);
+  //body->GetDOFMask()->SetLock_Ry(false);
+  //body->GetDOFMask()->SetLock_Rz(true);
 
   double radius = 1.;
   double length = 20.;
@@ -85,7 +87,7 @@ int main(int argc, char* argv[]) {
   body->SetInertiaTensor(inertia);
 
   body->SetPosition({2., 0., 0.}, NWU);
-  //body->SetRotation(FrRotation({0., 1., 0.}, 0.5* M_PI_4, NWU));
+  body->SetRotation(FrRotation({0., 1., 0.}, 0.5* M_PI_4, NWU));
 
   // Mesh asset
 
@@ -104,19 +106,19 @@ int main(int argc, char* argv[]) {
   // Morison
 
   auto morisonModel = make_morison_model("morison", body, true);
-  morisonModel->AddElement({0., 0., -14}, {0., 0., 6.}, 2., 0.3, 0.1, 0.2, 20);
+  morisonModel->AddElement({0., 0., -14}, {0., 0., 6.}, 2., 0.5, 0.6, 0.2, 20);
   auto morisonForce = make_morison_force("morison", body, morisonModel);
 
   // Additional spring force
 
-  auto body_node = body->NewNode("body_node");
-  body_node->SetPositionInBody({0., 0., -7}, NWU);
-  auto world_node = system.GetWorldBody()->NewNode("world_node");
-  world_node->SetPositionInWorld({0., 0., -7.}, NWU);
+  //auto body_node = body->NewNode("body_node");
+  //body_node->SetPositionInBody({0., 0., -7}, NWU);
+  //auto world_node = system.GetWorldBody()->NewNode("world_node");
+  //world_node->SetPositionInWorld({0., 0., -7.}, NWU);
 
-  Vector3d<double> stiffness(17804., 17804., 10000.);
+  //Vector3d<double> stiffness(17804., 17804., 10000.);
 
-  auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
+  //auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
 
   // Simulation
 
