@@ -18,11 +18,11 @@ int main() {
   seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
-  system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-500, 500, 500, -50, 50,
-                                                                                            50);
+  system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(
+      -500, 500, 500, -50, 50,50);
 
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
-  system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(90, 2, DEG, KNOT, NED, GOTO);
+  system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(90, 15, DEG, KNOT, NED, GOTO);
 
   auto world_body = system.GetWorldBody();
 
@@ -41,7 +41,9 @@ int main() {
   auto cylinder_anchor = sphere->NewNode("cylinder_anchor");
 
   double cable_length = 64 + 425 + 30; // Adding more length...
-  int nb_elements = 8; // TODO: voir dans quelle mesure on peut augmenter la discretisation
+  // 5 m / element est ce qui est fait par defaut dans ARIANE3D apparemment
+//  int nb_elements = int(cable_length / 5); // TODO: voir dans quelle mesure on peut augmenter la discretisation
+  int nb_elements = 10; // TODO: voir dans quelle mesure on peut augmenter la discretisation
 
 
   auto cable_properties = make_cable_properties();
@@ -78,7 +80,7 @@ int main() {
   system.Initialize();
 
   system.SetTimeStep(1e-2);
-  system.RunInViewer(0., 500,true);
+  system.RunInViewer(0., 200,true);
 
   return 0;
 }

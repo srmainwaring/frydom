@@ -26,13 +26,16 @@ namespace frydom {
    public:
     explicit FrFEACableLoader(std::shared_ptr<chrono::ChLoadableU> mloadable);
 
-    void SetSystem(FrOffshoreSystem *system);
+    void SetCable(FrFEACable* cable);
+
+    void SetNbIntegrationPoints(const unsigned int n);
 
     int GetIntegrationPointsU() override;
 
    protected:
-    FrOffshoreSystem *m_system;
-
+    FrFEACable* m_cable;
+    FrOffshoreSystem* m_system;
+    int m_nb_integration_points;
   };
 
   class FrBuoyancyLoader : public FrFEACableLoader {
@@ -48,7 +51,7 @@ namespace frydom {
 
   class FrBuoyancyLoad : public chrono::ChLoad<FrBuoyancyLoader> {
    public:
-    FrBuoyancyLoad(FrOffshoreSystem *system, std::shared_ptr<chrono::ChLoadableU> mloadable);
+    FrBuoyancyLoad(FrFEACable* cable, std::shared_ptr<chrono::ChLoadableU> mloadable);
   };
 
 

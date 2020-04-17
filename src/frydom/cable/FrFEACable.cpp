@@ -5,7 +5,7 @@
 #include <chrono/fea/ChBeamSection.h>
 #include <chrono/physics/ChLinkMate.h>
 #include <chrono/fea/ChNodeFEAxyzrot.h>
-#include <chrono/fea/ChElementBeamEuler.h>
+//#include <chrono/fea/ChElementBeamEuler.h>
 #include <chrono/fea/ChVisualizationFEAmesh.h>
 #include <chrono/fea/ChContactSurfaceNodeCloud.h>
 #include <chrono/fea/ChContactSurfaceMesh.h>
@@ -77,10 +77,10 @@ namespace frydom {
       GetSystem()->Add(load_container);
 
       for (const auto& element : GetElements()) {
-        auto loadable = std::dynamic_pointer_cast<chrono::fea::ChElementBeamEuler>(element);
+        auto loadable = std::dynamic_pointer_cast<internal::FrElementBeamEuler>(element);
 
         // Adding buoyancy
-        auto load = std::make_shared<FrBuoyancyLoad>(m_frydomCable->GetSystem(), loadable);
+        auto load = std::make_shared<FrBuoyancyLoad>(m_frydomCable, loadable);
         load_container->Add(load);
 
 
@@ -246,7 +246,7 @@ namespace frydom {
           AddNode(nodeB);
 
           // Create a cable element between the nodes A and B, and add it to the ChMesh
-          auto element = std::make_shared<chrono::fea::ChElementBeamEuler>();
+          auto element = std::make_shared<internal::FrElementBeamEuler>();
           element->SetNodes(nodeA, nodeB);
           element->SetSection(m_section);
           AddElement(element);
@@ -318,7 +318,7 @@ namespace frydom {
       chrono::ChVector<double> Pos;
       chrono::ChQuaternion<double> Rot;
 
-      dynamic_cast<chrono::fea::ChElementBeamEuler *>(GetElement(index).get())->EvaluateSectionFrame(eta, Pos, Rot);
+      dynamic_cast<internal::FrElementBeamEuler *>(GetElement(index).get())->EvaluateSectionFrame(eta, Pos, Rot);
 
       return internal::ChVectorToVector3d<Position>(Pos);
     }
@@ -327,7 +327,7 @@ namespace frydom {
 
       chrono::ChVector<double> Tension, Torque;
 
-      auto element = dynamic_cast<chrono::fea::ChElementBeamEuler *>(GetElement(index).get());
+      auto element = dynamic_cast<internal::FrElementBeamEuler *>(GetElement(index).get());
 
       element->EvaluateSectionForceTorque(eta, Tension, Torque);
 

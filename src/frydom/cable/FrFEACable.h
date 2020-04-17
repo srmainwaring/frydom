@@ -34,6 +34,7 @@ namespace frydom {
   namespace internal {
 
     class FrElementBeamEuler : public chrono::fea::ChElementBeamEuler {
+
     };
 
     class FrElementBeamANCF : public chrono::fea::ChElementBeamANCF {
