@@ -10,6 +10,8 @@
 #include <chrono/fea/ChElementBeamANCF.h>
 #include <chrono/fea/ChElementBeamIGA.h>
 #include <chrono/fea/ChElementCableANCF.h>
+#include <chrono/fea/ChBuilderBeam.h>
+#include <chrono/fea/ChBeamSectionCosserat.h>
 
 #include "FrCableBase.h"
 #include "frydom/core/common/FrFEAMesh.h"
@@ -30,6 +32,8 @@ namespace frydom {
 
   // Forward declaration
   class FrFEACable;
+
+  class FrCableShapeInitializer;
 
   namespace internal {
 
@@ -117,6 +121,31 @@ namespace frydom {
 
     };
 
+
+    class CableBuilderIGA : public chrono::fea::ChBuilderBeamIGA {
+
+     public:
+
+      CableBuilderIGA(FrFEACableBase *cable,
+                      FrCableProperties *properties,
+                      FrCableShapeInitializer *shape_initializer);
+
+      void Build();
+
+      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> BuildSection(FrCableProperties *properties);
+
+      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetFirstNode();
+
+      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetLastNode();
+
+     private:
+      FrFEACableBase* m_cable;
+      FrCableProperties* m_properties;
+      FrCableShapeInitializer* m_shape_initializer;
+
+    };
+
+
   }  // end namespace frydom::internal
 
   /**
@@ -140,28 +169,6 @@ namespace frydom {
       SPHERICAL,
       NONE
     };
-
-   private:
-
-    std::shared_ptr<internal::FrFEACableBase> m_chronoCable;    ///< pointer to the Chrono cable
-
-    double m_rayleighDamping;               ///< Rayleigh damping
-    unsigned int m_nbElements;              ///< Number of elements in the finite element cable model
-
-    // Hinges types
-    HingeType m_startingHingeType = SPHERICAL; // TODO: retirer cette notion ????
-    HingeType m_endingHingeType = SPHERICAL;
-
-    // Asset parameters
-    double m_drawCableElementRadius = 0.05; ///< Radius of the cable element assets
-    double m_drawCableNodeSize = 0.1;       ///< Size of the cable node assets
-    double m_maxTension = 0.;               ///< max tension, for visualization
-
-   protected:
-
-    void DefineLogMessages() override;
-
-    std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() override { return m_chronoCable; }
 
    public:
 
@@ -293,6 +300,29 @@ namespace frydom {
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase> item);
 
     friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase> item);
+
+
+   private:
+
+    std::shared_ptr<internal::FrFEACableBase> m_chronoCable;    ///< pointer to the Chrono cable
+
+    double m_rayleighDamping;               ///< Rayleigh damping // FIXME: c'est pas deja dans les proprietes ???
+    unsigned int m_nbElements;              ///< Number of elements in the finite element cable model
+
+    // Hinges types
+    HingeType m_startingHingeType = SPHERICAL; // TODO: retirer cette notion ????
+    HingeType m_endingHingeType = SPHERICAL;
+
+    // Asset parameters
+    double m_drawCableElementRadius = 0.05; ///< Radius of the cable element assets
+    double m_drawCableNodeSize = 0.1;       ///< Size of the cable node assets
+    double m_maxTension = 0.;               ///< max tension, for visualization
+
+   protected:
+
+    void DefineLogMessages() override;
+
+    std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() override { return m_chronoCable; }
 
   };
 
