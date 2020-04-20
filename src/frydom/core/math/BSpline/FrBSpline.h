@@ -57,7 +57,7 @@ namespace frydom {
     }
 
     static std::vector<double> BasisFunctionsEval(const double &u,
-                                                  const unsigned int span,
+                                                  const unsigned int ispan,
                                                   const std::vector<double> &knots,
                                                   const unsigned int &degree) {
       // Returns the minimal basis function vector with size p+1
@@ -70,8 +70,8 @@ namespace frydom {
       std::vector<double> right(degree + 1);
 
       for (int j = 1; j <= degree; ++j) {
-        left[j] = u - knots[span + 1 - j];
-        right[j] = knots[span + j] - u;
+        left[j] = u - knots[ispan + 1 - j];
+        right[j] = knots[ispan + j] - u;
         double saved = 0.0;
         for (int r = 0; r < j; ++r) {
           double temp = basis_functions[r] / (right[r + 1] + left[j - r]);
@@ -84,7 +84,7 @@ namespace frydom {
     }
 
     static mathutils::MatrixMN<double> BasisFunctionsEvalDerivatives(const double &u,
-                                                                     const unsigned int span,
+                                                                     const unsigned int ispan,
                                                                      const unsigned int deriv_order,
                                                                      const std::vector<double> &knots,
                                                                      const unsigned int &degree) {
@@ -101,8 +101,8 @@ namespace frydom {
 
       ndu(0, 0) = 1.;
       for (int j = 1; j <= degree; j++) {
-        left[j] = u - knots[span + 1 - j];
-        right[j] = knots[span + j] - u;
+        left[j] = u - knots[ispan + 1 - j];
+        right[j] = knots[ispan + j] - u;
         double saved = 0.0;
         for (int r = 0; r < j; r++) {
           ndu(j, r) = right[r + 1] + left[j - r];
@@ -158,6 +158,7 @@ namespace frydom {
 
     static std::shared_ptr<FrBSpline> BSplineInterpFromPoints(const std::vector<Position> &points,
                                                               const unsigned int degree,
+                                                              std::vector<double> &uk,
                                                               KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
 
       unsigned int n = points.size(); // Number of points to interpolate
@@ -167,7 +168,9 @@ namespace frydom {
 
       // Computing the uk values corresponding to each point by using the specified (chord length by default)
 
-      std::vector<double> uk(n, 0.);
+//      std::vector<double> uk(n, 0.);
+      uk.clear();
+      uk.assign(n, 0.);
 
       if (knot_arrangement_type == CHORD_LENGTH) {
 
@@ -209,11 +212,11 @@ namespace frydom {
 
       // Filling basis functions matrix A
       for (unsigned int i = 0; i < n; i++) {
-        unsigned int span = FrBSplineTools::FindSpan(uk[i], knots, degree);
-        auto basis_functions = FrBSplineTools::BasisFunctionsEval(uk[i], span, knots, degree);
+        unsigned int ispan = FrBSplineTools::FindSpan(uk[i], knots, degree);
+        auto basis_functions = FrBSplineTools::BasisFunctionsEval(uk[i], ispan, knots, degree);
 
         for (unsigned int j = 0; j <= degree; j++) {
-          A(i, span - degree + j) = basis_functions[j];
+          A(i, ispan - degree + j) = basis_functions[j];
         }
       }
 
@@ -243,6 +246,13 @@ namespace frydom {
       // Building the BSpline
       return std::make_shared<FrBSpline>(degree, knots, ctrl_points);
 
+    }
+
+    static std::shared_ptr<FrBSpline> BSplineInterpFromPoints(const std::vector<Position> &points,
+                                                              const unsigned int degree,
+                                                              KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
+      std::vector<double> uk;
+      return BSplineInterpFromPoints(points, degree, uk, knot_arrangement_type);
     }
 
   };
@@ -280,12 +290,12 @@ namespace frydom {
 
     Position Eval(const double &u) const {
 
-      int span = FrBSplineTools::FindSpan(u, m_knots, m_degree);
-      auto basis_functions = FrBSplineTools::BasisFunctionsEval(u, span, m_knots, m_degree);
+      unsigned int ispan = FrBSplineTools::FindSpan(u, m_knots, m_degree);
+      auto basis_functions = FrBSplineTools::BasisFunctionsEval(u, ispan, m_knots, m_degree);
 
       Position result;
       for (unsigned int i = 0; i <= m_degree; i++) {
-        result += basis_functions[i] * m_ctrl_points[span - m_degree + i];
+        result += basis_functions[i] * m_ctrl_points[ispan - m_degree + i];
       }
       return result;
     }

@@ -111,8 +111,6 @@ void test_interpolation() {
     std::cout << interp->Eval(uk[i]).transpose() << std::endl << std::endl;
   }
 
-
-
 }
 
 
