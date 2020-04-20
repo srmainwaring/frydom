@@ -14,6 +14,7 @@ set(REFACTORING_TESTS
         test_catenary_seabed
         test_pendulum_lumped_mass
         test_dynamic_cable_seabed
+        test_bspline
         )
 
 foreach (test ${REFACTORING_TESTS})
