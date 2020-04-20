@@ -4,7 +4,8 @@
 
 #include "frydom/frydom.h"
 
-using namespace frydom;
+using namespace frydom::bspline;
+using namespace frydom::bspline::internal;
 
 void test_find_span() {
   int p = 2; // p is the spline degree. order 3...
@@ -73,14 +74,14 @@ void test_interpolation() {
 
   int n = 5;
 
-  Position p0 = {0., 0., 0.};
-  Position p1 = {3., 4., 0.};
-  Position p2 = {-1., 4., 0.};
-  Position p3 = {-4., 0., 0.};
-  Position p4 = {-4., -3., 0.};
+  Point<3> p0 = {0., 0., 0.};
+  Point<3> p1 = {3., 4., 0.};
+  Point<3> p2 = {-1., 4., 0.};
+  Point<3> p3 = {-4., 0., 0.};
+  Point<3> p4 = {-4., -3., 0.};
 
 
-  std::vector<Position> points;
+  std::vector<Point<3>> points;
   points.reserve(n);
   points.push_back(p0);
   points.push_back(p1);
@@ -89,7 +90,7 @@ void test_interpolation() {
   points.push_back(p4);
 
 
-  auto interp = FrBSplineTools::BSplineInterpFromPoints(points, 3);
+  auto interp = FrBSplineTools::BSplineInterpFromPoints<3>(points, 3, FrBSplineTools::CHORD_LENGTH);
 
   // Checking back that the curve is passing among points
 
