@@ -76,7 +76,7 @@ list(APPEND SRC_FILES
         math/functions/lib/FrHyperbolicTrigonometricFunctions.cpp
         math/functions/lib/FrMiscFunctions.cpp
 
-        math/BSpline/FrBSpline.cpp
+#        math/BSpline/FrBSpline.cpp
         )
 
 # MISC

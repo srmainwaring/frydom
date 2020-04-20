@@ -5,14 +5,7 @@
 #ifndef FRYDOM_FRBSPLINE_H
 #define FRYDOM_FRBSPLINE_H
 
-
-#include <chrono/core/ChMatrixDynamic.h> // FIXME: This is missing into chrono in headers of ChBasisToolsBspline...
-#include <chrono/geometry/ChBasisToolsBspline.h>
-
 #include <Eigen/Dense>
-#include "MathUtils/Matrix.h"
-#include "MathUtils/VectorN.h"
-
 
 namespace frydom {
 
@@ -20,16 +13,21 @@ namespace frydom {
   namespace bspline {
 
     // Forward declaration
-    template<unsigned int _dim>
+    template<unsigned int _degree, unsigned int _dim>
     class FrBSpline;
 
+    // Defining some pratical typedefs
     using KnotVector = std::vector<double>;
 
     template<unsigned int _dim = 3>
     using Point = Eigen::Matrix<double, _dim, 1>;
 
-    namespace internal {
 
+    namespace internal {
+      // In this namespace, internal calculations such as basis functions evaluations or interpolation algorithms are
+      // implemented
+
+      template<unsigned int _degree>
       class FrBSplineTools {
        public:
 
@@ -40,15 +38,14 @@ namespace frydom {
         };
 
         static unsigned int FindSpan(const double &u,
-                                     const KnotVector &knots,
-                                     const unsigned int &degree) {
-          unsigned int n = knots.size() - 2 - degree;
+                                     const KnotVector &knots) {
+          unsigned int n = knots.size() - 2 - _degree;
 
           // assuming (p+1)-multiple end knots
           if (u >= knots[n + 1])return n;
-          if (u <= knots[degree]) return degree;
+          if (u <= knots[_degree]) return _degree;
 
-          unsigned int lo = degree;
+          unsigned int lo = _degree;
           unsigned int hi = n + 1;
           unsigned int mid = (lo + hi) / 2;
           while (u < knots[mid] || u >= knots[mid + 1]) {
@@ -65,18 +62,17 @@ namespace frydom {
 
         static std::vector<double> BasisFunctionsEval(const double &u,
                                                       const unsigned int ispan,
-                                                      const KnotVector &knots,
-                                                      const unsigned int &degree) {
+                                                      const KnotVector &knots) {
           // Returns the minimal basis function vector with size p+1
 
-          std::vector<double> basis_functions(degree + 1);
+          std::vector<double> basis_functions(_degree + 1);
 
           basis_functions[0] = 1.0;
 
-          std::vector<double> left(degree + 1);
-          std::vector<double> right(degree + 1);
+          std::vector<double> left(_degree + 1);
+          std::vector<double> right(_degree + 1);
 
-          for (int j = 1; j <= degree; ++j) {
+          for (int j = 1; j <= _degree; ++j) {
             left[j] = u - knots[ispan + 1 - j];
             right[j] = knots[ispan + j] - u;
             double saved = 0.0;
@@ -90,24 +86,24 @@ namespace frydom {
           return basis_functions;
         }
 
-        static mathutils::MatrixMN<double> BasisFunctionsEvalDerivatives(const double &u,
-                                                                         const unsigned int ispan,
-                                                                         const unsigned int deriv_order,
-                                                                         const KnotVector &knots,
-                                                                         const unsigned int &degree) {
+        static Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
+        BasisFunctionsEvalDerivatives(const double &u,
+                                      const unsigned int ispan,
+                                      const unsigned int deriv_order,
+                                      const KnotVector &knots) {
 
-          mathutils::MatrixMN<double> DN(deriv_order + 1, degree + 1);
+          Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> DN(deriv_order + 1, _degree + 1);
 
           std::vector<double> left;
           std::vector<double> right;
-          left.reserve(degree + 1);
-          right.reserve(degree + 1);
+          left.reserve(_degree + 1);
+          right.reserve(_degree + 1);
 
-          mathutils::MatrixMN<double> ndu(degree + 1, degree + 1);
-          mathutils::MatrixMN<double> a(degree + 1, degree + 1);
+          Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> ndu(_degree + 1, _degree + 1);
+          Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> a(_degree + 1, _degree + 1);
 
           ndu(0, 0) = 1.;
-          for (int j = 1; j <= degree; j++) {
+          for (int j = 1; j <= _degree; j++) {
             left[j] = u - knots[ispan + 1 - j];
             right[j] = knots[ispan + j] - u;
             double saved = 0.0;
@@ -120,25 +116,25 @@ namespace frydom {
             }
             ndu(j, j) = saved;
           }
-          for (int j = 0; j <= degree; j++)
-            DN(0, j) = ndu(j, degree);
+          for (int j = 0; j <= _degree; j++)
+            DN(0, j) = ndu(j, _degree);
 
           if (deriv_order == 0)
             return DN;
 
-          for (int r = 0; r <= degree; r++) {
+          for (int r = 0; r <= _degree; r++) {
             int s1 = 0, s2 = 1;
             a(0, 0) = 1.0;
 
             for (int k = 1; k <= deriv_order; k++) {
               double d = 0.;
-              int rk = r - k, pk = (int) degree - k;
+              int rk = r - k, pk = (int) _degree - k;
               if (r >= k) {
                 a(s2, 0) = a(s1, 0) / ndu(pk + 1, rk);
                 d = a(s2, 0) * ndu(rk, pk);
               }
               int j1 = rk >= -1 ? 1 : -rk;
-              int j2 = (r - 1 <= pk) ? k - 1 : (int) degree - r;
+              int j2 = (r - 1 <= pk) ? k - 1 : (int) _degree - r;
               for (int j = j1; j <= j2; j++) {
                 a(s2, j) = (a(s1, j) - a(s1, j - 1)) / ndu(pk + 1, rk + j);
                 d += a(s2, j) * ndu(rk + j, pk);
@@ -154,23 +150,23 @@ namespace frydom {
             }
           }
 
-          unsigned int r = degree;
+          unsigned int r = _degree;
           for (unsigned int k = 1; k <= deriv_order; k++) {
-            for (unsigned int j = 0; j <= degree; j++)
+            for (unsigned int j = 0; j <= _degree; j++)
               DN(k, j) *= r;
-            r *= (degree - k);
+            r *= (_degree - k);
           }
 
         }
 
         template<unsigned int _dim>
-        static std::shared_ptr<FrBSpline<_dim>> BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
-                                                                        const unsigned int degree,
-                                                                        std::vector<double> &uk,
-                                                                        KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
+        static std::shared_ptr<FrBSpline<_degree, _dim>>
+        BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
+                                std::vector<double> &uk,
+                                KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
 
           unsigned int n = points.size(); // Number of points to interpolate
-          unsigned int m = n + degree + 1; // Number of nodes given the desired spline degree
+          unsigned int m = n + _degree + 1; // Number of nodes given the desired spline degree
 
 
 
@@ -202,28 +198,28 @@ namespace frydom {
           // Computing the node vector by averaging
           KnotVector knots(m, 0.);
 
-          for (unsigned int p = 0; p <= degree; p++) {
+          for (unsigned int p = 0; p <= _degree; p++) {
             knots[p] = 0.;
             knots[m - p - 1] = 1.;
           }
-          for (unsigned int j = 1; j < n - degree; j++) {
-            for (unsigned int i = j; i < j + degree; i++) {
-              knots[j + degree] += uk[i];
+          for (unsigned int j = 1; j < n - _degree; j++) {
+            for (unsigned int i = j; i < j + _degree; i++) {
+              knots[j + _degree] += uk[i];
             }
-            knots[j + degree] /= degree;
+            knots[j + _degree] /= _degree;
           }
 
           // TODO: Use sparse matrix features to exploit band structure inherent to BSpline basis functions
-          mathutils::MatrixMN<double> A(n, n);
-          A.SetNull();
+          Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> A(n, n);
+          A.setZero();
 
           // Filling basis functions matrix A
           for (unsigned int i = 0; i < n; i++) {
-            unsigned int ispan = FindSpan(uk[i], knots, degree);
-            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots, degree);
+            unsigned int ispan = FindSpan(uk[i], knots);
+            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots);
 
-            for (unsigned int j = 0; j <= degree; j++) {
-              A(i, ispan - degree + j) = basis_functions[j];
+            for (unsigned int j = 0; j <= _degree; j++) {
+              A(i, ispan - _degree + j) = basis_functions[j];
             }
           }
 
@@ -236,12 +232,12 @@ namespace frydom {
           // Solving the fitting problem for each dimension
           for (unsigned int dim = 0; dim < _dim; dim++) {
             // Building rhs
-            mathutils::VectorN<double> rhs(n);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> rhs(n);
             for (unsigned int j = 0; j < n; j++) {
               rhs(j) = points[j][dim];
             }
 
-            mathutils::VectorN<double> sol = solver.solve(rhs);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> sol = solver.solve(rhs);
 
             // Scattering control points coordinates for current dimension dim
             for (unsigned int j = 0; j < n; j++) {
@@ -251,36 +247,34 @@ namespace frydom {
           }
 
           // Building the BSpline
-          return std::make_shared<FrBSpline<_dim>>(degree, knots, ctrl_points);
+          return std::make_shared<FrBSpline<_degree, _dim>>(knots, ctrl_points);
 
         }
 
         template<unsigned int _dim>
-        static std::shared_ptr<FrBSpline<_dim>> BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
-                                                                        const unsigned int degree,
-                                                                        KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
+        static std::shared_ptr<FrBSpline<_degree, _dim>>
+        BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
+                                KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
           std::vector<double> uk;
-          return BSplineInterpFromPoints<_dim>(points, degree, uk, knot_arrangement_type);
+          return BSplineInterpFromPoints<_dim>(points, uk, knot_arrangement_type);
         }
 
       };
 
     }  // end namespace frydom::bspline::internal
 
-    template<unsigned int _dim = 3>
+    template<unsigned int _degree, unsigned int _dim = 3>
     class FrBSpline {
 
      public:
-      FrBSpline(const unsigned int degree,
-                const KnotVector &knots,
+      FrBSpline(const KnotVector &knots,
                 const std::vector<Point<_dim>> &ctrl_points) :
-          m_degree(degree),
           m_knots(knots),
           m_ctrl_points(ctrl_points) {
 
         // TODO: mettre condition sur la relation entre le nombre de noeuds et l'ordre...
 
-        assert(m_knots.size() == m_ctrl_points.size() + m_degree + 1); // TODO: verifier theorie --> OK
+        assert(m_knots.size() == m_ctrl_points.size() + _degree + 1); // TODO: verifier theorie --> OK
       }
 
       unsigned int GetNbCtrlPoints() const {
@@ -292,17 +286,17 @@ namespace frydom {
       }
 
       unsigned int degree() const {
-        return m_degree;
+        return _degree;
       }
 
       unsigned int order() const {
-        return m_degree + 1;
+        return _degree + 1;
       }
 
       void Eval(const double &u, Point<_dim> &point) const {
 
-        unsigned int ispan = internal::FrBSplineTools::FindSpan(u, m_knots, m_degree);
-        auto basis_functions = internal::FrBSplineTools::BasisFunctionsEval(u, ispan, m_knots, m_degree);
+        unsigned int ispan = internal::FrBSplineTools<_degree>::FindSpan(u, m_knots);
+        auto basis_functions = internal::FrBSplineTools<_degree>::BasisFunctionsEval(u, ispan, m_knots);
 
         Eval_(basis_functions, ispan, point);
       }
@@ -318,14 +312,15 @@ namespace frydom {
 
         std::vector<Point<_dim>> result(uvec.size(), Point<_dim>());
 
-        unsigned int ispan_last = internal::FrBSplineTools::FindSpan(uvec.front(), m_knots, m_degree);;
-        auto basis_functions = internal::FrBSplineTools::BasisFunctionsEval(uvec.front(), ispan_last, m_knots, m_degree);
+        unsigned int ispan_last = internal::FrBSplineTools<_degree>::FindSpan(uvec.front(), m_knots);
+        auto basis_functions =
+            internal::FrBSplineTools<_degree>::BasisFunctionsEval(uvec.front(), ispan_last, m_knots);
 
         unsigned int k = 0;
         for (const double &u : uvec) {
-          unsigned int ispan = internal::FrBSplineTools::FindSpan(u, m_knots, m_degree);
+          unsigned int ispan = internal::FrBSplineTools<_degree>::FindSpan(u, m_knots);
           if (ispan != ispan_last) {
-            basis_functions = internal::FrBSplineTools::BasisFunctionsEval(uvec.front(), ispan, m_knots, m_degree);
+            basis_functions = internal::FrBSplineTools<_degree>::BasisFunctionsEval(uvec.front(), ispan, m_knots);
             ispan_last = ispan;
           }
           Eval_(basis_functions, ispan, result[k]);
@@ -338,14 +333,13 @@ namespace frydom {
       inline void
       Eval_(const std::vector<double> &basis_functions, const unsigned int ispan, Point<_dim> &point) const {
         point.setZero();
-        for (unsigned int i = 0; i <= m_degree; i++) {
-          point += basis_functions[i] * m_ctrl_points[ispan - m_degree + i];
+        for (unsigned int i = 0; i <= _degree; i++) {
+          point += basis_functions[i] * m_ctrl_points[ispan - _degree + i];
         }
       }
 
 
      private:
-      unsigned int m_degree;
 
       std::vector<Point<_dim>> m_ctrl_points;
       KnotVector m_knots;

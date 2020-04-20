@@ -25,15 +25,15 @@ void test_find_span() {
 
   int span;
 
-  assert(FrBSplineTools::FindSpan(0., knots, p) == 2);
-  assert(FrBSplineTools::FindSpan(0.5, knots, p) == 2);
-  assert(FrBSplineTools::FindSpan(1., knots, p) == 3);
-  assert(FrBSplineTools::FindSpan(1.5, knots, p) == 3);
-  assert(FrBSplineTools::FindSpan(3., knots, p) == 5);
-  assert(FrBSplineTools::FindSpan(4., knots, p) == 7);
-  assert(FrBSplineTools::FindSpan(4.2, knots, p) == 7);
-  assert(FrBSplineTools::FindSpan(5., knots, p) == 7);
-  assert(FrBSplineTools::FindSpan(6., knots, p) == 7);
+  assert(FrBSplineTools<2>::FindSpan(0., knots) == 2);
+  assert(FrBSplineTools<2>::FindSpan(0.5, knots) == 2);
+  assert(FrBSplineTools<2>::FindSpan(1., knots) == 3);
+  assert(FrBSplineTools<2>::FindSpan(1.5, knots) == 3);
+  assert(FrBSplineTools<2>::FindSpan(3., knots) == 5);
+  assert(FrBSplineTools<2>::FindSpan(4., knots) == 7);
+  assert(FrBSplineTools<2>::FindSpan(4.2, knots) == 7);
+  assert(FrBSplineTools<2>::FindSpan(5., knots) == 7);
+  assert(FrBSplineTools<2>::FindSpan(6., knots) == 7);
 
 }
 
@@ -56,14 +56,14 @@ void test_basis_function() {
   knots.push_back(5.);
   knots.push_back(5.);
 
-  double u = 5./2.;
-  int span = FrBSplineTools::FindSpan(u, knots, p);
+  double u = 5. / 2.;
+  int span = FrBSplineTools<2>::FindSpan(u, knots);
 
-  auto basis = FrBSplineTools::BasisFunctionsEval(5./2., span, knots, p);
+  auto basis = FrBSplineTools<2>::BasisFunctionsEval(5. / 2., span, knots);
 
-  assert(basis[0] == 1./8.);
-  assert(basis[1] == 6./8.);
-  assert(basis[2] == 1./8.);
+  assert(basis[0] == 1. / 8.);
+  assert(basis[1] == 6. / 8.);
+  assert(basis[2] == 1. / 8.);
 //  std::cout << basis << std::endl;
 
 }
@@ -74,14 +74,14 @@ void test_interpolation() {
 
   int n = 5;
 
-  Point<3> p0 = {0., 0., 0.};
-  Point<3> p1 = {3., 4., 0.};
-  Point<3> p2 = {-1., 4., 0.};
-  Point<3> p3 = {-4., 0., 0.};
-  Point<3> p4 = {-4., -3., 0.};
+  Point<2> p0 = {0., 0.};
+  Point<2> p1 = {3., 4.};
+  Point<2> p2 = {-1., 4.};
+  Point<2> p3 = {-4., 0.};
+  Point<2> p4 = {-4., -3.};
 
 
-  std::vector<Point<3>> points;
+  std::vector<Point<2>> points;
   points.reserve(n);
   points.push_back(p0);
   points.push_back(p1);
@@ -90,7 +90,7 @@ void test_interpolation() {
   points.push_back(p4);
 
 
-  auto interp = FrBSplineTools::BSplineInterpFromPoints<3>(points, 3, FrBSplineTools::CHORD_LENGTH);
+  auto interp = FrBSplineTools<3>::BSplineInterpFromPoints<2>(points, FrBSplineTools<3>::CHORD_LENGTH);
 
   // Checking back that the curve is passing among points
 
@@ -107,7 +107,7 @@ void test_interpolation() {
     uk[k] = uk[k - 1] + (points[k] - points[k - 1]).norm() / d;
   }
 
-  for (int i = 0; i<n; i++) {
+  for (int i = 0; i < n; i++) {
     std::cout << points[i].transpose() << std::endl;
     std::cout << interp->Eval(uk[i]).transpose() << std::endl << std::endl;
   }
