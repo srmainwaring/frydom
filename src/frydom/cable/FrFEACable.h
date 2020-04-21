@@ -13,6 +13,7 @@
 #include <chrono/fea/ChBuilderBeam.h>
 #include <chrono/fea/ChBeamSectionCosserat.h>
 
+
 #include "FrCableBase.h"
 #include "frydom/core/common/FrFEAMesh.h"
 #include "frydom/core/FrOffshoreSystem.h"
@@ -45,6 +46,62 @@ namespace frydom {
     };
 
     class FrElementBeamIGA : public chrono::fea::ChElementBeamIGA {
+
+     public:
+
+      /// Gets the absolute xyz velocity of a point on the beam line, at abscissa 'eta'.
+      /// Note, eta=-1 at node1, eta=+1 at node2.
+      virtual void EvaluateSectionSpeed(const double eta,
+                                        chrono::ChVector<> &point_speed) {
+
+        // compute parameter in knot space from eta-1..+1
+        double u1 = knots(order); // extreme of span
+        double u2 = knots(knots.GetRows() - order - 1);
+        double u = u1 + ((eta + 1) / 2.0) * (u2 - u1);
+        int nspan = order;
+
+        chrono::ChVectorDynamic<> N((int) nodes.size());
+
+        chrono::geometry::ChBasisToolsBspline::BasisEvaluate(
+            this->order,
+            nspan,
+            u,
+            knots,
+            N);           ///< here return  in N
+
+        point_speed = chrono::VNULL;
+        for (int i = 0; i < nodes.size(); ++i) {
+          point_speed += N(i) * nodes[i]->coord_dt.pos;
+        }
+      }
+
+      /// Gets the absolute xyz position of a point on the beam line, at abscissa 'eta'.
+      /// Note, eta=-1 at node1, eta=+1 at node2.
+      virtual void EvaluateSectionAcceleration(const double eta,
+                                               chrono::ChVector<> &point_acceleration) {
+
+        // compute parameter in knot space from eta-1..+1
+        double u1 = knots(order); // extreme of span
+        double u2 = knots(knots.GetRows() - order - 1);
+        double u = u1 + ((eta + 1) / 2.0) * (u2 - u1);
+        int nspan = order;
+
+        chrono::ChVectorDynamic<> N((int) nodes.size());
+
+        chrono::geometry::ChBasisToolsBspline::BasisEvaluate(
+            this->order,
+            nspan,
+            u,
+            knots,
+            N);           ///< here return  in N
+
+        point_acceleration = chrono::VNULL;
+        for (int i = 0; i < nodes.size(); ++i) {
+          point_acceleration += N(i) * nodes[i]->coord_dtdt.pos;
+        }
+      }
+
+
     };
 
     class FrElementCableANCF : public chrono::fea::ChElementCableANCF {
@@ -139,9 +196,9 @@ namespace frydom {
       std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetLastNode();
 
      private:
-      FrFEACableBase* m_cable;
-      FrCableProperties* m_properties;
-      FrCableShapeInitializer* m_shape_initializer;
+      FrFEACableBase *m_cable;
+      FrCableProperties *m_properties;
+      FrCableShapeInitializer *m_shape_initializer;
 
     };
 

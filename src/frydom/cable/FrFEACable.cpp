@@ -5,13 +5,16 @@
 #include <chrono/fea/ChBeamSection.h>
 #include <chrono/physics/ChLinkMate.h>
 #include <chrono/fea/ChNodeFEAxyzrot.h>
-//#include <chrono/fea/ChElementBeamEuler.h>
 #include <chrono/fea/ChVisualizationFEAmesh.h>
 #include <chrono/fea/ChContactSurfaceNodeCloud.h>
 #include <chrono/fea/ChContactSurfaceMesh.h>
 #include <chrono/physics/ChLoadContainer.h>
 
+#include <MathUtils/VectorGeneration.h>
+
 #include "FrFEACable.h"
+
+#include "frydom/core/math/BSpline/FrBSpline.h"
 
 #include "FrFEACableLoads.h"
 #include "FrCableProperties.h"
@@ -79,7 +82,10 @@ namespace frydom {
       GetSystem()->Add(load_container);
 
       for (const auto &element : GetElements()) {
-        if (auto loadable = std::dynamic_pointer_cast<internal::FrElementBeamIGA>(element)) { // FIXME: changer, seulement pour debug
+        // FIXME: changer, seulement pour debug
+//        if (auto loadable = std::dynamic_pointer_cast<internal::FrElementBeamIGA>(element)) {
+//        if (auto loadable = std::dynamic_pointer_cast<chrono::ChLoadableU>(element)) { // FIXME: on veut caster en
+        if (auto loadable = std::dynamic_pointer_cast<FrElementBeamIGA>(element)) { // FIXME: on veut caster en
           // Adding buoyancy
           auto load = std::make_shared<FrBuoyancyLoad>(m_frydomCable, loadable);
           load_container->Add(load);
@@ -374,55 +380,68 @@ namespace frydom {
       beam_elems.clear();
       beam_nodes.clear();
 
-      chrono::ChVector<> Ydir = {0., 0., 1.};
 
+      // Buiding a BSpline approximation
       int p = 3; // order of the spline
-      int N = m_cable->m_frydomCable->GetNumberOfElements();
+      int nb_elements = m_cable->m_frydomCable->GetNumberOfElements();
+      int nb_ctrl_points = nb_elements + p;
       double unstretched_length = m_cable->m_frydomCable->GetUnstretchedLength();
 
-      // Create the 'complete' knot vector, with multiple at the ends
-      chrono::ChVectorDynamic<> myknots(N + p + p + 1);
-      chrono::geometry::ChBasisToolsBspline::ComputeKnotUniformMultipleEnds(myknots, p, 0.0, 1.0);
+      // Interpolating the shape with bspline curve
+      std::vector<double> uvec = mathutils::linspace(0., unstretched_length, nb_ctrl_points);
+      std::vector<bspline::Point<3>> points;
+      points.reserve(uvec.size());
+      for (unsigned int i = 0; i < uvec.size(); i++) {
+        points.push_back(m_shape_initializer->GetPosition(uvec[i], NWU));
+      }
 
-      // Create the 'complete' stl vector of control points, with uniform distribution
-      std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> mynodes;
-      for (int i_node = 0; i_node < N + p; ++i_node) { // FIXME: a priori ca ne va pas fonctionner !! il faut interpoler le shape avec une BSpline...
-        double s = ((double) i_node / (double) (N + p - 1)) * unstretched_length;
+      // TODO: interpoler egalement avec les derivees !!!
+      std::vector<double> uk;
+      auto bspline_interp = bspline::internal::FrBSplineTools<3>::BSplineInterpFromPoints<3>(points, uk);
 
-        // position of node
-//        ChVector<> pos = A + (B - A) * s;
-        auto pos = internal::Vector3dToChVector(m_shape_initializer->GetPosition(s, NWU));
+      auto knots = bspline_interp->GetKnotVector();
 
-        chrono::ChMatrix33<> mrot;
-        mrot.Set_A_Xdir(internal::Vector3dToChVector(m_shape_initializer->GetTangent(s, NWU)), Ydir);
 
-        auto hnode_i = std::make_shared<chrono::fea::ChNodeFEAxyzrot>(chrono::ChFrame<>(pos, mrot));
-        m_cable->AddNode(hnode_i);
-        mynodes.push_back(hnode_i);
-        this->beam_nodes.push_back(hnode_i);
+      // Using the Bspline to build the cable
+      std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> fea_nodes;
+
+
+      auto ctrl_points = bspline_interp->GetCtrlPoints();
+      for (unsigned int i = 0; i < ctrl_points.size(); i++) {
+        // Position of the node
+        auto pos = internal::Vector3dToChVector(ctrl_points[i]);
+        chrono::ChMatrix33<double> rot;
+        chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline_interp->EvalDeriv(uk[i]));
+        rot.Set_A_Xdir(tangent, {0., 0., 1.});
+
+        auto fea_node = std::make_shared<chrono::fea::ChNodeFEAxyzrot>(chrono::ChFrame<double>(pos, rot));
+        m_cable->AddNode(fea_node);
+        fea_nodes.push_back(fea_node);
+        beam_nodes.push_back(fea_node);
       }
 
       // Get section
       auto section = CableBuilderIGA::BuildSection(m_properties);
 
-      // Create the single elements by picking a subset of the nodes and control points
-      for (int i_el = 0; i_el < N; ++i_el) {
+      // Create elements
+      for (int i_el = 0; i_el < nb_elements; ++i_el) {
         std::vector<double> my_el_knots;
         for (int i_el_knot = 0; i_el_knot < p + p + 1 + 1; ++i_el_knot) {
-          my_el_knots.push_back(myknots(i_el + i_el_knot));
+          my_el_knots.push_back(knots[i_el + i_el_knot]);
         }
 
         std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> my_el_nodes;
         for (int i_el_node = 0; i_el_node < p + 1; ++i_el_node) {
-          my_el_nodes.push_back(mynodes[i_el + i_el_node]);
+          my_el_nodes.push_back(fea_nodes[i_el + i_el_node]);
         }
 
-        auto belement_i = std::make_shared<chrono::fea::ChElementBeamIGA>();
+        auto belement_i = std::make_shared<FrElementBeamIGA>();
         belement_i->SetNodesGenericOrder(my_el_nodes, my_el_knots, p);
         belement_i->SetSection(section);
         m_cable->AddElement(belement_i);
         this->beam_elems.push_back(belement_i);
       }
+
     }
 
     std::shared_ptr<chrono::fea::ChBeamSectionCosserat> CableBuilderIGA::BuildSection(FrCableProperties *properties) {

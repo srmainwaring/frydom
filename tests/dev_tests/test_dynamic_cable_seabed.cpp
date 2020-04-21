@@ -2,6 +2,7 @@
 // Created by frongere on 10/04/2020.
 //
 
+#include <chrono/fea/ChElementBase.h>
 #include "frydom/frydom.h"
 
 
@@ -22,7 +23,7 @@ int main() {
       -500, 500, 500, -50, 50,50);
 
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
-  system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(90, 15, DEG, KNOT, NED, GOTO);
+  system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(90, 0., DEG, KNOT, NED, GOTO);
 
   auto world_body = system.GetWorldBody();
 
@@ -68,14 +69,19 @@ int main() {
                                   cable_properties->GetRayleighDamping(), // TODO: mettre dans
                                   nb_elements);
 
+//  // Essai de cast...
+//  auto element_IGA = std::make_shared<internal::FrElementBeamIGA>();
+//  std::shared_ptr<chrono::fea::ChElementBase> element_base = element_IGA;
+//  auto element_back = std::dynamic_pointer_cast<internal::FrElementBeamIGA>(element_base);
+
 
 //  system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::RUNGEKUTTA45);
 
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(200);
-  system.SetSolverMaxIterStab(200);
-  system.SetSolverForceTolerance(1e-13);
+  system.SetSolverMaxIterSpeed(500);
+  system.SetSolverMaxIterStab(500);
+  system.SetSolverForceTolerance(1e-14);
 
   system.Initialize();
 

@@ -22,20 +22,23 @@ namespace frydom {
     template<unsigned int _dim = 3>
     using Point = Eigen::Matrix<double, _dim, 1>;
 
+    template<unsigned int _dim = 3>
+    using Direction = Eigen::Matrix<double, _dim, 1>;
+
 
     namespace internal {
       // In this namespace, internal calculations such as basis functions evaluations or interpolation algorithms are
       // implemented
 
+      enum KNOT_ARRANGEMENT_ALGO {
+        EQUALLY_SPACED,
+        CHORD_LENGTH,
+        CENTRIPETAL
+      };
+
       template<unsigned int _degree>
       class FrBSplineTools {
        public:
-
-        enum KNOT_ARRANGEMENT {
-          EQUALLY_SPACED,
-          CHORD_LENGTH,
-          CENTRIPETAL
-        };
 
         static unsigned int FindSpan(const double &u,
                                      const KnotVector &knots) {
@@ -163,7 +166,7 @@ namespace frydom {
         static std::shared_ptr<FrBSpline<_degree, _dim>>
         BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
                                 std::vector<double> &uk,
-                                KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
+                                KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
 
           unsigned int n = points.size(); // Number of points to interpolate
           unsigned int m = n + _degree + 1; // Number of nodes given the desired spline degree
@@ -172,7 +175,6 @@ namespace frydom {
 
           // Computing the uk values corresponding to each point by using the specified (chord length by default)
 
-//      std::vector<double> uk(n, 0.);
           uk.clear();
           uk.assign(n, 0.);
 
@@ -254,9 +256,120 @@ namespace frydom {
         template<unsigned int _dim>
         static std::shared_ptr<FrBSpline<_degree, _dim>>
         BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
-                                KNOT_ARRANGEMENT knot_arrangement_type = CHORD_LENGTH) {
+                                KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
           std::vector<double> uk;
           return BSplineInterpFromPoints<_dim>(points, uk, knot_arrangement_type);
+        }
+
+        template<unsigned int _dim>
+        static std::shared_ptr<FrBSpline<_degree, _dim>>
+        BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
+                                const Direction<_dim> &dir_p0,
+                                const Direction<_dim> &dir_p1,
+                                std::vector<double> &uk,
+                                KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
+
+          unsigned int n = points.size(); // Number of points to interpolate
+          unsigned int m = n + _degree + 3; // Number of nodes given the desired spline degree
+
+          // Computing the uk values corresponding to each point by using the specified (chord length by default)
+
+          uk.clear();
+          uk.assign(n, 0.);
+
+          if (knot_arrangement_type == CHORD_LENGTH) {
+
+            double d = 0.;
+            for (unsigned int k = 1; k < n; k++) {
+              d += (points[k] - points[k - 1]).norm();
+            }
+            uk[0] = 0.;
+            uk[n - 1] = 1.;
+
+            for (unsigned int k = 1; k < n; k++) {
+              uk[k] = uk[k - 1] + (points[k] - points[k - 1]).norm() / d;
+            }
+
+          } else {
+            std::cerr << "Other knot arrangement methods not implemented yet" << std::endl;
+            exit(EXIT_FAILURE);
+          }
+
+
+          // Computing the node vector by averaging
+          KnotVector knots(m, 0.);
+
+          for (unsigned int p = 0; p <= _degree; p++) {
+            knots[p] = 0.;
+            knots[m - p - 1] = 1.;
+          }
+          for (unsigned int j = 0; j < n - _degree + 1; j++) {
+            for (unsigned int i = j; i < j + _degree; i++) {
+              knots[j + _degree + 1] += uk[i];
+            }
+            knots[j + _degree + 1] /= _degree;
+          }
+
+          // TODO: Use sparse matrix features to exploit band structure inherent to BSpline basis functions
+          Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> A(n + 2, n + 2);
+          A.setZero();
+
+          // Filling basis functions matrix A
+          for (unsigned int i = 0; i < n; i++) {
+            unsigned int ispan = FindSpan(uk[i], knots);
+            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots);
+
+            for (unsigned int j = 0; j <= _degree; j++) {
+              A(i, ispan - _degree + j) = basis_functions[j];
+            }
+          }
+
+          { // temp scope...
+
+            // Filling last two lines for derivatives equations
+            // TODO: on ajoute les equations pour les derivees aux frontieres en fin. Ce n'est clairement pas optimal et
+            // il faudrait les ajouter respectivement en ligne 2 et en ligne n de la matrice de taille (n+2 x n+2)
+
+            // Derivative at point 0
+            double coeff = _degree / knots[_degree + 1];
+            A(n, 0) = -coeff;
+            A(n, 1) = coeff;
+
+            // Derivative at point n
+            coeff = _degree / (1. - knots[m - _degree + 1]);
+            A(n + 1, n) = -coeff;
+            A(n + 1, n + 1) = coeff;
+
+          }  // end temp scope
+
+          // Preparing the linear solver
+          Eigen::PartialPivLU<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>> solver;
+          solver.compute(A);
+
+          std::vector<Point<_dim>> ctrl_points(n, Point<_dim>());
+
+          // Solving the fitting problem for each dimension
+          for (unsigned int dim = 0; dim < _dim; dim++) {
+            // Building rhs
+            Eigen::Matrix<double, Eigen::Dynamic, 1> rhs(n);
+            for (unsigned int j = 0; j < n; j++) {
+              rhs(j) = points[j][dim];
+            }
+            rhs(n) = dir_p0[dim];
+            rhs(n + 1) = dir_p1[dim];
+
+            Eigen::Matrix<double, Eigen::Dynamic, 1> sol = solver.solve(rhs);
+
+            // Scattering control points coordinates for current dimension dim
+            for (unsigned int j = 0; j < n; j++) {
+              ctrl_points[j][dim] = sol[j];
+            }
+
+          }
+
+          // Building the BSpline
+          return std::make_shared<FrBSpline<_degree, _dim>>(knots, ctrl_points);
+
         }
 
       };
@@ -267,9 +380,9 @@ namespace frydom {
     class FrBSpline {
 
      public:
-      FrBSpline(const KnotVector &knots,
+      FrBSpline(const KnotVector knots,
                 const std::vector<Point<_dim>> &ctrl_points) :
-          m_knots(knots),
+          m_knots(std::move(knots)),
           m_ctrl_points(ctrl_points) {
 
         // TODO: mettre condition sur la relation entre le nombre de noeuds et l'ordre...
@@ -307,6 +420,20 @@ namespace frydom {
         return point;
       }
 
+      void EvalDeriv(const double &u, Direction<_dim> &direction) const {
+        unsigned int ispan = internal::FrBSplineTools<_degree>::FindSpan(u, m_knots);
+        auto basis_functions_deriv =
+            internal::FrBSplineTools<_degree>::BasisFunctionsEvalDerivatives(u, ispan, 1, m_knots);
+
+        EvalDeriv_(basis_functions_deriv, ispan, direction);
+      }
+
+      Direction<_dim> EvalDeriv(const double &u) const {
+        Direction<_dim> derivative;
+        EvalDeriv(u, derivative);
+        return derivative;
+      }
+
       std::vector<Point<_dim>> Eval(const std::vector<double> &uvec) const {
         assert(uvec.size() > 0);
 
@@ -329,6 +456,19 @@ namespace frydom {
         return result;
       }
 
+
+      KnotVector GetKnotVector() const {
+        return m_knots;
+      }
+
+      std::vector<Point<_dim>> GetCtrlPoints() {
+        return m_ctrl_points;
+      }
+
+      void WriteCSV(const std::vector<double> &uvec) {
+
+      }
+
      private:
       inline void
       Eval_(const std::vector<double> &basis_functions, const unsigned int ispan, Point<_dim> &point) const {
@@ -338,6 +478,14 @@ namespace frydom {
         }
       }
 
+      inline void EvalDeriv_(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> basis_functions_deriv,
+                             const unsigned int ispan,
+                             Direction<_dim> direction) const {
+        direction.setZero();
+        for (unsigned int i = 0; i <= _degree; i++) {
+          direction += basis_functions_deriv(1, i) * m_ctrl_points[ispan - _degree + i];
+        }
+      }
 
      private:
 

@@ -38,7 +38,7 @@ namespace frydom {
                                   chrono::ChVectorDynamic<> *state_w) {  ///< if != 0, update state (speed part) to this, then evaluate F)
 
     // FIXME: il faudra templater l'element
-    auto element = std::dynamic_pointer_cast<internal::FrElementBeamEuler>(loadable);
+    auto element = std::dynamic_pointer_cast<internal::FrElementBeamIGA>(loadable);
 
     // Get the point position
     chrono::ChVector<double> position_;
@@ -63,18 +63,27 @@ namespace frydom {
 
     // Morison
 
+    // FIXME:
+
     // Evaluate velocity at U
-    auto vel_a = internal::ChVectorToVector3d<Velocity>(element->GetNodeA()->GetPos_dt());
-    auto vel_b = internal::ChVectorToVector3d<Velocity>(element->GetNodeB()->GetPos_dt());
 
-    // We take the mean velocity value, having nothing to interpolate best...
-    auto cable_velocity = 0.5 * (vel_a + vel_b);
+//    auto vel_a = internal::ChVectorToVector3d<Velocity>(element->GetNodeA()->GetPos_dt());
+//    auto vel_b = internal::ChVectorToVector3d<Velocity>(element->GetNodeB()->GetPos_dt());
+//
+//    // We take the mean velocity value, having nothing to interpolate best...
+//    auto cable_velocity = 0.5 * (vel_a + vel_b);
+    chrono::ChVector<double> vel;
+    element->EvaluateSectionSpeed(U, vel);
+    auto cable_velocity = internal::ChVectorToVector3d<Velocity>(vel);
 
-    auto acc_a = internal::ChVectorToVector3d<Acceleration>(element->GetNodeA()->GetPos_dtdt());
-    auto acc_b = internal::ChVectorToVector3d<Acceleration>(element->GetNodeB()->GetPos_dtdt());
-
-    // We take the mean acceleration value, having nothing to interpolate best...
-    auto cable_acceleration = 0.5 * (acc_a + acc_b);
+//    auto acc_a = internal::ChVectorToVector3d<Acceleration>(element->GetNodeA()->GetPos_dtdt());
+//    auto acc_b = internal::ChVectorToVector3d<Acceleration>(element->GetNodeB()->GetPos_dtdt());
+//
+//    // We take the mean acceleration value, having nothing to interpolate best...
+//    auto cable_acceleration = 0.5 * (acc_a + acc_b);
+    chrono::ChVector<double> acc;
+    element->EvaluateSectionAcceleration(U, acc);
+    auto cable_acceleration = internal::ChVectorToVector3d<Acceleration>(acc);
 
     // Fluid velocity and acceleration at point U
     Velocity fluid_relative_velocity;

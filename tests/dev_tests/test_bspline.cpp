@@ -3,12 +3,15 @@
 //
 
 #include "frydom/frydom.h"
+#include <MathUtils/Check.h>
 
 using namespace frydom::bspline;
 using namespace frydom::bspline::internal;
 
+// TODO: passer en unit testing
+
+
 void test_find_span() {
-  int p = 2; // p is the spline degree. order 3...
 
   std::vector<double> knots;
   knots.push_back(0.);
@@ -22,8 +25,6 @@ void test_find_span() {
   knots.push_back(5.);
   knots.push_back(5.);
   knots.push_back(5.);
-
-  int span;
 
   assert(FrBSplineTools<2>::FindSpan(0., knots) == 2);
   assert(FrBSplineTools<2>::FindSpan(0.5, knots) == 2);
@@ -41,8 +42,6 @@ void test_find_span() {
 void test_basis_function() {
   // Piegl p 68 expl 2.3
 
-  double p = 2;
-
   std::vector<double> knots;
   knots.push_back(0.);
   knots.push_back(0.);
@@ -57,7 +56,7 @@ void test_basis_function() {
   knots.push_back(5.);
 
   double u = 5. / 2.;
-  int span = FrBSplineTools<2>::FindSpan(u, knots);
+  auto span = FrBSplineTools<2>::FindSpan(u, knots);
 
   auto basis = FrBSplineTools<2>::BasisFunctionsEval(5. / 2., span, knots);
 
@@ -90,26 +89,14 @@ void test_interpolation() {
   points.push_back(p4);
 
 
-  auto interp = FrBSplineTools<3>::BSplineInterpFromPoints<2>(points, FrBSplineTools<3>::CHORD_LENGTH);
+  std::vector<double> uk;
+  auto bspline_interp = FrBSplineTools<3>::BSplineInterpFromPoints<2>(points, uk);
 
   // Checking back that the curve is passing among points
-
-  // Computing back uk vector
-  std::vector<double> uk(n, 0.);
-  double d = 0.;
-  for (unsigned int k = 1; k < n; k++) {
-    d += (points[k] - points[k - 1]).norm();
-  }
-  uk[0] = 0.;
-  uk[n - 1] = 1.;
-
-  for (unsigned int k = 1; k < n; k++) {
-    uk[k] = uk[k - 1] + (points[k] - points[k - 1]).norm() / d;
-  }
-
   for (int i = 0; i < n; i++) {
     std::cout << points[i].transpose() << std::endl;
-    std::cout << interp->Eval(uk[i]).transpose() << std::endl << std::endl;
+    std::cout << bspline_interp->Eval(uk[i]).transpose() << std::endl << std::endl;
+    assert(mathutils::IsClose((points[i] - bspline_interp->Eval(uk[i])).norm(), 0.));
   }
 
 }
