@@ -34,7 +34,8 @@ namespace frydom {
   FrBuoyancyLoader::FrBuoyancyLoader(std::shared_ptr<chrono::ChLoadableU> mloadable) :
       FrFEACableLoader(mloadable) {}
 
-  void FrBuoyancyLoader::ComputeF(const double U, chrono::ChVectorDynamic<> &F, chrono::ChVectorDynamic<> *state_x,
+  void FrBuoyancyLoader::ComputeF(const double U, chrono::ChVectorDynamic<> &F,
+                                  chrono::ChVectorDynamic<> *state_x,
                                   chrono::ChVectorDynamic<> *state_w) {  ///< if != 0, update state (speed part) to this, then evaluate F)
 
     // FIXME: il faudra templater l'element
@@ -120,12 +121,12 @@ namespace frydom {
     // Computing morison load
     auto cable_properties = m_cable->GetProperties();
     double d = cable_properties->GetHydrodynamicDiameter();
-    double A = 0.25 * MU_PI * d*d;
+    double A = 0.25 * MU_PI * d * d;
 
     Force morison_force;
     // Normal morison drag
     morison_force += 0.5 * fluid_density * cable_properties->GetTransverseDragCoefficient() * d *
-                    normal_fluid_velocity.norm() * normal_fluid_velocity;
+                     normal_fluid_velocity.norm() * normal_fluid_velocity;
 
     // Tangent morison drag
     morison_force += 0.5 * fluid_density * cable_properties->GetTangentialDragCoefficient() * d *

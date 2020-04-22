@@ -15,7 +15,7 @@ int main() {
   auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
   seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
-  seabed->SetBathymetry(-100, NWU);
+  seabed->SetBathymetry(-300, NWU); // TODO: depth target -100m
   seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
@@ -44,7 +44,7 @@ int main() {
   double cable_length = 64 + 425 + 30; // Adding more length...
   // 5 m / element est ce qui est fait par defaut dans ARIANE3D apparemment
 //  int nb_elements = int(cable_length / 5); // TODO: voir dans quelle mesure on peut augmenter la discretisation
-  int nb_elements = 10; // TODO: voir dans quelle mesure on peut augmenter la discretisation
+  int nb_elements = 50; // TODO: voir dans quelle mesure on peut augmenter la discretisation
 
 
   auto cable_properties = make_cable_properties();
