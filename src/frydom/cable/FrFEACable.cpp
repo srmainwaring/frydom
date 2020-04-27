@@ -2,6 +2,8 @@
 // Created by lletourn on 05/03/19.
 //
 
+#include <MathUtils/VectorGeneration.h>
+
 #include <chrono/fea/ChBeamSection.h>
 #include <chrono/physics/ChLinkMate.h>
 #include <chrono/fea/ChNodeFEAxyzrot.h>
@@ -9,8 +11,8 @@
 #include <chrono/fea/ChContactSurfaceNodeCloud.h>
 #include <chrono/fea/ChContactSurfaceMesh.h>
 #include <chrono/physics/ChLoadContainer.h>
+#include <chrono/fea/ChBeamSectionCosserat.h>
 
-#include <MathUtils/VectorGeneration.h>
 
 #include "FrFEACable.h"
 
@@ -19,12 +21,7 @@
 #include "FrFEACableLoads.h"
 #include "FrCableProperties.h"
 
-//#include "frydom/core/FrOffshoreSystem.h"
-//#include "frydom/cable/FrCatenaryLine.h"
-
 #include "frydom/core/common/FrNode.h"
-#include "frydom/core/body/FrBody.h"
-
 #include "frydom/logging/FrTypeNames.h"
 
 #include "FrCableShapeInitializer.h"
@@ -37,18 +34,8 @@ namespace frydom {
 
       m_startingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
       m_endingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
-      m_section = std::make_shared<chrono::fea::ChBeamSectionAdvanced>();
+//      m_section = std::make_shared<chrono::fea::ChBeamSectionAdvanced>();
 
-    }
-
-    void FrFEACableBase::InitializeSection() {
-
-      auto properties = m_frydomCable->GetProperties();
-
-      m_section->SetAsCircularSection(properties->GetDiameter());
-      m_section->SetBeamRaleyghDamping(properties->GetRayleighDamping());
-      m_section->SetDensity(properties->GetDensity());
-      m_section->SetYoungModulus(properties->GetYoungModulus());
     }
 
     void FrFEACableBase::InitializeContact() {
@@ -109,47 +96,53 @@ namespace frydom {
 
       // Starting hinge
       auto starting_body = m_frydomCable->GetStartingNode()->GetBody()->m_chronoBody;
-      auto ChronoFrame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInBody());
+      auto start_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInBody());
 
-      m_startingHinge->Initialize(m_starting_node_fea, starting_body, true, chrono::ChFrame<double>(), ChronoFrame);
+      m_startingHinge->Initialize(m_starting_node_fea,
+                                  starting_body,
+                                  true,
+                                  chrono::ChFrame<double>(),
+                                  start_ch_frame);
 
       // Ending hinge
       auto ending_body = m_frydomCable->GetEndingNode()->GetBody()->m_chronoBody;
-
-      ChronoFrame = internal::FrFrame2ChFrame(m_frydomCable->GetEndingNode()->GetFrameInBody());
+      auto end_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetEndingNode()->GetFrameInBody());
       FrFrame feaFrame;
       feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
 
-      m_endingHinge->Initialize(m_ending_node_fea, ending_body, true, internal::FrFrame2ChFrame(feaFrame),
-                                ChronoFrame);
+      m_endingHinge->Initialize(m_ending_node_fea,
+                                ending_body,
+                                true,
+                                internal::FrFrame2ChFrame(feaFrame),
+                                end_ch_frame);
 
       // Define the constraints on the hinges.
-      HingesConstraints();
+      SetHingeConstraints();
 
     }
 
-    void FrFEACableBase::HingesConstraints() {
+    void FrFEACableBase::SetHingeConstraints() {
 
       switch (m_frydomCable->GetStartingHingeType()) {
-        case FrFEACable::NONE:
+        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::NONE:
           m_startingHinge->SetConstrainedCoords(false, false, false, false, false, false);
           break;
-        case FrFEACable::SPHERICAL:
+        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::SPHERICAL:
           m_startingHinge->SetConstrainedCoords(true, true, true, false, false, false);
           break;
-        case FrFEACable::CONSTRAINED:
+        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::CONSTRAINED:
           m_startingHinge->SetConstrainedCoords(true, true, true, true, true, true);
           break;
       }
 
       switch (m_frydomCable->GetEndingHingeType()) {
-        case FrFEACable::NONE:
+        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::NONE:
           m_endingHinge->SetConstrainedCoords(false, false, false, false, false, false);
           break;
-        case FrFEACable::SPHERICAL:
+        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::SPHERICAL:
           m_endingHinge->SetConstrainedCoords(true, true, true, false, false, false);
           break;
-        case FrFEACable::CONSTRAINED:
+        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::CONSTRAINED:
           m_endingHinge->SetConstrainedCoords(true, true, true, true, true, true);
           break;
       }
@@ -163,11 +156,9 @@ namespace frydom {
         elements_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_ELEM_BEAM_TX);
         elements_assets->SetColorscaleMinMax(-m_frydomCable->GetBreakingTension(),
                                              m_frydomCable->GetBreakingTension()); //1799620
-//                elements_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_ANCF_BEAM_AX);
-//                elements_assets->SetColorscaleMinMax(-0.4, 0.4);
         elements_assets->SetSmoothFaces(true);
         elements_assets->SetWireframe(false);
-        m_section->SetDrawCircularRadius(m_frydomCable->GetDrawElementRadius());
+        m_frydomCable->GetSection()->SetDrawCircularRadius(m_frydomCable->GetDrawElementRadius());
         ChMesh::AddAsset(elements_assets);
       }
 
@@ -186,134 +177,44 @@ namespace frydom {
     }
 
     void FrFEACableBase::Initialize() {
+      // Must be called after the ChMesh is initialized !
 
       if (m_starting_node_fea == nullptr) {
 
-        InitializeSection();
+        auto nodes = GetNodes();
 
-//        // TODO: avoir un constructeur pour juste specifier les parametres du cable, pas les frontieres  -->  degager le constructeur par defaut
-        Position distanceBetweenNodes = (m_frydomCable->GetEndingNode()->GetPositionInWorld(NWU) -
-                                         m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU));
+        // FIXME: il faut renseigner de nouveau les noeuds aux frontieres !!!
+        m_starting_node_fea = std::dynamic_pointer_cast<chrono::fea::ChNodeFEAxyzrot>(nodes.front());
+        m_ending_node_fea = std::dynamic_pointer_cast<chrono::fea::ChNodeFEAxyzrot>(nodes.back());
 
-        bool is_taut = distanceBetweenNodes.norm() >= m_frydomCable->GetUnstretchedLength();
-        // TODO: voir si on a besoin de mitiger le fait que le cable est tendu ou pas directement dans cette methode
-
-        auto shape_initializer = FrCableShapeInitializer::Create(m_frydomCable,
-                                                                 m_frydomCable->GetSystem()->GetEnvironment());
-
-        CableBuilderIGA builder(this, m_frydomCable->GetProperties().get(), shape_initializer.get());
-        builder.Build();
-
-        m_starting_node_fea = builder.GetFirstNode();
-        m_ending_node_fea = builder.GetLastNode();
-
-
-//        double s = 0.;
-//        double ds = m_frydomCable->GetUnstretchedLength() / m_frydomCable->GetNumberOfElements();
-//
-//        // Compute the normal to the plan containing the cable
-//        auto AB = internal::Vector3dToChVector(m_frydomCable->GetEndingNode()->GetPositionInWorld(NWU) -
-//                                               m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU));
-//        AB.Normalize(); // FIXME: polutot travailler avec les objets frydom en premiere instance et les convertir en chrono au dernier moment...
-//
-//        // Init with the starting node
-//        auto ChronoFrame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInWorld());
-//
-//        chrono::ChVector<double> e1, e2, e3;
-//        chrono::ChMatrix33<double> RotMat;
-//
-//        if (!is_taut) {
-//          e1 = internal::Vector3dToChVector(shape_initializer->GetTangent(0., NWU));
-//          e3 = e1.Cross(AB);
-//          e3.Normalize();
-//          e2 = e3.Cross(e1);
-//          e2.Normalize();
-//
-//          RotMat.Set_A_axis(e1, e2, e3);
-//
-//          ChronoFrame.SetPos(
-//              internal::Vector3dToChVector(m_frydomCable->GetStartingNode()->GetPositionInWorld(NWU)));
-//          ChronoFrame.SetRot(RotMat);
-//        }
-//
-//        auto nodeA = std::make_shared<chrono::fea::ChNodeFEAxyzrot>(ChronoFrame);
-//        m_starting_node_fea = nodeA;
-
-//        // Add the node to the ChMesh
-//        AddNode(m_starting_node_fea);
-
-//        // Creating the specified number of Cable elements
-//        for (uint i = 1; i <= m_frydomCable->GetNumberOfElements(); ++i) {
-//          s += ds;
-//
-//          // Get the position and direction of the line for the curvilinear coord s
-//          if (is_taut) {
-//            ChronoFrame.SetPos(ChronoFrame.GetPos() + ds * AB);
-//          } else {
-//            ChronoFrame.SetPos(internal::Vector3dToChVector(shape_initializer->GetPosition(s, NWU)));
-//            e1 = internal::Vector3dToChVector(shape_initializer->GetTangent(s, NWU));
-////            e1.Normalize();
-//            e2 = e3.Cross(e1);
-//            e2.Normalize();
-//            RotMat.Set_A_axis(e1, e2, e3);
-//            ChronoFrame.SetRot(RotMat);
-//          }
-//
-//          // Create a node and add it to the ChMesh
-//          auto nodeB = std::make_shared<chrono::fea::ChNodeFEAxyzrot>(ChronoFrame);
-//          AddNode(nodeB);
-//
-//          // Create a cable element between the nodes A and B, and add it to the ChMesh
-//          auto element = std::make_shared<internal::FrElementBeamIGA>();
-//          element->SetNodes(nodeA, nodeB);
-//          element->SetSection(m_section);
-//          AddElement(element);
-//
-//          //
-//          nodeA = nodeB;
-//
-//        }
-
-//        // FIXME: c'es etrange ce qui se passe ici, dans ce cas, pourquoi ne pas declarer nodeB avant la boucle ??
-//        // Add the ending node to the ChMesh
-//        m_ending_node_fea = nodeA; // nodeB is destroyed after the loop
-////                AddNode(m_ending_node_fea);
-
-
-
-
-
-
-        // Generate constraints between boundaries and bodies
+        // Generate constraints between boundary nodes just defined and bodies
         InitializeLinks();
 
-        if (m_frydomCable->GetBreakingTension() == 0.) {
-
-          if (is_taut) {
-            double tensionMax = (distanceBetweenNodes.norm() - m_frydomCable->GetUnstretchedLength()) *
-                                m_frydomCable->GetProperties()->GetEA() / m_frydomCable->GetUnstretchedLength();
-            m_frydomCable->SetBreakingTension(1.2 * tensionMax);
-          } else {
-            // TODO: remettre en place le mecanisme ...
-//            m_frydomCable->SetBreakingTension(1.2 * catenaryLine->GetMaxTension());
-          }
-
-        }
+//        if (m_frydomCable->GetBreakingTension() == 0.) {
+//
+////          if (is_taut) {
+////            double tensionMax = (distanceBetweenNodes.norm() - m_frydomCable->GetUnstretchedLength()) *
+////                                m_frydomCable->GetProperties()->GetEA() / m_frydomCable->GetUnstretchedLength();
+////            m_frydomCable->SetBreakingTension(1.2 * tensionMax);
+////          } else {
+////            // TODO: remettre en place le mecanisme ...
+//////            m_frydomCable->SetBreakingTension(1.2 * catenaryLine->GetMaxTension());
+////          }
+//
+//        }
 
         // Set reference position of nodes as current position, for all nodes.
-        Relax();
+//        Relax();
 
-        InitializeHydrodynamicLoads();
+        InitializeHydrodynamicLoads(); // TODO: remettre en place
 
         InitializeContact();
 
-        // Generate assets for the cable
         GenerateAssets();
 
       }
 
-
-      // Absolutely necessary for finite elements !
+      // Initialize the Chrono FEA part
       SetupInitial();
 
     }
@@ -326,15 +227,6 @@ namespace frydom {
       m_frydomCable->Update(time);
 
     }
-
-//    void FrFEACableBase::UpdateForces(double time) {
-//
-//      // FIXME: ce n'est peut-etre pas ici qu'il faut faire qqch...
-//
-//
-//
-//
-//    }
 
     Position FrFEACableBase::GetNodePositionInWorld(int index, double eta) {
 
@@ -366,106 +258,6 @@ namespace frydom {
 
     }
 
-    CableBuilderIGA::CableBuilderIGA(frydom::internal::FrFEACableBase *cable,
-                                     frydom::FrCableProperties *properties,
-                                     frydom::FrCableShapeInitializer *shape_initializer) :
-        m_cable(cable),
-        m_properties(properties),
-        m_shape_initializer(shape_initializer) {
-
-    }
-
-    void CableBuilderIGA::Build() {
-
-      beam_elems.clear();
-      beam_nodes.clear();
-
-
-      // Buiding a BSpline approximation
-      int p = 3; // order of the spline
-      int nb_elements = m_cable->m_frydomCable->GetNumberOfElements();
-      int nb_ctrl_points = nb_elements + p;
-      double unstretched_length = m_cable->m_frydomCable->GetUnstretchedLength();
-
-      // Interpolating the shape with bspline curve
-      std::vector<double> uvec = mathutils::linspace(0., unstretched_length, nb_ctrl_points);
-      std::vector<bspline::Point<3>> points;
-      points.reserve(uvec.size());
-      for (unsigned int i = 0; i < uvec.size(); i++) {
-        points.push_back(m_shape_initializer->GetPosition(uvec[i], NWU));
-      }
-
-      // TODO: interpoler egalement avec les derivees !!!
-      std::vector<double> uk;
-      auto bspline_interp = bspline::internal::FrBSplineTools<3>::BSplineInterpFromPoints<3>(points, uk);
-
-      auto knots = bspline_interp->GetKnotVector();
-
-
-      // Using the Bspline to build the cable
-      std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> fea_nodes;
-
-
-      auto ctrl_points = bspline_interp->GetCtrlPoints();
-      for (unsigned int i = 0; i < ctrl_points.size(); i++) {
-        // Position of the node
-        auto pos = internal::Vector3dToChVector(ctrl_points[i]);
-        chrono::ChMatrix33<double> rot;
-        chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline_interp->EvalDeriv(uk[i]));
-        rot.Set_A_Xdir(tangent, {0., 0., 1.});
-
-        auto fea_node = std::make_shared<chrono::fea::ChNodeFEAxyzrot>(chrono::ChFrame<double>(pos, rot));
-        m_cable->AddNode(fea_node);
-        fea_nodes.push_back(fea_node);
-        beam_nodes.push_back(fea_node);
-      }
-
-      // Get section
-      auto section = CableBuilderIGA::BuildSection(m_properties);
-
-      // Create elements
-      for (int i_el = 0; i_el < nb_elements; ++i_el) {
-        std::vector<double> my_el_knots;
-        for (int i_el_knot = 0; i_el_knot < p + p + 1 + 1; ++i_el_knot) {
-          my_el_knots.push_back(knots[i_el + i_el_knot]);
-        }
-
-        std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> my_el_nodes;
-        for (int i_el_node = 0; i_el_node < p + 1; ++i_el_node) {
-          my_el_nodes.push_back(fea_nodes[i_el + i_el_node]);
-        }
-
-        auto belement_i = std::make_shared<FrElementBeamIGA>();
-        belement_i->SetNodesGenericOrder(my_el_nodes, my_el_knots, p);
-        belement_i->SetSection(section);
-        m_cable->AddElement(belement_i);
-        this->beam_elems.push_back(belement_i);
-      }
-
-    }
-
-    std::shared_ptr<chrono::fea::ChBeamSectionCosserat> CableBuilderIGA::BuildSection(FrCableProperties *properties) {
-
-      // TODO: voir les autres modeles constitutifs...
-      auto elasticity = std::make_shared<chrono::fea::ChElasticityCosseratSimple>();
-      elasticity->SetYoungModulus(properties->GetYoungModulus());
-      elasticity->SetGshearModulus(0.02e3 * 0.3); // FIXME: valeur codee en dur, reprise des exemples chrono
-      elasticity->SetBeamRaleyghDamping(properties->GetRayleighDamping());
-
-      auto section = std::make_shared<chrono::fea::ChBeamSectionCosserat>(elasticity);
-      section->SetDensity(properties->GetDensity());
-      section->SetAsCircularSection(properties->GetDiameter());
-
-      return section;
-    }
-
-    std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> CableBuilderIGA::GetFirstNode() {
-      return beam_nodes.front();
-    }
-
-    std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> CableBuilderIGA::GetLastNode() {
-      return beam_nodes.back();
-    }
 
   }  // end namespace frydom::internal
 
@@ -555,9 +347,103 @@ namespace frydom {
 
   void FrFEACable::Initialize() {
 
+    // Building the section
+    BuildSection();
+
+    // Determining if the cable is taut or slack
+    bool is_taut = (m_endingNode->GetPositionInWorld(NWU) - m_startingNode->GetPositionInWorld(NWU)).norm()
+                   > m_unstretchedLength;
+
+    if (is_taut) {
+      InitializeTaut();
+    } else {
+      InitializeSlack();
+    }
+
     m_chronoCable->Initialize();
 
-//    GetTension(0., NWU);
+  }
+
+  void FrFEACable::BuildSection() {
+
+    m_elasticity = std::make_shared<chrono::fea::ChElasticityCosseratSimple>();
+    m_elasticity->SetYoungModulus(m_properties->GetYoungModulus());
+    m_elasticity->SetGshearModulus(0.3 * m_properties->GetYoungModulus()); // By default, 30% of the young modulus...
+    m_elasticity->SetBeamRaleyghDamping(m_properties->GetRayleighDamping());
+
+    m_section = std::make_shared<chrono::fea::ChBeamSectionCosserat>(m_elasticity);
+    m_section->SetDensity(m_properties->GetDensity());
+    m_section->SetAsCircularSection(m_properties->GetDiameter());
+
+  }
+
+  void FrFEACable::InitializeTaut() {
+
+    chrono::fea::ChBuilderBeamIGA builder;
+
+    builder.BuildBeam(m_chronoCable,
+                      m_section,
+                      m_nbElements,
+                      internal::Vector3dToChVector(m_startingNode->GetPositionInWorld(NWU)),
+                      internal::Vector3dToChVector(m_endingNode->GetPositionInWorld(NWU)),
+                      {0., 0., 1.},
+                      3);
+  }
+
+  void FrFEACable::InitializeSlack() {
+
+    // *
+    // Building a shape initializer that uses internally a catenary cable
+    // *
+    auto shape_initializer = FrCableShapeInitializer::Create(this, GetSystem()->GetEnvironment());
+
+    // *
+    // Fitting the shape with a bspline
+    // *
+
+    // Building the set of points to interpolate (equal to the number of control points)
+    int p = 3; // BSpline order
+    int nb_ctrl_points = m_nbElements + p;
+    std::vector<double> u_vec = mathutils::linspace(0., m_unstretchedLength, nb_ctrl_points);
+    std::vector<bspline::Point<3>> points;
+    points.reserve(nb_ctrl_points);
+    for (unsigned int i = 0; i < nb_ctrl_points; i++) {
+      points.push_back(shape_initializer->GetPosition(u_vec[i], NWU));
+    }
+
+    // Deriving the interpolation BSpline
+    std::vector<double> uk;
+    auto bspline_interp = bspline::internal::FrBSplineTools<2>::BSplineInterpFromPoints<3>(points, uk);
+
+
+    // *
+    // Converting the BSpline curve into Chrono counterpart
+    // *
+
+    auto ctrl_points = bspline_interp->GetCtrlPoints();
+    std::vector<chrono::ChVector<double>> ch_points;
+    ch_points.reserve(nb_ctrl_points);
+    for (int i = 0; i < nb_ctrl_points; i++) {
+      ch_points.push_back(internal::Vector3dToChVector(ctrl_points[i]));
+    }
+
+    auto knots = bspline_interp->GetKnotVector();
+    chrono::ChVectorDynamic<double> ch_knots;
+    ch_knots.Resize(knots.size());
+    for (int i = 0; i < knots.size(); i++) {
+      ch_knots(i) = knots[i];
+    }
+
+    auto ch_bspline = chrono::geometry::ChLineBspline(3, ch_points, &ch_knots);
+
+    // Building the beam using the Chrono tool
+    chrono::fea::ChBuilderBeamIGA builder;
+
+    builder.BuildBeam(m_chronoCable,
+                      m_section,
+                      ch_bspline,
+                      {0., 0., 1.});
+
   }
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
@@ -636,19 +522,19 @@ namespace frydom {
 ////        }
 //    }
 
-  void FrFEACable::SetStartingHingeType(FrFEACable::HingeType type) {
+  void FrFEACable::SetStartingHingeType(FrFEACable::BOUNDARY_CONSTRAINT_TYPE type) {
     m_startingHingeType = type;
   }
 
-  FrFEACable::HingeType FrFEACable::GetStartingHingeType() const {
+  FrFEACable::BOUNDARY_CONSTRAINT_TYPE FrFEACable::GetStartingHingeType() const {
     return m_startingHingeType;
   }
 
-  void FrFEACable::SetEndingHingeType(FrFEACable::HingeType type) {
+  void FrFEACable::SetEndingHingeType(FrFEACable::BOUNDARY_CONSTRAINT_TYPE type) {
     m_endingHingeType = type;
   }
 
-  FrFEACable::HingeType FrFEACable::GetEndingHingeType() const {
+  FrFEACable::BOUNDARY_CONSTRAINT_TYPE FrFEACable::GetEndingHingeType() const {
     return m_endingHingeType;
   }
 

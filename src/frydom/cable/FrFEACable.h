@@ -129,7 +129,6 @@ namespace frydom {
       std::shared_ptr<chrono::ChLinkMateGeneric> m_startingHinge;         ///< Starting hinge, to connect to a body
       std::shared_ptr<chrono::ChLinkMateGeneric> m_endingHinge;           ///< Ending hinge, to connect to a body
 
-      std::shared_ptr<chrono::fea::ChBeamSectionAdvanced> m_section;      ///< Section properties (linear density, section, inertia, Young modulus, Rayleigh damping, etc.)
 
       /// Constructor of the FrFEACableBase
       /// \param cable pointer to the FrFEACable containing this base class
@@ -141,8 +140,6 @@ namespace frydom {
       /// Update time dependent data, for all elements.
       /// Updates all [A] coord.systems for all (corotational) elements.
       void Update(double time, bool update_assets) override;
-
-//      void UpdateForces(double time);
 
       /// Get the position of the dynamic cable at the local position eta in [-1,1], of the indexth element
       /// \param index index of the cable element
@@ -163,8 +160,8 @@ namespace frydom {
 
      private:
 
-      /// Initialize the cable section
-      void InitializeSection();
+//      /// Initialize the cable section
+//      void InitializeSection();
 
       void InitializeContact();
 
@@ -174,33 +171,33 @@ namespace frydom {
       void GenerateAssets();
 
       /// Define the constraints in the hinges
-      void HingesConstraints();
+      void SetHingeConstraints();
 
     };
 
 
-    class CableBuilderIGA : public chrono::fea::ChBuilderBeamIGA {
-
-     public:
-
-      CableBuilderIGA(FrFEACableBase *cable,
-                      FrCableProperties *properties,
-                      FrCableShapeInitializer *shape_initializer);
-
-      void Build();
-
-      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> BuildSection(FrCableProperties *properties);
-
-      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetFirstNode();
-
-      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetLastNode();
-
-     private:
-      FrFEACableBase *m_cable;
-      FrCableProperties *m_properties;
-      FrCableShapeInitializer *m_shape_initializer;
-
-    };
+//    class CableBuilderIGA : public chrono::fea::ChBuilderBeamIGA {
+//
+//     public:
+//
+//      CableBuilderIGA(FrFEACableBase *cable,
+//                      FrCableProperties *properties,
+//                      FrCableShapeInitializer *shape_initializer);
+//
+//      void Build();
+//
+//      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> BuildSection(FrCableProperties *properties);
+//
+//      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetFirstNode();
+//
+//      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> GetLastNode();
+//
+//     private:
+//      FrFEACableBase *m_cable;
+//      FrCableProperties *m_properties;
+//      FrCableShapeInitializer *m_shape_initializer;
+//
+//    };
 
 
   }  // end namespace frydom::internal
@@ -221,7 +218,7 @@ namespace frydom {
   class FrFEACable : public FrLoggable<FrOffshoreSystem>, public FrCableBase, public FrFEAMesh {
    public:
 
-    enum HingeType { // FIXME: en realite, on va a priori toujours considerer que c'est spherique !!!
+    enum BOUNDARY_CONSTRAINT_TYPE { // FIXME: en realite, on va a priori toujours considerer que c'est spherique !!!
       CONSTRAINED,
       SPHERICAL,
       NONE
@@ -300,19 +297,19 @@ namespace frydom {
     // Hinges
     /// Set the starting hinge type (CONSTRAINED, SPHERICAL, NONE)
     /// \param type starting hinge type (CONSTRAINED, SPHERICAL, NONE)
-    void SetStartingHingeType(HingeType type);
+    void SetStartingHingeType(BOUNDARY_CONSTRAINT_TYPE type);
 
     /// Get the starting hinge type (CONSTRAINED, SPHERICAL, NONE)
     /// \return starting hinge type (CONSTRAINED, SPHERICAL, NONE)
-    HingeType GetStartingHingeType() const;
+    BOUNDARY_CONSTRAINT_TYPE GetStartingHingeType() const;
 
     /// Set the ending hinge type (CONSTRAINED, SPHERICAL, NONE)
     /// \param type ending hinge type (CONSTRAINED, SPHERICAL, NONE)
-    void SetEndingHingeType(HingeType type);
+    void SetEndingHingeType(BOUNDARY_CONSTRAINT_TYPE type);
 
     /// Get the ending hinge type (CONSTRAINED, SPHERICAL, NONE)
     /// \return ending hinge type (CONSTRAINED, SPHERICAL, NONE)
-    HingeType GetEndingHingeType() const;
+    BOUNDARY_CONSTRAINT_TYPE GetEndingHingeType() const;
 
     //--------------------------------------------------------------------------------------------------------------
     // Virtual methods, from FrCableBase
@@ -348,8 +345,18 @@ namespace frydom {
 
     void Relax() override;
 
+    std::shared_ptr<chrono::fea::ChBeamSectionCosserat> GetSection() const {
+      return m_section;
+    }
+
    protected:
     void BuildCache() override {}
+
+    void BuildSection();
+
+    void InitializeTaut();
+
+    void InitializeSlack();
 
 
     // Friend definitions
@@ -366,9 +373,12 @@ namespace frydom {
     double m_rayleighDamping;               ///< Rayleigh damping // FIXME: c'est pas deja dans les proprietes ???
     unsigned int m_nbElements;              ///< Number of elements in the finite element cable model
 
+    std::shared_ptr<chrono::fea::ChElasticityCosseratSimple> m_elasticity;
+    std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;      ///< Section properties (linear density, section, inertia, Young modulus, Rayleigh damping, etc.)
+
     // Hinges types
-    HingeType m_startingHingeType = SPHERICAL; // TODO: retirer cette notion ????
-    HingeType m_endingHingeType = SPHERICAL;
+    BOUNDARY_CONSTRAINT_TYPE m_startingHingeType = SPHERICAL; // TODO: retirer cette notion ????
+    BOUNDARY_CONSTRAINT_TYPE m_endingHingeType = SPHERICAL;
 
     // Asset parameters
     double m_drawCableElementRadius = 0.05; ///< Radius of the cable element assets
