@@ -18,5 +18,6 @@
 #include "FrFEACable.h"
 #include "FrMooringBuoy.h"
 #include "FrLumpedMassCable.h"
+#include "FrFEACableBuilder.h"
 
 #endif //FRYDOM_FRCABLEINC_H

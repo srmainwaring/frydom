@@ -13,6 +13,7 @@ set(SRC_FILES
         FrAnchor.cpp
         FrClumpedMass.cpp
         FrFEACableLoads.cpp
+        FrFEACableBuilder.cpp
 )
 
 set(FRYDOM_CABLE_SOURCES "")
