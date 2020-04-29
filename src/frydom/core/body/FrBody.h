@@ -17,7 +17,7 @@
 #include "chrono/solver/ChVariables.h"
 
 #include "frydom/asset/FrAssetOwner.h"
-#include "frydom/cable/fea/FrFEACable.h"
+//#include "frydom/cable/fea/FrFEACable.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/body/FrInertiaTensor.h"
 #include "frydom/core/common/FrNode.h"
@@ -174,10 +174,10 @@ namespace frydom {
     /// Default constructor
     FrBody(const std::string &name, FrOffshoreSystem *system);
 
-    /// Get the FrOffshoreSystem where the body has been registered
-    inline FrOffshoreSystem *GetSystem() const {
-      return GetParent();
-    }
+//    /// Get the FrOffshoreSystem where the body has been registered
+//    inline FrOffshoreSystem *GetSystem() const {
+//      return GetParent();
+//    }
 
     /// Make the body fixed
     /// \param state true if body is fixed, false otherwise

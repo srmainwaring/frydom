@@ -27,7 +27,7 @@ namespace frydom {
   namespace internal {
 
     FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
-        m_frydom_cable(cable),
+//        m_frydom_cable(cable),
         FrFEAMeshBase(cable) {
 // TODO
     }
@@ -71,7 +71,7 @@ namespace frydom {
       FrFEAMesh(name,
                 TypeToString(this),
                 startingNode->GetBody()->GetSystem(),
-                std::make_shared<internal::FrFEAMeshBase>(this)),
+                std::make_shared<internal::FrFEACableBase>(this)),
       FrCableBase(startingNode, endingNode, properties, unstretched_length),
       m_nb_elements(nb_elements) {
   }
@@ -99,6 +99,7 @@ namespace frydom {
                                              const std::shared_ptr<FrCableProperties> &properties,
                                              double unstretched_length,
                                              unsigned int nb_elements) {
+
     auto cable = std::make_shared<FrFEACable>(name,
                                               startingNode,
                                               endingNode,

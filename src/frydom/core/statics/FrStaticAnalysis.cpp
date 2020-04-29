@@ -16,7 +16,10 @@
 #include "frydom/core/common/FrPhysicsItem.h"
 #include "frydom/core/force/FrForce.h"
 
+#include "frydom/core/common/FrFEAMesh.h"
+
 #include "frydom/environment/FrEnvironment.h"
+
 #include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
 namespace frydom {

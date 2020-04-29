@@ -9,6 +9,7 @@ namespace frydom {
   namespace internal {
 
     FrFEAMeshBase::FrFEAMeshBase(frydom::FrFEAMesh *frydom_mesh) :
+        chrono::fea::ChMesh(),
         m_frydom_mesh(frydom_mesh) {}
 
   }  // end namespace frydom::internal

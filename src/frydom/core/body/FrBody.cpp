@@ -212,11 +212,11 @@ namespace frydom {
   }  // end namespace frydom::internal
 
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
-      FrLoggable(name, TypeToString(this), system) {
+      FrLoggable(name, TypeToString(this), system),
+      m_chronoBody(std::make_shared<internal::FrBodyBase>(this)) {
 
 //        SetLogged(true);
 
-    m_chronoBody = std::make_shared<internal::FrBodyBase>(this);
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
 
@@ -1138,20 +1138,24 @@ namespace frydom {
          [this]() { return GetAngularAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-            ("TotalExtForceInBody","N",fmt::format("Total external force, expressed in body reference frame in {}", GetLogFC()),
-             [this] () {return GetTotalExtForceInBody(GetLogFC());});
+        ("TotalExtForceInBody", "N",
+         fmt::format("Total external force, expressed in body reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtForceInBody(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-            ("TotalExtTorqueInBodyAtCOG","Nm",fmt::format("Total external torque at COG, expressed in body reference frame in {}", GetLogFC()),
-             [this] () {return GetTotalExtTorqueInBodyAtCOG(GetLogFC());});
+        ("TotalExtTorqueInBodyAtCOG", "Nm",
+         fmt::format("Total external torque at COG, expressed in body reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtTorqueInBodyAtCOG(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-            ("TotalExtForceInWorld","N",fmt::format("Total external force, expressed in world reference frame in {}", GetLogFC()),
-             [this] () {return GetTotalExtForceInWorld(GetLogFC());});
+        ("TotalExtForceInWorld", "N",
+         fmt::format("Total external force, expressed in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtForceInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-            ("TotalExtTorqueInWorldAtCOG","Nm",fmt::format("Total external torque at COG, expressed in world reference frame in {}", GetLogFC()),
-             [this] () {return GetTotalExtTorqueInWorldAtCOG(GetLogFC());});
+        ("TotalExtTorqueInWorldAtCOG", "Nm",
+         fmt::format("Total external torque at COG, expressed in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtTorqueInWorldAtCOG(GetLogFC()); });
 
   }
 

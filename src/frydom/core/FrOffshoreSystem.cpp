@@ -452,9 +452,13 @@ namespace frydom {
     // Add the FEA mesh
     AddFEAMesh(cable, chrono_mesh);
 
-    // Add the hinges
-    m_chronoSystem->Add(chrono_mesh->GetStartingHinge());
-    m_chronoSystem->Add(chrono_mesh->GetEndingHinge());
+    // Add the hinges if defined
+    if (chrono_mesh->GetStartingHinge()) {
+      m_chronoSystem->Add(chrono_mesh->GetStartingHinge());
+    }
+    if (chrono_mesh->GetEndingHinge()) {
+      m_chronoSystem->Add(chrono_mesh->GetEndingHinge());
+    }
 
   }
 
@@ -1409,8 +1413,6 @@ namespace frydom {
       // FEA CABLE
       // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
     } else if (auto fea_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      auto qsdlfjkn = fea_cable->GetChronoMesh();
-
       AddFEACable(fea_cable, std::dynamic_pointer_cast<internal::FrFEACableBase>(fea_cable->GetChronoMesh()));
       m_pathManager->RegisterTreeNode(fea_cable.get());
 //

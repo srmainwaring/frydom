@@ -48,8 +48,8 @@ namespace frydom {
 
 
      private:
-      FrFEACable *m_frydom_cable;
 
+      // TODO: voir si on a besoin de cela...
       std::shared_ptr<FrFEANode> m_starting_node_fea;  ///< Starting node
       std::shared_ptr<FrFEANode> m_ending_node_fea;    ///< Ending node
 
@@ -59,7 +59,7 @@ namespace frydom {
     };
 
 
-  }  // end namespade frydom::internal
+  }  // end namespace frydom::internal
 
 
 
@@ -107,7 +107,6 @@ namespace frydom {
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
 
    private:
-    std::shared_ptr<internal::FrFEACableBase> m_chrono_mesh;
 
     unsigned int m_nb_elements;
 
