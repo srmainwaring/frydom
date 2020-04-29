@@ -7,8 +7,8 @@
 
 #include "frydom/environment/FrEnvironmentInc.h"
 
-#include "frydom/cable/FrCableBase.h"
-#include "frydom/cable/FrCatenaryLine.h"
+#include "FrCableBase.h"
+#include "frydom/cable/catenary/FrCatenaryLine.h"
 
 
 namespace frydom {

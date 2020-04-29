@@ -17,7 +17,7 @@
 #include "chrono/solver/ChVariables.h"
 
 #include "frydom/asset/FrAssetOwner.h"
-#include "frydom/cable/FrFEACable.h"
+#include "frydom/cable/fea/FrFEACable.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/body/FrInertiaTensor.h"
 #include "frydom/core/common/FrNode.h"

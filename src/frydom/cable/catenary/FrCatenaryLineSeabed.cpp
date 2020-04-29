@@ -3,7 +3,7 @@
 //
 
 #include "FrCatenaryLineSeabed.h"
-#include "FrCableProperties.h"
+#include "frydom/cable/common/FrCableProperties.h"
 
 #include "FrCatenaryLine.h"
 #include "frydom/logging/FrTypeNames.h"

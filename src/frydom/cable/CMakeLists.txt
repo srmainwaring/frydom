@@ -1,21 +1,23 @@
 message(STATUS "    ...Cable")
 
 set(SRC_FILES
-        FrCableProperties.cpp
-        FrCableBase.cpp
-        FrCatenaryLineBase.cpp
-        FrCatenaryLine.cpp
-        FrCatenaryLineSeabed.cpp
-        FrMooringBuoy.cpp
-        FrLumpedMassCable.cpp
-        FrCableShapeInitializer.cpp
-        FrAnchor.cpp
-        FrClumpedMass.cpp
+        common/FrCableProperties.cpp
+        common/FrCableBase.cpp
+        common/FrCableShapeInitializer.cpp
 
-        FrFEACable.cpp
-        FrFEACableLoads.cpp
-        FrFEACableBuilder.cpp
+        catenary/FrCatenaryLineBase.cpp
+        catenary/FrCatenaryLine.cpp
+        catenary/FrCatenaryLineSeabed.cpp
 
+        lumped/FrLumpedMassCable.cpp
+
+        mooring_components/FrAnchor.cpp
+        mooring_components/FrMooringBuoy.cpp
+        mooring_components/FrClumpedMass.cpp
+
+        fea/FrFEACable.cpp
+        fea/FrFEACableLoads.cpp
+        fea/FrFEACableBuilder.cpp
 
 )
 

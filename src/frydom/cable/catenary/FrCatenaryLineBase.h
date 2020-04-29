@@ -5,7 +5,7 @@
 #ifndef FRYDOM_FRCATENARYLINEBASE_H
 #define FRYDOM_FRCATENARYLINEBASE_H
 
-#include "FrCableBase.h"
+#include "frydom/cable/common/FrCableBase.h"
 #include "frydom/core/common/FrPhysicsItem.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/math/FrVector.h"

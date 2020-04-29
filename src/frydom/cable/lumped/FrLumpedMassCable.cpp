@@ -9,9 +9,9 @@
 #include "frydom/logging/FrTypeNames.h"
 #include "frydom/environment/FrEnvironmentInc.h"
 
-#include "FrCatenaryLine.h"
-#include "FrCableProperties.h"
-#include "FrCableShapeInitializer.h"
+#include "frydom/cable/catenary/FrCatenaryLine.h"
+#include "frydom/cable/common/FrCableProperties.h"
+#include "frydom/cable/common/FrCableShapeInitializer.h"
 
 #include "FrLumpedMassCable.h"
 

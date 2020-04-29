@@ -14,7 +14,7 @@
 #include <chrono/fea/ChBeamSectionCosserat.h>
 
 
-#include "FrCableBase.h"
+#include "frydom/cable/common/FrCableBase.h"
 #include "frydom/core/common/FrFEAMesh.h"
 #include "frydom/core/FrOffshoreSystem.h"
 

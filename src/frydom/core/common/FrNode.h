@@ -19,7 +19,7 @@
 #include "FrObject.h"
 
 #include "frydom/core/link/links_lib/FrLink.h"
-#include "frydom/cable/FrLumpedMassCable.h"
+#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/logging/FrLoggable.h"
 

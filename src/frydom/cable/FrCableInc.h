@@ -12,13 +12,13 @@
 #ifndef FRYDOM_FRCABLEINC_H
 #define FRYDOM_FRCABLEINC_H
 
-#include "FrCableProperties.h"
-#include "FrCatenaryLine.h"
-#include "FrCatenaryLineSeabed.h"
-#include "FrMooringBuoy.h"
-#include "FrLumpedMassCable.h"
+#include "frydom/cable/common/FrCableProperties.h"
+#include "frydom/cable/catenary/FrCatenaryLine.h"
+#include "frydom/cable/catenary/FrCatenaryLineSeabed.h"
+#include "frydom/cable/mooring_components/FrMooringBuoy.h"
+#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
-#include "FrFEACable.h"
-#include "FrFEACableBuilder.h"
+#include "frydom/cable/fea/FrFEACable.h"
+#include "frydom/cable/fea/FrFEACableBuilder.h"
 
 #endif //FRYDOM_FRCABLEINC_H

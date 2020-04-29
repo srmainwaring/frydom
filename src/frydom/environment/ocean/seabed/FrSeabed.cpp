@@ -21,7 +21,7 @@
 
 #include "frydom/core/body/FrBodyEasy.h"
 
-#include "frydom/cable/FrAnchor.h"
+#include "frydom/cable/mooring_components/FrAnchor.h"
 
 
 namespace frydom {

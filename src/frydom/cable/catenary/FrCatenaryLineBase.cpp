@@ -8,7 +8,7 @@
 #include "frydom/environment/ocean/freeSurface/FrFreeSurface.h"
 
 #include "FrCatenaryLineBase.h"
-#include "FrCableProperties.h"
+#include "frydom/cable/common/FrCableProperties.h"
 
 
 namespace frydom {

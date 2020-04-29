@@ -9,7 +9,7 @@
 #include <vector>
 #include <deque>
 
-#include "FrCableBase.h"
+#include "frydom/cable/common/FrCableBase.h"
 #include "frydom/core/FrOffshoreSystem.h"
 
 #include <chrono/physics/ChBody.h>

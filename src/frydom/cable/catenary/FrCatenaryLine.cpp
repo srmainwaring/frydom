@@ -10,7 +10,7 @@
 // ==========================================================================
 
 #include "FrCatenaryLine.h"
-#include "FrCableProperties.h"
+#include "frydom/cable/common/FrCableProperties.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"

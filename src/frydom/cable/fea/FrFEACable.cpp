@@ -19,12 +19,12 @@
 #include "frydom/core/math/BSpline/FrBSpline.h"
 
 #include "FrFEACableLoads.h"
-#include "FrCableProperties.h"
+#include "frydom/cable/common/FrCableProperties.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/logging/FrTypeNames.h"
 
-#include "FrCableShapeInitializer.h"
+#include "frydom/cable/common/FrCableShapeInitializer.h"
 
 namespace frydom {
 

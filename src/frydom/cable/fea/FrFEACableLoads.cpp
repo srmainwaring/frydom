@@ -4,7 +4,7 @@
 
 #include "FrFEACableLoads.h"
 
-#include "FrCableProperties.h"
+#include "frydom/cable/common/FrCableProperties.h"
 
 
 namespace frydom {

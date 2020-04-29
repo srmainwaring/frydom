@@ -22,9 +22,9 @@
 #include "frydom/core/link/constraint/FrConstraint.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrFEAMesh.h"
-#include "frydom/cable/FrFEACable.h"
-#include "frydom/cable/FrCatenaryLine.h"
-#include "frydom/cable/FrLumpedMassCable.h"
+#include "frydom/cable/fea/FrFEACable.h"
+#include "frydom/cable/catenary/FrCatenaryLine.h"
+#include "frydom/cable/lumped/FrLumpedMassCable.h"
 #include "frydom/core/force/FrForce.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/utils/FrIrrApp.h"
@@ -1482,7 +1482,7 @@ namespace frydom {
 
       // DYNAMIC CABLE
     } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      RemoveDynamicCable(dynamic_cable, dynamic_cable->GetChronoMesh());
+      RemoveFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
 
       // UNKNOWN
     } else {
