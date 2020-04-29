@@ -23,5 +23,7 @@
 #include "FrFEAMesh.h"
 #include "FrRotation.h"
 #include "FrUnits.h"
+#include "FrVariablesBodyBase.h"
+#include "FrVariablesAddedMass.h"
 
 #endif //FRYDOM_FRCOMMONINC_H

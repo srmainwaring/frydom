@@ -34,7 +34,6 @@ namespace frydom {
   namespace internal {
 
     // Forward declaration
-    class FrVariablesAddedMassBase;
 
     // hash defition for the map with pair as a key
     struct pair_hash {

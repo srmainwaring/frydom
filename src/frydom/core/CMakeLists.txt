@@ -22,6 +22,8 @@ list(APPEND SRC_FILES
         common/FrPhysicsItem.cpp
         common/FrFEAMesh.cpp
         common/FrRotation.cpp
+        common/FrVariablesBodyBase.cpp
+        common/FrVariablesAddedMass.cpp
         )
 
 # FORCE
