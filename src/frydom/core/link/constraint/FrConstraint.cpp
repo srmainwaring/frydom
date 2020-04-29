@@ -7,7 +7,6 @@
 #include "FrCGeometrical.h"
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/common/FrFrame.h"
-#include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrTypeNames.h"
 
 namespace frydom {

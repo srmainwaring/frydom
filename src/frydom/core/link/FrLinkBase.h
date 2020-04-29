@@ -96,11 +96,11 @@ namespace frydom {
 
     /// Returns the first body of the link
     FrBody *GetBody1();
-//        const FrBody* GetBody1() const;
 
     /// Returns the second body of the link
     FrBody *GetBody2();
-//        const  FrBody* GetBody2() const;
+
+    void StepFinalize() override {}
 
    protected:  // TODO : voir si on rend cela private
 

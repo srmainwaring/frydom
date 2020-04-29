@@ -72,6 +72,8 @@ namespace frydom {
     FrCableBase::Initialize();
   }
 
+  void FrCatenaryLineBase::StepFinalize() {}
+
   FrCatenaryLineBase::FrCatenaryLineBase(const std::string &name, const std::string &type,
                                          const std::shared_ptr<FrNode> &startingNode,
                                          const std::shared_ptr<FrNode> &endingNode,

@@ -118,7 +118,12 @@ namespace frydom {
 
   namespace internal {
     class FrLMNode;
+
     class FrLMElement;
+
+    class FrFEAMeshBase;
+
+    class FrFEACableBase;
   }
 
   class FrLumpedMassCable;
@@ -185,21 +190,21 @@ namespace frydom {
     enum SOLVER {
       SOR,                ///< An iterative solver based on projective fixed point method, with overrelaxation and
       ///< immediate variable update as in SOR methods.
-          SYMMSOR,            ///< An iterative solver based on symmetric projective fixed point method, with
+      SYMMSOR,            ///< An iterative solver based on symmetric projective fixed point method, with
       ///< overrelaxation and immediate variable update as in SSOR methods.
-          JACOBI,             ///< An iterative solver for VI (VI/CCP/LCP/linear problems,..) based on projective
+      JACOBI,             ///< An iterative solver for VI (VI/CCP/LCP/linear problems,..) based on projective
       ///< fixed point method, similar to a projected Jacobi method. Note: this method is here
       ///< mostly for comparison and tests: we suggest you to use the more efficient ChSolverSOR
       ///< - similar, but faster & converges better.
 //            SOR_MULTITHREAD,
 //            PMINRES,
-          BARZILAIBORWEIN,    ///< An iterative solver based on modified Krylov iteration of spectral projected
+      BARZILAIBORWEIN,    ///< An iterative solver based on modified Krylov iteration of spectral projected
       ///< gradients with Barzilai-Borwein.
-          PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
+      PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
       APGD,               ///< An iterative solver based on Nesterov's Projected Gradient Descent.
       MINRES,             ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
       ///< with gradient projection (active set).
-          SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
+      SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
     };
 
     /// enum for smooth contact models (SMC)
@@ -253,14 +258,14 @@ namespace frydom {
     LinkContainer m_linkList;               ///< list of links between bodies managed by this offshore system
     ConstraintContainer m_constraintList;   ///< list of constraints between bodies managed by this offshore system
     ActuatorContainer m_actuatorList;       ///< list of actuators between bodies managed by this offshore system
-    PrePhysicsContainer m_PrePhysicsList;   ///< list of physics items, updated before the bodies
+    PrePhysicsContainer m_prePhysicsList;   ///< list of physics items, updated before the bodies
     FEAMeshContainer m_feaMeshList;         ///< list of FEA mesh items, managed by this offshore system
 
     bool m_isInitialized = false;
 
     // Logs
     std::unique_ptr<FrPathManager> m_pathManager;
-    std::unique_ptr<FrLogManager> m_LogManager;
+    std::unique_ptr<FrLogManager> m_logManager;
 
     bool m_monitor_real_time;
 
@@ -764,25 +769,26 @@ namespace frydom {
     void RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> item,
                            std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item);
 
-//    /// Add a FEA mesh to the offshore system
-//    /// \param feaMesh FEA mesh to be added
-//    void AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-//                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    /// Add a FEA mesh to the offshore system
+    /// \param feaMesh FEA mesh to be added
+    void AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
+                    std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh);
+
+    /// Remove a FEA mesh from the offshore system
+    /// \param feaMesh FEA mesh to be added
+    void RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
+                       std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh);
+
+    /// Add a FEA Cable to the offshore system
+    /// \param cable fea cable to be added
+    void AddFEACable(std::shared_ptr<FrFEACable> cable,
+                     std::shared_ptr<internal::FrFEACableBase> chrono_mesh);
+
 //
-//    /// Remove a FEA mesh from the offshore system
-//    /// \param feaMesh FEA mesh to be added
-//    void RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-//                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
-//
-//    /// Add a Dynamic Cable to the offshore system
-//    /// \param cable dynamic cable to be added
-//    void AddFEACable(std::shared_ptr<FrFEACable> cable,
-//                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
-//
-//    /// Remove a Dynamic Cable from the offshore system
-//    /// \param cable dynamic cable to be added
-//    void RemoveFEACable(std::shared_ptr<FrFEACable> cable,
-//                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    /// Remove a FEA Cable from the offshore system
+    /// \param cable fea cable to be added
+    void RemoveFEACable(std::shared_ptr<FrFEACable> cable,
+                        std::shared_ptr<internal::FrFEACableBase> chrono_mesh);
 
     /// Add a lumped mass node to the offshore system
     void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);

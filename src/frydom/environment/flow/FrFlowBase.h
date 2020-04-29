@@ -101,12 +101,13 @@ namespace frydom {
     /// Method of initialization of the flow base model
     void Initialize() override;
 
+    //// Method to be applied at the end of each time step
+    void StepFinalize() override;
+
     /// Update the state of the flow base object
     /// \param time Current time of the simulation
     virtual void Update(double time);
 
-    //// Method to be applied at the end of each time step
-    void StepFinalize() override;
 
     virtual FrEnvironment *GetEnvironment() const = 0;
 

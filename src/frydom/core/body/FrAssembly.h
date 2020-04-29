@@ -38,6 +38,8 @@ namespace frydom {
     /// Initialize the assembly
     void Initialize() override {};
 
+    void StepFinalize() override {};
+
     /// Clear the body list
     void Clear() {
       m_bodyList.clear();

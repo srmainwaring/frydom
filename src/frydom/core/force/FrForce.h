@@ -76,21 +76,6 @@ namespace frydom {
    */
   class FrForce : public FrObject, public FrLoggable<FrBody> {
 
-   protected:
-
-    std::shared_ptr<internal::FrForceBase> m_chronoForce;     ///< Pointer to the force chrono object
-
-    bool m_isActive = true;         ///< boolean to check if the force is active
-
-    // Force Asset
-    bool m_showAsset = false;                         ///< A ForceAsset (vector) is displayed if true
-    std::shared_ptr<FrForceAsset> m_asset = nullptr;  ///< pointer to the ForceAsset object.
-
-    // Limits on forces to stabilize simulation
-    bool m_limitForce = false;              ///< Flag equals to true if the maximum force and torque limit are used, false otherwise
-    double m_forceLimit = 1e20;            ///< Taking very high values by default in case we just set limit to true without
-    double m_torqueLimit = 1e20;            ///< setting the values individually.
-
    public:
 
     /// Default constructor that builds a new force with zero force and torque
@@ -98,6 +83,8 @@ namespace frydom {
 
     /// This subroutine initializes the object FrForce.
     void Initialize() override;
+
+    void StepFinalize() override;
 
     /// Check if the force is active before updating it
     /// \param time Current time of the simulation from beginning, in seconds
@@ -405,6 +392,19 @@ namespace frydom {
     virtual void Compute(double time) = 0;
 
    protected:
+
+    std::shared_ptr<internal::FrForceBase> m_chronoForce;     ///< Pointer to the force chrono object
+
+    bool m_isActive = true;         ///< boolean to check if the force is active
+
+    // Force Asset
+    bool m_showAsset = false;                         ///< A ForceAsset (vector) is displayed if true
+    std::shared_ptr<FrForceAsset> m_asset = nullptr;  ///< pointer to the ForceAsset object.
+
+    // Limits on forces to stabilize simulation
+    bool m_limitForce = false;              ///< Flag equals to true if the maximum force and torque limit are used, false otherwise
+    double m_forceLimit = 1e20;            ///< Taking very high values by default in case we just set limit to true without
+    double m_torqueLimit = 1e20;            ///< setting the values individually.
 
 //      std::string BuildPath(const std::string &rootPath) override;
 

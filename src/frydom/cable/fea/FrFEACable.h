@@ -37,21 +37,15 @@ namespace frydom {
 
   namespace internal {
 
-
-    class FrFEAMeshBase : public chrono::fea::ChMesh {
-
-     public:
-
-
-     private:
-
-
-    };
-
     class FrFEACableBase : public FrFEAMeshBase {
 
      public:
-      FrFEACableBase(FrFEACable *cable);
+      explicit FrFEACableBase(FrFEACable *cable);
+
+      std::shared_ptr<chrono::ChLinkMateGeneric> GetStartingHinge();
+
+      std::shared_ptr<chrono::ChLinkMateGeneric> GetEndingHinge();
+
 
      private:
       FrFEACable *m_frydom_cable;
@@ -59,8 +53,8 @@ namespace frydom {
       std::shared_ptr<FrFEANode> m_starting_node_fea;  ///< Starting node
       std::shared_ptr<FrFEANode> m_ending_node_fea;    ///< Ending node
 
-      std::shared_ptr<chrono::ChLinkMateGeneric> m_startingHinge;         ///< Starting hinge, to connect to a body
-      std::shared_ptr<chrono::ChLinkMateGeneric> m_endingHinge;           ///< Ending hinge, to connect to a body
+      std::shared_ptr<chrono::ChLinkMateGeneric> m_starting_hinge;         ///< Starting hinge, to connect to a body
+      std::shared_ptr<chrono::ChLinkMateGeneric> m_ending_hinge;           ///< Ending hinge, to connect to a body
 
     };
 
@@ -71,7 +65,7 @@ namespace frydom {
 
 
 
-  class FrFEACable : public FrLoggable<FrOffshoreSystem>, public FrCableBase, public FrFEAMesh {
+  class FrFEACable : public FrCableBase, public FrFEAMesh {
 
    public:
 
@@ -91,6 +85,9 @@ namespace frydom {
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
 
 
+    void Initialize() override;
+
+    void StepFinalize() override;
 
 
     void Relax() override;
@@ -98,21 +95,19 @@ namespace frydom {
     double GetStaticResidual() override;
 
 
-   private:
-
-    void Compute(double time) override;
-
 
    protected:
+
 
     void DefineLogMessages() override;
 
     void BuildCache() override;
 
-
+    // friends
+    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
 
    private:
-    std::shared_ptr<internal::FrFEACableBase> m_chrono_cable;
+    std::shared_ptr<internal::FrFEACableBase> m_chrono_mesh;
 
     unsigned int m_nb_elements;
 
@@ -250,8 +245,8 @@ namespace frydom {
 //      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> m_starting_node_fea;  ///< Starting node
 //      std::shared_ptr<chrono::fea::ChNodeFEAxyzrot> m_ending_node_fea;    ///< Ending node
 //
-//      std::shared_ptr<chrono::ChLinkMateGeneric> m_startingHinge;         ///< Starting hinge, to connect to a body
-//      std::shared_ptr<chrono::ChLinkMateGeneric> m_endingHinge;           ///< Ending hinge, to connect to a body
+//      std::shared_ptr<chrono::ChLinkMateGeneric> m_starting_hinge;         ///< Starting hinge, to connect to a body
+//      std::shared_ptr<chrono::ChLinkMateGeneric> m_ending_hinge;           ///< Ending hinge, to connect to a body
 //
 //
 //      /// Constructor of the FrFEACableBase

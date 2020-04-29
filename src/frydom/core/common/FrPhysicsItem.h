@@ -23,6 +23,7 @@
 
 namespace frydom {
 
+  // Forward declaration
   class FrPhysicsItem;
 
 
@@ -38,8 +39,6 @@ namespace frydom {
       void SetupInitial() override;
 
       void Update(double time, bool update_assets) override;
-
-//            friend class FrPhysicsItem_;
 
     };
 
@@ -57,18 +56,6 @@ namespace frydom {
    * \brief Class for defining objects which are neither bodies nor links, for instance caterany lines.
    */
   class FrPhysicsItem : public FrObject {
-
-   protected:
-
-    std::shared_ptr<internal::FrPhysicsItemBase>
-        m_chronoPhysicsItem;     ///> pointer to the related chrono physics item
-
-    bool m_isActive = true;         ///< boolean to check if the physics item is active
-    ///< if it's not the case, it is not updated during the simulation
-
-    /// Get the shared pointer to the chrono related physics item
-    /// \return Chrono related physics item
-    virtual std::shared_ptr<internal::FrPhysicsItemBase> GetChronoPhysicsItem() const;
 
    public:
 
@@ -89,11 +76,23 @@ namespace frydom {
 
     void Initialize() override {};
 
+   protected:
+    /// Get the shared pointer to the chrono related physics item
+    /// \return Chrono related physics item
+    virtual std::shared_ptr<internal::FrPhysicsItemBase> GetChronoPhysicsItem() const;
+
    private:
 
     /// Virtual function to allow updating the child object from the solver
     /// \param time Current time of the simulation from beginning, in seconds
     virtual void Compute(double time) = 0;
+
+   protected:
+
+    std::shared_ptr<internal::FrPhysicsItemBase> m_chronoPhysicsItem; ///> pointer to the related chrono physics item
+
+    bool m_isActive = true;  ///< boolean to check if the physics item is active
+    ///< if it's not the case, it is not updated during the simulation
 
   };
 

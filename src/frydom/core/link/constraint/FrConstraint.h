@@ -46,10 +46,10 @@ namespace frydom {
                  const std::shared_ptr<FrNode> &node1,
                  const std::shared_ptr<FrNode> &node2);
 
-    /// \return Pointer to the offshore system
-    inline FrOffshoreSystem *GetSystem() const {
-      return GetParent();
-    }
+//    /// \return Pointer to the offshore system
+//    FrOffshoreSystem *GetSystem() const override {
+//      return GetParent();
+//    }
 
     /// Get the constraint reference frame, relatively to the world reference frame
     /// \return constraint reference frame, relatively to the world reference frame
@@ -102,6 +102,8 @@ namespace frydom {
     /// This method cumulates the effect of various flags (so a constraint may
     /// be not active either because disabled, or broken, or not valid)
     bool IsActive() const override;
+
+    void StepFinalize() override {}
 
    protected:
 

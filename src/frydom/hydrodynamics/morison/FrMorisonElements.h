@@ -367,11 +367,13 @@ namespace frydom {
     void Compute(double time) override;
 
     /// Update the force of the morison composite model
-    /// \param time Current time of the simulation from begining
+    /// \param time Current time of the simulation from begin
     void Update(double time) override;
 
-    /// Initialize the morion composite model
+    /// Initialize the morison composite model
     void Initialize() override;
+
+    void StepFinalize() override {}
 
     // TODO : a voir pour externaliser dans une autre classe
     void ComputeForceAddedMass() override;

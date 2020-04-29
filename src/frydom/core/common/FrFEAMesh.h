@@ -13,34 +13,37 @@
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/common/FrTreeNode.h"
 
-//namespace chrono {
-//  namespace fea {
-//    class ChMesh;
-//  }
-//}
 
 namespace frydom {
 
   // Forward declarations
 //  class FrOffshoreSystem;
 
-  class FrFEAMesh : public FrPhysicsItem {
+  namespace internal {
 
-//   protected:
-//
-//    virtual std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() = 0;
+    class FrFEAMeshBase : public chrono::fea::ChMesh { // This is a chrono::ChPhysicsItem from ChMesh !
+
+     public:
+      explicit FrFEAMeshBase(FrFEAMesh *frydom_mesh);
+
+
+     private:
+      FrFEAMesh *m_frydom_mesh;
+
+    };
+
+  }  // end namespace frydom::internal
+
+
+  class FrFEAMesh : public FrObject, public FrLoggable<FrOffshoreSystem> {
 
    public:
 
-//        FrOffshoreSystem* GetSystem() { return m_system; };
+    FrFEAMesh(const std::string &name,
+              const std::string &type_name,
+              FrOffshoreSystem *system,
+              std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh);
 
-    FrFEAMesh() = default;
-
-//    virtual void Update(double time) = 0;
-
-//        virtual void SetupInitial();
-
-//    void Initialize() override {}
 
     virtual double GetStaticResidual() = 0;
 
@@ -51,7 +54,17 @@ namespace frydom {
 
     friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase> item);
 
+   protected:
+    virtual std::shared_ptr<internal::FrFEAMeshBase> GetChronoMesh();
+
+
+   private:
+    std::shared_ptr<internal::FrFEAMeshBase> m_chrono_mesh;
+
+
   };
 
 } //end namespace frydom
+
+
 #endif //FRYDOM_FRFEAMESH_H

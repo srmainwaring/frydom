@@ -83,14 +83,13 @@ namespace frydom {
 
   void FrForce::Initialize() {
 
-    // This subroutine initializes the object FrForce.
-
     if (m_showAsset) {
       m_asset->Initialize();
       GetBody()->AddAsset(m_asset);
     }
-
   }
+
+  void FrForce::StepFinalize() {}
 
   std::shared_ptr<chrono::ChForce> FrForce::GetChronoForce() {
     return m_chronoForce;

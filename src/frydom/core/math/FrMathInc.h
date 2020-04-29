@@ -20,6 +20,6 @@
 #include "FrMatrix.h"
 #include "FrVector.h"
 #include "Torsor.h"
-#include "BSpline/FrBSpline.h"
+#include "bspline/FrBSpline.h"
 
 #endif //FRYDOM_FRMATHINC_H

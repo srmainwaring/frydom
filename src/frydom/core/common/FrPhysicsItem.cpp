@@ -9,15 +9,11 @@
 //
 // ==========================================================================
 
-
-#include "FrPhysicsItem.h"
-
-#include "chrono/assets/ChTriangleMeshShape.h"
 #include "chrono/assets/ChColorAsset.h"
 #include "chrono_irrlicht/ChIrrNodeAsset.h"
 
-#include "frydom/asset/FrAsset.h"
-#include "frydom/mesh/FrTriangleMeshConnected.h"
+#include "FrPhysicsItem.h"
+
 
 namespace frydom {
 
@@ -26,8 +22,7 @@ namespace frydom {
 
     FrPhysicsItemBase::FrPhysicsItemBase(FrPhysicsItem *item) : m_frydomPhysicsItem(item) {}
 
-    void FrPhysicsItemBase::SetupInitial() {
-    }
+    void FrPhysicsItemBase::SetupInitial() {}
 
     void FrPhysicsItemBase::Update(double time, bool update_assets) {
       m_frydomPhysicsItem->Update(time);
@@ -37,12 +32,7 @@ namespace frydom {
   }  // end namespace frydom::internal
 
 
-
   FrPhysicsItem::FrPhysicsItem() : m_chronoPhysicsItem(std::make_shared<internal::FrPhysicsItemBase>(this)) {}
-
-//    FrOffshoreSystem *FrPhysicsItem::GetSystem() {
-//      return GetParent();
-//    }
 
   bool FrPhysicsItem::IsActive() const {
     return m_isActive;

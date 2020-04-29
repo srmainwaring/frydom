@@ -3,7 +3,8 @@
 //
 
 //#include <MathUtils/VectorGeneration.h>
-//
+
+
 //#include <chrono/fea/ChBeamSection.h>
 //#include <chrono/physics/ChLinkMate.h>
 //#include <chrono/fea/ChNodeFEAxyzrot.h>
@@ -12,31 +13,32 @@
 //#include <chrono/fea/ChContactSurfaceMesh.h>
 //#include <chrono/physics/ChLoadContainer.h>
 //#include <chrono/fea/ChBeamSectionCosserat.h>
-//
-//
+
+
 #include "FrFEACable.h"
-//
-//#include "frydom/core/math/BSpline/FrBSpline.h"
-//
-//#include "FrFEACableLoads.h"
-//#include "frydom/cable/common/FrCableProperties.h"
-//
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
 
 #include "frydom/logging/FrTypeNames.h"
-//
-//#include "frydom/cable/common/FrCableShapeInitializer.h"
 
 namespace frydom {
 
   namespace internal {
 
-    FrFEACableBase::FrFEACableBase(FrFEACable *cable) : m_frydom_cable(cable) {
+    FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
+        m_frydom_cable(cable),
+        FrFEAMeshBase(cable) {
 // TODO
     }
 
+    std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetStartingHinge() {
+      return m_starting_hinge;
+    }
+
+    std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetEndingHinge() {
+      return m_ending_hinge;
+    }
 
   }  // end namespace frydom::internal
 
@@ -44,13 +46,20 @@ namespace frydom {
 //
 //  }
 
-
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
     // TODO
   }
 
   Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
-// TODO
+    // TODO
+  }
+
+  void FrFEACable::Initialize() {
+    // TODO
+  }
+
+  void FrFEACable::StepFinalize() {
+    // TODO
   }
 
   FrFEACable::FrFEACable(const std::string &name,
@@ -59,8 +68,10 @@ namespace frydom {
                          const std::shared_ptr<FrCableProperties> &properties,
                          double unstretched_length,
                          unsigned int nb_elements) :
-      FrLoggable(name, TypeToString(this), startingNode->GetBody()->GetSystem()),
-      FrFEAMesh(),
+      FrFEAMesh(name,
+                TypeToString(this),
+                startingNode->GetBody()->GetSystem(),
+                std::make_shared<internal::FrFEAMeshBase>(this)),
       FrCableBase(startingNode, endingNode, properties, unstretched_length),
       m_nb_elements(nb_elements) {
   }
@@ -71,10 +82,6 @@ namespace frydom {
 
   double FrFEACable::GetStaticResidual() {
     // TODO
-  }
-
-  void FrFEACable::Compute(double time) {
-// TODO
   }
 
   void FrFEACable::DefineLogMessages() {
@@ -105,11 +112,17 @@ namespace frydom {
 
 
 
+
+
+
+
+
+
 //
 //    FrFEACableBase::FrFEACableBase(FrFEACable *cable) : chrono::fea::ChMesh(), m_frydomCable(cable) {
 //
-//      m_startingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
-//      m_endingHinge = std::make_shared<chrono::ChLinkMateGeneric>();
+//      m_starting_hinge = std::make_shared<chrono::ChLinkMateGeneric>();
+//      m_ending_hinge = std::make_shared<chrono::ChLinkMateGeneric>();
 ////      m_section = std::make_shared<chrono::fea::ChBeamSectionAdvanced>();
 //
 //    }
@@ -174,7 +187,7 @@ namespace frydom {
 //      auto starting_body = m_frydomCable->GetStartingNode()->GetBody()->m_chronoBody;
 //      auto start_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInBody());
 //
-//      m_startingHinge->Initialize(m_starting_node_fea,
+//      m_starting_hinge->Initialize(m_starting_node_fea,
 //                                  starting_body,
 //                                  true,
 //                                  chrono::ChFrame<double>(),
@@ -186,7 +199,7 @@ namespace frydom {
 //      FrFrame feaFrame;
 //      feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
 //
-//      m_endingHinge->Initialize(m_ending_node_fea,
+//      m_ending_hinge->Initialize(m_ending_node_fea,
 //                                ending_body,
 //                                true,
 //                                internal::FrFrame2ChFrame(feaFrame),
@@ -201,25 +214,25 @@ namespace frydom {
 //
 //      switch (m_frydomCable->GetStartingHingeType()) {
 //        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::NONE:
-//          m_startingHinge->SetConstrainedCoords(false, false, false, false, false, false);
+//          m_starting_hinge->SetConstrainedCoords(false, false, false, false, false, false);
 //          break;
 //        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::SPHERICAL:
-//          m_startingHinge->SetConstrainedCoords(true, true, true, false, false, false);
+//          m_starting_hinge->SetConstrainedCoords(true, true, true, false, false, false);
 //          break;
 //        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::CONSTRAINED:
-//          m_startingHinge->SetConstrainedCoords(true, true, true, true, true, true);
+//          m_starting_hinge->SetConstrainedCoords(true, true, true, true, true, true);
 //          break;
 //      }
 //
 //      switch (m_frydomCable->GetEndingHingeType()) {
 //        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::NONE:
-//          m_endingHinge->SetConstrainedCoords(false, false, false, false, false, false);
+//          m_ending_hinge->SetConstrainedCoords(false, false, false, false, false, false);
 //          break;
 //        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::SPHERICAL:
-//          m_endingHinge->SetConstrainedCoords(true, true, true, false, false, false);
+//          m_ending_hinge->SetConstrainedCoords(true, true, true, false, false, false);
 //          break;
 //        case FrFEACable::BOUNDARY_CONSTRAINT_TYPE::CONSTRAINED:
-//          m_endingHinge->SetConstrainedCoords(true, true, true, true, true, true);
+//          m_ending_hinge->SetConstrainedCoords(true, true, true, true, true, true);
 //          break;
 //      }
 //

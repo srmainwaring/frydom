@@ -207,12 +207,10 @@ namespace frydom {
     /// \return the node acceleration in the node reference frame
     Acceleration GetAccelerationInNode(FRAME_CONVENTION fc) const;
 
-    /// Initialize method not implemented yet
+    /// Initialize method
     void Initialize() override;
 
-//        // Logging
-//
-//        void AddFields() override;
+    void StepFinalize() override {}
 
 
     // =============================================================================================================

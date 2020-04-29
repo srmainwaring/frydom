@@ -184,7 +184,7 @@ namespace frydom {
     SetSystemType(systemType, false);
 
     // Creating the log manager service
-    m_LogManager = std::make_unique<FrLogManager>(this);
+    m_logManager = std::make_unique<FrLogManager>(this);
 
     // Setting the time stepper
     SetTimeStepper(timeStepper, false);
@@ -204,7 +204,7 @@ namespace frydom {
     m_pathManager->RegisterTreeNode(this);
 
 //    // Creating the log manager service
-//    m_LogManager = std::make_unique<FrLogManager>(this);
+//    m_logManager = std::make_unique<FrLogManager>(this);
 
     // Creating the static analysis
     m_statics = std::make_unique<FrStaticAnalysis>(this);
@@ -392,12 +392,12 @@ namespace frydom {
                                         std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item) {
 
     m_chronoSystem->AddOtherPhysicsItem(chrono_physics_item);
-    m_PrePhysicsList.push_back(otherPhysics);
+    m_prePhysicsList.push_back(otherPhysics);
     event_logger::info(GetTypeName(), GetName(), "A Physics Item has been ADDED to the system");
   }
 
   FrOffshoreSystem::PrePhysicsContainer FrOffshoreSystem::GetPrePhysicsItemList() {
-    return m_PrePhysicsList;
+    return m_prePhysicsList;
   }
 
   void FrOffshoreSystem::RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> item,
@@ -405,15 +405,15 @@ namespace frydom {
 
     m_chronoSystem->RemoveOtherPhysicsItem(chrono_physics_item);
 
-    auto it = std::find(m_PrePhysicsList.begin(), m_PrePhysicsList.end(), item);
-    if (it != m_PrePhysicsList.end())
-      m_PrePhysicsList.erase(it);
+    auto it = std::find(m_prePhysicsList.begin(), m_prePhysicsList.end(), item);
+    if (it != m_prePhysicsList.end())
+      m_prePhysicsList.erase(it);
     event_logger::info(GetTypeName(), GetName(), "A Physics Item has been REMOVED to the system");
   }
 
 //  void FrOffshoreSystem::RemoveAllPhysicsItem() {
 //
-//    for (auto &item: m_PrePhysicsList)
+//    for (auto &item: m_prePhysicsList)
 //      Remove(item);
 //
 //  }
@@ -421,54 +421,52 @@ namespace frydom {
 
 // ***** FEAMesh *****
 
-//  void FrOffshoreSystem::AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-//                                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-//
-//    m_chronoSystem->AddMesh(chrono_mesh);  // Authorized because this method is a friend of FrFEAMesh
-//
-////      feaMesh->m_system = this;
-//    m_feaMeshList.push_back(feaMesh);
-//  }
-//
-//  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable,
-//                                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-//
-//    // Add the FEA mesh
-//    AddFEAMesh(cable, chrono_mesh);
-//
-//    // Add the hinges
-//    m_chronoSystem->Add(dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_startingHinge);
-//    m_chronoSystem->Add(dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_endingHinge);
-//
-//  }
+  void FrOffshoreSystem::AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
+                                    std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh) {
+
+    m_chronoSystem->AddMesh(chrono_mesh);
+
+//      feaMesh->m_system = this;
+    m_feaMeshList.push_back(feaMesh);
+  }
 
   FrOffshoreSystem::FEAMeshContainer FrOffshoreSystem::GetFEAMeshList() {
     return m_feaMeshList;
   }
 
-//  void FrOffshoreSystem::RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feamesh,
-//                                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-//
-//    m_chronoSystem->RemoveMesh(chrono_mesh);
-//
-//    auto it = std::find(m_feaMeshList.begin(), m_feaMeshList.end(), feamesh);
-//    assert(it != m_feaMeshList.end());
-//    m_feaMeshList.erase(it);
-////      feamesh->m_system = nullptr;
-//
-//  }
-//
-//  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable,
-//                                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-//
-//    Remove(cable);
-//
-//    m_chronoSystem->RemoveOtherPhysicsItem(
-//        dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_startingHinge);
-//    m_chronoSystem->RemoveOtherPhysicsItem(
-//        dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_endingHinge);
-//
-//  }
+  void FrOffshoreSystem::RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feamesh,
+                                       std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh) {
+
+    m_chronoSystem->RemoveMesh(chrono_mesh);
+
+    auto it = std::find(m_feaMeshList.begin(), m_feaMeshList.end(), feamesh);
+    assert(it != m_feaMeshList.end());
+    m_feaMeshList.erase(it);
+//      feamesh->m_system = nullptr;
+
+  }
+
+  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable,
+                                     std::shared_ptr<internal::FrFEACableBase> chrono_mesh) {
+
+    // Add the FEA mesh
+    AddFEAMesh(cable, chrono_mesh);
+
+    // Add the hinges
+    m_chronoSystem->Add(chrono_mesh->GetStartingHinge());
+    m_chronoSystem->Add(chrono_mesh->GetEndingHinge());
+
+  }
+
+  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable,
+                                        std::shared_ptr<internal::FrFEACableBase> chrono_mesh) {
+
+    Remove(cable);
+
+    m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetStartingHinge());
+    m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetEndingHinge());
+
+  }
 
   void FrOffshoreSystem::AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node) {
     m_chronoSystem->AddBody(lm_node->GetBody());
@@ -513,7 +511,7 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::PrePhysicsUpdate(double time, bool update_assets) {
-    for (auto &item : m_PrePhysicsList) {
+    for (auto &item : m_prePhysicsList) {
       item->Update(time);
     }
   }
@@ -529,7 +527,7 @@ namespace frydom {
     // Initializing environment before bodies
     m_environment->Initialize();
 
-    for (auto &item : m_PrePhysicsList) {
+    for (auto &item : m_prePhysicsList) {
       item->Initialize();
     }
 
@@ -555,7 +553,7 @@ namespace frydom {
 
     m_chronoSystem->Update();
 
-    m_LogManager->Initialize();
+    m_logManager->Initialize();
 
     m_isInitialized = true;
 
@@ -599,7 +597,7 @@ namespace frydom {
 
     m_environment->StepFinalize();
 
-    for (auto &item : m_PrePhysicsList) {
+    for (auto &item : m_prePhysicsList) {
       item->StepFinalize();
     }
 
@@ -624,7 +622,7 @@ namespace frydom {
     }
 
     // Logging
-    m_LogManager->StepFinalize();
+    m_logManager->StepFinalize();
 
     if (m_monitor_real_time) {
       double ratio = m_chronoSystem->GetTimerStep() / GetTimeStep();
@@ -1088,7 +1086,7 @@ namespace frydom {
     m_constraintList.clear();
     m_actuatorList.clear();
     m_feaMeshList.clear();
-    m_PrePhysicsList.clear();
+    m_prePhysicsList.clear();
 
     m_isInitialized = false;
   }
@@ -1185,7 +1183,7 @@ namespace frydom {
   }
 
   FrLogManager *FrOffshoreSystem::GetLogManager() const {
-    return m_LogManager.get();
+    return m_logManager.get();
   }
 
   FrPathManager *FrOffshoreSystem::GetPathManager() const {
@@ -1195,7 +1193,7 @@ namespace frydom {
   void FrOffshoreSystem::FinalizeDynamicSimulation() const {
     event_logger::back_to_default_formatter();
     event_logger::info(GetTypeName(), GetName(),
-        "END OF DYNAMIC SIMULATION AT SIMULATION TIME: {} s", GetTime());
+                       "END OF DYNAMIC SIMULATION AT SIMULATION TIME: {} s", GetTime());
   }
 
 // Iterators
@@ -1271,7 +1269,7 @@ namespace frydom {
 //            // Initializing environment before bodies
 ////            m_environment->InitializeLog();
 //
-//            for (auto &item : m_PrePhysicsList) {
+//            for (auto &item : m_prePhysicsList) {
 //                item->SetPathManager(GetPathManager());
 //                item->InitializeLog(systemPath);
 //            }
@@ -1298,7 +1296,7 @@ namespace frydom {
 //
 //        ClearMessage();
 //
-//        for (auto &item : m_PrePhysicsList) {
+//        for (auto &item : m_prePhysicsList) {
 //            item->ClearMessage();
 //        }
 //
@@ -1407,11 +1405,14 @@ namespace frydom {
       AddPhysicsItem(physics_item, physics_item->GetChronoPhysicsItem());
 //      m_pathManager->RegisterTreeNode(physics_item.get());
 
-//      // FEA CABLE
-//      // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
-//    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-//      AddFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
-//      m_pathManager->RegisterTreeNode(dynamic_cable.get());
+
+      // FEA CABLE
+      // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
+    } else if (auto fea_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
+      auto qsdlfjkn = fea_cable->GetChronoMesh();
+
+      AddFEACable(fea_cable, std::dynamic_pointer_cast<internal::FrFEACableBase>(fea_cable->GetChronoMesh()));
+      m_pathManager->RegisterTreeNode(fea_cable.get());
 //
 //
 //      // FEA MESH
@@ -1419,15 +1420,15 @@ namespace frydom {
 //      AddFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
 ////      m_pathManager->RegisterTreeNode(fea_mesh.get());
 
-    // LUMPED MASS NODE
+      // LUMPED MASS NODE
     } else if (auto lumped_mass_node = std::dynamic_pointer_cast<internal::FrLMNode>(item)) {
       AddLumpedMassNode(lumped_mass_node);
 
-    // LUMPED MASS ELEMENT
+      // LUMPED MASS ELEMENT
     } else if (auto lumped_mass_element = std::dynamic_pointer_cast<internal::FrLMElement>(item)) {
       AddLumpedMassElement(lumped_mass_element);
 
-    // LUMPED MASS CABLE
+      // LUMPED MASS CABLE
     } else if (auto lumped_mass_cable = std::dynamic_pointer_cast<FrLumpedMassCable>(item)) {
       AddLumpedMassCable(lumped_mass_cable);
       m_pathManager->RegisterTreeNode(lumped_mass_cable.get());
@@ -1447,7 +1448,7 @@ namespace frydom {
 //      m_pathManager->RegisterTreeNode(item.get());
 
       if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
-        m_LogManager->Add(loggable);
+        m_logManager->Add(loggable);
       }
     }
 
@@ -1491,7 +1492,7 @@ namespace frydom {
     }
 
     if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
-      m_LogManager->Remove(loggable);
+      m_logManager->Remove(loggable);
     }
 
   }

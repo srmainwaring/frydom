@@ -26,6 +26,4 @@ namespace frydom {
 
   std::string FrObject::GetShortenUUID() const { return m_UUID.substr(0, 5); }
 
-//    void FrObject::StepFinalize() {}
-
 }  // end namespace frydom

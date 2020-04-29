@@ -350,6 +350,8 @@ namespace frydom {
     /// Initialize the link by setting the markers
     void Initialize() override;
 
+    void StepFinalize() override {}
+
     /// Update the link
     /// \param time time of the simulation
     virtual void Update(double time);

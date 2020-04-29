@@ -66,6 +66,8 @@ namespace frydom {
 
     void Initialize() override;
 
+    void StepFinalize() override;
+
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override = 0;
 
     virtual Direction GetTangent(const double s, FRAME_CONVENTION fc) const = 0;
