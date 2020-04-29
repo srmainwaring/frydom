@@ -36,58 +36,74 @@ using namespace irr;
 using namespace frydom;
 
 
-//class MyElasticityCosserat : public chrono::fea::ChElasticityCosseratSimple {
-//
-//};
-//
-//
-//class MySectionCosserat : public chrono::fea::ChBeamSectionCosserat {
-// public:
-//  MySectionCosserat(std::shared_ptr <MyElasticityCosserat> elasticity) :
-//      chrono::fea::ChBeamSectionCosserat(elasticity) {}
-//};
-//
-//
-//
-//class MyCable;
-//
-//
-//class MyNodeFEA {
-// public:
-//  explicit MyNodeFEA(FrFrame initial_frame = FrFrame()) :
-//      m_chrono_node(std::make_shared<chrono::fea::ChNodeFEAxyzrot>(internal::FrFrame2ChFrame(initial_frame))) {}
-//
-// private:
-//  std::shared_ptr <chrono::fea::ChNodeFEAxyzrot> m_chrono_node;
-//
-//  friend class MyCable;
-//};
-//
-//
-//class MyCable : public chrono::fea::ChMesh {
-//
-// public:
-//  void AddNode(std::shared_ptr<MyNodeFEA> node) {
-//    AddNode(node->m_chrono_node);
-//  }
-//
-//};
 
 
 class MyElementBeamIGA : public chrono::fea::ChElementBeamIGA {
  public:
 
-//  void SetNodesGenericOrder(std::vector <std::shared_ptr<MyNodeFEA>> nodes,
-//                            std::vector<double> knots,
-//                            int order) {
-//    std::vector <chrono::fea::ChNodeFEAxyzrot> ch_nodes;
-//    ch_nodes.reserve(nodes.size());
-//    for (const auto &node : nodes) {
-//      auto ch_node = std::dynamic_pointer_cast<chrono::fea::ChNodeFEAxyzrot>(node);
-//      ch_nodes.push_back(ch_node);
-//    }
-//
-//  }
+  // TODO: a retirer, pas besoin
+  void SetSystem(chrono::ChSystem* system) {
+    m_system = system;
+  }
+
+  // TODO: ajouter une methode permettant de ne pas
+
+  /// Gets the absolute xyz velocity of a point on the beam line, at abscissa 'eta'.
+  /// Note, eta=-1 at node1, eta=+1 at node2.
+  virtual void EvaluateSectionSpeed(const double eta,
+                                    chrono::ChVector<> &point_speed) {
+
+    // compute parameter in knot space from eta-1..+1
+    double u1 = knots(order); // extreme of span
+    double u2 = knots(knots.GetRows() - order - 1);
+    double u = u1 + ((eta + 1) / 2.0) * (u2 - u1);
+    int nspan = order;
+
+    chrono::ChVectorDynamic<> N((int) nodes.size());
+
+    chrono::geometry::ChBasisToolsBspline::BasisEvaluate(
+        this->order,
+        nspan,
+        u,
+        knots,
+        N);           ///< here return  in N
+
+    point_speed = chrono::VNULL;
+    for (int i = 0; i < nodes.size(); ++i) {
+      point_speed += N(i) * nodes[i]->coord_dt.pos;
+    }
+  }
+
+  /// Gets the absolute xyz position of a point on the beam line, at abscissa 'eta'.
+  /// Note, eta=-1 at node1, eta=+1 at node2.
+  virtual void EvaluateSectionAcceleration(const double eta,
+                                           chrono::ChVector<> &point_acceleration) {
+
+    // compute parameter in knot space from eta-1..+1
+    double u1 = knots(order); // extreme of span
+    double u2 = knots(knots.GetRows() - order - 1);
+    double u = u1 + ((eta + 1) / 2.0) * (u2 - u1);
+    int nspan = order;
+
+    chrono::ChVectorDynamic<> N((int) nodes.size());
+
+    chrono::geometry::ChBasisToolsBspline::BasisEvaluate(
+        this->order,
+        nspan,
+        u,
+        knots,
+        N);           ///< here return  in N
+
+    point_acceleration = chrono::VNULL;
+    for (int i = 0; i < nodes.size(); ++i) {
+      point_acceleration += N(i) * nodes[i]->coord_dtdt.pos;
+    }
+  }
+
+
+
+  chrono::ChSystem * m_system;  // TODO: a retirer
+
 
 };
 
@@ -97,24 +113,171 @@ class MyLoader : public chrono::ChLoaderUdistributed {
   MyLoader(std::shared_ptr <chrono::ChLoadableU> loadable) : chrono::ChLoaderUdistributed(loadable) {}
 
   int GetIntegrationPointsU() override {
-    return 1;
+    return 4;
   }
 
   void ComputeF(const double U,
                 chrono::ChVectorDynamic<> &F,
                 chrono::ChVectorDynamic<> *state_x,
                 chrono::ChVectorDynamic<> *state_w) override {
+
     auto element = std::dynamic_pointer_cast<MyElementBeamIGA>(loadable);
 
+    Force unit_force;
+
+
+    // Get the point position
     chrono::ChVector<double> position_;
     chrono::ChQuaternion<double> quaternion_;
 
     element->EvaluateSectionFrame(U, position_, quaternion_);
 
-    // TODO: Continuer...
-    F.PasteVector(chrono::VNULL, 0, 0);
-    F.PasteVector(chrono::VNULL, 3, 0);
+    auto position = internal::ChVectorToVector3d<Position>(position_);
 
+    bool m_include_waves = true;
+
+    // Buoyancy
+
+//    double gravity = m_system->GetGravityAcceleration();
+//    auto fluid_type = m_system->GetEnvironment()->GetFluidTypeAtPointInWorld(position, NWU, m_include_waves);
+//    auto fluid_density = m_system->GetEnvironment()->GetFluidDensity(fluid_type);
+//
+//    double section = m_cable->GetProperties()->GetSectionArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
+
+    // Temporaire
+    double gravity = 9.81;
+    double fluid_density = 1023.;
+    double section = element->GetSection()->Area;
+
+
+    Force hydrostatic_force = {0., 0., fluid_density * section * gravity};
+
+
+    // Morison
+
+    // FIXME:
+
+    // Evaluate velocity at U
+
+//    auto vel_a = internal::ChVectorToVector3d<Velocity>(element->GetNodeA()->GetPos_dt());
+//    auto vel_b = internal::ChVectorToVector3d<Velocity>(element->GetNodeB()->GetPos_dt());
+//
+//    // We take the mean velocity value, having nothing to interpolate best...
+//    auto cable_velocity = 0.5 * (vel_a + vel_b);
+    chrono::ChVector<double> vel;
+    element->EvaluateSectionSpeed(U, vel);
+    auto cable_velocity = internal::ChVectorToVector3d<Velocity>(vel);
+
+//    auto acc_a = internal::ChVectorToVector3d<Acceleration>(element->GetNodeA()->GetPos_dtdt());
+//    auto acc_b = internal::ChVectorToVector3d<Acceleration>(element->GetNodeB()->GetPos_dtdt());
+//
+//    // We take the mean acceleration value, having nothing to interpolate best...
+//    auto cable_acceleration = 0.5 * (acc_a + acc_b);
+    chrono::ChVector<double> acc;
+    element->EvaluateSectionAcceleration(U, acc);
+    auto cable_acceleration = internal::ChVectorToVector3d<Acceleration>(acc);
+
+    // Fluid velocity and acceleration at point U
+    Velocity fluid_relative_velocity;
+    Acceleration fluid_relative_acceleration;
+//    if (fluid_type == WATER) {
+//      auto ocean = m_system->GetEnvironment()->GetOcean();
+//
+//      // Current
+//      fluid_relative_velocity += ocean->GetCurrent()->GetFluxVelocityInWorld(position, NWU);
+//
+//      // Wave orbital velocities
+//      if (m_include_waves) {
+//        auto wave_field = ocean->GetFreeSurface()->GetWaveField();
+//        fluid_relative_velocity += wave_field->GetVelocity(position, NWU);
+//        fluid_relative_acceleration += wave_field->GetAcceleration(position, NWU);
+//      }
+//
+//    } else {  // AIR
+//      fluid_relative_velocity +=
+//          m_system->GetEnvironment()->GetAtmosphere()->GetWind()->GetFluxVelocityInWorld(position, NWU);
+//    }
+
+//    fluid_relative_velocity.x() = 10.;
+
+    // Taking the cable motion into account into the fluid motion
+    fluid_relative_velocity -= cable_velocity;
+    fluid_relative_acceleration -= cable_acceleration;
+
+    // Getting the tangent direction of cable
+    Direction tangent_direction = internal::ChVectorToVector3d<Direction>(quaternion_.GetXaxis());
+
+    // Getting tangential and normal relative fluid velocities
+    Velocity tangent_fluid_velocity = fluid_relative_velocity.dot(tangent_direction) * tangent_direction;
+    Velocity normal_fluid_velocity = fluid_relative_velocity - tangent_fluid_velocity;
+
+    // Computing morison load
+//    auto cable_properties = m_cable->GetProperties();
+//    double d = cable_properties->GetHydrodynamicDiameter();
+//    double d = section
+//    double A = 0.25 * MU_PI * d * d;
+    double d = std::sqrt(4. * section / M_PI);
+
+    double Cfn = 1.2;
+    double Cft = 0.;
+
+    double Cmn = 2.;
+    double Cmt = 0.;
+
+    Force morison_force_drag;
+    // Normal morison drag
+    morison_force_drag += 0.5 * fluid_density * Cfn * d *
+                     normal_fluid_velocity.norm() * normal_fluid_velocity;
+
+    // Tangent morison drag
+    morison_force_drag += 0.5 * fluid_density * Cft * d *
+                     tangent_fluid_velocity.norm() * tangent_fluid_velocity;
+
+    Acceleration tangent_fluid_acceleration = fluid_relative_acceleration.dot(tangent_direction) * tangent_direction;
+    Acceleration normal_fluid_acceleration = fluid_relative_acceleration - tangent_fluid_acceleration;
+
+
+    // Added mass effects
+    Force morison_force_added_mass;
+
+    // Normal morison
+//    morison_force_added_mass += fluid_density * Cmn * section *
+//        normal_fluid_acceleration.norm() * normal_fluid_acceleration;
+//
+//    morison_force_added_mass += fluid_density * Cmt * section *
+//        tangent_fluid_acceleration.norm() * tangent_fluid_acceleration;
+
+//    unit_force += morison_force;
+
+    // FIXME: les effets de masse ajoutee vont etre pris en compte dans la masse du corps !
+    // Par contre du coup, c'est à nous de gerer la force de gravite !
+
+    // C'est lors du setupInitial de ChElementBeamIGA qu'on calcule les matrices masse. Du coup, il faudrait incorporer
+    // la masse ajoutee dedans. Par contre, l'effet de la gravite sera calcule dans le present chargement.
+    // Verifier qu'on obtient bien le bon comportement suivant qu'on laisse la gravite en auto ou qu'on la gere nous-meme...
+
+
+
+
+
+
+
+    unit_force = hydrostatic_force + morison_force_drag + morison_force_added_mass;
+
+    auto time = element->m_system->GetChTime();
+
+
+    // FIXME: a retirer
+    if (element->m_system->GetChTime() > 5.) {
+      unit_force.SetNull();
+    }
+
+
+
+    // Pasting the results
+
+    F.PasteVector(internal::Vector3dToChVector(unit_force), 0, 0);   // load, force part
+    F.PasteVector(chrono::VNULL, 3, 0);  // No torque
 
   }
 
@@ -259,6 +422,7 @@ class MyFEACableBuilder {
       }
 
       auto belement_i = std::make_shared<MyElementBeamIGA>();
+      belement_i->SetSystem(mesh->GetSystem()); // TODO: a retirer test
       belement_i->SetNodesGenericOrder(my_el_nodes, my_el_knots, p);
       belement_i->SetSection(sect);
       mesh->AddElement(belement_i);
@@ -361,6 +525,70 @@ int main() {
     load_container->Add(load);
   }
 
+  // Viz...
+  auto mvisualizebeamA = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*(my_mesh.get()));
+  mvisualizebeamA->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_SURFACE);
+  mvisualizebeamA->SetSmoothFaces(true);
+  my_mesh->AddAsset(mvisualizebeamA);
+
+  auto mvisualizebeamC = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*(my_mesh.get()));
+  mvisualizebeamC->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
+  mvisualizebeamC->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
+  mvisualizebeamC->SetSymbolsThickness(0.006);
+  mvisualizebeamC->SetSymbolsScale(0.01);
+  mvisualizebeamC->SetZbufferHide(false);
+  my_mesh->AddAsset(mvisualizebeamC);
+
+
+
+  ///////// SECOND CABLE
+
+
+
+//  // Building the BSpline to initialize a second cable
+//  auto my_mesh_2 = std::make_shared<chrono::fea::ChMesh>();
+////  my_mesh->SetAutomaticGravity(false);
+//  my_system.Add(my_mesh_2);
+//
+//
+//  std::vector <ChVector<>> my_points_2;
+//
+////  int nb_ctrl_points = 200;
+////  double dz = cable_length * scale / (double) (nb_ctrl_points - 1);
+//  z = 0.;
+//  for (int i = 0; i < nb_ctrl_points; i++) {
+//    my_points_2.emplace_back(ChVector<>(3., 0., z));
+//    z += dz;
+//  }
+//
+//  geometry::ChLineBspline my_spline_2(2,          // order (3 = cubic, etc)
+//                                    my_points_2); // control points, will become the IGA nodes
+//
+//
+//  MyFEACableBuilder builderR_2;
+//  builderR_2.BuildBeam(my_mesh_2,            // the mesh to put the elements in
+//                     msection,           // section of the beam
+//                     my_spline_2,          // Bspline to match (also order will be matched)
+//                     VECT_Y);            // suggested Y direction of section
+//
+//  builderR_2.GetLastBeamNodes().front()->SetFixed(true);
+////  builderR.GetLastBeamNodes().back()->SetFixed(true);
+//
+//  auto mvisualizebeamA_2 = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*(my_mesh_2.get()));
+//  mvisualizebeamA_2->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_SURFACE);
+//  mvisualizebeamA_2->SetSmoothFaces(true);
+//  my_mesh_2->AddAsset(mvisualizebeamA_2);
+//
+//  auto mvisualizebeamC_2 = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*(my_mesh_2.get()));
+//  mvisualizebeamC_2->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
+//  mvisualizebeamC_2->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
+//  mvisualizebeamC_2->SetSymbolsThickness(0.006);
+//  mvisualizebeamC_2->SetSymbolsScale(0.01);
+//  mvisualizebeamC_2->SetZbufferHide(false);
+//  my_mesh_2->AddAsset(mvisualizebeamC_2);
+
+
+
 
 //  auto mbodywing = std::make_shared<ChBodyEasyBox>(0.01, 0.2, 0.05, 2000);
 
@@ -376,18 +604,7 @@ int main() {
 
   // Attach a visualization of the FEM mesh.
 
-  auto mvisualizebeamA = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*(my_mesh.get()));
-  mvisualizebeamA->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_SURFACE);
-  mvisualizebeamA->SetSmoothFaces(true);
-  my_mesh->AddAsset(mvisualizebeamA);
 
-  auto mvisualizebeamC = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*(my_mesh.get()));
-  mvisualizebeamC->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
-  mvisualizebeamC->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
-  mvisualizebeamC->SetSymbolsThickness(0.006);
-  mvisualizebeamC->SetSymbolsScale(0.01);
-  mvisualizebeamC->SetZbufferHide(false);
-  my_mesh->AddAsset(mvisualizebeamC);
 
 
 
