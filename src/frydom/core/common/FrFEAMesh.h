@@ -5,27 +5,30 @@
 #ifndef FRYDOM_FRFEAMESH_H
 #define FRYDOM_FRFEAMESH_H
 
+
+#include "frydom/core/common/FrPhysicsItem.h"
+
 #include "frydom/asset/FrAssetOwner.h"
 #include "frydom/core/common/FrObject.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/common/FrTreeNode.h"
 
-namespace chrono {
-  namespace fea {
-    class ChMesh;
-  }
-}
+//namespace chrono {
+//  namespace fea {
+//    class ChMesh;
+//  }
+//}
 
 namespace frydom {
 
   // Forward declarations
-  class FrOffshoreSystem;
+//  class FrOffshoreSystem;
 
-  class FrFEAMesh : public FrObject {
+  class FrFEAMesh : public FrPhysicsItem {
 
-   protected:
-
-    virtual std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() = 0;
+//   protected:
+//
+//    virtual std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() = 0;
 
    public:
 
@@ -33,11 +36,11 @@ namespace frydom {
 
     FrFEAMesh() = default;
 
-    virtual void Update(double time) = 0;
+//    virtual void Update(double time) = 0;
 
 //        virtual void SetupInitial();
 
-    void Initialize() override {}
+//    void Initialize() override {}
 
     virtual double GetStaticResidual() = 0;
 

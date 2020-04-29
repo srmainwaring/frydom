@@ -16,6 +16,8 @@ set(SRC_FILES
         mooring_components/FrClumpedMass.cpp
 
         fea/FrFEACable.cpp
+        fea/FrFEANode.cpp
+        fea/FrFEACableElement.cpp
         fea/FrFEACableLoads.cpp
         fea/FrFEACableBuilder.cpp
 

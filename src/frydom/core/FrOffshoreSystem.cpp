@@ -421,54 +421,54 @@ namespace frydom {
 
 // ***** FEAMesh *****
 
-  void FrOffshoreSystem::AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-                                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-
-    m_chronoSystem->AddMesh(chrono_mesh);  // Authorized because this method is a friend of FrFEAMesh
-
-//      feaMesh->m_system = this;
-    m_feaMeshList.push_back(feaMesh);
-  }
-
-  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable,
-                                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-
-    // Add the FEA mesh
-    AddFEAMesh(cable, chrono_mesh);
-
-    // Add the hinges
-    m_chronoSystem->Add(dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_startingHinge);
-    m_chronoSystem->Add(dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_endingHinge);
-
-  }
+//  void FrOffshoreSystem::AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
+//                                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
+//
+//    m_chronoSystem->AddMesh(chrono_mesh);  // Authorized because this method is a friend of FrFEAMesh
+//
+////      feaMesh->m_system = this;
+//    m_feaMeshList.push_back(feaMesh);
+//  }
+//
+//  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable,
+//                                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
+//
+//    // Add the FEA mesh
+//    AddFEAMesh(cable, chrono_mesh);
+//
+//    // Add the hinges
+//    m_chronoSystem->Add(dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_startingHinge);
+//    m_chronoSystem->Add(dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_endingHinge);
+//
+//  }
 
   FrOffshoreSystem::FEAMeshContainer FrOffshoreSystem::GetFEAMeshList() {
     return m_feaMeshList;
   }
 
-  void FrOffshoreSystem::RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feamesh,
-                                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-
-    m_chronoSystem->RemoveMesh(chrono_mesh);
-
-    auto it = std::find(m_feaMeshList.begin(), m_feaMeshList.end(), feamesh);
-    assert(it != m_feaMeshList.end());
-    m_feaMeshList.erase(it);
-//      feamesh->m_system = nullptr;
-
-  }
-
-  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable,
-                                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
-
-    Remove(cable);
-
-    m_chronoSystem->RemoveOtherPhysicsItem(
-        dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_startingHinge);
-    m_chronoSystem->RemoveOtherPhysicsItem(
-        dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_endingHinge);
-
-  }
+//  void FrOffshoreSystem::RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feamesh,
+//                                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
+//
+//    m_chronoSystem->RemoveMesh(chrono_mesh);
+//
+//    auto it = std::find(m_feaMeshList.begin(), m_feaMeshList.end(), feamesh);
+//    assert(it != m_feaMeshList.end());
+//    m_feaMeshList.erase(it);
+////      feamesh->m_system = nullptr;
+//
+//  }
+//
+//  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable,
+//                                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
+//
+//    Remove(cable);
+//
+//    m_chronoSystem->RemoveOtherPhysicsItem(
+//        dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_startingHinge);
+//    m_chronoSystem->RemoveOtherPhysicsItem(
+//        dynamic_cast<internal::FrFEACableBase *>(chrono_mesh.get())->m_endingHinge);
+//
+//  }
 
   void FrOffshoreSystem::AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node) {
     m_chronoSystem->AddBody(lm_node->GetBody());
@@ -1407,17 +1407,17 @@ namespace frydom {
       AddPhysicsItem(physics_item, physics_item->GetChronoPhysicsItem());
 //      m_pathManager->RegisterTreeNode(physics_item.get());
 
-      // FEA CABLE
-      // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
-    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      AddFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
-      m_pathManager->RegisterTreeNode(dynamic_cable.get());
-
-
-      // FEA MESH
-    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
-      AddFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
-//      m_pathManager->RegisterTreeNode(fea_mesh.get());
+//      // FEA CABLE
+//      // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
+//    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
+//      AddFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
+//      m_pathManager->RegisterTreeNode(dynamic_cable.get());
+//
+//
+//      // FEA MESH
+//    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
+//      AddFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
+////      m_pathManager->RegisterTreeNode(fea_mesh.get());
 
     // LUMPED MASS NODE
     } else if (auto lumped_mass_node = std::dynamic_pointer_cast<internal::FrLMNode>(item)) {
@@ -1476,13 +1476,13 @@ namespace frydom {
     } else if (auto physics_item = std::dynamic_pointer_cast<FrPrePhysicsItem>(item)) {
       RemovePhysicsItem(physics_item, physics_item->GetChronoPhysicsItem());
 
-      // FEA MESH
-    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
-      RemoveFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
-
-      // DYNAMIC CABLE
-    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      RemoveFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
+//      // FEA MESH
+//    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
+//      RemoveFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
+//
+//      // DYNAMIC CABLE
+//    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
+//      RemoveFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
 
       // UNKNOWN
     } else {

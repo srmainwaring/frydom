@@ -1021,7 +1021,7 @@ namespace frydom {
 
     friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
 
-    friend void internal::FrFEACableBase::InitializeLinks();
+//    friend void internal::FrFEACableBase::InitializeLinks();
 
     friend void FrFlatSeabed::CreateContactBox();
 

@@ -764,25 +764,25 @@ namespace frydom {
     void RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> item,
                            std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item);
 
-    /// Add a FEA mesh to the offshore system
-    /// \param feaMesh FEA mesh to be added
-    void AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
-
-    /// Remove a FEA mesh from the offshore system
-    /// \param feaMesh FEA mesh to be added
-    void RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
-
-    /// Add a Dynamic Cable to the offshore system
-    /// \param cable dynamic cable to be added
-    void AddFEACable(std::shared_ptr<FrFEACable> cable,
-                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
-
-    /// Remove a Dynamic Cable from the offshore system
-    /// \param cable dynamic cable to be added
-    void RemoveFEACable(std::shared_ptr<FrFEACable> cable,
-                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+//    /// Add a FEA mesh to the offshore system
+//    /// \param feaMesh FEA mesh to be added
+//    void AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
+//                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+//
+//    /// Remove a FEA mesh from the offshore system
+//    /// \param feaMesh FEA mesh to be added
+//    void RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
+//                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+//
+//    /// Add a Dynamic Cable to the offshore system
+//    /// \param cable dynamic cable to be added
+//    void AddFEACable(std::shared_ptr<FrFEACable> cable,
+//                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+//
+//    /// Remove a Dynamic Cable from the offshore system
+//    /// \param cable dynamic cable to be added
+//    void RemoveFEACable(std::shared_ptr<FrFEACable> cable,
+//                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
 
     /// Add a lumped mass node to the offshore system
     void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);

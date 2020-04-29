@@ -18,6 +18,7 @@ set(REFACTORING_TESTS
         test_dynamic_cable_seabed
         test_bspline
         test_beam_IGA
+        test_fea_cable
         )
 
 foreach (test ${REFACTORING_TESTS})
