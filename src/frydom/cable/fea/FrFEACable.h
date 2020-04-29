@@ -95,13 +95,16 @@ namespace frydom {
     double GetStaticResidual() override;
 
 
-
    protected:
 
 
     void DefineLogMessages() override;
 
     void BuildCache() override;
+
+    std::shared_ptr<internal::FrFEACableBase> GetCableBase() {
+      return std::dynamic_pointer_cast<internal::FrFEACableBase>(m_chrono_mesh);
+    }
 
     // friends
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
@@ -123,7 +126,6 @@ namespace frydom {
                  const std::shared_ptr<FrCableProperties> &properties,
                  double unstretched_length,
                  unsigned int nb_elements);
-
 
 
 

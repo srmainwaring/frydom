@@ -55,10 +55,9 @@ namespace frydom {
     friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase> item);
 
    protected:
-    virtual std::shared_ptr<internal::FrFEAMeshBase> GetChronoMesh();
+    std::shared_ptr<internal::FrFEAMeshBase> GetChronoMesh();
 
 
-   private:
     std::shared_ptr<internal::FrFEAMeshBase> m_chrono_mesh;
 
 

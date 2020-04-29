@@ -13,7 +13,6 @@
 #include "FrOffshoreSystem.h"
 
 #include "chrono/utils/ChProfiler.h"
-#include "chrono/fea/ChLinkPointFrame.h"
 #include "chrono/physics/ChLinkMate.h"
 #include "chrono/solver/ChIterativeSolver.h"
 
@@ -25,7 +24,6 @@
 #include "frydom/cable/fea/FrFEACable.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
-#include "frydom/core/force/FrForce.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/utils/FrIrrApp.h"
 #include "frydom/core/statics/FrStaticAnalysis.h"
