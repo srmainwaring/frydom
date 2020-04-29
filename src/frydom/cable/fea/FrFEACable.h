@@ -12,8 +12,6 @@
 //#include <chrono/fea/ChElementCableANCF.h>
 //#include <chrono/fea/ChBuilderBeam.h>
 //#include <chrono/fea/ChBeamSectionCosserat.h>
-//
-//
 
 
 

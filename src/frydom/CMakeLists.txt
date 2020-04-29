@@ -15,9 +15,8 @@ set(subdirs
         core
         environment
         hydrodynamics
-        IO
+        io
         mesh
-        mooring
         utils
         )
 
