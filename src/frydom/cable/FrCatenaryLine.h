@@ -17,19 +17,12 @@
 #include "FrCatenaryLineSeabed.h"
 
 
-//#include "FrCableBase.h"
-//#include "frydom/core/common/FrPhysicsItem.h"
-//#include "frydom/core/math/FrVector.h"
 #include "frydom/environment/FrFluidType.h"
-//
-//#include "frydom/core/force/FrForce.h"
-//
-//#include "frydom/asset/FrCatenaryLineAsset.h"
 
 #include "FrClumpedMass.h"
 
 // TODO: prevoir une discretisation automatique pour laquelle on precise la taille cible d'un element
-// Servira dans la visu et pour l'application de forces comme Morrison.
+// Servira dans la visu et pour l'application de forces comme Morison.
 
 
 namespace frydom {

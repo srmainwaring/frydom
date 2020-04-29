@@ -2,7 +2,7 @@ message(STATUS "    ...morison")
 
 set(SRC_FILES
         FrMorisonForce.cpp
-        FrMorisonModel.cpp
+        FrMorisonElements.cpp
         #        FrMorrisonElement.cpp
         FrMorisonModelBase.cpp
         )

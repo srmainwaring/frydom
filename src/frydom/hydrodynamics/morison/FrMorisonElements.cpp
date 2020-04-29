@@ -10,7 +10,7 @@
 // ==========================================================================
 
 
-#include "FrMorisonModel.h"
+#include "FrMorisonElements.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
@@ -24,7 +24,7 @@ namespace frydom {
   // Makers
   // ----------------------------------------------------
 
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string &name,
                                                                 const std::shared_ptr<FrBody> &body,
                                                                 bool extendedModel) {
     auto model = std::make_shared<FrMorisonCompositeElement>(name, body.get(), extendedModel);
@@ -33,7 +33,7 @@ namespace frydom {
   }
 
 
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string &name,
                                                                 const std::shared_ptr<FrBody> &body,
                                                                 const std::string &filename,
                                                                 bool extendedModel) {
@@ -57,14 +57,14 @@ namespace frydom {
 
     for (const auto &element : elements) {
       position = node_map.at(element["id1"].get<int>());
-      Position PosA = {position[0],position[1],position[2]};
+      Position PosA = {position[0], position[1], position[2]};
       position = node_map.at(element["id2"].get<int>());
-      Position PosB = {position[0],position[1],position[2]};
+      Position PosB = {position[0], position[1], position[2]};
       diameter = element["diameter"].get<double>();
       Cd = element["cd"].get<double>();
       Cm = element["cm"].get<double>();
       Direction dv = (PosB - PosA);
-      model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm-1.), MorisonCoeff(Cd), 0.);
+      model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm - 1.), MorisonCoeff(Cd), 0.);
     }
 
     body->GetSystem()->Add(model);
@@ -76,10 +76,18 @@ namespace frydom {
   // MORISON MODEL
   // -----------------------------------------------------------------
 
-  FrMorisonElement::FrMorisonElement() : m_node(nullptr), m_force(), m_torque(),
-  m_includeCurrent(false), m_extendedModel(false), m_isImmerged(false),
-  m_force_added_mass(), m_torque_added_mass(),
-  m_AMInFrame(6, 6), m_AMInWorld(6, 6), m_AMInBody(6, 6) {}
+  FrMorisonElement::FrMorisonElement() :
+      m_node(nullptr),
+      m_force(),
+      m_torque(),
+      m_includeCurrent(false),
+      m_extendedModel(false),
+      m_isImmerged(false),
+      m_force_added_mass(),
+      m_torque_added_mass(),
+      m_AMInFrame(6, 6),
+      m_AMInWorld(6, 6),
+      m_AMInBody(6, 6) {}
 
   void FrMorisonElement::SetFrame(FrBody *body, Position posA, Position posB, Direction vect) {
 
@@ -131,17 +139,17 @@ namespace frydom {
 
   FrFrame FrMorisonElement::GetFrame() const { return m_node->GetFrameInWorld(); }
 
-  FrBody* FrMorisonElement::GetBody() const { return m_node->GetBody(); }
+  FrBody *FrMorisonElement::GetBody() const { return m_node->GetBody(); }
 
-  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInFrame() {
+  const Eigen::Matrix<double, 6, 6> &FrMorisonElement::GetAMInFrame() {
     return m_AMInFrame;
   }
 
-  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInBody() {
+  const Eigen::Matrix<double, 6, 6> &FrMorisonElement::GetAMInBody() {
     return m_AMInBody;
   }
 
-  const Eigen::Matrix<double, 6, 6>& FrMorisonElement::GetAMInWorld() {
+  const Eigen::Matrix<double, 6, 6> &FrMorisonElement::GetAMInWorld() {
     return m_AMInWorld;
   }
 
@@ -151,7 +159,7 @@ namespace frydom {
 
   FrMorisonSingleElement::FrMorisonSingleElement(FrBody *body, Position posA, Position posB, double diameter,
                                                  MorisonCoeff ca, MorisonCoeff cd, double cf,
-                                                 const Direction& perpendicular) {
+                                                 const Direction &perpendicular) {
     SetAddedMassCoeff(ca);
     SetDragCoeff(cd);
     SetFrictionCoeff(cf);
@@ -164,7 +172,7 @@ namespace frydom {
   FrMorisonSingleElement::FrMorisonSingleElement(std::shared_ptr<FrNode> &nodeA,
                                                  std::shared_ptr<FrNode> &nodeB,
                                                  double diameter, MorisonCoeff ca, MorisonCoeff cd, double cf,
-                                                 const Direction& perpendicular) {
+                                                 const Direction &perpendicular) {
     m_nodeA = nodeA;
     m_nodeB = nodeB;
 
@@ -227,27 +235,27 @@ namespace frydom {
     Position posInBody = m_node->GetNodePositionInBody(NWU) - body->GetCOG(NWU);
     Position posInFrame = m_node->GetFrameInBody().ProjectVectorParentInFrame(posInBody, NWU);
 
-    m_AMInFrame(0, 0) =  ca[0];
-    m_AMInFrame(0, 4) =  ca[0] * posInFrame[2];
+    m_AMInFrame(0, 0) = ca[0];
+    m_AMInFrame(0, 4) = ca[0] * posInFrame[2];
     m_AMInFrame(0, 5) = -ca[0] * posInFrame[1];
-    m_AMInFrame(1, 1) =  ca[1];
+    m_AMInFrame(1, 1) = ca[1];
     m_AMInFrame(1, 3) = -ca[1] * posInFrame[2];
-    m_AMInFrame(1, 5) =  ca[1] * posInFrame[0];
+    m_AMInFrame(1, 5) = ca[1] * posInFrame[0];
     //m_AM(2, 2) =  ca[2]; // = 0
     //m_AM(2, 3) =  ca[2] * posInFrame[1];  // = 0
     //m_AM(2, 4) = -ca[2] * posInFrame[0]; // = 0
 
     m_AMInFrame(3, 1) = -ca[1] * posInFrame[2];
-    m_AMInFrame(3, 3) =  ca[1] * posInFrame[2] * posInFrame[2];
+    m_AMInFrame(3, 3) = ca[1] * posInFrame[2] * posInFrame[2];
     m_AMInFrame(3, 5) = -ca[1] * posInFrame[0] * posInFrame[2];
-    m_AMInFrame(4, 0) =  ca[0] * posInFrame[2];
-    m_AMInFrame(4, 4) =  ca[0] * posInFrame[2] * posInFrame[2];
+    m_AMInFrame(4, 0) = ca[0] * posInFrame[2];
+    m_AMInFrame(4, 4) = ca[0] * posInFrame[2] * posInFrame[2];
     m_AMInFrame(4, 5) = -ca[0] * posInFrame[1] * posInFrame[2];
     m_AMInFrame(5, 0) = -ca[0] * posInFrame[1];
-    m_AMInFrame(5, 1) =  ca[1] * posInFrame[0];
+    m_AMInFrame(5, 1) = ca[1] * posInFrame[0];
     m_AMInFrame(5, 3) = -ca[1] * posInFrame[0] * posInFrame[2];
     m_AMInFrame(5, 4) = -ca[0] * posInFrame[1] * posInFrame[2];
-    m_AMInFrame(5, 5) =  ca[0] * posInFrame[1] * posInFrame[1] + ca[1] * posInFrame[0] * posInFrame[0];
+    m_AMInFrame(5, 5) = ca[0] * posInFrame[1] * posInFrame[1] + ca[1] * posInFrame[0] * posInFrame[0];
 
     m_AMInFrame *= rho * GetVolume();
   }
@@ -321,7 +329,7 @@ namespace frydom {
 
     //##CC
     if (not m_isImmerged) {
-      accNode= {0., 0., 0.};
+      accNode = {0., 0., 0.};
     }
     //##
 
@@ -440,8 +448,8 @@ namespace frydom {
   // MORISON COMPOSITE FORCE MODEL
   // -------------------------------------------------------------------
 
-  FrMorisonCompositeElement::FrMorisonCompositeElement(const std::string& name, FrBody *body, bool extendedModel)
-    : FrTreeNode(name, body) {
+  FrMorisonCompositeElement::FrMorisonCompositeElement(const std::string &name, FrBody *body, bool extendedModel)
+      : FrTreeNode(name, body) {
     m_node = std::make_shared<FrNode>("", body);
     SetExtendedModel(extendedModel);
     if (m_extendedModel) {
@@ -478,7 +486,7 @@ namespace frydom {
     m_AMInBody.setZero();
     m_AMInWorld.setZero();
     // TODO : not mandatory loop
-    for (auto& element: m_morison) {
+    for (auto &element: m_morison) {
       if (element->IsImmerged()) {
         m_AMInBody += element->GetAMInBody();
         m_AMInWorld += element->GetAMInWorld();
@@ -511,7 +519,7 @@ namespace frydom {
     if (m_extendedModel) {
       m_AMInBody.setZero();
       m_AMInWorld.setZero();
-      for (auto& element: m_morison) {
+      for (auto &element: m_morison) {
         if (element->IsImmerged()) {
           m_AMInBody += element->GetAMInBody();
           m_AMInWorld += element->GetAMInWorld();
@@ -527,7 +535,7 @@ namespace frydom {
     m_force_added_mass.SetNull();
     m_torque_added_mass.SetNull();
 
-    for (auto& element: m_morison) {
+    for (auto &element: m_morison) {
       if (element->IsImmerged()) {
         element->ComputeForceAddedMass();
         m_force_added_mass += element->GetForceAddedMassInWorld(NWU);

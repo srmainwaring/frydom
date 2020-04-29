@@ -430,8 +430,8 @@ namespace frydom {
     m_feaMeshList.push_back(feaMesh);
   }
 
-  void FrOffshoreSystem::AddDynamicCable(std::shared_ptr<FrFEACable> cable,
-                                         std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
+  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable,
+                                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
 
     // Add the FEA mesh
     AddFEAMesh(cable, chrono_mesh);
@@ -458,8 +458,8 @@ namespace frydom {
 
   }
 
-  void FrOffshoreSystem::RemoveDynamicCable(std::shared_ptr<FrFEACable> cable,
-                                            std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
+  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable,
+                                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh) {
 
     Remove(cable);
 
@@ -1407,10 +1407,10 @@ namespace frydom {
       AddPhysicsItem(physics_item, physics_item->GetChronoPhysicsItem());
 //      m_pathManager->RegisterTreeNode(physics_item.get());
 
-      // DYNAMIC CABLE
-      // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddDynamicCable also add the hinges)
+      // FEA CABLE
+      // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
     } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      AddDynamicCable(dynamic_cable, dynamic_cable->GetChronoMesh());
+      AddFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
       m_pathManager->RegisterTreeNode(dynamic_cable.get());
 
 

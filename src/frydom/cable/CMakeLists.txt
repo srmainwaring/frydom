@@ -7,13 +7,16 @@ set(SRC_FILES
         FrCatenaryLine.cpp
         FrCatenaryLineSeabed.cpp
         FrMooringBuoy.cpp
-        FrFEACable.cpp
         FrLumpedMassCable.cpp
         FrCableShapeInitializer.cpp
         FrAnchor.cpp
         FrClumpedMass.cpp
+
+        FrFEACable.cpp
         FrFEACableLoads.cpp
         FrFEACableBuilder.cpp
+
+
 )
 
 set(FRYDOM_CABLE_SOURCES "")

@@ -10,8 +10,8 @@
 // ==========================================================================
 
 
-#ifndef FRYDOM_FRMORISONMODEL_H
-#define FRYDOM_FRMORISONMODEL_H
+#ifndef FRYDOM_FRMORISONELEMENTS_H
+#define FRYDOM_FRMORISONELEMENTS_H
 
 #include <memory>
 #include <Eigen/Sparse> // FIXME : a passer dans mathutils ?
@@ -26,7 +26,9 @@ namespace frydom {
 
   // Forward declarations
   class FrMorisonCompositeElement;
+
   class FrBody;
+
   class FrNode;
 
   // ---------------------------------------------------------
@@ -36,17 +38,17 @@ namespace frydom {
   /// Maker for a Morison model : instantiate and return a FrMorisonCompositeElement
   /// \param body body related to the morison model
   /// \return Morison model, as a Morison composite element
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string &name,
                                                                 const std::shared_ptr<FrBody> &body,
-                                                                bool extendedModel=false);
+                                                                bool extendedModel = false);
 
   /// Maker for a Morison model : instantiate and return a FrMorisonCompositeElement
   /// \param body body related to the morison model
   /// \return Morison model, as a Morison composite element
-  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string& name,
+  std::shared_ptr<FrMorisonCompositeElement> make_morison_model(const std::string &name,
                                                                 const std::shared_ptr<FrBody> &body,
                                                                 const std::string &filename,
-                                                                bool extendedModel=false);
+                                                                bool extendedModel = false);
 
   // ----------------------------------------------------------
   // Morison structure coefficient
@@ -135,7 +137,7 @@ namespace frydom {
     /// \return Node
     std::shared_ptr<FrNode> GetNode() const { return m_node; }
 
-    FrBody* GetBody() const;
+    FrBody *GetBody() const;
 
     /// Get the force vector at COG in world reference frame
     /// \param fc Frame convention
@@ -161,11 +163,11 @@ namespace frydom {
 
     bool IsExtendedModel() const { return m_extendedModel; }
 
-    virtual const Eigen::Matrix<double, 6, 6>& GetAMInFrame();
+    virtual const Eigen::Matrix<double, 6, 6> &GetAMInFrame();
 
-    virtual const Eigen::Matrix<double, 6, 6>& GetAMInBody();
+    virtual const Eigen::Matrix<double, 6, 6> &GetAMInBody();
 
-    virtual const Eigen::Matrix<double, 6, 6>& GetAMInWorld();
+    virtual const Eigen::Matrix<double, 6, 6> &GetAMInWorld();
 
     bool IsImmerged() const { return m_isImmerged; }
 
@@ -209,7 +211,7 @@ namespace frydom {
     FrMorisonSingleElement(std::shared_ptr<FrNode> &nodeA,
                            std::shared_ptr<FrNode> &nodeB,
                            double diameter, MorisonCoeff ca, MorisonCoeff cd, double cf,
-                           const Direction& perpendicular = Direction(0., 0., 1.));
+                           const Direction &perpendicular = Direction(0., 0., 1.));
 
     /// Constructor of a new element with property
     /// \param body Body to which the morison element force is applied
@@ -222,7 +224,7 @@ namespace frydom {
     /// \param perpendicular x-axis is built such as is perpendicular to the morison element direction and this vector
     FrMorisonSingleElement(FrBody *body, Position posA, Position posB,
                            double diameter, MorisonCoeff ca, MorisonCoeff cd, double cf,
-                           const Direction& perpendicular = Direction(0., 0., 1.));
+                           const Direction &perpendicular = Direction(0., 0., 1.));
 
     //
     // Getters
@@ -272,8 +274,11 @@ namespace frydom {
     ///     cf : the friction coefficient along the z-axis (axial to the element)
     ///     diameter : diameter of the morison element
     void SetAddedMassCoeff(MorisonCoeff ca);
+
     void SetDragCoeff(MorisonCoeff cd);
+
     void SetFrictionCoeff(double cf);
+
     void SetDiameter(double diameter);
 
     /// Compute volume from the morison element diameter and length
@@ -282,7 +287,9 @@ namespace frydom {
     /// Build the equivalent added mass matrix when full morison is used
     /// in local, body and world frames
     void SetAMInFrame();
+
     void SetAMInBody();
+
     void SetAMInWorld();
 
     /// Check if the morison element is under water or not
@@ -317,7 +324,7 @@ namespace frydom {
    public:
     /// Constructor of a new composite model of the morison force
     /// \param body Body to which the morison model is applied
-    explicit FrMorisonCompositeElement(const std::string& name, FrBody *body, bool extendedModel=false);
+    explicit FrMorisonCompositeElement(const std::string &name, FrBody *body, bool extendedModel = false);
 
     //TODO: remove unecessary AddElement methods, add if needed the frame convention for the position and complete the
     // doc (pos are in the world reference frame)
@@ -372,4 +379,4 @@ namespace frydom {
 
 }  // end namespace frydom
 
-#endif //FRYDOM_FRMORISONMODEL_H
+#endif //FRYDOM_FRMORISONELEMENTS_H

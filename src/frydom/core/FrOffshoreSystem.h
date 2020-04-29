@@ -776,13 +776,13 @@ namespace frydom {
 
     /// Add a Dynamic Cable to the offshore system
     /// \param cable dynamic cable to be added
-    void AddDynamicCable(std::shared_ptr<FrFEACable> cable,
-                         std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    void AddFEACable(std::shared_ptr<FrFEACable> cable,
+                     std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
 
     /// Remove a Dynamic Cable from the offshore system
     /// \param cable dynamic cable to be added
-    void RemoveDynamicCable(std::shared_ptr<FrFEACable> cable,
-                            std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    void RemoveFEACable(std::shared_ptr<FrFEACable> cable,
+                        std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
 
     /// Add a lumped mass node to the offshore system
     void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);

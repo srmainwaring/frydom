@@ -5,7 +5,7 @@
 #include "FrMorisonModelBase.h"
 
 #include "frydom/core/common/FrVariablesAddedMass.h"
-#include "frydom/hydrodynamics/morison/FrMorisonModel.h"
+#include "frydom/hydrodynamics/morison/FrMorisonElements.h"
 #include "frydom/core/body/FrBody.h"
 
 namespace frydom {

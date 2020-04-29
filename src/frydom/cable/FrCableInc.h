@@ -15,9 +15,10 @@
 #include "FrCableProperties.h"
 #include "FrCatenaryLine.h"
 #include "FrCatenaryLineSeabed.h"
-#include "FrFEACable.h"
 #include "FrMooringBuoy.h"
 #include "FrLumpedMassCable.h"
+
+#include "FrFEACable.h"
 #include "FrFEACableBuilder.h"
 
 #endif //FRYDOM_FRCABLEINC_H
