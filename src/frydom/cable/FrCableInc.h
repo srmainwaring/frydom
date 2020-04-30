@@ -19,6 +19,6 @@
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/cable/fea/FrFEACable.h"
-#include "frydom/cable/fea/FrFEACableBuilder.h"
+#include "frydom/cable/fea/FrFEALink.h"
 
 #endif //FRYDOM_FRCABLEINC_H

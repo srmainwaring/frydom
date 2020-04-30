@@ -18,11 +18,11 @@ namespace frydom {
 
   namespace internal {
 
-    FrFEAloaderBase::FrFEAloaderBase(std::shared_ptr<chrono::ChLoadableU> loadable,
-                                     FrOffshoreSystem *system) :
+    FrFEAloaderBase::FrFEAloaderBase(std::shared_ptr<chrono::ChLoadableU> loadable) :
         chrono::ChLoaderUdistributed(loadable),
-        m_system(system),
-        m_nb_integration_points(1) {}// TODO: parametrer le nb de points
+        m_nb_integration_points(1) {
+
+    }// TODO: parametrer le nb de points
 
     int FrFEAloaderBase::GetIntegrationPointsU() {
       return m_nb_integration_points;
@@ -32,10 +32,14 @@ namespace frydom {
       m_nb_integration_points = n;
     }
 
-    FrFEACableHydroLoader::FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable,
-                                                 FrFEACable* cable) :
-        FrFEAloaderBase(loadable, cable->GetSystem()),
-        m_cable(cable) {}
+    void FrFEAloaderBase::SetSystem(FrOffshoreSystem *system) {
+      m_system = system;
+    }
+
+    FrFEACableHydroLoader::FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable) :
+        FrFEAloaderBase(loadable) {
+
+    }
 
     void FrFEACableHydroLoader::ComputeF(const double U,
                                          chrono::ChVectorDynamic<> &F,
@@ -158,6 +162,11 @@ namespace frydom {
       F.PasteVector(internal::Vector3dToChVector(unit_force), 0, 0);   // load, force part
       F.PasteVector(chrono::VNULL, 3, 0);  // No torque
 
+    }
+
+    void FrFEACableHydroLoader::SetCable(FrFEACable *cable) {
+      m_cable = cable;
+      SetSystem(cable->GetSystem());
     }
 
   }  // end namespace frydom::internal

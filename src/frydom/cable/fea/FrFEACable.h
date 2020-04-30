@@ -51,6 +51,14 @@ namespace frydom {
 
       void Initialize() override;
 
+      void FreeStartNode(bool val);
+
+      void FreeEndNode(bool val);
+
+      bool IsStartNodeFree();
+
+      bool IsEndNodeFree();
+
      private:
 
       void BuildProperties();
@@ -64,6 +72,7 @@ namespace frydom {
       void InitializeContacts();
 
       void InitializeAssets();
+
 
      private:
       FrFEACable* GetFEACable();
@@ -80,6 +89,9 @@ namespace frydom {
       std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;
 
       unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
+
+      bool m_start_node_free;
+      bool m_end_node_free;
 
     };
 
@@ -125,9 +137,8 @@ namespace frydom {
 
     void BuildCache() override;
 
-//    std::shared_ptr<internal::FrFEACableBase> GetChronoCable() {
-//      return std::dynamic_pointer_cast<internal::FrFEACableBase>(m_chrono_mesh);
-//    }
+    internal::FrFEACableBase* GetMesh();
+
 
     // friends
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
@@ -135,9 +146,6 @@ namespace frydom {
    private:
 
     unsigned int m_nb_nodes;
-
-//    bool m_is_start_node_free;
-//    bool m_is_end_node_free;
 
   };
 

@@ -7,5 +7,10 @@
 
 namespace frydom {
 
+  namespace internal {
+
+
+
+  }  // end namespace frydom::internal
 
 }  // end namespace frydom

@@ -5,21 +5,15 @@
 #ifndef FRYDOM_FRFEACABLELOADS_H
 #define FRYDOM_FRFEACABLELOADS_H
 
-//#include "chrono/physics/ChLoad.h"
-//#include "chrono/physics/ChLoaderU.h"
-//#include "chrono/core/ChVectorDynamic.h"
-//#include "chrono/fea/ChElementBeamEuler.h"
-//
-////#include "frydom/core/FrOffshoreSystem.h"
-//#include "frydom/environment/FrEnvironmentInc.h"
-
 #include <chrono/physics/ChLoaderU.h>
-
+#include <chrono/physics/ChLoad.h>
+#include "FrFEACableElement.h"
 
 
 namespace frydom {
 
   class FrOffshoreSystem;
+
   class FrFEACable;
 
   namespace internal {
@@ -27,12 +21,13 @@ namespace frydom {
     class FrFEAloaderBase : public chrono::ChLoaderUdistributed {
 
      public:
-      FrFEAloaderBase(std::shared_ptr<chrono::ChLoadableU> loadable,
-                      FrOffshoreSystem *system);
+      FrFEAloaderBase(std::shared_ptr<chrono::ChLoadableU> loadable);
 
       int GetIntegrationPointsU() override;
 
       void SetNbIntegrationPoints(int n);
+
+      void SetSystem(FrOffshoreSystem *system);
 
      protected:
       FrOffshoreSystem *m_system;
@@ -47,16 +42,30 @@ namespace frydom {
 
      public:
 
-      explicit FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable,
-                                     FrFEACable* cable);
+      explicit FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable);
 
       void ComputeF(const double U,
                     chrono::ChVectorDynamic<> &F,
                     chrono::ChVectorDynamic<> *state_x,
                     chrono::ChVectorDynamic<> *state_w) override;
 
-     private:
-      FrFEACable* m_cable;
+      void SetCable(FrFEACable *cable);
+
+     protected:
+      FrFEACable *m_cable;
+
+    };
+
+
+    class FrFEACableHydroLoad : public chrono::ChLoad<FrFEACableHydroLoader> {
+     public:
+
+      FrFEACableHydroLoad(std::shared_ptr<chrono::ChLoadableU> loadable) :
+          chrono::ChLoad<FrFEACableHydroLoader>(loadable) {}
+
+      void SetCable(FrFEACable *cable) {
+        loader.SetCable(cable);
+      }
 
     };
 

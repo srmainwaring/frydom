@@ -8,6 +8,8 @@
 #include <Eigen/Dense>
 #include <chrono/geometry/ChLineBspline.h>
 
+#include "frydom/core/math/FrVector.h"
+
 namespace frydom {
 
   // TODO: templater avec l'ordre...
@@ -164,15 +166,13 @@ namespace frydom {
         }
 
         template<unsigned int _dim>
-        static std::shared_ptr<FrBSpline<_degree, _dim>>
+        static FrBSpline<_degree, _dim>
         BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
                                 std::vector<double> &uk,
                                 KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
 
           unsigned int n = points.size(); // Number of points to interpolate
           unsigned int m = n + _degree + 1; // Number of nodes given the desired spline degree
-
-
 
           // Computing the uk values corresponding to each point by using the specified (chord length by default)
 
@@ -250,7 +250,7 @@ namespace frydom {
           }
 
           // Building the BSpline
-          return std::make_shared<FrBSpline<_degree, _dim>>(knots, ctrl_points);
+          return FrBSpline<_degree, _dim>(knots, ctrl_points);
 
         }
 

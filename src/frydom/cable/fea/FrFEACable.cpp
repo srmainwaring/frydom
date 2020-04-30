@@ -16,6 +16,7 @@
 
 #include <chrono/fea/ChBeamSectionCosserat.h>
 #include <frydom/cable/common/FrCableShapeInitializer.h>
+#include <chrono/physics/ChLoadContainer.h>
 
 
 #include "FrFEACable.h"
@@ -28,6 +29,8 @@
 
 #include "frydom/logging/FrTypeNames.h"
 #include "FrFEACableElement.h"
+#include "FrFEACableLoads.h"
+#include "FrFEACableBuilder.h"
 
 namespace frydom {
 
@@ -35,6 +38,8 @@ namespace frydom {
 
     FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
         m_bspline_order(2),
+        m_start_node_free(false),
+        m_end_node_free(false),
         FrFEAMeshBase(cable) {}
 
     std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetStartingHinge() {
@@ -61,6 +66,22 @@ namespace frydom {
 
       SetupInitial();
 
+    }
+
+    void FrFEACableBase::FreeStartNode(bool val) {
+      m_start_node_free = val;
+    }
+
+    void FrFEACableBase::FreeEndNode(bool val) {
+      m_end_node_free = val;
+    }
+
+    bool FrFEACableBase::IsStartNodeFree() {
+      return m_start_node_free;
+    }
+
+    bool FrFEACableBase::IsEndNodeFree() {
+      return m_end_node_free;
     }
 
     void FrFEACableBase::BuildProperties() {
@@ -105,69 +126,64 @@ namespace frydom {
 
 //      auto ch_bspline = bspline::internal::FrBSpline2ChBspline<2>(*bspline); // FIXME : Necessaire ???
 
-
-      std::vector<std::shared_ptr<internal::FrFEACableElementBase>> beam_elems;
-      std::vector<std::shared_ptr<internal::FrFEANodeBase>> beam_nodes;
-
-
-      // Building the beam using the Chrono tool
-      beam_elems.clear();
-      beam_nodes.clear();
-
-      int p = 2; // Spline order // FIXME: doit etre parametrable
-
-      // compute nb_span of spans (excluding start and end multiple knots with zero lenght span):
-      int nb_span = (int)bspline->GetNbKnots() - p - p - 1;  // = n+p+1 -p-p-1 = n-p
-
-      // Create the 'complete' stl vector of control points, with uniform distribution
-      std::vector<std::shared_ptr<internal::FrFEANodeBase>> mynodes;
-      for (int i_node = 0; i_node < n; ++i_node) {
-        double abscyssa = ((double) i_node / (double) (n - 1));
-
-        // position of node
-//        ChVector<> pos = spline.Points()[i_node];
-        chrono::ChVector<double> pos = internal::Vector3dToChVector(bspline->GetCtrlPoint(i_node));
-
-        // rotation of node, x aligned to tangent at input spline
-        chrono::ChMatrix33<> mrot;
-        chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline->EvalDeriv(abscyssa));
-
-        mrot.Set_A_Xdir(tangent, {0., 0., 1.});
-
-        auto hnode_i = std::make_shared<internal::FrFEANodeBase>(chrono::ChFrame<>(pos, mrot));
-
-        AddNode(hnode_i);
-        mynodes.push_back(hnode_i);
-        beam_nodes.push_back(hnode_i);
-      }
-
-      // Create the single elements by picking a subset of the nodes and control points
-      for (int i_el = 0; i_el < nb_span; ++i_el) {
-        std::vector<double> element_knots;
-        for (int i_el_knot = 0; i_el_knot < p + p + 1 + 1; ++i_el_knot) {
-          element_knots.push_back(bspline->GetKnot(i_el + i_el_knot));
-        }
-
-        std::vector<std::shared_ptr<internal::FrFEANodeBase>> my_el_nodes;
-        for (int i_el_node = 0; i_el_node < p + 1; ++i_el_node) {
-          my_el_nodes.push_back(mynodes[i_el + i_el_node]);
-        }
-
-        auto belement_i = std::make_shared<internal::FrFEACableElementBase>();
-        belement_i->SetNodesGenericOrder(my_el_nodes, element_knots, p);
-        belement_i->SetSection(m_section);
-        AddElement(belement_i);
-        beam_elems.push_back(belement_i);
-      }
+      FrFEACableBuilder builder;
+      builder.Build(this, m_section, bspline);
 
     }
 
     void FrFEACableBase::InitializeLoads() {
-      // TODO
+      // Creating a load container for the cable
+      auto load_container = std::make_shared<chrono::ChLoadContainer>();
+      system->Add(load_container);
+
+      // Adding loads on each element newly created by the builder
+      for (auto &element : GetElements()) { // TODO : faire des iterateurs d'elements !!!
+        auto el = std::dynamic_pointer_cast<FrFEACableElementBase>(element);
+        auto load = std::make_shared<internal::FrFEACableHydroLoad>(el);
+        load->SetCable(GetFEACable());
+        load_container->Add(load);
+      }
+
     }
 
     void FrFEACableBase::InitializeLinks() {
-      // TODO
+
+      if (!IsStartNodeFree()) {
+
+
+      }
+
+      if (!IsStartNodeFree()) {
+
+      }
+      //      // Starting hinge
+//      auto starting_body = m_frydomCable->GetStartingNode()->GetBody()->m_chronoBody;
+//      auto start_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInBody());
+//
+//      m_starting_hinge->Initialize(m_starting_node_fea,
+//                                  starting_body,
+//                                  true,
+//                                  chrono::ChFrame<double>(),
+//                                  start_ch_frame);
+//
+//      // Ending hinge
+//      auto ending_body = m_frydomCable->GetEndingNode()->GetBody()->m_chronoBody;
+//      auto end_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetEndingNode()->GetFrameInBody());
+//      FrFrame feaFrame;
+//      feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
+//
+//      m_ending_hinge->Initialize(m_ending_node_fea,
+//                                ending_body,
+//                                true,
+//                                internal::FrFrame2ChFrame(feaFrame),
+//                                end_ch_frame);
+//
+//      // Define the constraints on the hinges.
+//      SetHingeConstraints();
+
+
+
+
     }
 
     void FrFEACableBase::InitializeContacts() {
@@ -204,11 +220,11 @@ namespace frydom {
   }
 
   void FrFEACable::FreeStarNode(bool val) {
-    // TODO
+    GetMesh()->FreeStartNode(val);
   }
 
   void FrFEACable::FreeEndNode(bool val) {
-    // TODO
+    GetMesh()->FreeEndNode(val);
   }
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
@@ -255,6 +271,10 @@ namespace frydom {
 
   void FrFEACable::BuildCache() {
     // TODO
+  }
+
+  internal::FrFEACableBase* FrFEACable::GetMesh() {
+    return dynamic_cast<internal::FrFEACableBase*>(m_chrono_mesh.get());
   }
 
 
