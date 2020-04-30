@@ -72,6 +72,26 @@ int main() {
                               cable_length,
                               cable_nb_elements);
 
+  // TODO: le faire en auto !!
+
+  system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
+  system.SetSolverWarmStarting(true);
+  system.SetSolverMaxIterSpeed(500);
+  system.SetSolverMaxIterStab(500);
+  system.SetSolverForceTolerance(1e-14);
+
+  system.SetTimeStep(0.01);
+
+
+//  auto msolver = std::static_pointer_cast<ChSolverMINRES>(my_system.GetSolver());
+//  msolver->SetVerbose(false);
+//  msolver->SetDiagonalPreconditioning(true);
+//
+//  application.SetTimestep(0.01);
+
+
+
+  system.RunInViewer();
 
   return 0;
 }

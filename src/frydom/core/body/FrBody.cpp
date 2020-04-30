@@ -320,26 +320,17 @@ namespace frydom {
     // Update the asset
     FrAssetOwner::UpdateAsset();
 
-    // StepFinalize of forces
+    // Finalize forces
     auto forceIter = force_begin();
     for (; forceIter != force_end(); forceIter++) {
       (*forceIter)->StepFinalize();
     }
 
-    // Initializing nodes
+    // Finalize nodes
     auto nodeIter = node_begin();
     for (; nodeIter != node_end(); nodeIter++) {
       (*nodeIter)->StepFinalize();
     }
-
-//        // StepFinalize of assets
-//        auto assetIter = asset_begin();
-//        for (; assetIter != asset_end(); assetIter++) {
-//            (*assetIter)->StepFinalize();
-//        }
-
-    // Send the message to the logging system
-    FrObject::StepFinalize();
 
   }
 

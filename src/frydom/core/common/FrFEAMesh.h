@@ -26,6 +26,7 @@ namespace frydom {
      public:
       explicit FrFEAMeshBase(FrFEAMesh *frydom_mesh);
 
+      virtual void Initialize() = 0;
 
      private:
       FrFEAMesh *m_frydom_mesh;

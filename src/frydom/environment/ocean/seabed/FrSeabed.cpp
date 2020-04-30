@@ -196,7 +196,10 @@ namespace frydom {
 //      m_SeabedGridAsset->SetNoGrid();
     }
 
-    CreateContactBox();
+    if (!m_is_infinite_depth) {
+      CreateContactBox();
+    }
+
   }
 
   void FrFlatSeabed::StepFinalize() {}

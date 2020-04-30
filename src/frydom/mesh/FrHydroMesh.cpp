@@ -142,7 +142,6 @@ namespace frydom {
   }
 
   void FrHydroMesh::StepFinalize() {
-    FrObject::StepFinalize();
 
     if (m_showAsset and GetSystem()->GetIrrApp()) {
 

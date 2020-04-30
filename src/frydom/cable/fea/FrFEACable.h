@@ -44,6 +44,24 @@ namespace frydom {
 
       std::shared_ptr<chrono::ChLinkMateGeneric> GetEndingHinge();
 
+      // Overrides that are necessary to apply added mass effects on the cable
+
+      void Initialize() override;
+
+     private:
+
+      void BuildProperties();
+
+      void InitializeShape();
+
+      void InitializeLoads();
+
+      void InitializeLinks();
+
+      void InitializeContacts();
+
+      void InitializeAssets();
+
 
      private:
 
@@ -56,11 +74,7 @@ namespace frydom {
 
     };
 
-
   }  // end namespace frydom::internal
-
-
-
 
 
   class FrFEACable : public FrCableBase, public FrFEAMesh {
@@ -74,8 +88,9 @@ namespace frydom {
                double unstretched_length,
                unsigned int nb_elements);
 
+    void FreeStarNode(bool val);
 
-//    void FreeNode(bool start, bool end);
+    void FreeEndNode(bool val);
 
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
@@ -95,14 +110,13 @@ namespace frydom {
 
    protected:
 
-
     void DefineLogMessages() override;
 
     void BuildCache() override;
 
-    std::shared_ptr<internal::FrFEACableBase> GetCableBase() {
-      return std::dynamic_pointer_cast<internal::FrFEACableBase>(m_chrono_mesh);
-    }
+//    std::shared_ptr<internal::FrFEACableBase> GetChronoCable() {
+//      return std::dynamic_pointer_cast<internal::FrFEACableBase>(m_chrono_mesh);
+//    }
 
     // friends
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);

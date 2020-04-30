@@ -27,10 +27,7 @@ namespace frydom {
   namespace internal {
 
     FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
-//        m_frydom_cable(cable),
-        FrFEAMeshBase(cable) {
-// TODO
-    }
+        FrFEAMeshBase(cable) {}
 
     std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetStartingHinge() {
       return m_starting_hinge;
@@ -40,27 +37,51 @@ namespace frydom {
       return m_ending_hinge;
     }
 
+    void FrFEACableBase::Initialize() {
+
+      BuildProperties();
+
+      InitializeShape();
+
+      InitializeLoads();
+
+      InitializeLinks();
+
+      InitializeContacts();
+
+      InitializeAssets();
+
+      SetupInitial();
+
+    }
+
+    void FrFEACableBase::BuildProperties() {
+      // TODO
+    }
+
+    void FrFEACableBase::InitializeShape() {
+      // TODO
+    }
+
+    void FrFEACableBase::InitializeLoads() {
+      // TODO
+    }
+
+    void FrFEACableBase::InitializeLinks() {
+      // TODO
+    }
+
+    void FrFEACableBase::InitializeContacts() {
+      // TODO
+    }
+
+    void FrFEACableBase::InitializeAssets() {
+      // TODO
+    }
+
   }  // end namespace frydom::internal
 
-//  void FreeNode(bool start, bool end) {
-//
-//  }
 
-  Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
-    // TODO
-  }
-
-  Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
-    // TODO
-  }
-
-  void FrFEACable::Initialize() {
-    // TODO
-  }
-
-  void FrFEACable::StepFinalize() {
-    // TODO
-  }
 
   FrFEACable::FrFEACable(const std::string &name,
                          const std::shared_ptr<FrNode> &startingNode,
@@ -74,10 +95,47 @@ namespace frydom {
                 std::make_shared<internal::FrFEACableBase>(this)),
       FrCableBase(startingNode, endingNode, properties, unstretched_length),
       m_nb_elements(nb_elements) {
+
+    // TODO
+
+  }
+
+  void FrFEACable::FreeStarNode(bool val) {
+    // TODO
+  }
+
+  void FrFEACable::FreeEndNode(bool val) {
+    // TODO
+  }
+
+  Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
+    // TODO
+  }
+
+  Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
+    // TODO
+  }
+
+  void FrFEACable::Initialize() {
+    // TODO
+
+    // Ici, on utilise soit une bspline soit un segment pour initiliser le shape de la ligne
+    // Attention, a priori, il faut avoir une configuration de reference correspondant a une ligne droite, pas la ligne
+    // donnee par le bspline...
+
+    m_chrono_mesh->Initialize();
+    // FIXME: CONTINUER !!
+
+    DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
+
+  }
+
+  void FrFEACable::StepFinalize() {
+    // TODO
   }
 
   void FrFEACable::Relax() {
-// TODO
+    // TODO
   }
 
   double FrFEACable::GetStaticResidual() {
@@ -85,11 +143,11 @@ namespace frydom {
   }
 
   void FrFEACable::DefineLogMessages() {
-// TODO
+    // TODO
   }
 
   void FrFEACable::BuildCache() {
-// TODO
+    // TODO
   }
 
 

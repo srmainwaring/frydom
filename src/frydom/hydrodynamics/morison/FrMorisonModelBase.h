@@ -53,7 +53,8 @@ namespace frydom {
    };
 
 
-  } // end namespace internal
+  } // end namespace frydom::internal
+
 } // end namespace frydom
 
 #endif //FRYDOM_FRMORISONMODELBASE_H

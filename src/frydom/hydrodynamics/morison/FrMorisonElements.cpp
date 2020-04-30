@@ -157,8 +157,13 @@ namespace frydom {
   // MORISON SINGLE ELEMENT
   // ---------------------------------------------------------------------
 
-  FrMorisonSingleElement::FrMorisonSingleElement(FrBody *body, Position posA, Position posB, double diameter,
-                                                 MorisonCoeff ca, MorisonCoeff cd, double cf,
+  FrMorisonSingleElement::FrMorisonSingleElement(FrBody *body,
+                                                 Position posA,
+                                                 Position posB,
+                                                 double diameter,
+                                                 MorisonCoeff ca,
+                                                 MorisonCoeff cd,
+                                                 double cf,
                                                  const Direction &perpendicular) {
     SetAddedMassCoeff(ca);
     SetDragCoeff(cd);
@@ -171,7 +176,10 @@ namespace frydom {
 
   FrMorisonSingleElement::FrMorisonSingleElement(std::shared_ptr<FrNode> &nodeA,
                                                  std::shared_ptr<FrNode> &nodeB,
-                                                 double diameter, MorisonCoeff ca, MorisonCoeff cd, double cf,
+                                                 double diameter,
+                                                 MorisonCoeff ca,
+                                                 MorisonCoeff cd,
+                                                 double cf,
                                                  const Direction &perpendicular) {
     m_nodeA = nodeA;
     m_nodeB = nodeB;
