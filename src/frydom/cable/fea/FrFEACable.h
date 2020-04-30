@@ -36,69 +36,15 @@ namespace chrono {
 
 namespace frydom {
 
-  namespace internal {
-
-    class FrFEACableBase : public FrFEAMeshBase {
-
-     public:
-      explicit FrFEACableBase(FrFEACable *cable);
-
-      std::shared_ptr<chrono::ChLinkMateGeneric> GetStartingHinge();
-
-      std::shared_ptr<chrono::ChLinkMateGeneric> GetEndingHinge();
-
-      // Overrides that are necessary to apply added mass effects on the cable
-
-      void Initialize() override;
-
-      void FreeStartNode(bool val);
-
-      void FreeEndNode(bool val);
-
-      bool IsStartNodeFree();
-
-      bool IsEndNodeFree();
-
-     private:
-
-      void BuildProperties();
-
-      void InitializeShape();
-
-      void InitializeLoads();
-
-      void InitializeLinks();
-
-      void InitializeContacts();
-
-      void InitializeAssets();
-
-
-     private:
-      FrFEACable* GetFEACable();
-
-     private:
-
-      // TODO: voir si on a besoin de cela...
-      std::shared_ptr<FrFEANodeBase> m_starting_node_fea;  ///< Starting node
-      std::shared_ptr<FrFEANodeBase> m_ending_node_fea;    ///< Ending node
-
-      std::shared_ptr<chrono::ChLinkMateGeneric> m_starting_hinge;         ///< Starting hinge, to connect to a body
-      std::shared_ptr<chrono::ChLinkMateGeneric> m_ending_hinge;           ///< Ending hinge, to connect to a body
-
-      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;
-
-      unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
-
-      bool m_start_node_free;
-      bool m_end_node_free;
-
-    };
-
-  }  // end namespace frydom::internal
-
 
   class FrFEACable : public FrCableBase, public FrFEAMesh {
+
+   public:
+    enum FEA_BODY_CONSTRAINT_TYPE {
+      FREE,
+      SPHERICAL,
+      FIXED
+    };
 
    public:
 
@@ -108,10 +54,6 @@ namespace frydom {
                const std::shared_ptr<FrCableProperties> &properties,
                double unstretched_length,
                unsigned int nb_nodes);
-
-    void FreeStarNode(bool val);
-
-    void FreeEndNode(bool val);
 
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
@@ -130,6 +72,14 @@ namespace frydom {
 
     unsigned int GetNbNodes() const;
 
+    FEA_BODY_CONSTRAINT_TYPE GetStartLinkType() const;
+
+    void SetStartLinkType(FEA_BODY_CONSTRAINT_TYPE ctype);
+
+    FEA_BODY_CONSTRAINT_TYPE GetEndLinkType() const;
+
+    void SetEndLinkType(FEA_BODY_CONSTRAINT_TYPE ctype);
+
 
    protected:
 
@@ -137,7 +87,7 @@ namespace frydom {
 
     void BuildCache() override;
 
-    internal::FrFEACableBase* GetMesh();
+    internal::FrFEACableBase* GetMesh(); // FIXME: bof le nom, on a aussi un GetChronoMesh dans FrFEAMesh...
 
 
     // friends
@@ -146,6 +96,9 @@ namespace frydom {
    private:
 
     unsigned int m_nb_nodes;
+
+    FEA_BODY_CONSTRAINT_TYPE m_start_link_type;
+    FEA_BODY_CONSTRAINT_TYPE m_end_link_type;
 
   };
 
@@ -157,6 +110,67 @@ namespace frydom {
                  const std::shared_ptr<FrCableProperties> &properties,
                  double unstretched_length,
                  unsigned int nb_elements);
+
+
+  namespace internal {
+
+    class FrFEALinkBase;
+
+    class FrFEACableBase : public FrFEAMeshBase {
+
+     public:
+      explicit FrFEACableBase(FrFEACable *cable);
+
+      std::shared_ptr<FrFEALinkBase> GetStartLink();
+
+      std::shared_ptr<FrFEALinkBase> GetEndLink();
+
+      // Overrides that are necessary to apply added mass effects on the cable
+
+      void Initialize() override;
+
+      void SetStartLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype);
+
+      void SetEndLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype);
+
+      void BuildProperties();
+
+      void InitializeShape();
+
+      void InitializeLoads();
+
+      void InitializeLinks();
+
+      void InitializeContacts();
+
+      void InitializeAssets();
+
+      void SetLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE start_ctype, FrFEALinkBase* link);
+
+
+     private:
+      FrFEACable* GetFEACable();
+
+     private:
+
+      // TODO: voir si on a besoin de cela...
+      std::shared_ptr<FrFEANodeBase> m_starting_node_fea;  ///< Starting node
+      std::shared_ptr<FrFEANodeBase> m_ending_node_fea;    ///< Ending node
+
+      std::shared_ptr<FrFEALinkBase> m_start_link;         ///< Starting hinge, to connect to a body
+      std::shared_ptr<FrFEALinkBase> m_end_link;           ///< Ending hinge, to connect to a body
+
+      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;
+
+      unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
+
+
+    };
+
+  }  // end namespace frydom::internal
+
+
+
 
 
 

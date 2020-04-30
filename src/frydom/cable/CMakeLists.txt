@@ -19,7 +19,6 @@ set(SRC_FILES
         fea/FrFEANode.cpp
         fea/FrFEACableElement.cpp
         fea/FrFEACableLoads.cpp
-        fea/FrFEACableBuilder.cpp
         fea/FrFEALink.cpp
 
 )

@@ -16,7 +16,7 @@ namespace frydom {
                                  bool mc_rx,
                                  bool mc_ry,
                                  bool mc_rz)
-        : ChLinkMateGeneric(mc_x,
+        : chrono::ChLinkMateGeneric(mc_x,
                             mc_y,
                             mc_z,
                             mc_rx,

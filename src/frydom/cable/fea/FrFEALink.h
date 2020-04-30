@@ -25,16 +25,16 @@ namespace frydom {
   }  // end namspace frydom::internal
 
 
-  class FrFEALink {
-
-   public:
-
-
-   private:
-    std::shared_ptr<internal::FrFEALinkBase> m_chrono_link;
-
-
-  };
+//  class FrFEALink {
+//
+//   public:
+//    FrFEALink();
+//
+//   private:
+//    std::shared_ptr<internal::FrFEALinkBase> m_chrono_link;
+//
+//
+//  };
 
 }  // end namespace frydom
 

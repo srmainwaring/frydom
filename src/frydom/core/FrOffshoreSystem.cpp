@@ -28,6 +28,7 @@
 #include "frydom/utils/FrIrrApp.h"
 #include "frydom/core/statics/FrStaticAnalysis.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
+#include "frydom/cable/fea/FrFEALink.h"
 
 #include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
@@ -450,13 +451,9 @@ namespace frydom {
     // Add the FEA mesh
     AddFEAMesh(cable, chrono_mesh);
 
-    // Add the hinges if defined
-    if (chrono_mesh->GetStartingHinge()) {
-      m_chronoSystem->Add(chrono_mesh->GetStartingHinge());
-    }
-    if (chrono_mesh->GetEndingHinge()) {
-      m_chronoSystem->Add(chrono_mesh->GetEndingHinge());
-    }
+    // Add the links
+    m_chronoSystem->Add(chrono_mesh->GetStartLink());
+    m_chronoSystem->Add(chrono_mesh->GetEndLink());
 
   }
 
@@ -465,8 +462,9 @@ namespace frydom {
 
     Remove(cable);
 
-    m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetStartingHinge());
-    m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetEndingHinge());
+    // Remove the links
+    m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetStartLink());
+    m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetEndLink());
 
   }
 

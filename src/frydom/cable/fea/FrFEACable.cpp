@@ -31,23 +31,133 @@
 #include "FrFEACableElement.h"
 #include "FrFEACableLoads.h"
 #include "FrFEACableBuilder.h"
+#include "FrFEALink.h"
 
 namespace frydom {
+
+
+  FrFEACable::FrFEACable(const std::string &name,
+                         const std::shared_ptr<FrNode> &startingNode,
+                         const std::shared_ptr<FrNode> &endingNode,
+                         const std::shared_ptr<FrCableProperties> &properties,
+                         double unstretched_length,
+                         unsigned int nb_nodes) :
+      FrFEAMesh(name,
+                TypeToString(this),
+                startingNode->GetBody()->GetSystem(),
+                std::make_shared<internal::FrFEACableBase>(this)),
+      FrCableBase(startingNode, endingNode, properties, unstretched_length),
+      m_start_link_type(SPHERICAL),
+      m_end_link_type(SPHERICAL),
+      m_nb_nodes(nb_nodes) {
+
+    // TODO
+
+  }
+
+  Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
+    // TODO
+  }
+
+  Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
+    // TODO
+  }
+
+  void FrFEACable::Initialize() {
+    // TODO
+
+    // Ici, on utilise soit une bspline soit un segment pour initiliser le shape de la ligne
+    // Attention, a priori, il faut avoir une configuration de reference correspondant a une ligne droite, pas la ligne
+    // donnee par le bspline...
+
+    m_chrono_mesh->Initialize();
+    // FIXME: CONTINUER !!
+
+    DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
+
+  }
+
+  void FrFEACable::StepFinalize() {
+    // TODO
+  }
+
+  void FrFEACable::Relax() {
+    // TODO
+  }
+
+  double FrFEACable::GetStaticResidual() {
+    // TODO
+  }
+
+  unsigned int FrFEACable::GetNbNodes() const {
+    return m_nb_nodes;
+  }
+
+  FrFEACable::FEA_BODY_CONSTRAINT_TYPE FrFEACable::GetStartLinkType() const {
+    return m_start_link_type;
+  }
+
+  void FrFEACable::SetStartLinkType(FEA_BODY_CONSTRAINT_TYPE ctype) {
+    m_start_link_type = ctype;
+    GetMesh()->SetStartLinkConstraint(ctype);
+  }
+
+  FrFEACable::FEA_BODY_CONSTRAINT_TYPE FrFEACable::GetEndLinkType() const {
+    return m_end_link_type;
+  }
+
+  void FrFEACable::SetEndLinkType(FEA_BODY_CONSTRAINT_TYPE ctype) {
+    m_end_link_type = ctype;
+    GetMesh()->SetEndLinkConstraint(ctype);
+  }
+
+  void FrFEACable::DefineLogMessages() {
+    // TODO
+  }
+
+  void FrFEACable::BuildCache() {
+    // TODO
+  }
+
+  internal::FrFEACableBase* FrFEACable::GetMesh() {
+    return dynamic_cast<internal::FrFEACableBase*>(m_chrono_mesh.get());
+  }
+
+
+  std::shared_ptr<FrFEACable> make_fea_cable(const std::string &name,
+                                             const std::shared_ptr<FrNode> &startingNode,
+                                             const std::shared_ptr<FrNode> &endingNode,
+                                             const std::shared_ptr<FrCableProperties> &properties,
+                                             double unstretched_length,
+                                             unsigned int nb_elements) {
+
+    // This cable is empty
+    auto cable = std::make_shared<FrFEACable>(name,
+                                              startingNode,
+                                              endingNode,
+                                              properties,
+                                              unstretched_length,
+                                              nb_elements);
+
+    startingNode->GetBody()->GetSystem()->Add(cable);
+    return cable;
+  }
+
 
   namespace internal {
 
     FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
         m_bspline_order(2),
-        m_start_node_free(false),
-        m_end_node_free(false),
+        m_start_link(std::make_shared<FrFEALinkBase>()),
+        m_end_link(std::make_shared<FrFEALinkBase>()),
         FrFEAMeshBase(cable) {}
 
-    std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetStartingHinge() {
-      return m_starting_hinge;
+    std::shared_ptr<FrFEALinkBase> FrFEACableBase::GetStartLink() {
+      return m_start_link;
     }
 
-    std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetEndingHinge() {
-      return m_ending_hinge;
+    std::shared_ptr<FrFEALinkBase> FrFEACableBase::GetEndLink() {
+      return m_end_link;
     }
 
     void FrFEACableBase::Initialize() {
@@ -66,22 +176,6 @@ namespace frydom {
 
       SetupInitial();
 
-    }
-
-    void FrFEACableBase::FreeStartNode(bool val) {
-      m_start_node_free = val;
-    }
-
-    void FrFEACableBase::FreeEndNode(bool val) {
-      m_end_node_free = val;
-    }
-
-    bool FrFEACableBase::IsStartNodeFree() {
-      return m_start_node_free;
-    }
-
-    bool FrFEACableBase::IsEndNodeFree() {
-      return m_end_node_free;
     }
 
     void FrFEACableBase::BuildProperties() {
@@ -148,41 +242,30 @@ namespace frydom {
 
     void FrFEACableBase::InitializeLinks() {
 
-      if (!IsStartNodeFree()) {
+      // Starting hinge
+      auto starting_body = GetFEACable()->GetStartingNode()->GetBody()->m_chronoBody;
+      auto start_ch_frame = internal::FrFrame2ChFrame(GetFEACable()->GetStartingNode()->GetFrameInBody());
 
+      m_start_link->Initialize(m_starting_node_fea,
+                               starting_body,
+                               true,
+                               chrono::ChFrame<double>(),
+                               start_ch_frame);
+      // Ending hinge
+      auto ending_body = GetFEACable()->GetEndingNode()->GetBody()->m_chronoBody;
+      auto end_ch_frame = internal::FrFrame2ChFrame(GetFEACable()->GetEndingNode()->GetFrameInBody());
+      FrFrame feaFrame;
+      feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
 
-      }
+      m_end_link->Initialize(m_ending_node_fea,
+                             ending_body,
+                             true,
+                             internal::FrFrame2ChFrame(feaFrame),
+                             end_ch_frame);
 
-      if (!IsStartNodeFree()) {
-
-      }
-      //      // Starting hinge
-//      auto starting_body = m_frydomCable->GetStartingNode()->GetBody()->m_chronoBody;
-//      auto start_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetStartingNode()->GetFrameInBody());
-//
-//      m_starting_hinge->Initialize(m_starting_node_fea,
-//                                  starting_body,
-//                                  true,
-//                                  chrono::ChFrame<double>(),
-//                                  start_ch_frame);
-//
-//      // Ending hinge
-//      auto ending_body = m_frydomCable->GetEndingNode()->GetBody()->m_chronoBody;
-//      auto end_ch_frame = internal::FrFrame2ChFrame(m_frydomCable->GetEndingNode()->GetFrameInBody());
-//      FrFrame feaFrame;
-//      feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
-//
-//      m_ending_hinge->Initialize(m_ending_node_fea,
-//                                ending_body,
-//                                true,
-//                                internal::FrFrame2ChFrame(feaFrame),
-//                                end_ch_frame);
-//
-//      // Define the constraints on the hinges.
-//      SetHingeConstraints();
-
-
-
+      // Set constraints on the links
+      SetStartLinkConstraint(GetFEACable()->GetStartLinkType());
+      SetEndLinkConstraint(GetFEACable()->GetEndLinkType());
 
     }
 
@@ -194,109 +277,33 @@ namespace frydom {
       // TODO
     }
 
+    void FrFEACableBase::SetStartLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype) {
+      SetLinkConstraint(ctype, m_start_link.get());
+    }
+
+    void FrFEACableBase::SetEndLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype) {
+      SetLinkConstraint(ctype, m_end_link.get());
+    }
+
+    void FrFEACableBase::SetLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype, FrFEALinkBase* link) {
+      switch (ctype) {
+        case FrFEACable::FEA_BODY_CONSTRAINT_TYPE ::FREE:
+          link->SetConstrainedCoords(false, false, false, false, false, false);
+          break;
+        case FrFEACable::FEA_BODY_CONSTRAINT_TYPE::SPHERICAL:
+          link->SetConstrainedCoords(true, true, true, false, false, false);
+          break;
+        case FrFEACable::FEA_BODY_CONSTRAINT_TYPE::FIXED:
+          link->SetConstrainedCoords(true, true, true, true, true, true);
+          break;
+      }
+    }
+
     FrFEACable *FrFEACableBase::GetFEACable() {
       return dynamic_cast<FrFEACable *>(m_frydom_mesh);
     }
 
   }  // end namespace frydom::internal
-
-
-
-  FrFEACable::FrFEACable(const std::string &name,
-                         const std::shared_ptr<FrNode> &startingNode,
-                         const std::shared_ptr<FrNode> &endingNode,
-                         const std::shared_ptr<FrCableProperties> &properties,
-                         double unstretched_length,
-                         unsigned int nb_nodes) :
-      FrFEAMesh(name,
-                TypeToString(this),
-                startingNode->GetBody()->GetSystem(),
-                std::make_shared<internal::FrFEACableBase>(this)),
-      FrCableBase(startingNode, endingNode, properties, unstretched_length),
-      m_nb_nodes(nb_nodes) {
-
-    // TODO
-
-  }
-
-  void FrFEACable::FreeStarNode(bool val) {
-    GetMesh()->FreeStartNode(val);
-  }
-
-  void FrFEACable::FreeEndNode(bool val) {
-    GetMesh()->FreeEndNode(val);
-  }
-
-  Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
-    // TODO
-  }
-
-  Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
-    // TODO
-  }
-
-  void FrFEACable::Initialize() {
-    // TODO
-
-    // Ici, on utilise soit une bspline soit un segment pour initiliser le shape de la ligne
-    // Attention, a priori, il faut avoir une configuration de reference correspondant a une ligne droite, pas la ligne
-    // donnee par le bspline...
-
-    m_chrono_mesh->Initialize();
-    // FIXME: CONTINUER !!
-
-    DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
-
-  }
-
-  void FrFEACable::StepFinalize() {
-    // TODO
-  }
-
-  void FrFEACable::Relax() {
-    // TODO
-  }
-
-  double FrFEACable::GetStaticResidual() {
-    // TODO
-  }
-
-  unsigned int FrFEACable::GetNbNodes() const {
-    return m_nb_nodes;
-  }
-
-  void FrFEACable::DefineLogMessages() {
-    // TODO
-  }
-
-  void FrFEACable::BuildCache() {
-    // TODO
-  }
-
-  internal::FrFEACableBase* FrFEACable::GetMesh() {
-    return dynamic_cast<internal::FrFEACableBase*>(m_chrono_mesh.get());
-  }
-
-
-  std::shared_ptr<FrFEACable> make_fea_cable(const std::string &name,
-                                             const std::shared_ptr<FrNode> &startingNode,
-                                             const std::shared_ptr<FrNode> &endingNode,
-                                             const std::shared_ptr<FrCableProperties> &properties,
-                                             double unstretched_length,
-                                             unsigned int nb_elements) {
-
-    // This cable is empty
-    auto cable = std::make_shared<FrFEACable>(name,
-                                              startingNode,
-                                              endingNode,
-                                              properties,
-                                              unstretched_length,
-                                              nb_elements);
-
-    startingNode->GetBody()->GetSystem()->Add(cable);
-    return cable;
-  }
-
 
 
 
