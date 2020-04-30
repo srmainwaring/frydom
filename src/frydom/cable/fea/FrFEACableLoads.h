@@ -13,7 +13,61 @@
 ////#include "frydom/core/FrOffshoreSystem.h"
 //#include "frydom/environment/FrEnvironmentInc.h"
 
+#include <chrono/physics/ChLoaderU.h>
+
+
+
 namespace frydom {
+
+  class FrOffshoreSystem;
+  class FrFEACable;
+
+  namespace internal {
+
+    class FrFEAloaderBase : public chrono::ChLoaderUdistributed {
+
+     public:
+      FrFEAloaderBase(std::shared_ptr<chrono::ChLoadableU> loadable,
+                      FrOffshoreSystem *system);
+
+      int GetIntegrationPointsU() override;
+
+      void SetNbIntegrationPoints(int n);
+
+     protected:
+      FrOffshoreSystem *m_system;
+
+     private:
+      int m_nb_integration_points;
+
+    };
+
+
+    class FrFEACableHydroLoader : public FrFEAloaderBase {
+
+     public:
+
+      explicit FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable,
+                                     FrFEACable* cable);
+
+      void ComputeF(const double U,
+                    chrono::ChVectorDynamic<> &F,
+                    chrono::ChVectorDynamic<> *state_x,
+                    chrono::ChVectorDynamic<> *state_w) override;
+
+     private:
+      FrFEACable* m_cable;
+
+    };
+
+
+  }  // end namespace frydom::internal
+
+
+
+
+
+
 
 
 

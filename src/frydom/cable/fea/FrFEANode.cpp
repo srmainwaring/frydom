@@ -9,19 +9,10 @@ namespace frydom {
 
   namespace internal {
 
-    FrFEANodeBase::FrFEANodeBase(const FrFrame &frame) :
-        chrono::fea::ChNodeFEAxyzrot(internal::FrFrame2ChFrame(frame)) {}
+    FrFEANodeBase::FrFEANodeBase(chrono::ChFrame<> frame) :
+        chrono::fea::ChNodeFEAxyzrot(frame) {}
 
 
   }  // end namespace frydom::internal
-
-
-
-  FrFEANode::FrFEANode() :
-      m_chrono_node(std::make_shared<internal::FrFEANodeBase>(FrFrame())) {}
-
-  FrFEANode::FrFEANode(const FrFrame &frame) :
-      m_chrono_node(std::make_shared<internal::FrFEANodeBase>(frame)) {}
-
 
 }  // end namespace frydom

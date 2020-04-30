@@ -61,7 +61,7 @@ int main() {
   cable_properties->SetRayleighDamping(1e4);
 
 
-  auto cable = make_dynamic_cable("cable",
+  auto cable = make_fea_cable("cable",
                                   anchor,
                                   cylinder_anchor,
                                   cable_properties,

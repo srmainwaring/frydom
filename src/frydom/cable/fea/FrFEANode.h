@@ -6,9 +6,8 @@
 #define FRYDOM_FRFEANODE_H
 
 #include "chrono/fea/ChNodeFEAxyzrot.h"
+#include "chrono/core/ChFrame.h"
 
-
-#include "frydom/core/common/FrFrame.h"
 
 
 namespace frydom {
@@ -19,7 +18,9 @@ namespace frydom {
 
      public:
 
-      FrFEANodeBase(const FrFrame &frame);
+      FrFEANodeBase(chrono::ChFrame<> frame);
+
+
 
      private:
 
@@ -27,20 +28,6 @@ namespace frydom {
     };
 
   }  // end namespace frydom::internal
-
-
-  class FrFEANode {
-
-   public:
-    FrFEANode();
-
-    explicit FrFEANode(const FrFrame &frame);
-
-
-   private:
-    std::shared_ptr<internal::FrFEANodeBase> m_chrono_node;
-
-  };
 
 }  // end namespace frydom
 

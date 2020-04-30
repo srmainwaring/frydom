@@ -14,19 +14,27 @@
 //#include <chrono/physics/ChLoadContainer.h>
 //#include <chrono/fea/ChBeamSectionCosserat.h>
 
+#include <chrono/fea/ChBeamSectionCosserat.h>
+#include <frydom/cable/common/FrCableShapeInitializer.h>
+
 
 #include "FrFEACable.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
+#include "frydom/cable/common/FrCableProperties.h"
+
+#include "frydom/core/math/bspline/FrBSpline.h"
 
 #include "frydom/logging/FrTypeNames.h"
+#include "FrFEACableElement.h"
 
 namespace frydom {
 
   namespace internal {
 
     FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
+        m_bspline_order(2),
         FrFEAMeshBase(cable) {}
 
     std::shared_ptr<chrono::ChLinkMateGeneric> FrFEACableBase::GetStartingHinge() {
@@ -56,11 +64,102 @@ namespace frydom {
     }
 
     void FrFEACableBase::BuildProperties() {
-      // TODO
+      auto props = GetFEACable()->GetProperties();
+
+      // Constitutive material
+      auto elasticity = std::make_shared<chrono::fea::ChElasticityCosseratSimple>();
+      elasticity->SetYoungModulus(props->GetYoungModulus());
+      // FIXME: voir a importer cela aussi depuis les props
+      elasticity->SetGshearModulus(props->GetYoungModulus() * 0.3);
+      elasticity->SetBeamRaleyghDamping(props->GetRayleighDamping());
+
+      // Section definition
+      m_section = std::make_shared<chrono::fea::ChBeamSectionCosserat>(elasticity);
+      m_section->SetDensity(props->GetDensity());
+      m_section->SetAsCircularSection(props->GetDiameter());
+
     }
 
     void FrFEACableBase::InitializeShape() {
-      // TODO
+
+      auto fea_cable = GetFEACable();
+      double unstretched_length = fea_cable->GetUnstretchedLength();
+
+      // FIXME: pourquoi doit on entrer l'environnement alors qu'on y a acces depuis fea_cable ??
+      auto shape_initializer = FrCableShapeInitializer::Create(fea_cable, fea_cable->GetSystem()->GetEnvironment());
+
+      unsigned int n = fea_cable->GetNbNodes();
+
+      // Building a vector of points on the neutral line of the cable at initial position (approx. equilibrum)
+      std::vector<double> uvec = mathutils::linspace(0., unstretched_length, n);
+      std::vector<bspline::Point<3>> neutral_line_points(n);
+      for (unsigned int i = 0; i < n; i++) {
+        neutral_line_points[i] = shape_initializer->GetPosition(uvec[i], NWU);
+      }
+
+      // Interpolating with BSpline
+      std::vector<double> uk; // Those values are the abcsissa of the computed bspline control points
+      // FIXME: l'ordre est hard code...
+      auto bspline = bspline::internal::FrBSplineTools<2>::BSplineInterpFromPoints<3>(neutral_line_points, uk);
+      // FIXME: voir pourquoi ca renvoit un shared_ptr ???
+
+//      auto ch_bspline = bspline::internal::FrBSpline2ChBspline<2>(*bspline); // FIXME : Necessaire ???
+
+
+      std::vector<std::shared_ptr<internal::FrFEACableElementBase>> beam_elems;
+      std::vector<std::shared_ptr<internal::FrFEANodeBase>> beam_nodes;
+
+
+      // Building the beam using the Chrono tool
+      beam_elems.clear();
+      beam_nodes.clear();
+
+      int p = 2; // Spline order // FIXME: doit etre parametrable
+
+      // compute nb_span of spans (excluding start and end multiple knots with zero lenght span):
+      int nb_span = (int)bspline->GetNbKnots() - p - p - 1;  // = n+p+1 -p-p-1 = n-p
+
+      // Create the 'complete' stl vector of control points, with uniform distribution
+      std::vector<std::shared_ptr<internal::FrFEANodeBase>> mynodes;
+      for (int i_node = 0; i_node < n; ++i_node) {
+        double abscyssa = ((double) i_node / (double) (n - 1));
+
+        // position of node
+//        ChVector<> pos = spline.Points()[i_node];
+        chrono::ChVector<double> pos = internal::Vector3dToChVector(bspline->GetCtrlPoint(i_node));
+
+        // rotation of node, x aligned to tangent at input spline
+        chrono::ChMatrix33<> mrot;
+        chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline->EvalDeriv(abscyssa));
+
+        mrot.Set_A_Xdir(tangent, {0., 0., 1.});
+
+        auto hnode_i = std::make_shared<internal::FrFEANodeBase>(chrono::ChFrame<>(pos, mrot));
+
+        AddNode(hnode_i);
+        mynodes.push_back(hnode_i);
+        beam_nodes.push_back(hnode_i);
+      }
+
+      // Create the single elements by picking a subset of the nodes and control points
+      for (int i_el = 0; i_el < nb_span; ++i_el) {
+        std::vector<double> element_knots;
+        for (int i_el_knot = 0; i_el_knot < p + p + 1 + 1; ++i_el_knot) {
+          element_knots.push_back(bspline->GetKnot(i_el + i_el_knot));
+        }
+
+        std::vector<std::shared_ptr<internal::FrFEANodeBase>> my_el_nodes;
+        for (int i_el_node = 0; i_el_node < p + 1; ++i_el_node) {
+          my_el_nodes.push_back(mynodes[i_el + i_el_node]);
+        }
+
+        auto belement_i = std::make_shared<internal::FrFEACableElementBase>();
+        belement_i->SetNodesGenericOrder(my_el_nodes, element_knots, p);
+        belement_i->SetSection(m_section);
+        AddElement(belement_i);
+        beam_elems.push_back(belement_i);
+      }
+
     }
 
     void FrFEACableBase::InitializeLoads() {
@@ -79,6 +178,10 @@ namespace frydom {
       // TODO
     }
 
+    FrFEACable *FrFEACableBase::GetFEACable() {
+      return dynamic_cast<FrFEACable *>(m_frydom_mesh);
+    }
+
   }  // end namespace frydom::internal
 
 
@@ -88,13 +191,13 @@ namespace frydom {
                          const std::shared_ptr<FrNode> &endingNode,
                          const std::shared_ptr<FrCableProperties> &properties,
                          double unstretched_length,
-                         unsigned int nb_elements) :
+                         unsigned int nb_nodes) :
       FrFEAMesh(name,
                 TypeToString(this),
                 startingNode->GetBody()->GetSystem(),
                 std::make_shared<internal::FrFEACableBase>(this)),
       FrCableBase(startingNode, endingNode, properties, unstretched_length),
-      m_nb_elements(nb_elements) {
+      m_nb_nodes(nb_nodes) {
 
     // TODO
 
@@ -142,6 +245,10 @@ namespace frydom {
     // TODO
   }
 
+  unsigned int FrFEACable::GetNbNodes() const {
+    return m_nb_nodes;
+  }
+
   void FrFEACable::DefineLogMessages() {
     // TODO
   }
@@ -158,12 +265,14 @@ namespace frydom {
                                              double unstretched_length,
                                              unsigned int nb_elements) {
 
+    // This cable is empty
     auto cable = std::make_shared<FrFEACable>(name,
                                               startingNode,
                                               endingNode,
                                               properties,
                                               unstretched_length,
                                               nb_elements);
+
     startingNode->GetBody()->GetSystem()->Add(cable);
     return cable;
   }

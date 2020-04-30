@@ -28,7 +28,7 @@ namespace frydom {
 
       virtual void Initialize() = 0;
 
-     private:
+     protected:
       FrFEAMesh *m_frydom_mesh;
 
     };

@@ -27,6 +27,9 @@
 
 // Forward declaration
 namespace chrono {
+  namespace fea {
+    class ChBeamSectionCosserat;
+  }
   class ChLinkMateGeneric;
 }
 
@@ -62,15 +65,21 @@ namespace frydom {
 
       void InitializeAssets();
 
+     private:
+      FrFEACable* GetFEACable();
 
      private:
 
       // TODO: voir si on a besoin de cela...
-      std::shared_ptr<FrFEANode> m_starting_node_fea;  ///< Starting node
-      std::shared_ptr<FrFEANode> m_ending_node_fea;    ///< Ending node
+      std::shared_ptr<FrFEANodeBase> m_starting_node_fea;  ///< Starting node
+      std::shared_ptr<FrFEANodeBase> m_ending_node_fea;    ///< Ending node
 
       std::shared_ptr<chrono::ChLinkMateGeneric> m_starting_hinge;         ///< Starting hinge, to connect to a body
       std::shared_ptr<chrono::ChLinkMateGeneric> m_ending_hinge;           ///< Ending hinge, to connect to a body
+
+      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;
+
+      unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
 
     };
 
@@ -86,7 +95,7 @@ namespace frydom {
                const std::shared_ptr<FrNode> &endingNode,
                const std::shared_ptr<FrCableProperties> &properties,
                double unstretched_length,
-               unsigned int nb_elements);
+               unsigned int nb_nodes);
 
     void FreeStarNode(bool val);
 
@@ -107,6 +116,8 @@ namespace frydom {
 
     double GetStaticResidual() override;
 
+    unsigned int GetNbNodes() const;
+
 
    protected:
 
@@ -123,7 +134,7 @@ namespace frydom {
 
    private:
 
-    unsigned int m_nb_elements;
+    unsigned int m_nb_nodes;
 
 //    bool m_is_start_node_free;
 //    bool m_is_end_node_free;

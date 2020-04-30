@@ -6,6 +6,7 @@
 #define FRYDOM_FRBSPLINE_H
 
 #include <Eigen/Dense>
+#include <chrono/geometry/ChLineBspline.h>
 
 namespace frydom {
 
@@ -374,6 +375,27 @@ namespace frydom {
 
       };
 
+      template<unsigned int deg_>
+      chrono::geometry::ChLineBspline FrBSpline2ChBspline(FrBSpline<deg_, 3> fr_bspline) {
+        auto ctrl_points = fr_bspline->GetCtrlPoints();
+        unsigned int nb_ctrl_points = ctrl_points.size();
+        std::vector<chrono::ChVector<double>> ch_points;
+        ch_points.reserve(nb_ctrl_points);
+        for (int i = 0; i < nb_ctrl_points; i++) {
+          ch_points.push_back(frydom::internal::Vector3dToChVector(ctrl_points[i]));
+        }
+
+        auto knots = fr_bspline->GetKnotVector();
+        chrono::ChVectorDynamic<double> ch_knots;
+        ch_knots.Resize(knots.size());
+        for (int i = 0; i < knots.size(); i++) {
+          ch_knots(i) = knots[i];
+        }
+
+        return chrono::geometry::ChLineBspline(3, ch_points, &ch_knots);
+      }
+
+
     }  // end namespace frydom::bspline::internal
 
     template<unsigned int _degree, unsigned int _dim = 3>
@@ -459,6 +481,14 @@ namespace frydom {
 
       KnotVector GetKnotVector() const {
         return m_knots;
+      }
+
+      double GetKnot(unsigned int i) const {
+        return m_knots[i];
+      }
+
+      Point<_dim> GetCtrlPoint(unsigned int i) const {
+        return m_ctrl_points[i];
       }
 
       std::vector<Point<_dim>> GetCtrlPoints() {
