@@ -55,16 +55,13 @@ namespace frydom {
                double unstretched_length,
                unsigned int nb_nodes);
 
-
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
 
-
     void Initialize() override;
 
     void StepFinalize() override;
-
 
     void Relax() override;
 
@@ -87,8 +84,7 @@ namespace frydom {
 
     void BuildCache() override;
 
-    internal::FrFEACableBase* GetMesh(); // FIXME: bof le nom, on a aussi un GetChronoMesh dans FrFEAMesh...
-
+    internal::FrFEACableBase* GetFrFEACableBase(); // FIXME: bof le nom, on a aussi un GetChronoMesh dans FrFEAMesh...
 
     // friends
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
@@ -163,7 +159,6 @@ namespace frydom {
       std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;
 
       unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
-
 
     };
 

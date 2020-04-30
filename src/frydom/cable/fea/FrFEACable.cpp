@@ -17,6 +17,8 @@
 #include <chrono/fea/ChBeamSectionCosserat.h>
 #include <frydom/cable/common/FrCableShapeInitializer.h>
 #include <chrono/physics/ChLoadContainer.h>
+#include <chrono/fea/ChContactSurfaceNodeCloud.h>
+#include <chrono/fea/ChVisualizationFEAmesh.h>
 
 
 #include "FrFEACable.h"
@@ -99,7 +101,7 @@ namespace frydom {
 
   void FrFEACable::SetStartLinkType(FEA_BODY_CONSTRAINT_TYPE ctype) {
     m_start_link_type = ctype;
-    GetMesh()->SetStartLinkConstraint(ctype);
+    GetFrFEACableBase()->SetStartLinkConstraint(ctype);
   }
 
   FrFEACable::FEA_BODY_CONSTRAINT_TYPE FrFEACable::GetEndLinkType() const {
@@ -108,7 +110,7 @@ namespace frydom {
 
   void FrFEACable::SetEndLinkType(FEA_BODY_CONSTRAINT_TYPE ctype) {
     m_end_link_type = ctype;
-    GetMesh()->SetEndLinkConstraint(ctype);
+    GetFrFEACableBase()->SetEndLinkConstraint(ctype);
   }
 
   void FrFEACable::DefineLogMessages() {
@@ -119,8 +121,8 @@ namespace frydom {
     // TODO
   }
 
-  internal::FrFEACableBase* FrFEACable::GetMesh() {
-    return dynamic_cast<internal::FrFEACableBase*>(m_chrono_mesh.get());
+  internal::FrFEACableBase *FrFEACable::GetFrFEACableBase() {
+    return dynamic_cast<internal::FrFEACableBase *>(m_chrono_mesh.get());
   }
 
 
@@ -270,11 +272,48 @@ namespace frydom {
     }
 
     void FrFEACableBase::InitializeContacts() {
-      // TODO
+
+      auto surface_material = std::make_shared<chrono::ChMaterialSurfaceSMC>();
+      surface_material->SetYoungModulus(2e12f);
+      surface_material->SetFriction(0.3f);
+      surface_material->SetRestitution(0.0f);
+      surface_material->SetAdhesion(0);
+      surface_material->SetKn(2e12);
+      surface_material->SetGn(1e6);
+
+      auto contact_surface = std::make_shared<chrono::fea::ChContactSurfaceNodeCloud>();
+      AddContactSurface(contact_surface);
+      contact_surface->AddAllNodes(GetFEACable()->GetProperties()->GetRadius());
+      contact_surface->SetMaterialSurface(surface_material);
+
     }
 
     void FrFEACableBase::InitializeAssets() {
-      // TODO
+
+      auto fea_cable = GetFEACable();
+
+      double cable_diam = GetFEACable()->GetProperties()->GetDiameter();
+
+      auto elements_assets = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*this);
+      elements_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_ELEM_BEAM_TX);
+      // TODO: remettre en place !
+//        elements_assets->SetColorscaleMinMax(-fea_cable->GetBreakingTension(),
+//                                             fea_cable->GetBreakingTension()); //1799620
+      elements_assets->SetSmoothFaces(true);
+      elements_assets->SetWireframe(false);
+      m_section->SetDrawCircularRadius(cable_diam * 0.5);
+      ChMesh::AddAsset(elements_assets);
+
+      // Assets for the nodes
+      auto node_assets = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*this);
+//        node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_DOT_POS);
+      node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
+      node_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
+      node_assets->SetSymbolsThickness(cable_diam);
+      node_assets->SetSymbolsScale(0.01);
+      node_assets->SetZbufferHide(false);
+      ChMesh::AddAsset(node_assets);
+      
     }
 
     void FrFEACableBase::SetStartLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype) {
@@ -285,9 +324,9 @@ namespace frydom {
       SetLinkConstraint(ctype, m_end_link.get());
     }
 
-    void FrFEACableBase::SetLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype, FrFEALinkBase* link) {
+    void FrFEACableBase::SetLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype, FrFEALinkBase *link) {
       switch (ctype) {
-        case FrFEACable::FEA_BODY_CONSTRAINT_TYPE ::FREE:
+        case FrFEACable::FEA_BODY_CONSTRAINT_TYPE::FREE:
           link->SetConstrainedCoords(false, false, false, false, false, false);
           break;
         case FrFEACable::FEA_BODY_CONSTRAINT_TYPE::SPHERICAL:
