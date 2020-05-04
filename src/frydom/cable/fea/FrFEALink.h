@@ -11,7 +11,7 @@ namespace frydom {
 
   namespace internal {
 
-    class FrFEALinkBase : public chrono::ChLinkMateGeneric {
+    class FrFEALinkBase : public chrono::ChLinkMateGeneric { // TODO: en faire un loggable ???
      public:
       FrFEALinkBase(bool mc_x = true,
                     bool mc_y = true,

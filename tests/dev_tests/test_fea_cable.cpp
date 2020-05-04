@@ -11,7 +11,7 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
   seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
-  seabed->SetBathymetry(-300, NWU); // TODO: depth target -100m
+  seabed->SetBathymetry(-100, NWU); // TODO: depth target -100m
   seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);

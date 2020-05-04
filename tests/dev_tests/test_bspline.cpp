@@ -95,8 +95,8 @@ void test_interpolation() {
   // Checking back that the curve is passing among points
   for (int i = 0; i < n; i++) {
     std::cout << points[i].transpose() << std::endl;
-    std::cout << bspline_interp->Eval(uk[i]).transpose() << std::endl << std::endl;
-    assert(mathutils::IsClose((points[i] - bspline_interp->Eval(uk[i])).norm(), 0.));
+    std::cout << bspline_interp.Eval(uk[i]).transpose() << std::endl << std::endl;
+    assert(mathutils::IsClose((points[i] - bspline_interp.Eval(uk[i])).norm(), 0.));
   }
 
 }

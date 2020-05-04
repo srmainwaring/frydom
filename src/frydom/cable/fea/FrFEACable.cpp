@@ -29,8 +29,8 @@ namespace frydom {
                          const std::shared_ptr<FrCableProperties> &properties,
                          double unstretched_length,
                          unsigned int nb_nodes) :
-      m_start_link_type(SPHERICAL),
-      m_end_link_type(SPHERICAL),
+      m_start_link_type(FREE),
+      m_end_link_type(FIXED),
       m_nb_nodes(nb_nodes),
       FrCableBase(startingNode, endingNode, properties, unstretched_length),
       FrFEAMesh(name,
@@ -233,8 +233,10 @@ namespace frydom {
 
     void FrFEACableBase::InitializeLinks() {
 
+      auto fea_cable = GetFEACable();
+
       // Starting hinge
-      auto starting_body = GetFEACable()->GetStartingNode()->GetBody()->m_chronoBody;
+      auto starting_body = fea_cable->GetStartingNode()->GetBody()->m_chronoBody;
       auto start_ch_frame = internal::FrFrame2ChFrame(GetFEACable()->GetStartingNode()->GetFrameInBody());
 
       m_start_link->Initialize(GetStartNodeFEA(),
@@ -242,9 +244,10 @@ namespace frydom {
                                true,
                                chrono::ChFrame<double>(),
                                start_ch_frame);
+
       // Ending hinge
-      auto ending_body = GetFEACable()->GetEndingNode()->GetBody()->m_chronoBody;
-      auto end_ch_frame = internal::FrFrame2ChFrame(GetFEACable()->GetEndingNode()->GetFrameInBody());
+      auto ending_body = fea_cable->GetEndingNode()->GetBody()->m_chronoBody;
+      auto end_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetEndingNode()->GetFrameInBody());
       FrFrame feaFrame;
       feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
 
@@ -255,8 +258,8 @@ namespace frydom {
                              end_ch_frame);
 
       // Set constraints on the links
-      SetStartLinkConstraint(GetFEACable()->GetStartLinkType());
-      SetEndLinkConstraint(GetFEACable()->GetEndLinkType());
+      SetStartLinkConstraint(fea_cable->GetStartLinkType());
+      SetEndLinkConstraint(fea_cable->GetEndLinkType());
 
     }
 

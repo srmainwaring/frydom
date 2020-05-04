@@ -58,9 +58,14 @@ namespace frydom {
 
           // rotation of node, x aligned to tangent at input spline
           chrono::ChMatrix33<> mrot;
-          chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline.EvalDeriv(abscyssa));
+          chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline.EvalDeriv(abscyssa).normalized());
 
-          mrot.Set_A_Xdir(tangent, {0., 0., 1.});
+
+          // FIXME: l'axe Y suggere ici doit etre calcule de telle maniere qu'il soit normal au plan vertical contenant
+          // le cable (a calculer)
+          chrono::ChVector<double> ydir = {0., 1., 0.};
+
+          mrot.Set_A_Xdir(tangent, ydir);
 
           auto hnode_i = std::make_shared<internal::FrFEANodeBase>(chrono::ChFrame<>(pos, mrot));
 

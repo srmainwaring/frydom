@@ -511,7 +511,7 @@ namespace frydom {
 
       inline void EvalDeriv_(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> basis_functions_deriv,
                              const unsigned int ispan,
-                             Direction<_dim> direction) const {
+                             Direction<_dim> &direction) const {
         direction.setZero();
         for (unsigned int i = 0; i <= _degree; i++) {
           direction += basis_functions_deriv(1, i) * m_ctrl_points[ispan - _degree + i];
