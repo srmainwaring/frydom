@@ -23,7 +23,7 @@ set(subdirs
 # TODO: reposer plutot sur target_sources()
 # voir crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
 
-set(FRYDOM_SRC_FILES "" cable/common/FrCableShapeInitializer.cpp cable/common/FrCableShapeInitializer.h cable/mooring_components/FrClumpedMass.cpp cable/mooring_components/FrClumpedMass.h cable/catenary/FrCatenaryLineSeabed.cpp cable/catenary/FrCatenaryLineSeabed.h)
+set(FRYDOM_SRC_FILES "" cable/common/FrCableShapeInitializer.cpp cable/common/FrCableShapeInitializer.h cable/mooring_components/FrClumpWeight.cpp cable/mooring_components/FrClumpWeight.h cable/catenary/FrCatenaryLineSeabed.cpp cable/catenary/FrCatenaryLineSeabed.h)
 foreach (subdir ${subdirs})
 
     add_subdirectory(${subdir})

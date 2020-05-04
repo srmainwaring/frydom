@@ -19,7 +19,7 @@
 
 #include "frydom/environment/FrFluidType.h"
 
-#include "frydom/cable/mooring_components/FrClumpedMass.h"
+#include "frydom/cable/mooring_components/FrClumpWeight.h"
 
 // TODO: prevoir une discretisation automatique pour laquelle on precise la taille cible d'un element
 // Servira dans la visu et pour l'application de forces comme Morison.

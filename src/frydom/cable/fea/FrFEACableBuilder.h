@@ -76,7 +76,7 @@ namespace frydom {
             element_knots.push_back(bspline.GetKnot(i_el + i_el_knot));
           }
 
-          std::vector<std::shared_ptr<internal::FrFEANodeBase>> element_nodes;
+          std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> element_nodes;
           for (int i_el_node = 0; i_el_node < _order + 1; ++i_el_node) {
             element_nodes.push_back(fea_nodes[i_el + i_el_node]);
           }

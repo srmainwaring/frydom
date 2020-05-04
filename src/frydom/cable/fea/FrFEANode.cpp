@@ -12,7 +12,6 @@ namespace frydom {
     FrFEANodeBase::FrFEANodeBase(chrono::ChFrame<> frame) :
         chrono::fea::ChNodeFEAxyzrot(frame) {}
 
-
   }  // end namespace frydom::internal
 
 }  // end namespace frydom

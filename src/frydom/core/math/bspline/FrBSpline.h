@@ -12,8 +12,9 @@
 
 namespace frydom {
 
-  // TODO: templater avec l'ordre...
   namespace bspline {
+
+    // TODO: retirer le template portant sur le degre !!!
 
     // Forward declaration
     template<unsigned int _degree, unsigned int _dim>

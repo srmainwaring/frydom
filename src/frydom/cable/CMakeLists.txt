@@ -13,7 +13,7 @@ set(SRC_FILES
 
         mooring_components/FrAnchor.cpp
         mooring_components/FrMooringBuoy.cpp
-        mooring_components/FrClumpedMass.cpp
+        mooring_components/FrClumpWeight.cpp
 
         fea/FrFEACable.cpp
         fea/FrFEANode.cpp

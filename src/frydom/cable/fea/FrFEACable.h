@@ -6,22 +6,12 @@
 #define FRYDOM_FRFEACABLE_H
 
 #include <chrono/fea/ChMesh.h>
-//#include <chrono/fea/ChElementBeamEuler.h>
-//#include <chrono/fea/ChElementBeamANCF.h>
-//#include <chrono/fea/ChElementBeamIGA.h>
-//#include <chrono/fea/ChElementCableANCF.h>
-//#include <chrono/fea/ChBuilderBeam.h>
-//#include <chrono/fea/ChBeamSectionCosserat.h>
-
-
-
-#include "frydom/cable/common/FrCableBase.h"
 
 #include "frydom/core/common/FrConvention.h"
 #include "frydom/core/common/FrFEAMesh.h"
 #include "frydom/core/math/FrVector.h"
 
-
+#include "frydom/cable/common/FrCableBase.h"
 #include "frydom/cable/fea/FrFEANode.h"
 
 
@@ -36,6 +26,7 @@ namespace chrono {
 
 namespace frydom {
 
+  class FrClumpWeight;
 
   class FrFEACable : public FrCableBase, public FrFEAMesh {
 
@@ -77,6 +68,8 @@ namespace frydom {
 
     void SetEndLinkType(FEA_BODY_CONSTRAINT_TYPE ctype);
 
+    std::shared_ptr<FrClumpWeight> AddClumpWeight(const double &s, const double &distance);
+
 
    protected:
 
@@ -84,7 +77,7 @@ namespace frydom {
 
     void BuildCache() override;
 
-    internal::FrFEACableBase* GetFrFEACableBase(); // FIXME: bof le nom, on a aussi un GetChronoMesh dans FrFEAMesh...
+    internal::FrFEACableBase* GetFrFEACableBase(); // FIXME: bof le nom, on a aussi un GetFEAMeshBase dans FrFEAMesh...
 
     // friends
     friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
@@ -125,6 +118,8 @@ namespace frydom {
 
       void Initialize() override;
 
+      void SetupInitial() override;
+
       void SetStartLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype);
 
       void SetEndLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype);
@@ -147,11 +142,15 @@ namespace frydom {
      private:
       FrFEACable* GetFEACable();
 
+      std::shared_ptr<FrFEANodeBase> GetStartNodeFEA();
+
+      std::shared_ptr<FrFEANodeBase> GetEndNodeFEA();
+
      private:
 
-      // TODO: voir si on a besoin de cela...
-      std::shared_ptr<FrFEANodeBase> m_starting_node_fea;  ///< Starting node
-      std::shared_ptr<FrFEANodeBase> m_ending_node_fea;    ///< Ending node
+//       TODO: voir si on a besoin de cela...
+//      std::shared_ptr<FrFEANodeBase> m_starting_node_fea;  ///< Starting node
+//      std::shared_ptr<FrFEANodeBase> m_ending_node_fea;    ///< Ending node
 
       std::shared_ptr<FrFEALinkBase> m_start_link;         ///< Starting hinge, to connect to a body
       std::shared_ptr<FrFEALinkBase> m_end_link;           ///< Ending hinge, to connect to a body
@@ -549,7 +548,7 @@ namespace frydom {
 //
 //    void DefineLogMessages() override;
 //
-//    std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() override { return m_chronoCable; }
+//    std::shared_ptr<chrono::fea::ChMesh> GetFEAMeshBase() override { return m_chronoCable; }
 //
 //  };
 //

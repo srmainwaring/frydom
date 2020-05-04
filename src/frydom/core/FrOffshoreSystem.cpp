@@ -1409,13 +1409,13 @@ namespace frydom {
       // FEA CABLE
       // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
     } else if (auto fea_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      AddFEACable(fea_cable, std::dynamic_pointer_cast<internal::FrFEACableBase>(fea_cable->GetChronoMesh()));
+      AddFEACable(fea_cable, std::dynamic_pointer_cast<internal::FrFEACableBase>(fea_cable->GetFEAMeshBase()));
       m_pathManager->RegisterTreeNode(fea_cable.get());
-//
-//
+
+
 //      // FEA MESH
 //    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
-//      AddFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
+//      AddFEAMesh(fea_mesh, fea_mesh->GetFEAMeshBase());
 ////      m_pathManager->RegisterTreeNode(fea_mesh.get());
 
       // LUMPED MASS NODE
@@ -1477,11 +1477,11 @@ namespace frydom {
 
 //      // FEA MESH
 //    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
-//      RemoveFEAMesh(fea_mesh, fea_mesh->GetChronoMesh());
+//      RemoveFEAMesh(fea_mesh, fea_mesh->GetFEAMeshBase());
 //
 //      // DYNAMIC CABLE
 //    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-//      RemoveFEACable(dynamic_cable, dynamic_cable->GetChronoMesh());
+//      RemoveFEACable(dynamic_cable, dynamic_cable->GetFEAMeshBase());
 
       // UNKNOWN
     } else {

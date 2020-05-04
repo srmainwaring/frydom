@@ -18,10 +18,6 @@ namespace frydom {
 
      public:
 
-      void SetNodesGenericOrder(std::vector<std::shared_ptr<internal::FrFEANodeBase>> nodes,
-                                std::vector<double> knots,
-                                int order);
-
       /// Gets the absolute xyz velocity of a point on the beam line, at abscissa 'eta'.
       /// Note, eta=-1 at node1, eta=+1 at node2.
       virtual void EvaluateSectionSpeed(const double eta,
@@ -31,7 +27,6 @@ namespace frydom {
       /// Note, eta=-1 at node1, eta=+1 at node2.
       virtual void EvaluateSectionAcceleration(const double eta,
                                                chrono::ChVector<> &point_acceleration);
-
 
     };
 

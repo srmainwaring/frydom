@@ -22,10 +22,8 @@ namespace frydom {
       m_chrono_mesh(chrono_mesh),
       FrLoggable<FrOffshoreSystem>(name, type_name, system) {}
 
-  std::shared_ptr<internal::FrFEAMeshBase> FrFEAMesh::GetChronoMesh() {
+  std::shared_ptr<internal::FrFEAMeshBase> FrFEAMesh::GetFEAMeshBase() {
     return m_chrono_mesh;
   }
 
 }  // end namespace frydom
-
-

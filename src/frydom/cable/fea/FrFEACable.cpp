@@ -2,34 +2,19 @@
 // Created by lletourn on 05/03/19.
 //
 
-//#include <MathUtils/VectorGeneration.h>
-
-
-//#include <chrono/fea/ChBeamSection.h>
-//#include <chrono/physics/ChLinkMate.h>
-//#include <chrono/fea/ChNodeFEAxyzrot.h>
-//#include <chrono/fea/ChVisualizationFEAmesh.h>
-//#include <chrono/fea/ChContactSurfaceNodeCloud.h>
-//#include <chrono/fea/ChContactSurfaceMesh.h>
-//#include <chrono/physics/ChLoadContainer.h>
-//#include <chrono/fea/ChBeamSectionCosserat.h>
+#include "FrFEACable.h"
 
 #include <chrono/fea/ChBeamSectionCosserat.h>
-#include <frydom/cable/common/FrCableShapeInitializer.h>
 #include <chrono/physics/ChLoadContainer.h>
 #include <chrono/fea/ChContactSurfaceNodeCloud.h>
 #include <chrono/fea/ChVisualizationFEAmesh.h>
 
-
-#include "FrFEACable.h"
-
 #include "frydom/core/common/FrNode.h"
-#include "frydom/core/body/FrBody.h"
-#include "frydom/cable/common/FrCableProperties.h"
-
 #include "frydom/core/math/bspline/FrBSpline.h"
-
 #include "frydom/logging/FrTypeNames.h"
+#include "frydom/cable/common/FrCableShapeInitializer.h"
+#include "frydom/cable/mooring_components/FrClumpWeight.h"
+#include "frydom/cable/common/FrCableProperties.h"
 #include "FrFEACableElement.h"
 #include "FrFEACableLoads.h"
 #include "FrFEACableBuilder.h"
@@ -44,18 +29,14 @@ namespace frydom {
                          const std::shared_ptr<FrCableProperties> &properties,
                          double unstretched_length,
                          unsigned int nb_nodes) :
+      m_start_link_type(SPHERICAL),
+      m_end_link_type(SPHERICAL),
+      m_nb_nodes(nb_nodes),
+      FrCableBase(startingNode, endingNode, properties, unstretched_length),
       FrFEAMesh(name,
                 TypeToString(this),
                 startingNode->GetBody()->GetSystem(),
-                std::make_shared<internal::FrFEACableBase>(this)),
-      FrCableBase(startingNode, endingNode, properties, unstretched_length),
-      m_start_link_type(SPHERICAL),
-      m_end_link_type(SPHERICAL),
-      m_nb_nodes(nb_nodes) {
-
-    // TODO
-
-  }
+                std::make_shared<internal::FrFEACableBase>(this)) {}
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
     // TODO
@@ -66,17 +47,10 @@ namespace frydom {
   }
 
   void FrFEACable::Initialize() {
-    // TODO
-
-    // Ici, on utilise soit une bspline soit un segment pour initiliser le shape de la ligne
-    // Attention, a priori, il faut avoir une configuration de reference correspondant a une ligne droite, pas la ligne
-    // donnee par le bspline...
-
     m_chrono_mesh->Initialize();
     // FIXME: CONTINUER !!
 
     DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
-
   }
 
   void FrFEACable::StepFinalize() {
@@ -111,6 +85,19 @@ namespace frydom {
   void FrFEACable::SetEndLinkType(FEA_BODY_CONSTRAINT_TYPE ctype) {
     m_end_link_type = ctype;
     GetFrFEACableBase()->SetEndLinkConstraint(ctype);
+  }
+
+  std::shared_ptr<FrClumpWeight> FrFEACable::AddClumpWeight(const double &s, const double &distance) {
+    // TODO
+
+    /*
+     * Ici, on va ajouter un clump weight qui a les bonnes definitions automatiques pour les efforts qui s'appliquent
+     * dessus (hydrostatique, morison) et du shape automatique.
+     * Le clump est ajoute a l'abscisse curviligne s (approximative car on prend le noeud FEA la plus proche...)
+     * Il se trouve a une distance verticale donnee par distance. On tiendra cette distance à l'aide d'un contrainte
+     * de type ChLinkDistance. Le clump sera repositionne apres l'initialisation du shape, lorsqu'on connaitra la
+     * position du point de controle du cable
+     */
   }
 
   void FrFEACable::DefineLogMessages() {
@@ -199,6 +186,10 @@ namespace frydom {
 
     void FrFEACableBase::InitializeShape() {
 
+      // TODO: voir ChElementBeam::SetRestLength qui permet de forcer la longueur a vie des elements !!! Ca permettra
+      // d'avoir des elements precompresses ou preentendus... et de ne pas utiliser le cables catenaires en
+      // initialisation avec une elasticite nulle...
+
       auto fea_cable = GetFEACable();
       double unstretched_length = fea_cable->GetUnstretchedLength();
 
@@ -212,16 +203,15 @@ namespace frydom {
       std::vector<bspline::Point<3>> neutral_line_points(n);
       for (unsigned int i = 0; i < n; i++) {
         neutral_line_points[i] = shape_initializer->GetPosition(uvec[i], NWU);
+        // FIXME:  on evalue dans une position detendue. Voir la remarque au debut...
       }
 
       // Interpolating with BSpline
       std::vector<double> uk; // Those values are the abcsissa of the computed bspline control points
       // FIXME: l'ordre est hard code...
       auto bspline = bspline::internal::FrBSplineTools<2>::BSplineInterpFromPoints<3>(neutral_line_points, uk);
-      // FIXME: voir pourquoi ca renvoit un shared_ptr ???
 
-//      auto ch_bspline = bspline::internal::FrBSpline2ChBspline<2>(*bspline); // FIXME : Necessaire ???
-
+      // Building the shape with the FEABuilder
       FrFEACableBuilder builder;
       builder.Build(this, m_section, bspline);
 
@@ -235,11 +225,10 @@ namespace frydom {
       // Adding loads on each element newly created by the builder
       for (auto &element : GetElements()) { // TODO : faire des iterateurs d'elements !!!
         auto el = std::dynamic_pointer_cast<FrFEACableElementBase>(element);
-        auto load = std::make_shared<internal::FrFEACableHydroLoad>(el);
-        load->SetCable(GetFEACable());
-        load_container->Add(load);
+        auto hydro_load = std::make_shared<internal::FrFEACableHydroLoad>(el);
+        hydro_load->SetCable(GetFEACable());
+        load_container->Add(hydro_load);
       }
-
     }
 
     void FrFEACableBase::InitializeLinks() {
@@ -248,7 +237,7 @@ namespace frydom {
       auto starting_body = GetFEACable()->GetStartingNode()->GetBody()->m_chronoBody;
       auto start_ch_frame = internal::FrFrame2ChFrame(GetFEACable()->GetStartingNode()->GetFrameInBody());
 
-      m_start_link->Initialize(m_starting_node_fea,
+      m_start_link->Initialize(GetStartNodeFEA(),
                                starting_body,
                                true,
                                chrono::ChFrame<double>(),
@@ -259,7 +248,7 @@ namespace frydom {
       FrFrame feaFrame;
       feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
 
-      m_end_link->Initialize(m_ending_node_fea,
+      m_end_link->Initialize(GetEndNodeFEA(),
                              ending_body,
                              true,
                              internal::FrFrame2ChFrame(feaFrame),
@@ -272,6 +261,8 @@ namespace frydom {
     }
 
     void FrFEACableBase::InitializeContacts() {
+
+      // TODO: il sera certainement interessant de pouvoir
 
       auto surface_material = std::make_shared<chrono::ChMaterialSurfaceSMC>();
       surface_material->SetYoungModulus(2e12f);
@@ -313,7 +304,15 @@ namespace frydom {
       node_assets->SetSymbolsScale(0.01);
       node_assets->SetZbufferHide(false);
       ChMesh::AddAsset(node_assets);
-      
+
+    }
+
+    void FrFEACableBase::SetupInitial() {
+
+      // TODO: voir a mettre en pratique le pattern pour integrer la masse ajoutee ici !!!
+
+      chrono::fea::ChMesh::SetupInitial();
+
     }
 
     void FrFEACableBase::SetStartLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype) {
@@ -340,6 +339,14 @@ namespace frydom {
 
     FrFEACable *FrFEACableBase::GetFEACable() {
       return dynamic_cast<FrFEACable *>(m_frydom_mesh);
+    }
+
+    std::shared_ptr<FrFEANodeBase> FrFEACableBase::GetStartNodeFEA() {
+      return std::dynamic_pointer_cast<FrFEANodeBase>(GetNodes().front());
+    }
+
+    std::shared_ptr<FrFEANodeBase> FrFEACableBase::GetEndNodeFEA() {
+      return std::dynamic_pointer_cast<FrFEANodeBase>(GetNodes().back());
     }
 
   }  // end namespace frydom::internal

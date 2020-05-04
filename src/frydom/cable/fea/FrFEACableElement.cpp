@@ -9,11 +9,6 @@ namespace frydom {
 
   namespace internal {
 
-    void FrFEACableElementBase::SetNodesGenericOrder(std::vector<std::shared_ptr<internal::FrFEANodeBase>> nodes,
-                                                     std::vector<double> knots, int myorder) {
-      // TODO
-    }
-
     void FrFEACableElementBase::EvaluateSectionSpeed(const double eta, chrono::ChVector<> &point_speed) {
 
       // compute parameter in knot space from eta-1..+1
