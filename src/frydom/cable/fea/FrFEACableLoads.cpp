@@ -57,7 +57,7 @@ namespace frydom {
       auto position = internal::ChVectorToVector3d<Position>(position_);
 
 
-      bool m_include_waves = true;
+      bool m_include_waves = true; // TODO: faire en sorte que le calcul des orbitales soit fait
 
       // Buoyancy
 
@@ -75,29 +75,18 @@ namespace frydom {
 
       // FIXME:
 
-      // Evaluate velocity at U
-
-//    auto vel_a = internal::ChVectorToVector3d<Velocity>(element->GetNodeA()->GetPos_dt());
-//    auto vel_b = internal::ChVectorToVector3d<Velocity>(element->GetNodeB()->GetPos_dt());
-//
-//    // We take the mean velocity value, having nothing to interpolate best...
-//    auto cable_velocity = 0.5 * (vel_a + vel_b);
+      // Relative fluid velocity induced by cable motion at U
       chrono::ChVector<double> vel;
       element->EvaluateSectionSpeed(U, vel);
-      auto cable_velocity = internal::ChVectorToVector3d<Velocity>(vel);
+      Velocity fluid_relative_velocity = -internal::ChVectorToVector3d<Velocity>(vel);
 
-//    auto acc_a = internal::ChVectorToVector3d<Acceleration>(element->GetNodeA()->GetPos_dtdt());
-//    auto acc_b = internal::ChVectorToVector3d<Acceleration>(element->GetNodeB()->GetPos_dtdt());
-//
-//    // We take the mean acceleration value, having nothing to interpolate best...
-//    auto cable_acceleration = 0.5 * (acc_a + acc_b);
+      // Relative fluid acceleration induces by cable motion at U
       chrono::ChVector<double> acc;
       element->EvaluateSectionAcceleration(U, acc);
-      auto cable_acceleration = internal::ChVectorToVector3d<Acceleration>(acc);
+      Acceleration fluid_relative_acceleration = -internal::ChVectorToVector3d<Acceleration>(acc);
 
-      // Fluid velocity and acceleration at point U
-      Velocity fluid_relative_velocity;
-      Acceleration fluid_relative_acceleration;
+
+      // Environment fluid velocity at U
       if (fluid_type == WATER) {
         auto ocean = m_system->GetEnvironment()->GetOcean();
 
@@ -116,9 +105,9 @@ namespace frydom {
             m_system->GetEnvironment()->GetAtmosphere()->GetWind()->GetFluxVelocityInWorld(position, NWU);
       }
 
-      // Taking the cable motion into account into the fluid motion
-      fluid_relative_velocity -= cable_velocity;
-      fluid_relative_acceleration -= cable_acceleration;
+
+//      fluid_relative_velocity -= cable_velocity;
+//      fluid_relative_acceleration -= cable_acceleration;
 
       // Getting the tangent direction of cable
       Direction tangent_direction = internal::ChVectorToVector3d<Direction>(quaternion_.GetXaxis());
@@ -129,10 +118,15 @@ namespace frydom {
 
       // Computing morison load
       auto cable_properties = m_cable->GetProperties();
-      double d = cable_properties->GetHydrodynamicDiameter();
-      double A = 0.25 * MU_PI * d * d;
+      double d = cable_properties->GetHydrodynamicDiameter(); // FIXME: permettre d'avoir un diametre materiel et un diametre hydro !!!
+//      double A = 0.25 * MU_PI * d * d;
+
+      /*
+       * Morison drag
+       */
 
       Force morison_force;
+
       // Normal morison drag
       morison_force += 0.5 * fluid_density * cable_properties->GetTransverseDragCoefficient() * d *
                        normal_fluid_velocity.norm() * normal_fluid_velocity;
@@ -141,20 +135,25 @@ namespace frydom {
       morison_force += 0.5 * fluid_density * cable_properties->GetTangentialDragCoefficient() * d *
                        tangent_fluid_velocity.norm() * tangent_fluid_velocity;
 
-      Acceleration tangent_fluid_acceleration = fluid_relative_acceleration.dot(tangent_direction) * tangent_direction;
-      Acceleration normal_fluid_acceleration = fluid_relative_acceleration - tangent_fluid_acceleration;
 
-      // Normal morison
-//    morison_force += fluid_density * cable_properties->GetTransverseAddedMassCoefficient() * A *
-//        normal_fluid_acceleration.norm() * normal_fluid_acceleration;
+//      /*
+//       * Morison added mass effects
+//       */
+//      Acceleration tangent_fluid_acceleration = fluid_relative_acceleration.dot(tangent_direction) * tangent_direction;
+//      Acceleration normal_fluid_acceleration = fluid_relative_acceleration - tangent_fluid_acceleration;
 //
-//    morison_force += fluid_density * cable_properties->GetTangentialAddedMassCoefficient() * A *
-//        tangent_fluid_acceleration.norm() * tangent_fluid_acceleration;
+//      // Normal morison added mass
+//      morison_force += fluid_density * cable_properties->GetTransverseAddedMassCoefficient() * A *
+//                       normal_fluid_acceleration.norm() * normal_fluid_acceleration;
+//
+//      // Tangent Morison added mass
+//      morison_force += fluid_density * cable_properties->GetTangentialAddedMassCoefficient() * A *
+//                       tangent_fluid_acceleration.norm() * tangent_fluid_acceleration;
 
 
       unit_force += morison_force;
 
-
+//      std::cout << unit_force << std::endl;
 
       // Pasting the results
 

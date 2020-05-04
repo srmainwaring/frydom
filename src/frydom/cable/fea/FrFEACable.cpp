@@ -29,8 +29,8 @@ namespace frydom {
                          const std::shared_ptr<FrCableProperties> &properties,
                          double unstretched_length,
                          unsigned int nb_nodes) :
-      m_start_link_type(FREE),
-      m_end_link_type(FIXED),
+      m_start_link_type(SPHERICAL),
+      m_end_link_type(SPHERICAL),
       m_nb_nodes(nb_nodes),
       FrCableBase(startingNode, endingNode, properties, unstretched_length),
       FrFEAMesh(name,
@@ -237,7 +237,7 @@ namespace frydom {
 
       // Starting hinge
       auto starting_body = fea_cable->GetStartingNode()->GetBody()->m_chronoBody;
-      auto start_ch_frame = internal::FrFrame2ChFrame(GetFEACable()->GetStartingNode()->GetFrameInBody());
+      auto start_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetStartingNode()->GetFrameInBody());
 
       m_start_link->Initialize(GetStartNodeFEA(),
                                starting_body,
@@ -304,7 +304,7 @@ namespace frydom {
       node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
       node_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
       node_assets->SetSymbolsThickness(cable_diam);
-      node_assets->SetSymbolsScale(0.01);
+      node_assets->SetSymbolsScale(0.1);
       node_assets->SetZbufferHide(false);
       ChMesh::AddAsset(node_assets);
 
@@ -349,7 +349,7 @@ namespace frydom {
     }
 
     std::shared_ptr<FrFEANodeBase> FrFEACableBase::GetEndNodeFEA() {
-      return std::dynamic_pointer_cast<FrFEANodeBase>(GetNodes().back());
+      return std::dynamic_pointer_cast<FrFEANodeBase>(GetNodes().back()); // FIXME: ne fonctionne pas !!
     }
 
   }  // end namespace frydom::internal

@@ -48,7 +48,7 @@ namespace frydom {
   }  // end namespace frydom::internal
 
 
-  class FrCatenaryLine : public FrCatenaryLineBase {
+  class FrCatenaryLine : public FrCatenaryLineBase { // TODO: retirer l'option elastic qui sera toujours a true !!!
 
    public:
 

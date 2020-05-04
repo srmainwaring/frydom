@@ -138,8 +138,6 @@ namespace frydom {
 
       void SetLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE start_ctype, FrFEALinkBase* link);
 
-
-     private:
       FrFEACable* GetFEACable();
 
       std::shared_ptr<FrFEANodeBase> GetStartNodeFEA();

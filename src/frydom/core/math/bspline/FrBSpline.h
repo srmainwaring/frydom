@@ -173,7 +173,7 @@ namespace frydom {
                                 KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
 
           unsigned int n = points.size(); // Number of points to interpolate
-          unsigned int m = n + _degree + 1; // Number of nodes given the desired spline degree
+          unsigned int m = n + _degree + 1; // Number of knots given the desired spline degree
 
           // Computing the uk values corresponding to each point by using the specified (chord length by default)
 

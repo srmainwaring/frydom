@@ -38,20 +38,22 @@ namespace frydom {
                  std::shared_ptr<chrono::fea::ChBeamSectionCosserat> section, ///< section material for beam elements
                  const frydom::bspline::FrBSpline<_order, 3> &bspline                         ///< the B-spline to be used as the centerline
       ) {
-
+        // TODO: voir si on passe le YDir en parametre (comme fait dans chrono) ou si on le calcule en place...
 
         beam_elems.clear();
         beam_nodes.clear();
 
-        int nb_knots = bspline.GetNbKnots();
+        int nb_ctrl_points = bspline.GetNbCtrlPoints();
+
+        double rest_length = cable->GetFEACable()->GetUnstretchedLength() / (nb_ctrl_points - 1);
 
         // compute nb_span of spans (excluding start and end multiple knots with zero lenght span):
         int nb_span = (int) bspline.GetNbKnots() - _order - _order - 1;  // = n+p+1 -p-p-1 = n-p
 
         // Create the 'complete' stl vector of control points, with uniform distribution
         std::vector<std::shared_ptr<internal::FrFEANodeBase>> fea_nodes;
-        for (int i_node = 0; i_node < nb_knots; ++i_node) {
-          double abscyssa = ((double) i_node / (double) (nb_knots - 1));
+        for (int i_node = 0; i_node < nb_ctrl_points; ++i_node) {
+          double abscyssa = ((double) i_node / (double) (nb_ctrl_points - 1));
 
           // position of node
           chrono::ChVector<double> pos = internal::Vector3dToChVector(bspline.GetCtrlPoint(i_node));
@@ -62,7 +64,7 @@ namespace frydom {
 
 
           // FIXME: l'axe Y suggere ici doit etre calcule de telle maniere qu'il soit normal au plan vertical contenant
-          // le cable (a calculer)
+          // le cable (a calculer ici ou bien a passer en argument du builder...)
           chrono::ChVector<double> ydir = {0., 1., 0.};
 
           mrot.Set_A_Xdir(tangent, ydir);
@@ -86,11 +88,12 @@ namespace frydom {
             element_nodes.push_back(fea_nodes[i_el + i_el_node]);
           }
 
-          auto belement_i = std::make_shared<internal::FrFEACableElementBase>();
-          belement_i->SetNodesGenericOrder(element_nodes, element_knots, _order);
-          belement_i->SetSection(section);
-          cable->AddElement(belement_i);
-          beam_elems.push_back(belement_i);
+          auto element_i = std::make_shared<internal::FrFEACableElementBase>();
+          element_i->SetNodesGenericOrder(element_nodes, element_knots, _order);
+          element_i->SetSection(section);
+          element_i->SetRestLength(rest_length);
+          cable->AddElement(element_i);
+          beam_elems.push_back(element_i);
         }
 
       }

@@ -11,7 +11,7 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
   seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
-  seabed->SetBathymetry(-100, NWU); // TODO: depth target -100m
+  seabed->SetBathymetry(-15, NWU); // TODO: depth target -100m
   seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
@@ -36,6 +36,10 @@ std::shared_ptr<FrCableProperties> InitializeCableProperties() {
   cable_properties->SetLinearDensity(lambda_);
   cable_properties->SetDiameter(diam_);
   cable_properties->SetYoungModulus(E);
+  cable_properties->SetDragCoefficients(1.2, 0.);
+  cable_properties->SetAddedMassCoefficients(2, 0.);
+  cable_properties->SetHydrodynamicDiameter(0.168);
+  cable_properties->SetRayleighDamping(1e4);
 
   return cable_properties;
 }
@@ -71,6 +75,10 @@ int main() {
                               cable_properties,
                               cable_length,
                               cable_nb_elements);
+
+//  cable->SetEndLinkType(FrFEACable::FREE); // TODO: simplifier l'API en ayant des methodes adaptees
+
+
 
   // TODO: le faire en auto !!
 
