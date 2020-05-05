@@ -31,9 +31,9 @@ namespace frydom {
       m_nb_integration_points = n;
     }
 
-    void FrFEAloaderBase::SetSystem(FrOffshoreSystem *system) {
-      m_system = system;
-    }
+//    void FrFEAloaderBase::SetSystem(FrOffshoreSystem *system) {
+//      m_system = system;
+//    }
 
     FrFEACableHydroLoader::FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable) :
         FrFEAloaderBase(loadable) {
@@ -45,8 +45,8 @@ namespace frydom {
                                          chrono::ChVectorDynamic<> *state_x,
                                          chrono::ChVectorDynamic<> *state_w) {
 
-      // FIXME: il faudra templater l'element
-      auto element = std::dynamic_pointer_cast<internal::FrFEACableElementBase>(loadable);
+      auto element = dynamic_cast<internal::FrFEACableElementBase*>(loadable.get());
+
 
       // Get the point position
       chrono::ChVector<double> position_;
@@ -56,115 +56,123 @@ namespace frydom {
 
       auto position = internal::ChVectorToVector3d<Position>(position_);
 
+      // Getting the tangent direction of cable at U
+      chrono::ChVector<double> ut = quaternion_.GetXaxis();
+
+
+
 
       bool m_include_waves = true; // TODO: faire en sorte que le calcul des orbitales soit fait
 
-      // Buoyancy
 
-      double gravity = m_system->GetGravityAcceleration();
-      auto fluid_type = m_system->GetEnvironment()->GetFluidTypeAtPointInWorld(position, NWU, m_include_waves);
-      auto fluid_density = m_system->GetEnvironment()->GetFluidDensity(fluid_type);
+      double gravity = element->m_environment->GetGravityAcceleration();
+      auto fluid_type = element->m_environment->GetFluidTypeAtPointInWorld(position, NWU, m_include_waves);
+      auto fluid_density = element->m_environment->GetFluidDensity(fluid_type);
+//      auto cable_properties = m_cable->GetProperties();
+//      double d = cable_properties->GetHydrodynamicDiameter(); // FIXME: permettre d'avoir un diametre materiel et un diametre hydro !!!
 
-//      element->GetSection()->Set
-
-      double section_area = m_cable->GetProperties()->GetSectionArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
-      Force unit_force = {0., 0., fluid_density * section_area * gravity};
+      double d = element->GetSection()->Get
 
 
-      // Morison
+      /*
+       * Computing fluid velocities
+       */
 
-      // FIXME:
+      chrono::ChVector<double> vf;
+      chrono::ChVector<double> vf_dt;
 
-      // Relative fluid velocity induced by cable motion at U
-      chrono::ChVector<double> vel;
-      element->EvaluateSectionSpeed(U, vel);
-      Velocity fluid_relative_velocity = -internal::ChVectorToVector3d<Velocity>(vel);
+      vf.SetNull();
+      vf_dt.SetNull();
 
-      // Relative fluid acceleration induces by cable motion at U
-      chrono::ChVector<double> acc;
-      element->EvaluateSectionAcceleration(U, acc);
-      Acceleration fluid_relative_acceleration = -internal::ChVectorToVector3d<Acceleration>(acc);
-
-
-      // Environment fluid velocity at U
       if (fluid_type == WATER) {
-        auto ocean = m_system->GetEnvironment()->GetOcean();
+        auto ocean = element->m_environment->GetOcean();
 
         // Current
-        fluid_relative_velocity += ocean->GetCurrent()->GetFluxVelocityInWorld(position, NWU);
+        auto current = ocean->GetCurrent();
+        vf += internal::Vector3dToChVector(current->GetFluxVelocityInWorld(position, NWU));
 
         // Wave orbital velocities
         if (m_include_waves) {
           auto wave_field = ocean->GetFreeSurface()->GetWaveField();
-          fluid_relative_velocity += wave_field->GetVelocity(position, NWU);
-          fluid_relative_acceleration += wave_field->GetAcceleration(position, NWU);
+          vf_dt += internal::Vector3dToChVector(wave_field->GetVelocity(position, NWU));
+          vf_dt += internal::Vector3dToChVector(wave_field->GetAcceleration(position, NWU));
         }
 
       } else {  // AIR
-        fluid_relative_velocity +=
-            m_system->GetEnvironment()->GetAtmosphere()->GetWind()->GetFluxVelocityInWorld(position, NWU);
+        auto wind = element->m_environment->GetAtmosphere()->GetWind();
+        vf += internal::Vector3dToChVector(wind->GetFluxVelocityInWorld(position, NWU));
       }
 
+      /*
+       * Cable velocity
+       */
+      chrono::ChVector<double> cable_velocity;
+      element->EvaluateSectionSpeed(U, cable_velocity);
 
-//      fluid_relative_velocity -= cable_velocity;
-//      fluid_relative_acceleration -= cable_acceleration;
-
-      // Getting the tangent direction of cable
-      Direction tangent_direction = internal::ChVectorToVector3d<Direction>(quaternion_.GetXaxis());
 
       // Getting tangential and normal relative fluid velocities
-      Velocity tangent_fluid_velocity = fluid_relative_velocity.dot(tangent_direction) * tangent_direction;
-      Velocity normal_fluid_velocity = fluid_relative_velocity - tangent_fluid_velocity;
+      chrono::ChVector<double> vf_t = vf.Dot(ut) * ut;
+      chrono::ChVector<double> vf_n = vf - vf_t;
 
-      // Computing morison load
-      auto cable_properties = m_cable->GetProperties();
-      double d = cable_properties->GetHydrodynamicDiameter(); // FIXME: permettre d'avoir un diametre materiel et un diametre hydro !!!
-//      double A = 0.25 * MU_PI * d * d;
+      chrono::ChVector<double> vf_t_dt = vf_dt.Dot(ut) * ut;
+      chrono::ChVector<double> vf_n_dt = vf_dt - vf_t;
+
+      chrono::ChVector<double> v = vf - cable_velocity;
+      chrono::ChVector<double> v_t = v.Dot(ut) * ut;
+      chrono::ChVector<double> v_n = v - v_t;
+
+
+      /*
+       * Buoyancy
+       */
+
+      double section_area = m_cable->GetProperties()->GetSectionArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
+      chrono::ChVector<double> buoyancy_unit_force = {0., 0., fluid_density * section_area * gravity};
 
       /*
        * Morison drag
        */
 
-      Force morison_force;
+      chrono::ChVector<double> morison_drag;
+      morison_drag.SetNull();
 
-      // Normal morison drag
-      morison_force += 0.5 * fluid_density * cable_properties->GetTransverseDragCoefficient() * d *
-                       normal_fluid_velocity.norm() * normal_fluid_velocity;
+      double v2 = v.Length2(); // TODO: verifier
+      morison_drag += -0.5 * fluid_density * d * Cd * v2 * v_n / v_n.GetNormalized() * fn;
+      morison_drag += -0.5 * fluid_density * d * Cd * v2 * v_t / v_t.GetNormalized() * ft * sign(v_t.Dot(ut));
 
-      // Tangent morison drag
-      morison_force += 0.5 * fluid_density * cable_properties->GetTangentialDragCoefficient() * d *
-                       tangent_fluid_velocity.norm() * tangent_fluid_velocity;
+      /*
+       * VIV drag amplification
+       */
+      chrono::ChVector<double> drag_viv;
+      drag_viv.SetNull();
 
+      double vf2 = vf.Length2(); // TODO: verifier
+      morison_drag += -0.5 * fluid_density * d * Cd * v2 * vf_n / vf_n.GetNormalized() * fn;
+      morison_drag += -0.5 * fluid_density * d * Cd * v2 * vf_t / vf_t.GetNormalized() * ft * sign(vf_t.Dot(ut));
 
-//      /*
-//       * Morison added mass effects
-//       */
-//      Acceleration tangent_fluid_acceleration = fluid_relative_acceleration.dot(tangent_direction) * tangent_direction;
-//      Acceleration normal_fluid_acceleration = fluid_relative_acceleration - tangent_fluid_acceleration;
-//
-//      // Normal morison added mass
-//      morison_force += fluid_density * cable_properties->GetTransverseAddedMassCoefficient() * A *
-//                       normal_fluid_acceleration.norm() * normal_fluid_acceleration;
-//
-//      // Tangent Morison added mass
-//      morison_force += fluid_density * cable_properties->GetTangentialAddedMassCoefficient() * A *
-//                       tangent_fluid_acceleration.norm() * tangent_fluid_acceleration;
+      /*
+       * Morison added mass effects
+       */
+
+      chrono::ChVector<double> morison_inertia;
+      morison_inertia = fluid_density * section_area * (Cm + 1) * vf_n_dt;
 
 
-      unit_force += morison_force;
+      /*
+       * Summing up contributions
+       */
 
-//      std::cout << unit_force << std::endl;
+      chrono::ChVector<double> unit_force = buoyancy_unit_force + morison_drag + morison_inertia + drag_viv;
+
 
       // Pasting the results
-
-      F.PasteVector(internal::Vector3dToChVector(unit_force), 0, 0);   // load, force part
+      F.PasteVector(unit_force, 0, 0);   // load, force part
       F.PasteVector(chrono::VNULL, 3, 0);  // No torque
 
     }
 
     void FrFEACableHydroLoader::SetCable(FrFEACable *cable) {
       m_cable = cable;
-      SetSystem(cable->GetSystem());
     }
 
   }  // end namespace frydom::internal

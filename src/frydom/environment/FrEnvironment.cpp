@@ -89,6 +89,12 @@ namespace frydom {
     }
   }
 
+  double FrEnvironment::GetFluidDensity(const Position &worldPos, FRAME_CONVENTION fc, bool waveDeformation) {
+    // TODO: permettre un jour d'avoir des gradients de densite de l'eau...
+    auto fluid_type = GetFluidTypeAtPointInWorld(worldPos, fc, waveDeformation);
+    return GetFluidDensity(fluid_type);
+  }
+
   FLUID_TYPE FrEnvironment::GetFluidTypeAtPointInWorld(const frydom::Position &worldPos,
                                                        frydom::FRAME_CONVENTION fc,
                                                        bool waveDeformation) {

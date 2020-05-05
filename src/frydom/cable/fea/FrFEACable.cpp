@@ -19,6 +19,7 @@
 #include "FrFEACableLoads.h"
 #include "FrFEACableBuilder.h"
 #include "FrFEALink.h"
+#include "FrFEACableSection.h"
 
 namespace frydom {
 
@@ -178,9 +179,10 @@ namespace frydom {
       elasticity->SetBeamRaleyghDamping(props->GetRayleighDamping());
 
       // Section definition
-      m_section = std::make_shared<chrono::fea::ChBeamSectionCosserat>(elasticity);
+      m_section = std::make_shared<FrFEACableSection>(elasticity);
       m_section->SetDensity(props->GetDensity());
       m_section->SetAsCircularSection(props->GetDiameter());
+      m_section->SetNormalAddedMassCoeff(props->GetTransverseAddedMassCoefficient());
 
     }
 
@@ -284,8 +286,6 @@ namespace frydom {
 
     void FrFEACableBase::InitializeAssets() {
 
-      auto fea_cable = GetFEACable();
-
       double cable_diam = GetFEACable()->GetProperties()->GetDiameter();
 
       auto elements_assets = std::make_shared<chrono::fea::ChVisualizationFEAmesh>(*this);
@@ -295,7 +295,9 @@ namespace frydom {
 //                                             fea_cable->GetBreakingTension()); //1799620
       elements_assets->SetSmoothFaces(true);
       elements_assets->SetWireframe(false);
-      m_section->SetDrawCircularRadius(cable_diam * 0.5);
+      // TODO : mettre en place un mode "BIG VIZ" qui grossit le cable et tout
+//      m_section->SetDrawCircularRadius(cable_diam * 0.5);
+      m_section->SetDrawCircularRadius(cable_diam * 5);
       ChMesh::AddAsset(elements_assets);
 
       // Assets for the nodes
@@ -303,8 +305,8 @@ namespace frydom {
 //        node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_DOT_POS);
       node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
       node_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
-      node_assets->SetSymbolsThickness(cable_diam);
-      node_assets->SetSymbolsScale(0.1);
+      node_assets->SetSymbolsThickness(cable_diam*10);
+      node_assets->SetSymbolsScale(0.001);
       node_assets->SetZbufferHide(false);
       ChMesh::AddAsset(node_assets);
 

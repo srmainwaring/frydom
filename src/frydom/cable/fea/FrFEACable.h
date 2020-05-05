@@ -28,6 +28,7 @@ namespace frydom {
 
   class FrClumpWeight;
 
+
   class FrFEACable : public FrCableBase, public FrFEAMesh {
 
    public:
@@ -103,6 +104,8 @@ namespace frydom {
 
   namespace internal {
 
+    class FrFEACableSection;
+
     class FrFEALinkBase;
 
     class FrFEACableBase : public FrFEAMeshBase {
@@ -153,7 +156,7 @@ namespace frydom {
       std::shared_ptr<FrFEALinkBase> m_start_link;         ///< Starting hinge, to connect to a body
       std::shared_ptr<FrFEALinkBase> m_end_link;           ///< Ending hinge, to connect to a body
 
-      std::shared_ptr<chrono::fea::ChBeamSectionCosserat> m_section;
+      std::shared_ptr<FrFEACableSection> m_section;
 
       unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
 

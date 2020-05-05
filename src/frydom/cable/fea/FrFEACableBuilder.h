@@ -50,6 +50,8 @@ namespace frydom {
         // compute nb_span of spans (excluding start and end multiple knots with zero lenght span):
         int nb_span = (int) bspline.GetNbKnots() - _order - _order - 1;  // = n+p+1 -p-p-1 = n-p
 
+        double span_length = cable->GetFEACable()->GetUnstretchedLength() / nb_span;
+
         // Create the 'complete' stl vector of control points, with uniform distribution
         std::vector<std::shared_ptr<internal::FrFEANodeBase>> fea_nodes;
         for (int i_node = 0; i_node < nb_ctrl_points; ++i_node) {
@@ -88,7 +90,8 @@ namespace frydom {
             element_nodes.push_back(fea_nodes[i_el + i_el_node]);
           }
 
-          auto element_i = std::make_shared<internal::FrFEACableElementBase>();
+          auto environment = cable->GetFEACable()->GetSystem()->GetEnvironment();
+          auto element_i = std::make_shared<internal::FrFEACableElementBase>(environment);
           element_i->SetNodesGenericOrder(element_nodes, element_knots, _order);
           element_i->SetSection(section);
           element_i->SetRestLength(rest_length);

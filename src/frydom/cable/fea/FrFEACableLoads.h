@@ -27,10 +27,10 @@ namespace frydom {
 
       void SetNbIntegrationPoints(int n);
 
-      void SetSystem(FrOffshoreSystem *system);
-
-     protected:
-      FrOffshoreSystem *m_system;
+//      void SetSystem(FrOffshoreSystem *system);
+//
+//     protected:
+//      FrOffshoreSystem *m_system;
 
      private:
       int m_nb_integration_points;

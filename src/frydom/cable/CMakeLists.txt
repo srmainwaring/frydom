@@ -20,6 +20,7 @@ set(SRC_FILES
         fea/FrFEACableElement.cpp
         fea/FrFEACableLoads.cpp
         fea/FrFEALink.cpp
+        fea/FrFEACableSection.cpp
 
 )
 
