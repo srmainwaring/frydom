@@ -246,7 +246,7 @@ namespace frydom {
       // Get the stiffness matrix and solve the linear system
       auto stiffnessMatrix = hsp.GetHydrostaticMatrix().GetMatrix();
 
-      m_solution = stiffnessMatrix.LUSolver<Vector3d<double>, Vector3d<double>>(m_residual);
+      m_solution = stiffnessMatrix.LUSolver<>(m_residual);
 
       event_logger::info("Hydrostatic equilibrium", "", "residual : {}", m_residual.cwiseQuotient(scale));
       event_logger::info("Hydrostatic equilibrium", "", "stiffnessMatrix : {}", stiffnessMatrix);
