@@ -919,14 +919,14 @@ class pyHDB():
             dset.attrs['Description'] = "Wave direction."
 
             # Real parts.
-            writer.create_dataset(wave_dir_path + "/RealCoeffs", data=body.Diffraction[:, :, idir].real)
+            dset = writer.create_dataset(wave_dir_path + "/RealCoeffs", data=body.Diffraction[:, :, idir].real)
             dset.attrs['Unit'] = ''
             dset.attrs['Description'] = "Real part of the diffraction loads " \
                                         "on body %u for a wave direction of %.1f deg." % \
                                         (body.i_body, np.degrees(self.wave_dir[idir]))
 
             # Imaginary parts.
-            writer.create_dataset(wave_dir_path + "/ImagCoeffs", data=body.Diffraction[:, :, idir].imag)
+            dset = writer.create_dataset(wave_dir_path + "/ImagCoeffs", data=body.Diffraction[:, :, idir].imag)
             dset.attrs['Unit'] = ''
             dset.attrs['Description'] = "Imaginary part of the diffraction loads " \
                                         "on body %u for a wave direction of %.1f deg." % \
