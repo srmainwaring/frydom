@@ -27,6 +27,8 @@ namespace frydom {
     double m_transverseAddedMassCoefficient;
     double m_tangentialAddedMassCoefficient;
 
+    double m_VIVAmpFactor;
+
     double m_rayleighDamping;               ///< Rayleigh damping of the cable (for dynamic cable only)
     double m_breakingTension;               ///< breaking tension, in N (for visualization purpose for now)
 
@@ -42,6 +44,7 @@ namespace frydom {
         m_tangentialDragCoefficient(0.),
         m_transverseAddedMassCoefficient(0.),
         m_tangentialAddedMassCoefficient(0.),
+        m_VIVAmpFactor(0.),
         m_rayleighDamping(0.),
         m_breakingTension(0.) {
 
@@ -114,31 +117,29 @@ namespace frydom {
     /// Return the breaking tension of the cable
     double GetBreakingTension() const;
 
-    void SetRayleighDamping(double damping) { m_rayleighDamping = damping; }
+    void SetRayleighDamping(double damping);
 
     double GetRayleighDamping() const;
 
-    void SetHydrodynamicDiameter(double d) { m_hydroDiameter = d; }
+    void SetHydrodynamicDiameter(double d);
 
-    double GetHydrodynamicDiameter() const { return m_hydroDiameter; }
+    double GetHydrodynamicDiameter() const;
 
-    void SetDragCoefficients(double transverse_drag_coeff, double tangential_drag_coeff) {
-      m_transverseDragCoefficient = transverse_drag_coeff;
-      m_tangentialDragCoefficient = tangential_drag_coeff;
-    }
+    void SetDragCoefficients(double transverse_drag_coeff, double tangential_drag_coeff);
 
-    inline double GetTransverseDragCoefficient() const { return m_transverseDragCoefficient; }
+    double GetTransverseDragCoefficient() const;
 
-    inline double GetTangentialDragCoefficient() const { return m_tangentialDragCoefficient; }
+    double GetTangentialDragCoefficient() const;
 
-    void SetAddedMassCoefficients(double transverse_added_mass_coeff, double tangential_added_mass_coeff) {
-      m_transverseAddedMassCoefficient = transverse_added_mass_coeff;
-      m_tangentialAddedMassCoefficient = tangential_added_mass_coeff;
-    }
+    void SetAddedMassCoefficients(double transverse_added_mass_coeff, double tangential_added_mass_coeff);
 
-    inline double GetTransverseAddedMassCoefficient() const { return m_transverseAddedMassCoefficient; }
+    double GetTransverseAddedMassCoefficient() const;
 
-    inline double GetTangentialAddedMassCoefficient() const { return m_tangentialAddedMassCoefficient; }
+    double GetTangentialAddedMassCoefficient() const;
+
+    void SetVIVAmpFactor(const double &G);
+
+    double GetVIVAmpFactor() const;
 
 
   };

@@ -11,17 +11,28 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
   seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
-  seabed->SetBathymetry(-30, NWU); // TODO: depth target -100m
+  seabed->SetBathymetry(-100, NWU); // TODO: depth target -100m
   seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(
-      -500, 500, 500, -50, 50, 50);
+      -500, 500, 8, -50, 50, 25);
 
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
   system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(
-      45, 1.,
+      90, 0.,
       DEG, KNOT, NED, GOTO);
+
+  double Hs = 5.;
+  double Tp = 10.;
+  double wave_dir = 0.;
+  system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularOptimWaveField(Hs, Tp, wave_dir, RAD, NWU, GOTO);
+
+  system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
+
+  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 3., 1.);
+  system.GetEnvironment()->GetTimeRamp()->SetActive(false);
+
 }
 
 std::shared_ptr<FrCableProperties> InitializeCableProperties() {
@@ -42,6 +53,7 @@ std::shared_ptr<FrCableProperties> InitializeCableProperties() {
   cable_properties->SetAddedMassCoefficients(2, 0.);
   cable_properties->SetHydrodynamicDiameter(0.168);
   cable_properties->SetRayleighDamping(1e4);
+  cable_properties->SetVIVAmpFactor(3.54);
 
   return cable_properties;
 }
@@ -57,8 +69,9 @@ int main() {
   auto start_node = world_body->NewNode("start_node");
   auto end_node = world_body->NewNode("end_node");
 
-  Position start_node_pos = {0., 0., 0.};
-  Position end_node_pos = {500., 0., 0.};
+  // FIXME: si on ne met pas l'ancre en premier dans le cable, l'initialistion du shape se passe mal...
+  Position end_node_pos = {0., 0., 0.};
+  Position start_node_pos = {500., 0., -100.};
 
   start_node->SetPositionInWorld(start_node_pos, NWU);
   end_node->SetPositionInWorld(end_node_pos, NWU);
@@ -66,9 +79,9 @@ int main() {
   // Create cable properties
   auto cable_properties = InitializeCableProperties();
 
-  unsigned int cable_nb_elements = 200;
+  unsigned int cable_nb_elements = 80;
 
-  double cable_length = (end_node_pos - start_node_pos).norm(); // m
+  double cable_length = 519; // m
 
   // Creating the cable
   auto cable = make_fea_cable("cable",
@@ -102,7 +115,7 @@ int main() {
 
 
 
-  system.RunInViewer();
+  system.RunInViewer(0., 100., false, 5);
 
   return 0;
 }

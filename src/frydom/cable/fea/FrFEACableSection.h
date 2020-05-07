@@ -31,10 +31,20 @@ namespace frydom {
 
       void SetNormalAddedMassCoeff(const double Cm);
 
-      double GetCm();
+      double GetCm() const;
+
+      void SetNormalDragCoeff(const double Cd);
+
+      double GetCd() const;
+
+      void SetVIVAmpFactor(const double &G);
+
+      double GetVIVAmpFactor() const;
 
      private:
       double m_Cm;
+      double m_Cd;
+      double m_VIV_amp_factor;
 
     };
   }  // end namspace frydom::internal

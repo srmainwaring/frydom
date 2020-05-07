@@ -88,6 +88,36 @@ namespace frydom {
     return m_rayleighDamping;
   }
 
+  void FrCableProperties::SetRayleighDamping(double damping) { m_rayleighDamping = damping; }
+
+  void FrCableProperties::SetHydrodynamicDiameter(double d) { m_hydroDiameter = d; }
+
+  double FrCableProperties::GetHydrodynamicDiameter() const { return m_hydroDiameter; }
+
+  void FrCableProperties::SetDragCoefficients(double transverse_drag_coeff, double tangential_drag_coeff) {
+    m_transverseDragCoefficient = transverse_drag_coeff;
+    m_tangentialDragCoefficient = tangential_drag_coeff;
+  }
+
+  double FrCableProperties::GetTransverseDragCoefficient() const { return m_transverseDragCoefficient; }
+
+  double FrCableProperties::GetTangentialDragCoefficient() const { return m_tangentialDragCoefficient; }
+
+  void
+  FrCableProperties::SetAddedMassCoefficients(double transverse_added_mass_coeff, double tangential_added_mass_coeff) {
+    m_transverseAddedMassCoefficient = transverse_added_mass_coeff;
+    m_tangentialAddedMassCoefficient = tangential_added_mass_coeff;
+  }
+
+  double FrCableProperties::GetTransverseAddedMassCoefficient() const { return m_transverseAddedMassCoefficient; }
+
+  double FrCableProperties::GetTangentialAddedMassCoefficient() const { return m_tangentialAddedMassCoefficient; }
+
+  void FrCableProperties::SetVIVAmpFactor(const double &G) { m_VIVAmpFactor = G; }
+
+  double FrCableProperties::GetVIVAmpFactor() const { return m_VIVAmpFactor; }
+
+
   std::shared_ptr<FrCableProperties> make_cable_properties() {
     return std::make_shared<FrCableProperties>();
   }

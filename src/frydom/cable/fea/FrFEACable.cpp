@@ -183,6 +183,8 @@ namespace frydom {
       m_section->SetDensity(props->GetDensity());
       m_section->SetAsCircularSection(props->GetDiameter());
       m_section->SetNormalAddedMassCoeff(props->GetTransverseAddedMassCoefficient());
+      m_section->SetNormalDragCoeff(props->GetTransverseDragCoefficient());
+      m_section->SetVIVAmpFactor(props->GetVIVAmpFactor()); // TODO: a inclure dans le pptes de cable...
 
     }
 
