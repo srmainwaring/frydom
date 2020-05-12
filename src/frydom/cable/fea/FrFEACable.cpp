@@ -14,6 +14,7 @@
 #include "frydom/logging/FrTypeNames.h"
 #include "frydom/cable/common/FrCableShapeInitializer.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
+#include "frydom/core/body/FrBody.h"
 #include "frydom/cable/common/FrCableProperties.h"
 #include "FrFEACableElement.h"
 #include "FrFEACableLoads.h"
@@ -49,9 +50,30 @@ namespace frydom {
 
   void FrFEACable::Initialize() {
     m_chrono_mesh->Initialize();
-    // FIXME: CONTINUER !!
+
+    InitializeClumpWeights();
 
     DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
+  }
+
+  void FrFEACable::InitializeClumpWeights() {
+
+    for (auto &cw : m_clump_weights) {
+
+      auto clump_weight = cw.m_clump_weight;
+      double abscissa = cw.m_abscissa;
+      double distance = cw.m_distance_to_node;
+
+      // Attaching the clump to the nearest node on the line
+      auto fea_node = GetNearestFEANode(abscissa / GetUnstretchedLength());
+      clump_weight->Attach(fea_node, distance);
+
+      // Get the position of the node
+      Position position = internal::ChVectorToVector3d<Position>(fea_node->GetPos());
+      position.z() -= clump_weight->GetConstraintDistance();
+
+      clump_weight->SetBodyNodePositionInWorld(position, NWU);
+    }
   }
 
   void FrFEACable::StepFinalize() {
@@ -88,17 +110,19 @@ namespace frydom {
     GetFrFEACableBase()->SetEndLinkConstraint(ctype);
   }
 
-  std::shared_ptr<FrClumpWeight> FrFEACable::AddClumpWeight(const double &s, const double &distance) {
-    // TODO
+  // FIXME: ici on prend le FEA node le plus proche de l'abscisse s specifiee...
+  std::shared_ptr<FrClumpWeight>
+  FrFEACable::AddClumpWeight(const std::string &name, const double &s, const double &distance) {
+    assert(0. <= s && s <= GetUnstretchedLength());
 
-    /*
-     * Ici, on va ajouter un clump weight qui a les bonnes definitions automatiques pour les efforts qui s'appliquent
-     * dessus (hydrostatique, morison) et du shape automatique.
-     * Le clump est ajoute a l'abscisse curviligne s (approximative car on prend le noeud FEA la plus proche...)
-     * Il se trouve a une distance verticale donnee par distance. On tiendra cette distance à l'aide d'un contrainte
-     * de type ChLinkDistance. Le clump sera repositionne apres l'initialisation du shape, lorsqu'on connaitra la
-     * position du point de controle du cable
-     */
+    auto clump_weight = make_clump_weight(name, GetSystem());
+    m_clump_weights.emplace_back(ClumpWeight_(clump_weight, s, distance));
+
+    return clump_weight;
+  }
+
+  std::shared_ptr<internal::FrFEANodeBase> FrFEACable::GetNearestFEANode(const double &s) {
+    return GetFrFEACableBase()->GetNearestFEANode(s);
   }
 
   void FrFEACable::DefineLogMessages() {
@@ -211,9 +235,9 @@ namespace frydom {
       }
 
       // Interpolating with BSpline
-      std::vector<double> uk; // Those values are the abcsissa of the computed bspline control points
       // FIXME: l'ordre est hard code...
-      auto bspline = bspline::internal::FrBSplineTools<2>::BSplineInterpFromPoints<3>(neutral_line_points, uk);
+      auto bspline = bspline::internal::FrBSplineTools<2>::BSplineInterpFromPoints<3>(neutral_line_points,
+                                                                                      m_control_points_abscissa);
 
       // Building the shape with the FEABuilder
       FrFEACableBuilder builder;
@@ -240,7 +264,7 @@ namespace frydom {
       auto fea_cable = GetFEACable();
 
       // Starting hinge
-      auto starting_body = fea_cable->GetStartingNode()->GetBody()->m_chronoBody;
+      auto starting_body = internal::GetChronoBody(fea_cable->GetStartingNode()->GetBody());
       auto start_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetStartingNode()->GetFrameInBody());
 
       m_start_link->Initialize(GetStartNodeFEA(),
@@ -250,7 +274,7 @@ namespace frydom {
                                start_ch_frame);
 
       // Ending hinge
-      auto ending_body = fea_cable->GetEndingNode()->GetBody()->m_chronoBody;
+      auto ending_body = internal::GetChronoBody(fea_cable->GetEndingNode()->GetBody());
       auto end_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetEndingNode()->GetFrameInBody());
       FrFrame feaFrame;
       feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
@@ -307,7 +331,7 @@ namespace frydom {
 //        node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_DOT_POS);
       node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
       node_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
-      node_assets->SetSymbolsThickness(cable_diam*10);
+      node_assets->SetSymbolsThickness(cable_diam * 10);
       node_assets->SetSymbolsScale(0.001);
       node_assets->SetZbufferHide(false);
       ChMesh::AddAsset(node_assets);
@@ -354,6 +378,27 @@ namespace frydom {
 
     std::shared_ptr<FrFEANodeBase> FrFEACableBase::GetEndNodeFEA() {
       return std::dynamic_pointer_cast<FrFEANodeBase>(GetNodes().back()); // FIXME: ne fonctionne pas !!
+    }
+
+    std::shared_ptr<internal::FrFEANodeBase> FrFEACableBase::GetNearestFEANode(const double &s) {
+      assert(0 <= s && s <= GetFEACable()->GetUnstretchedLength()); // TODO: verifier
+
+      unsigned int idx = 0;
+      double delta = 1.;
+      for (unsigned int i = 0; i < m_control_points_abscissa.size(); i++) {
+        double delta_tmp = std::fabs(s - m_control_points_abscissa[i]);
+        if (delta_tmp < delta) {
+          delta = delta_tmp;
+          idx = i;
+        }
+      }
+
+      return std::dynamic_pointer_cast<internal::FrFEANodeBase>(GetNode(idx));
+
+    }
+
+    std::shared_ptr<FrFEACableBase> GetChronoFEAMesh(std::shared_ptr<FrFEACable> cable) {
+      return std::dynamic_pointer_cast<FrFEACableBase>(cable->m_chrono_mesh);
     }
 
   }  // end namespace frydom::internal

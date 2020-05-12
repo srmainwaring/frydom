@@ -226,6 +226,28 @@ namespace frydom {
 
   }
 
+  void FrInertiaTensor::Normalize() {
+    m_inertiaAtCOG /= m_mass;
+    m_mass = 1.;
+  }
+
+  FrInertiaTensor FrInertiaTensor::GetNormalized() {
+    auto unit_inertia = FrInertiaTensor(*this);
+    unit_inertia.Normalize();
+    return unit_inertia;
+  }
+
+  void FrInertiaTensor::AdaptToThisMass(const double &mass) {
+    Normalize();
+    Scale(mass);
+  }
+
+  void FrInertiaTensor::Scale(const double &s) {
+    m_mass *= s;
+    m_inertiaAtCOG *= s;
+  }
+
+
   FrInertiaTensor::InertiaMatrix
   FrInertiaTensor::GetInertiaMatrixAtFrame(const FrFrame &frame, FRAME_CONVENTION fc) const {
     double Ixx, Iyy, Izz, Ixy, Ixz, Iyz;

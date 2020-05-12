@@ -6,8 +6,14 @@
 #define FRYDOM_FRFEALINK_H
 
 #include <chrono/physics/ChLinkMate.h>
+#include <chrono/physics/ChLinkDistance.h>
+
 
 namespace frydom {
+
+
+  // Forward declaration
+  class FrNode;
 
   namespace internal {
 
@@ -21,6 +27,26 @@ namespace frydom {
                     bool mc_rz = true);
 
     };
+
+
+    // Forward declaration
+    class FrFEANodeBase;
+
+    class FrFEANodeBodyDistance : public chrono::ChLinkDistance {
+     public:
+      FrFEANodeBodyDistance();
+
+      void Initialize(std::shared_ptr<FrFEANodeBase> fea_node,
+                      std::shared_ptr<FrNode> body_node);
+
+
+    };
+
+//    class FrFEANodeNodePosition : public
+
+
+
+
 
   }  // end namspace frydom::internal
 

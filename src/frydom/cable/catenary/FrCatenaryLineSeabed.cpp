@@ -6,6 +6,8 @@
 #include "frydom/cable/common/FrCableProperties.h"
 
 #include "FrCatenaryLine.h"
+
+#include "frydom/core/common/FrNode.h"
 #include "frydom/logging/FrTypeNames.h"
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/environment/FrEnvironment.h"
@@ -333,9 +335,9 @@ namespace frydom {
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
   }
 
-  internal::FrPhysicsItemBase *FrCatenaryLineSeabed::GetChronoItem_ptr() const {
-    return m_chronoPhysicsItem.get();
-  }
+//  internal::FrPhysicsItemBase *FrCatenaryLineSeabed::GetChronoItem_ptr() const {
+//    return m_chronoPhysicsItem.get();
+//  }
 
   void FrCatenaryLineSeabed::DefineLogMessages() {
 // TODO

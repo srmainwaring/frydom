@@ -5,7 +5,6 @@
 #ifndef FRYDOM_TORSOR_H
 #define FRYDOM_TORSOR_H
 
-//#include "frydom/core/common/FrFrame.h"
 #include "FrVector.h"
 
 namespace frydom {

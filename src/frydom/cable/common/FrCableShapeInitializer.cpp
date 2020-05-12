@@ -5,6 +5,8 @@
 #include "FrCableShapeInitializer.h"
 #include "frydom/logging/FrEventLogger.h"
 
+#include "frydom/core/common/FrNode.h"
+
 #include "frydom/environment/FrEnvironmentInc.h"
 
 #include "FrCableBase.h"

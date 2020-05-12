@@ -22,10 +22,6 @@ namespace frydom {
     m_mesh->SetMesh(mesh);
   }
 
-  std::shared_ptr<chrono::ChAsset> FrTriangleMeshShape::GetChronoAsset() {
-    return m_mesh;
-  }
-
   std::vector<FrTriangleMeshShape::Vertex> FrTriangleMeshShape::vertices() const {
     std::vector<FrTriangleMeshShape::Vertex> result;
     for (const auto &vertex : m_mesh->GetMesh()->m_vertices) {
@@ -57,4 +53,17 @@ namespace frydom {
     }
     return result;
   }
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrTriangleMeshShape> mesh) {
+      return mesh->m_mesh;
+    }
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrTriangleMeshShape *mesh) {
+      return mesh->m_mesh;
+    }
+
+  } // end namespace frydom::internal
+
 }  // end namespace frydom

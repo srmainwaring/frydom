@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   double radius = 5, height = 10., xSize = 5., ySize = 5., zSize = 10., Mass = 1000.;
   // Three default visual assets are available : sphere, cylinder and box shaped assets.
-  body->AddSphereShape(radius); // radius = 20m
+  body->AddSphereShape(radius, {0., 0., 0.}, NWU); // radius = 20m
 //    body->AddCylinderShape(radius, height); // radius = 10m, height = 20m
 //    body->AddBoxShape(xSize, ySize, zSize); // xSize = 5m, ySize = 10m, zSize = 20m
 

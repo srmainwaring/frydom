@@ -17,7 +17,7 @@ set(UNIT_TESTS
         test_FrGeographicServices
         test_FrEquilibriumFrame
         test_FrWaveField
-        test_FrMorisonElement
+#        test_FrMorisonElement
         test_FrRecorder
         test_FrStandardWindForce
         test_FrStandardCurrentForce

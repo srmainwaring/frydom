@@ -12,6 +12,17 @@
 
 namespace frydom {
 
+  class FrConstraint;
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChLink> GetChronoConstraint(std::shared_ptr<FrConstraint> constraint);
+
+    std::shared_ptr<chrono::ChLink> GetChronoConstraint(const FrConstraint *constraint);
+
+  }  // end namespace frydom::internal
+
+
   class FrCPoint;
 
   class FrCAxis;
@@ -45,11 +56,6 @@ namespace frydom {
                  FrOffshoreSystem *system,
                  const std::shared_ptr<FrNode> &node1,
                  const std::shared_ptr<FrNode> &node2);
-
-//    /// \return Pointer to the offshore system
-//    FrOffshoreSystem *GetSystem() const override {
-//      return GetParent();
-//    }
 
     /// Get the constraint reference frame, relatively to the world reference frame
     /// \return constraint reference frame, relatively to the world reference frame
@@ -107,19 +113,11 @@ namespace frydom {
 
    protected:
 
-    /// Get the embedded Chrono object
-    std::shared_ptr<chrono::ChLink> GetChronoLink() override;
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLink *GetChronoItem_ptr() const override;
-
     void DefineLogMessages() override;
 
+    friend std::shared_ptr<chrono::ChLink> internal::GetChronoConstraint(std::shared_ptr<FrConstraint>);
 
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
+    friend std::shared_ptr<chrono::ChLink> internal::GetChronoConstraint(const FrConstraint *);
 
   };
 
@@ -153,13 +151,6 @@ namespace frydom {
 
     /// Initialize the constraint
     void Initialize() override;
-
-   protected:
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkMateParallel *
-    GetChronoItem_ptr() const override { return dynamic_cast<chrono::ChLinkMateParallel *>(m_chronoConstraint.get()); }
 
   };
 
@@ -202,13 +193,6 @@ namespace frydom {
 
     /// Initialize the constraint
     void Initialize() override;
-
-   protected:
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkMateOrthogonal *
-    GetChronoItem_ptr() const override { return dynamic_cast<chrono::ChLinkMateOrthogonal *>(m_chronoConstraint.get()); }
 
   };
 
@@ -264,13 +248,6 @@ namespace frydom {
     /// \param distance distance between the two planes, in m
     void SetDistance(double distance);
 
-   protected:
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkMatePlane *
-    GetChronoItem_ptr() const override { return dynamic_cast<chrono::ChLinkMatePlane *>(m_chronoConstraint.get()); }
-
   };
 
   /// maker for a plane on plane constraint
@@ -323,13 +300,6 @@ namespace frydom {
     /// \param distance distance between the point and the plane, in m
     void SetDistance(double distance);
 
-   protected:
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkMateXdistance *
-    GetChronoItem_ptr() const override { return dynamic_cast<chrono::ChLinkMateXdistance *>(m_chronoConstraint.get()); }
-
   };
 
   /// maker for a point on plane constraint
@@ -374,14 +344,6 @@ namespace frydom {
 
     /// Initialize the constraint
     void Initialize() override;
-
-   protected:
-//    friend class FrNode; // To make possible to declare SetMarkers friend in FrNode
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkLockPointLine *
-    GetChronoItem_ptr() const override { return dynamic_cast<chrono::ChLinkLockPointLine *>(m_chronoConstraint.get()); }
 
   };
 
@@ -439,15 +401,6 @@ namespace frydom {
     /// Get the distance between the point and the axis
     /// \return distance between the point and the axis, in m
     double GetDistance() const;
-
-   protected:
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkRevoluteSpherical *
-    GetChronoItem_ptr() const override {
-      return dynamic_cast<chrono::ChLinkRevoluteSpherical *>(m_chronoConstraint.get());
-    }
 
   };
 
@@ -509,13 +462,6 @@ namespace frydom {
     /// \return distance between the two points, in m
     double GetDistance() const;
 
-   protected:
-
-    /// Get the pointer to the chrono constraint
-    /// \return pointer to the chrono constraint
-    chrono::ChLinkDistance *
-    GetChronoItem_ptr() const override { return dynamic_cast<chrono::ChLinkDistance *>(m_chronoConstraint.get()); }
-
   };
 
   /// maker for a distance constraint between two points
@@ -533,6 +479,6 @@ namespace frydom {
                                           bool autoDistance,
                                           double distance = 0.);
 
-
 } // end namespace frydom
+
 #endif //FRYDOM_FRCONSTRAINT_H

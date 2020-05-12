@@ -37,7 +37,7 @@ namespace frydom {
    * \class FrHydroMesh
    * \brief Class for managing the meshes used for computing the nonlinear hydrostatic and Froude-Krylov loads.
    */
-  class FrHydroMesh : public FrTreeNode<FrOffshoreSystem>, public FrPrePhysicsItem, public FrAssetOwner {
+  class FrHydroMesh : public FrTreeNode<FrOffshoreSystem>, public FrPhysicsItem, public FrAssetOwner {
 
    public:
 
@@ -95,9 +95,9 @@ namespace frydom {
     /// \param time Current time of the simulation from beginning.
     void Compute(double time) override;
 
-    /// Get the internal item, related to chrono::ChPhysicsItem
-    /// \return internal item, related to chrono::ChPhysicsItem
-    chrono::ChPhysicsItem *GetChronoItem_ptr() const override { return m_chronoPhysicsItem.get(); };
+//    /// Get the internal item, related to chrono::ChPhysicsItem
+//    /// \return internal item, related to chrono::ChPhysicsItem
+//    chrono::ChPhysicsItem *GetChronoItem_ptr() const override { return m_chronoPhysicsItem.get(); };
 
    private:
 

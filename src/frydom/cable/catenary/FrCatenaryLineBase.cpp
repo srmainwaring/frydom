@@ -2,12 +2,14 @@
 // Created by frongere on 03/03/2020.
 //
 
+#include "FrCatenaryLineBase.h"
+
 #include "frydom/logging/FrTypeNames.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/environment/ocean/FrOcean.h"
 #include "frydom/environment/ocean/freeSurface/FrFreeSurface.h"
+#include "frydom/core/common/FrNode.h"
 
-#include "FrCatenaryLineBase.h"
 #include "frydom/cable/common/FrCableProperties.h"
 
 
@@ -80,7 +82,7 @@ namespace frydom {
                                          const std::shared_ptr<FrCableProperties> &properties, bool elastic,
                                          double unstretchedLength) :
       FrLoggable(name, type, startingNode->GetSystem()),
-      FrPrePhysicsItem(),
+      FrPhysicsItem(),
       FrCableBase(startingNode, endingNode, properties, unstretchedLength),
       m_elastic(elastic),
       m_use_for_shape_initialization(false),

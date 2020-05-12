@@ -10,25 +10,20 @@
 // ==========================================================================
 
 
-
-#include <frydom/logging/FrEventLogger.h>
 #include "FrBody.h"
 
 
+#include "frydom/logging/FrEventLogger.h"
 #include "chrono/assets/ChColorAsset.h"
-
-
 #include "frydom/core/math/FrMatrix.h"
 #include "frydom/core/force/FrForce.h"
+#include "frydom/core/common/FrNode.h"
 #include "frydom/asset/FrAsset.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/environment/geographicServices/FrGeographicServices.h"
 #include "frydom/asset/FrForceAsset.h"
 #include "frydom/collision/FrCollisionModel.h"
-#include "frydom/core/link/links_lib/FrDOFMaskLink.h"
-#include "frydom/core/link/links_lib/FrFixedLink.h"
 #include "frydom/logging/FrLogManager.h"
-
 #include "frydom/logging/FrPathManager.h"
 #include "frydom/logging/FrTypeNames.h"
 
@@ -209,18 +204,24 @@ namespace frydom {
     }
 
 
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(std::shared_ptr<FrBody> body) {
+      return body->m_chronoBody;
+    }
+
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(FrBody *body) {
+      return body->m_chronoBody;
+    }
+
+
   }  // end namespace frydom::internal
 
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
-      m_chronoBody(std::make_shared<internal::FrBodyBase>(this)) {
-
-//        SetLogged(true);
+      m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
+      m_DOFMask(std::make_unique<FrDOFMask>()) {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
-
-    m_DOFMask = std::make_unique<FrDOFMask>();
 
     event_logger::info(GetTypeName(), GetName(), "Body created");
 
@@ -512,7 +513,7 @@ namespace frydom {
     event_logger::info(GetTypeName(), GetName(), "External force {} removed", force->GetName());
 
     if (force->m_asset != nullptr) {
-      m_chronoBody->RemoveAsset(force->m_asset->GetChronoAsset());
+      m_chronoBody->RemoveAsset(internal::GetChronoAsset(force->m_asset));
 
       bool asserted = false;
       for (int ia = 0; ia < m_assets.size(); ++ia) {
@@ -1150,13 +1151,13 @@ namespace frydom {
 
   }
 
-  std::shared_ptr<internal::FrBodyBase> FrBody::GetChronoBody() {
-    return m_chronoBody;
-  }
+//  std::shared_ptr<internal::FrBodyBase> FrBody::GetChronoBody() {
+//    return m_chronoBody;
+//  }
 
-  internal::FrBodyBase *FrBody::GetChronoItem_ptr() const {
-    return m_chronoBody.get();
-  }
+//  internal::FrBodyBase *FrBody::GetChronoItem_ptr() const {
+//    return m_chronoBody.get();
+//  }
 
   FrBody::ForceContainer FrBody::GetForceList() const { return m_externalForces; }
 

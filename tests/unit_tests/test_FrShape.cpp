@@ -8,7 +8,7 @@ TEST(FrShape, FrBoxShape) {
   FrOffshoreSystem system("test_FrShape");
 
   auto body = system.NewBody("body");
-  body->AddBoxShape(1, 2, 3);
+  body->AddBoxShape(1, 2, 3, {0., 0., 0.}, NWU);
 
   ASSERT_EQ(body->GetBoxShapes().size(), 1);
   ASSERT_EQ(body->GetCylinderShapes().size(), 0);
@@ -25,7 +25,7 @@ TEST(FrShape, FrCylinderShape) {
   FrOffshoreSystem system("test_FrShape");
 
   auto body = system.NewBody("body");
-  body->AddCylinderShape(1, 10);
+  body->AddCylinderShape(1, 10, {0., 0., 0.}, NWU);
 
   ASSERT_EQ(body->GetBoxShapes().size(), 0);
   ASSERT_EQ(body->GetCylinderShapes().size(), 1);
@@ -41,7 +41,7 @@ TEST(FrShape, FrSphereShape) {
   FrOffshoreSystem system("test_FrShape");
 
   auto body = system.NewBody("body");
-  body->AddSphereShape(1);
+  body->AddSphereShape(1, {0., 0., 0.}, NWU);
 
   ASSERT_EQ(body->GetBoxShapes().size(), 0);
   ASSERT_EQ(body->GetCylinderShapes().size(), 0);

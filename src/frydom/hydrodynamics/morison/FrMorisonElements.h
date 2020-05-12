@@ -315,7 +315,7 @@ namespace frydom {
   /// computed at the center of gravity of the body. The force is expressed in the world coordinates system
   /// and the torque in the body coordinate system.
   class FrMorisonCompositeElement : public FrMorisonElement,
-                                    public FrPrePhysicsItem,
+                                    public FrPhysicsItem,
                                     public FrTreeNode<FrBody> {
 
    protected:

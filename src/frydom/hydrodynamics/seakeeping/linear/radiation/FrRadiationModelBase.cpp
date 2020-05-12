@@ -15,6 +15,7 @@
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+#include "FrVariablesBEMBodyBase.h"
 
 
 namespace frydom {
@@ -88,9 +89,8 @@ namespace frydom {
       // Nothing to do since added mass variables encapsulate the body variables
     }
 
-    int FrRadiationModelBase::GetBodyOffset(FrBody *body) const {
-      auto chronoBody = body->GetChronoBody();
-      return chronoBody->GetOffset_w();
+    unsigned int FrRadiationModelBase::GetBodyOffset(FrBody *body) const {
+      return internal::GetChronoBody(body)->GetOffset_w();
     }
 
 
@@ -99,8 +99,10 @@ namespace frydom {
       auto HDB = GetRadiationModel()->GetHydroDB();
 
       for (auto body = HDB->begin(); body != HDB->end(); body++) {
-        auto chronoBody = body->second->GetChronoBody();
-        auto variable = std::make_shared<FrVariablesBEMBodyBase>(this, body->first, &chronoBody->VariablesBody());
+        auto chronoBody = internal::GetChronoBody(body->second);
+        auto variable = std::make_shared<FrVariablesBEMBodyBase>(this,
+                                                                 body->first,
+                                                                 &chronoBody->VariablesBody());
         chronoBody->SetVariables(variable);
       }
 

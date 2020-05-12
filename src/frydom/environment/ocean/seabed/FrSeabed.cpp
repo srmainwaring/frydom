@@ -236,7 +236,7 @@ namespace frydom {
 //    surface_material->SetKt(2e6);
 
 
-    auto collision_model = m_seabed_body->GetChronoBody()->GetCollisionModel();
+    auto collision_model = internal::GetChronoBody(m_seabed_body)->GetCollisionModel();
     collision_model->ClearModel();
 
     double hx = 2000;

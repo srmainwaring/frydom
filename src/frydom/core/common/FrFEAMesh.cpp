@@ -12,6 +12,10 @@ namespace frydom {
         chrono::fea::ChMesh(),
         m_frydom_mesh(frydom_mesh) {}
 
+    std::shared_ptr<FrFEAMeshBase> GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh) {
+      return mesh->m_chrono_mesh;
+    }
+
   }  // end namespace frydom::internal
 
 

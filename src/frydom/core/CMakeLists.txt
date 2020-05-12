@@ -29,6 +29,7 @@ list(APPEND SRC_FILES
 # FORCE
 list(APPEND SRC_FILES
         force/FrForce.cpp
+        force/FrConstantForce.cpp
         )
 
 # LINK // TODO : cmakiser les repertoires !!
@@ -62,6 +63,8 @@ list(APPEND SRC_FILES
         math/FrMatrix.cpp
         math/FrVector.cpp
         math/Torsor.cpp
+
+        math/Fr3DGeometry.cpp
 
         math/functions/FrFunctionBase.cpp
 

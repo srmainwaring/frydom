@@ -10,7 +10,7 @@ set(DEMOS
         Body
         Rotation_and_Frame
         Hydrodynamic
-        Morison
+#        Morison
         Cable
         Hub_Installation
         Langlee

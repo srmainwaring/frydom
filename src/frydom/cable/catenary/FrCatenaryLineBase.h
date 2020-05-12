@@ -23,7 +23,7 @@ namespace frydom {
 
   class FrCatenaryLineBase : public FrLoggable<FrOffshoreSystem>,
                              public FrCableBase,
-                             public FrPrePhysicsItem,
+                             public FrPhysicsItem,
                              public FrCatenaryAssetOwner {
 
    public:

@@ -14,29 +14,39 @@
 #define FRYDOM_FRBODY_H
 
 #include "chrono/physics/ChBodyAuxRef.h"
-#include "chrono/solver/ChVariables.h"
 
 #include "frydom/asset/FrAssetOwner.h"
-#include "frydom/cable/fea/FrFEACable.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/body/FrInertiaTensor.h"
-#include "frydom/core/common/FrNode.h"
-#include "frydom/core/common/FrObject.h"
 #include "frydom/core/link/links_lib/FrDOFMaskLink.h"
-#include "frydom/core/misc/FrColors.h"
-#include "frydom/mesh/FrMesh.h"
-#include "frydom/logging/FrLoggable.h"
-#include "frydom/environment/ocean/seabed/FrSeabed.h"
 
-// TODO : voir si il n'y a pas moyen de passer ces includes
-#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBase.h"
-#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrVariablesBEMBodyBase.h"
-#include "frydom/core/common/FrVariablesBodyBase.h"
-#include "frydom/hydrodynamics/morison/FrMorisonModelBase.h"
+
+//#include "frydom/core/common/FrNode.h"
+//#include "frydom/core/common/FrObject.h"
+
+//#include "frydom/core/misc/FrColors.h"
+//#include "frydom/mesh/FrMesh.h"
+//#include "frydom/logging/FrLoggable.h"
+//#include "frydom/environment/ocean/seabed/FrSeabed.h"
+//#include "frydom/cable/mooring_components/FrClumpWeight.h"
+//#include "frydom/cable/fea/FrFEACable.h"
+
+//// TODO : voir si il n'y a pas moyen de passer ces includes
+//#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBase.h"
+//#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrVariablesBEMBodyBase.h"
+//#include "frydom/core/common/FrVariablesBodyBase.h"
+//#include "frydom/hydrodynamics/morison/FrMorisonModelBase.h"
 
 
 #define DEFAULT_MAX_SPEED (float)10.
 #define DEFAULT_MAX_ROTATION_SPEED (float)(180.*DEG2RAD)
+
+// Forward declaration Chrono
+namespace chrono {
+  class ChVariables;
+}
+
+
 
 namespace frydom {
 
@@ -127,6 +137,11 @@ namespace frydom {
 
     };
 
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(std::shared_ptr<FrBody> body);
+
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(FrBody *body);
+
+
   }  // end namespace internal
 
 
@@ -144,6 +159,8 @@ namespace frydom {
   class FrTriangleMeshConnected;
 
   class FrCollisionModel;
+
+  class FrDOFMask;
 
   /// Main class for a FRyDoM rigid body
   /**
@@ -178,6 +195,7 @@ namespace frydom {
 //    inline FrOffshoreSystem *GetSystem() const {
 //      return GetParent();
 //    }
+    ~FrBody() = default;
 
     /// Make the body fixed
     /// \param state true if body is fixed, false otherwise
@@ -948,16 +966,16 @@ namespace frydom {
     /// \return cartPos cartesian position
     Position GeoToCart(const FrGeographicCoord &geoCoord, FRAME_CONVENTION fc);
 
-   protected:
-    /// Get the shared pointer to the chronoBody attribute
-    /// \return shared pointer to the chronoBody attribute
-    std::shared_ptr<internal::FrBodyBase> GetChronoBody();
+//   protected:
+//    /// Get the shared pointer to the chronoBody attribute
+//    /// \return shared pointer to the chronoBody attribute
+//    std::shared_ptr<internal::FrBodyBase> GetChronoBody();
 
    protected:
 
-    /// Get the chronoBody attribute pointer
-    /// \return Pointer to the chronoBody attribute
-    internal::FrBodyBase *GetChronoItem_ptr() const override;
+//    /// Get the chronoBody attribute pointer
+//    /// \return Pointer to the chronoBody attribute
+//    internal::FrBodyBase *GetChronoItem_ptr() const override;
 
     void InitializeLockedDOF();
 
@@ -1004,40 +1022,43 @@ namespace frydom {
     // friend declarations
     // ===================================================================================================
 
-    friend void makeItBox(std::shared_ptr<FrBody>, double, double, double, double);
+//    friend void makeItBox(std::shared_ptr<FrBody>, double, double, double, double);
+//
+//    friend void makeItCylinder(std::shared_ptr<FrBody>, double, double, double);
+//
+//    friend void makeItSphere(std::shared_ptr<FrBody>, double, double);
+//
+//
+//    friend FrNode::FrNode(const std::string &name, FrBody *);
+//
+//    friend FrLinkBase::FrLinkBase(const std::shared_ptr<FrNode> &,
+//                                  const std::shared_ptr<FrNode> &);
+//
+//
+//    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
+//
+//    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
+//
+//    friend void internal::FrFEACableBase::InitializeLinks();
+//
+//    friend void FrFlatSeabed::CreateContactBox();
+//
+//    // For radiation model purpose
+//    friend int internal::FrRadiationModelBase::GetBodyOffset(FrBody *body) const;
+//
+//    friend void internal::FrRadiationModelBase::InjectVariablesToBody();
+//
+//    friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesFb(FrBody *body) const;
+//
+//    friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *) const;
+//
+//    // Variables
+//    friend internal::FrVariablesBodyBase::FrVariablesBodyBase(FrBody* body);
+//
+//    friend int internal::FrMorisonModelBase::GetBodyOffset() const;
 
-    friend void makeItCylinder(std::shared_ptr<FrBody>, double, double, double);
-
-    friend void makeItSphere(std::shared_ptr<FrBody>, double, double);
-
-
-    friend FrNode::FrNode(const std::string &name, FrBody *);
-
-    friend FrLinkBase::FrLinkBase(const std::shared_ptr<FrNode> &,
-                                  const std::shared_ptr<FrNode> &);
-
-
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void internal::FrFEACableBase::InitializeLinks();
-
-    friend void FrFlatSeabed::CreateContactBox();
-
-    // For radiation model purpose
-    friend int internal::FrRadiationModelBase::GetBodyOffset(FrBody *body) const;
-
-    friend void internal::FrRadiationModelBase::InjectVariablesToBody();
-
-    friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesFb(FrBody *body) const;
-
-    friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *) const;
-
-    // Variables
-    friend internal::FrVariablesBodyBase::FrVariablesBodyBase(FrBody* body);
-
-    friend int internal::FrMorisonModelBase::GetBodyOffset() const;
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(std::shared_ptr<FrBody> body);
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(FrBody *body);
 
   };
 

@@ -42,7 +42,7 @@ namespace frydom {
    * \class FrRadiationModel
    * \brief Class for computing the radiation loads.
    */
-  class FrRadiationModel : public FrTreeNode<FrOffshoreSystem>, public FrPrePhysicsItem {
+  class FrRadiationModel : public FrTreeNode<FrOffshoreSystem>, public FrPhysicsItem {
 
    protected:
 

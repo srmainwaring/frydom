@@ -81,7 +81,7 @@ namespace frydom {
     }
 
     // Initialization of the parent class.
-    FrPrePhysicsItem::Initialize();
+    FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
 
   }

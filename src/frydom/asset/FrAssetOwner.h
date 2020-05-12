@@ -20,20 +20,16 @@
 #include "frydom/core/math/FrVector.h"
 
 namespace chrono {
-  class ChPhysicsItem;
-}
 
-namespace chrono {
   class ChPhysicsItem;
 
   class ChAsset;
+
 }  // end namespace chrono
 
 namespace frydom {
 
   // Forward declarations:
-  class FrPhysicsItem;
-
   class FrAsset;
 
   class FrTriangleMeshConnected;
@@ -61,28 +57,13 @@ namespace frydom {
     using SphereShapeConstContainer = std::vector<std::shared_ptr<const FrSphereShape>>;
     using TriangleMeshShapeContainer = std::vector<std::shared_ptr<FrTriangleMeshShape>>;
     using TriangleMeshShapeConstContainer = std::vector<std::shared_ptr<const FrTriangleMeshShape>>;
-    BoxShapeContainer m_boxShapes;
-    CylinderShapeContainer m_cylinderShapes;
-    SphereShapeContainer m_sphereShapes;
-    TriangleMeshShapeContainer m_meshShapes;
-
-    /// Get the internal item, related to chrono::ChPhysicsItem
-    /// \return internal item, related to chrono::ChPhysicsItem
-    virtual chrono::ChPhysicsItem *GetChronoItem_ptr() const = 0;
-
-    virtual std::shared_ptr<chrono::ChPhysicsItem *> GetChronoItem_shared() const { return nullptr; }
-
-    virtual void RemoveChronoAsset(std::shared_ptr<chrono::ChAsset> asset);
 
    public:
 
-//        /// Gets the simulation time of this object
-//        /// \return simulation time of this object
-//        double GetTime(); //FIXME : bug in release?
+    virtual ~FrAssetOwner() = default; // At least one virtual method to make the class polymorphic
 
     /// Update the assets
     void UpdateAsset();
-
 
     /// Add a box shape to the body with its dimensions defined in absolute coordinates. Dimensions in meters
     /// \param xSize size of the box along the x absolute coordinates
@@ -129,8 +110,8 @@ namespace frydom {
     void AddAsset(std::shared_ptr<FrAsset> asset);
 
     void RemoveAssets();
-
-    void RemoveAsset(std::shared_ptr<FrAsset> asset);
+//
+//    void RemoveAsset(std::shared_ptr<FrAsset> asset);
 
     /// Set the asset color in visualization given a color id
     /// \param colorName color of the asset
@@ -152,7 +133,21 @@ namespace frydom {
 
     ConstAssetIter asset_end() const;
 
+   protected:
+    BoxShapeContainer m_boxShapes;
+    CylinderShapeContainer m_cylinderShapes;
+    SphereShapeContainer m_sphereShapes;
+    TriangleMeshShapeContainer m_meshShapes;
+
   };
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChPhysicsItem> GetChronoPhysicsItemFromAsset(FrAssetOwner *assetOwner);
+
+  }  // end namespace frydom::internal
+
+
 
 }// end namespace frydom
 #endif //FRYDOM_FRASSETOWNER_H

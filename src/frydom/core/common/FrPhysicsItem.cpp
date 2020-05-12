@@ -9,8 +9,6 @@
 //
 // ==========================================================================
 
-#include "chrono/assets/ChColorAsset.h"
-#include "chrono_irrlicht/ChIrrNodeAsset.h"
 
 #include "FrPhysicsItem.h"
 
@@ -27,6 +25,14 @@ namespace frydom {
     void FrPhysicsItemBase::Update(double time, bool update_assets) {
       m_frydomPhysicsItem->Update(time);
       ChPhysicsItem::Update(time, update_assets);
+    }
+
+    std::shared_ptr<FrPhysicsItemBase> GetChronoPhysicsItem(std::shared_ptr<FrPhysicsItem> item) {
+      return item->m_chronoPhysicsItem;
+    }
+
+    std::shared_ptr<FrPhysicsItemBase> GetChronoPhysicsItem(FrPhysicsItem* item) {
+      return item->m_chronoPhysicsItem;
     }
 
   }  // end namespace frydom::internal

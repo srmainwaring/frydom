@@ -48,7 +48,7 @@ namespace frydom {
      void IntFromDescriptor(const unsigned int off_v, chrono::ChStateDelta &v,
                             const unsigned int off_L, chrono::ChVectorDynamic<> &L) override;
 
-     int GetBodyOffset() const;
+     unsigned int GetBodyOffset() const;
 
    };
 

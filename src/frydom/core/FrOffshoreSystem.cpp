@@ -9,6 +9,10 @@
 //
 // ==========================================================================
 
+#include <chrono/physics/ChLinkMotorRotation.h>
+#include <chrono/physics/ChLinkMotorLinear.h>
+#include <frydom/mesh/FrHydroMesh.h>
+
 
 #include "FrOffshoreSystem.h"
 
@@ -22,13 +26,18 @@
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrFEAMesh.h"
 #include "frydom/cable/fea/FrFEACable.h"
+#include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
+
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/utils/FrIrrApp.h"
 #include "frydom/core/statics/FrStaticAnalysis.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 #include "frydom/cable/fea/FrFEALink.h"
+
+#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
 
 #include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
@@ -242,14 +251,14 @@ namespace frydom {
 
 // ***** Body *****
 
-  void FrOffshoreSystem::AddBody(std::shared_ptr<FrBody> body, std::shared_ptr<internal::FrBodyBase> chrono_body) {
+  void FrOffshoreSystem::AddBody(std::shared_ptr<FrBody> body) {
 
     // TODO : voir si on set pas d'autorite le mode de contact a celui du systeme plutot que de faire un if...
     if (!CheckBodyContactMethod(body)) {
       body->SetContactMethod(m_systemType);
     }
 
-    m_chronoSystem->AddBody(chrono_body);  // Authorized because this method is a friend of FrBody
+    m_chronoSystem->AddBody(internal::GetChronoBody(body));  // Authorized because this method is a friend of FrBody
     m_bodyList.push_back(body);
 
     event_logger::info(GetTypeName(), GetName(),
@@ -260,9 +269,9 @@ namespace frydom {
     return m_bodyList;
   }
 
-  void FrOffshoreSystem::RemoveBody(std::shared_ptr<FrBody> body, std::shared_ptr<internal::FrBodyBase> chrono_body) {
+  void FrOffshoreSystem::RemoveBody(std::shared_ptr<FrBody> body) {
 
-    m_chronoSystem->RemoveBody(chrono_body);
+    m_chronoSystem->RemoveBody(internal::GetChronoBody(body));
 
     auto it = std::find(body_begin(), body_end(), body);
     assert(it != body_end());
@@ -289,15 +298,15 @@ namespace frydom {
 
 // ***** Link *****
 
-  void FrOffshoreSystem::AddLink(std::shared_ptr<FrLink> link, std::shared_ptr<chrono::ChLink> chrono_link) {
-    m_chronoSystem->AddLink(chrono_link);
+  void FrOffshoreSystem::AddLink(std::shared_ptr<FrLink> link) {
+    m_chronoSystem->AddLink(internal::GetChronoLink(link));
     m_linkList.push_back(link);
     event_logger::info(GetTypeName(), GetName(), "Link {} has been ADDED to the system", link->GetName());
   }
 
-  void FrOffshoreSystem::RemoveLink(std::shared_ptr<FrLink> link, std::shared_ptr<chrono::ChLink> chrono_link) {
+  void FrOffshoreSystem::RemoveLink(std::shared_ptr<FrLink> link) {
 
-    m_chronoSystem->RemoveLink(chrono_link);
+    m_chronoSystem->RemoveLink(internal::GetChronoLink(link));
 
     auto it = std::find(link_begin(), link_end(), link);
     assert(it != link_end());
@@ -320,17 +329,15 @@ namespace frydom {
 
 // ***** Constraint *****
 
-  void FrOffshoreSystem::AddConstraint(std::shared_ptr<FrConstraint> constraint,
-                                       std::shared_ptr<chrono::ChLink> chrono_link) {
-    m_chronoSystem->AddLink(chrono_link);
+  void FrOffshoreSystem::AddConstraint(std::shared_ptr<FrConstraint> constraint) {
+    m_chronoSystem->AddLink(internal::GetChronoConstraint(constraint));
     m_constraintList.push_back(constraint);
     event_logger::info(GetTypeName(), GetName(), "Constraint {} has been ADDED to the system", constraint->GetName());
   }
 
-  void FrOffshoreSystem::RemoveConstraint(std::shared_ptr<FrConstraint> constraint,
-                                          std::shared_ptr<chrono::ChLink> chrono_link) {
+  void FrOffshoreSystem::RemoveConstraint(std::shared_ptr<FrConstraint> constraint) {
 
-    m_chronoSystem->RemoveLink(chrono_link);
+    m_chronoSystem->RemoveLink(internal::GetChronoConstraint(constraint));
 
     auto it = std::find(constraint_begin(), constraint_end(), constraint);
     assert(it != constraint_end());
@@ -355,16 +362,30 @@ namespace frydom {
 // ***** Actuator *****
 
   void
-  FrOffshoreSystem::AddActuator(std::shared_ptr<FrActuator> actuator, std::shared_ptr<chrono::ChLink> chrono_link) {
-    m_chronoSystem->AddLink(chrono_link);
+  FrOffshoreSystem::AddActuator(std::shared_ptr<FrActuator> actuator) {
+
+    if (auto linear_actuator = std::dynamic_pointer_cast<FrLinearActuator>(actuator)) {
+      m_chronoSystem->AddLink(internal::GetChronoActuator(linear_actuator));
+    }
+
+    if (auto angular_actuator = std::dynamic_pointer_cast<FrAngularActuator>(actuator)) {
+      m_chronoSystem->AddLink(internal::GetChronoActuator(angular_actuator));
+    }
+
     m_actuatorList.push_back(actuator);
     event_logger::info(GetTypeName(), GetName(), "Actuator {} has been ADDED to the system", actuator->GetName());
   }
 
   void
-  FrOffshoreSystem::RemoveActuator(std::shared_ptr<FrActuator> actuator, std::shared_ptr<chrono::ChLink> chrono_link) {
+  FrOffshoreSystem::RemoveActuator(std::shared_ptr<FrActuator> actuator) {
 
-    m_chronoSystem->RemoveLink(chrono_link);
+    if (auto linear_actuator = std::dynamic_pointer_cast<FrLinearActuator>(actuator)) {
+      m_chronoSystem->RemoveLink(internal::GetChronoActuator(linear_actuator));
+    }
+
+    if (auto angular_actuator = std::dynamic_pointer_cast<FrAngularActuator>(actuator)) {
+      m_chronoSystem->RemoveLink(internal::GetChronoActuator(angular_actuator));
+    }
 
     auto it = std::find(actuator_begin(), actuator_end(), actuator);
     assert(it != actuator_end());
@@ -384,35 +405,56 @@ namespace frydom {
       Remove(actuator);
   }
 
+  void FrOffshoreSystem::AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(catenary_line_base));
+    m_physicsItemsList.push_back(catenary_line_base);
+    event_logger::info(GetTypeName(), GetName(), "A Catenary line has been ADDED to the system");
+  }
+
+  void FrOffshoreSystem::AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(equilibrium_frame));
+    m_physicsItemsList.push_back(equilibrium_frame);
+    event_logger::info(GetTypeName(), GetName(), "An equilibrium frame has been ADDED to the system");
+  }
+
+  void FrOffshoreSystem::AddHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(hydro_mesh));
+    m_physicsItemsList.push_back(hydro_mesh);
+    event_logger::info(GetTypeName(), GetName(), "An hydrodynamic mesh has been ADDED to the system");
+  }
+
 
 // ***** Physics Item *****
 
-  void FrOffshoreSystem::AddPhysicsItem(std::shared_ptr<FrPrePhysicsItem> otherPhysics,
-                                        std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item) {
+//  void FrOffshoreSystem::AddPhysicsItem(std::shared_ptr<FrPhysicsItem> physicsItem) {
+//
+//    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(physicsItem));
+//    m_physicsItemsList.push_back(physicsItem);
+//    event_logger::info(GetTypeName(), GetName(), "A Physics Item has been ADDED to the system");
+//  }
 
-    m_chronoSystem->AddOtherPhysicsItem(chrono_physics_item);
-    m_prePhysicsList.push_back(otherPhysics);
-    event_logger::info(GetTypeName(), GetName(), "A Physics Item has been ADDED to the system");
+//  void FrOffshoreSystem::AddPhysicsItem(std::shared_ptr<FrPhysicsItem> otherPhysics) {
+//  m_chronoSystem->AddOtherPhysicsItem(chrono_physics_item);
+//  m_phy
+//  }
+
+  FrOffshoreSystem::PhysicsContainer FrOffshoreSystem::GetPhysicsItemList() {
+    return m_physicsItemsList;
   }
 
-  FrOffshoreSystem::PrePhysicsContainer FrOffshoreSystem::GetPrePhysicsItemList() {
-    return m_prePhysicsList;
-  }
-
-  void FrOffshoreSystem::RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> item,
-                                           std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item) {
-
-    m_chronoSystem->RemoveOtherPhysicsItem(chrono_physics_item);
-
-    auto it = std::find(m_prePhysicsList.begin(), m_prePhysicsList.end(), item);
-    if (it != m_prePhysicsList.end())
-      m_prePhysicsList.erase(it);
-    event_logger::info(GetTypeName(), GetName(), "A Physics Item has been REMOVED to the system");
-  }
+//  void FrOffshoreSystem::RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> physicsItem) {
+//
+//    m_chronoSystem->RemoveOtherPhysicsItem(internal::GetChronoPhysicsItem(physicsItem));
+//
+//    auto it = std::find(m_physicsItemsList.begin(), m_physicsItemsList.end(), physicsItem);
+//    if (it != m_physicsItemsList.end())
+//      m_physicsItemsList.erase(it);
+//    event_logger::info(GetTypeName(), GetName(), "A Physics Item has been REMOVED to the system");
+//  }
 
 //  void FrOffshoreSystem::RemoveAllPhysicsItem() {
 //
-//    for (auto &item: m_prePhysicsList)
+//    for (auto &item: m_physicsItemsList)
 //      Remove(item);
 //
 //  }
@@ -420,10 +462,9 @@ namespace frydom {
 
 // ***** FEAMesh *****
 
-  void FrOffshoreSystem::AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-                                    std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh) {
+  void FrOffshoreSystem::AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh) {
 
-    m_chronoSystem->AddMesh(chrono_mesh);
+    m_chronoSystem->AddMesh(internal::GetChronoFEAMesh(feaMesh));
 
 //      feaMesh->m_system = this;
     m_feaMeshList.push_back(feaMesh);
@@ -433,10 +474,9 @@ namespace frydom {
     return m_feaMeshList;
   }
 
-  void FrOffshoreSystem::RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feamesh,
-                                       std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh) {
+  void FrOffshoreSystem::RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feamesh) {
 
-    m_chronoSystem->RemoveMesh(chrono_mesh);
+    m_chronoSystem->RemoveMesh(internal::GetChronoFEAMesh(feamesh));
 
     auto it = std::find(m_feaMeshList.begin(), m_feaMeshList.end(), feamesh);
     assert(it != m_feaMeshList.end());
@@ -445,24 +485,29 @@ namespace frydom {
 
   }
 
-  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable,
-                                     std::shared_ptr<internal::FrFEACableBase> chrono_mesh) {
+  void FrOffshoreSystem::AddFEACable(std::shared_ptr<FrFEACable> cable) {
 
     // Add the FEA mesh
-    AddFEAMesh(cable, chrono_mesh);
+    AddFEAMesh(cable);
 
     // Add the links
+    auto chrono_mesh = internal::GetChronoFEAMesh(cable);
     m_chronoSystem->Add(chrono_mesh->GetStartLink());
     m_chronoSystem->Add(chrono_mesh->GetEndLink());
 
   }
 
-  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable,
-                                        std::shared_ptr<internal::FrFEACableBase> chrono_mesh) {
+  void FrOffshoreSystem::AddClumpWeight(std::shared_ptr<FrClumpWeight> clump_weight) {
+//    m_physicsItemsList.push_back(clump_weight);
+    assert(false);
+  }
+
+  void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable) {
 
     Remove(cable);
 
     // Remove the links
+    auto chrono_mesh = internal::GetChronoFEAMesh(cable);
     m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetStartLink());
     m_chronoSystem->RemoveOtherPhysicsItem(chrono_mesh->GetEndLink());
 
@@ -511,7 +556,7 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::PrePhysicsUpdate(double time, bool update_assets) {
-    for (auto &item : m_prePhysicsList) {
+    for (auto &item : m_physicsItemsList) {
       item->Update(time);
     }
   }
@@ -527,7 +572,7 @@ namespace frydom {
     // Initializing environment before bodies
     m_environment->Initialize();
 
-    for (auto &item : m_prePhysicsList) {
+    for (auto &item : m_physicsItemsList) {
       item->Initialize();
     }
 
@@ -597,7 +642,7 @@ namespace frydom {
 
     m_environment->StepFinalize();
 
-    for (auto &item : m_prePhysicsList) {
+    for (auto &item : m_physicsItemsList) {
       item->StepFinalize();
     }
 
@@ -1086,7 +1131,7 @@ namespace frydom {
     m_constraintList.clear();
     m_actuatorList.clear();
     m_feaMeshList.clear();
-    m_prePhysicsList.clear();
+    m_physicsItemsList.clear();
 
     m_isInitialized = false;
   }
@@ -1262,97 +1307,6 @@ namespace frydom {
     return m_actuatorList.cend();
   }
 
-//    void FrOffshoreSystem::InitializeLog_Dependencies(const std::string& systemPath) {
-//
-//        if (IsLogged()) {
-//
-//            // Initializing environment before bodies
-////            m_environment->InitializeLog();
-//
-//            for (auto &item : m_prePhysicsList) {
-//                item->SetPathManager(GetPathManager());
-//                item->InitializeLog(systemPath);
-//            }
-//
-//            for (auto &item : m_bodyList) {
-//                item->SetPathManager(GetPathManager());
-//                item->InitializeLog(systemPath);
-//            }
-//
-//            for (auto &item : m_linkList) {
-//                item->SetPathManager(GetPathManager());
-//                item->InitializeLog(systemPath);
-//            }
-//
-//            for (auto &item : m_feaMeshList) {
-//                item->SetPathManager(GetPathManager());
-//                item->InitializeLog(systemPath);
-//            }
-//
-//        }
-//    }
-//
-//    void FrOffshoreSystem::ClearLogs() {
-//
-//        ClearMessage();
-//
-//        for (auto &item : m_prePhysicsList) {
-//            item->ClearMessage();
-//        }
-//
-//        for (auto &item : m_bodyList) {
-//            item->ClearMessage();
-//            for (auto& force : item->GetForceList()) {
-//                force->ClearMessage();
-//            }
-//            for (auto& node : item->GetNodeList()) {
-//                node->ClearMessage();
-//            }
-//        }
-//
-//        for (auto &item : m_linkList) {
-//            item->ClearMessage();
-//        }
-//
-//    }
-//
-//    void FrOffshoreSystem::AddFields() {
-//        m_message->AddField<double>("time", "s", "Current time of the simulation",
-//                                    [this]() { return GetTime(); });
-//
-//        m_message->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
-//            return dynamic_cast<chrono::ChIterativeSolver*>(m_chronoSystem->GetSolver().get())->GetTotalIterations();
-//        });
-//
-//        if (dynamic_cast<chrono::ChIterativeSolver*>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
-//
-//            m_message->AddField<double>("violationResidual", "", "constraint violation", [this]() {
-//                return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
-//                                        });
-//
-//            m_message->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
-//                return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
-//            });
-//
-//        }
-//
-//    }
-//
-//    std::string FrOffshoreSystem::GetDataPath(const std::string& relPath) const {
-//        return GetPathManager()->GetDataPath(relPath);
-//    }
-//
-//    std::string FrOffshoreSystem::BuildPath(const std::string &rootPath) {
-//
-//        auto objPath= fmt::format("{}_{}", GetTypeName(), GetShortenUUID());
-//
-//        auto logPath = GetPathManager()->BuildPath(objPath, fmt::format("{}_{}.csv", GetTypeName(), GetShortenUUID()));
-//
-//        // Add a serializer
-//        m_message->AddSerializer(FrSerializerFactory::instance().Create(this, logPath));
-//
-//        return objPath;
-//    }
 
   void FrOffshoreSystem::SetSolverVerbose(bool verbose) {
     m_chronoSystem->GetSolver()->SetVerbose(verbose);
@@ -1368,50 +1322,64 @@ namespace frydom {
 
     // BODY
     if (auto body = std::dynamic_pointer_cast<FrBody>(item)) {
-      AddBody(body, body->GetChronoBody());
+      AddBody(body);
       m_pathManager->RegisterTreeNode(body.get());
 
       // LINK
     } else if (auto link = std::dynamic_pointer_cast<FrLink>(item)) {
-      AddLink(link, link->GetChronoLink());
+      AddLink(link);
       m_pathManager->RegisterTreeNode(link.get());
 
       // CONSTRAINT
     } else if (auto constraint = std::dynamic_pointer_cast<FrConstraint>(item)) {
-      AddConstraint(constraint, constraint->GetChronoLink());
+      AddConstraint(constraint);
       m_pathManager->RegisterTreeNode(constraint.get());
 
       // ACTUATOR
     } else if (auto actuator = std::dynamic_pointer_cast<FrActuator>(item)) {
-      AddActuator(actuator, actuator->GetChronoLink());
+      AddActuator(actuator);
       m_pathManager->RegisterTreeNode(actuator.get());
 
-      // CATENARY LINE
-      // MUST BE BEFORE PHYSICS ITEM
-    } else if (auto catenary_line = std::dynamic_pointer_cast<FrCatenaryLine>(item)) {
-      AddPhysicsItem(catenary_line, catenary_line->GetChronoPhysicsItem());
+//      // CATENARY LINE
+//      // MUST BE BEFORE PHYSICS ITEM
+    } else if (auto catenary_line = std::dynamic_pointer_cast<FrCatenaryLineBase>(item)) {
+      AddCatenaryLineBase(catenary_line);
       m_pathManager->RegisterTreeNode(catenary_line.get());
 
-    } else if (auto catenary_line_seabed = std::dynamic_pointer_cast<FrCatenaryLineSeabed>(item)) {
-      AddPhysicsItem(catenary_line_seabed, catenary_line_seabed->GetChronoPhysicsItem());
-      m_pathManager->RegisterTreeNode(catenary_line_seabed.get());
-
     } else if (auto equilibrium_frame = std::dynamic_pointer_cast<FrEquilibriumFrame>(item)) {
-      AddPhysicsItem(equilibrium_frame, equilibrium_frame->GetChronoPhysicsItem());
+      AddEquilibriumFrame(equilibrium_frame);
       m_pathManager->RegisterTreeNode(equilibrium_frame.get());
 
-      //PHYSICS ITEM
-    } else if (auto physics_item = std::dynamic_pointer_cast<FrPrePhysicsItem>(item)) {
-      AddPhysicsItem(physics_item, physics_item->GetChronoPhysicsItem());
-//      m_pathManager->RegisterTreeNode(physics_item.get());
+    } else if (auto hydro_mesh = std::dynamic_pointer_cast<FrHydroMesh>(item)) {
+      AddHydroMesh(hydro_mesh);
+      m_pathManager->RegisterTreeNode(hydro_mesh.get());
+//
+//    } else if (auto catenary_line_seabed = std::dynamic_pointer_cast<FrCatenaryLineSeabed>(item)) {
+//      AddPhysicsItem(catenary_line_seabed);
+//      m_pathManager->RegisterTreeNode(catenary_line_seabed.get());
+//
+//    } else if (auto equilibrium_frame = std::dynamic_pointer_cast<FrEquilibriumFrame>(item)) {
+//      AddPhysicsItem(equilibrium_frame);
+//      m_pathManager->RegisterTreeNode(equilibrium_frame.get());
+
+
+
+
+//      //PHYSICS ITEM
+//    } else if (auto physics_item = std::dynamic_pointer_cast<FrPhysicsItem>(item)) {
+//      AddPhysicsItem(physics_item);
+////      m_pathManager->RegisterTreeNode(physics_item.get());
 
 
       // FEA CABLE
       // MUST BE BEFORE FEAMESH CASE (dynamic cable is also feamesh, however the AddFEACable also add the hinges)
     } else if (auto fea_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-      AddFEACable(fea_cable, std::dynamic_pointer_cast<internal::FrFEACableBase>(fea_cable->GetFEAMeshBase()));
+      AddFEACable(fea_cable);
       m_pathManager->RegisterTreeNode(fea_cable.get());
 
+    } else if (auto clump_weight = std::dynamic_pointer_cast<FrClumpWeight>(item)) {
+      AddClumpWeight(clump_weight);
+      m_pathManager->RegisterTreeNode(clump_weight.get());
 
 //      // FEA MESH
 //    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
@@ -1457,24 +1425,24 @@ namespace frydom {
 
     // BODY
     if (auto body = std::dynamic_pointer_cast<FrBody>(item)) {
-      RemoveBody(body, body->GetChronoBody());
+      RemoveBody(body);
 
       // LINK
     } else if (auto link = std::dynamic_pointer_cast<FrLink>(item)) {
-      RemoveLink(link, link->GetChronoLink());
+      RemoveLink(link);
 
       // CONSTRAINT
     } else if (auto constraint = std::dynamic_pointer_cast<FrConstraint>(item)) {
-      RemoveConstraint(constraint, constraint->GetChronoLink());
+      RemoveConstraint(constraint);
 
       // ACTUATOR
     } else if (auto actuator = std::dynamic_pointer_cast<FrActuator>(item)) {
-      RemoveActuator(actuator, actuator->GetChronoLink());
+      RemoveActuator(actuator);
 
-      //PHYSICS ITEM
-    } else if (auto physics_item = std::dynamic_pointer_cast<FrPrePhysicsItem>(item)) {
-      RemovePhysicsItem(physics_item, physics_item->GetChronoPhysicsItem());
-
+//      //PHYSICS ITEM
+//    } else if (auto physics_item = std::dynamic_pointer_cast<FrPhysicsItem>(item)) {
+//      RemovePhysicsItem(physics_item);
+//
 //      // FEA MESH
 //    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
 //      RemoveFEAMesh(fea_mesh, fea_mesh->GetFEAMeshBase());

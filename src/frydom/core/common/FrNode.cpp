@@ -39,7 +39,7 @@ namespace frydom {
 
     m_chronoMarker = std::make_shared<internal::FrMarker>(this);
     //Chrono body can be retrieved because this constructor is a friend of FrBody
-    body->GetChronoBody()->AddMarker(m_chronoMarker);
+    internal::GetChronoBody(body)->AddMarker(m_chronoMarker);
 
     event_logger::info(GetTypeName(), GetName(),
                        "Node created, attached to body {}", body->GetName());

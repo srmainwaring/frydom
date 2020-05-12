@@ -8,6 +8,7 @@
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrHydroDB.h"
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
+#include "FrRadiationModelBase.h"
 
 namespace frydom {
 
@@ -185,13 +186,11 @@ namespace frydom {
     }
 
     chrono::ChMatrix<double> FrVariablesBEMBodyBase::GetVariablesFb(frydom::FrBody *body) const {
-      auto chronoBody = body->GetChronoBody();
-      return chronoBody->Variables().Get_fb();
+      return internal::GetChronoBody(body)->Variables().Get_fb();
     }
 
     chrono::ChMatrix<double> FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *body) const {
-      auto chronoBody = body->GetChronoBody();
-      return chronoBody->Variables().Get_qb();
+      return internal::GetChronoBody(body)->Variables().Get_qb();
     }
 
   } // end namespace internal

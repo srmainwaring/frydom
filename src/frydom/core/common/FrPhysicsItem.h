@@ -9,9 +9,9 @@
 //
 // ==========================================================================
 
-
 #ifndef FRYDOM_FRPHYSICSITEM_H
 #define FRYDOM_FRPHYSICSITEM_H
+
 
 #include "chrono/physics/ChPhysicsItem.h"
 
@@ -33,7 +33,6 @@ namespace frydom {
 
       FrPhysicsItem *m_frydomPhysicsItem;
 
-      /// Constructor.
       explicit FrPhysicsItemBase(FrPhysicsItem *item);
 
       void SetupInitial() override;
@@ -41,6 +40,10 @@ namespace frydom {
       void Update(double time, bool update_assets) override;
 
     };
+
+    std::shared_ptr<FrPhysicsItemBase> GetChronoPhysicsItem(std::shared_ptr<FrPhysicsItem> item);
+
+    std::shared_ptr<FrPhysicsItemBase> GetChronoPhysicsItem(FrPhysicsItem *item);
 
   }  // end namespace frydom::internal
 
@@ -64,7 +67,7 @@ namespace frydom {
     /// Check if the force is active
     bool IsActive() const;
 
-    /// Activate or deactivate the force
+    /// Activate or deactivate
     void SetActive(bool active);
 
     /// Return true if the physics item is included in the static analysis
@@ -94,17 +97,22 @@ namespace frydom {
     bool m_isActive = true;  ///< boolean to check if the physics item is active
     ///< if it's not the case, it is not updated during the simulation
 
+
+    friend std::shared_ptr<internal::FrPhysicsItemBase> internal::GetChronoPhysicsItem(std::shared_ptr<FrPhysicsItem>);
+
+    friend std::shared_ptr<internal::FrPhysicsItemBase> internal::GetChronoPhysicsItem(FrPhysicsItem *);
+
   };
 
-  /**
-   * \class FrPrePhysicsItem
-   * \brief Class for defining physics items updated before bodies.
-   */
-  class FrPrePhysicsItem : public FrPhysicsItem {
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
-  };
+//  /**
+//   * \class FrPrePhysicsItem
+//   * \brief Class for defining physics items updated before bodies.
+//   */
+//  class FrPrePhysicsItem : public FrPhysicsItem {
+//    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
+//
+//    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
+//  };
 
 
 }  // end namespace frydom

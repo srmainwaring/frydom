@@ -43,6 +43,8 @@ namespace frydom {
      * Pour les angles, un blocage en
      */
 
+    ~FrDOFMask() = default;
+
     /// If true, locks the X DOF of the body
     void SetLock_X(bool lock);
 

@@ -6,7 +6,7 @@
 #define FRYDOM_FRFEAMESH_H
 
 
-#include "frydom/core/common/FrPhysicsItem.h"
+//#include "frydom/core/common/FrPhysicsItem.h"
 
 #include "frydom/asset/FrAssetOwner.h"
 #include "frydom/core/common/FrObject.h"
@@ -16,6 +16,7 @@
 
 namespace frydom {
 
+  class FrFEAMesh;
 
   namespace internal {
 
@@ -30,6 +31,8 @@ namespace frydom {
       FrFEAMesh *m_frydom_mesh;
 
     };
+
+    std::shared_ptr<FrFEAMeshBase> GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh);
 
   }  // end namespace frydom::internal
 
@@ -49,16 +52,12 @@ namespace frydom {
     virtual void Relax() = 0;
 
 
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase> item);
-
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase> item);
-
    protected:
     std::shared_ptr<internal::FrFEAMeshBase> GetFEAMeshBase();
 
-
     std::shared_ptr<internal::FrFEAMeshBase> m_chrono_mesh;
 
+    friend std::shared_ptr<internal::FrFEAMeshBase> internal::GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh);
 
   };
 

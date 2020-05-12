@@ -57,6 +57,8 @@ namespace frydom {
                   bool visual_asset = true,
                   double damping = 0);
 
+    ~FrMooringBuoy() = default;
+
     double GetVolume() { return c_volume; }
 
 
@@ -65,7 +67,7 @@ namespace frydom {
    private:
 
     double computeDraft();
-    
+
     double inline computeVolume() {
       auto Zt = computeDraft();
       return c_volume = M_PI / 3 * (Zt * (3 * m_radius * m_radius - Zt * Zt) + 2 * std::pow(m_radius, 3));

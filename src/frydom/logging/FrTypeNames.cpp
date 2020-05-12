@@ -40,8 +40,15 @@ namespace frydom {
 
   TYPE_TO_STRING(FrCatenaryLineSeabed, "CatenaryLineSeabed")
 
+  class FrClumpWeight;
+
+  TYPE_TO_STRING(FrClumpWeight, "ClumpWeight");
 
   // FORCES
+
+  class FrConstantForce;
+
+  TYPE_TO_STRING(FrConstantForce, "ConstantForce")
 
   class FrCatenaryForce;
 

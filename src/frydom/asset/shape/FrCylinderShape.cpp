@@ -27,7 +27,16 @@ namespace frydom {
     return fabs(m_cylinder->GetCylinderGeometry().p2.y() - m_cylinder->GetCylinderGeometry().p1.y());
   }
 
-  std::shared_ptr<chrono::ChAsset> FrCylinderShape::GetChronoAsset() {
-    return m_cylinder;
-  }
+
+  namespace internal {
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrCylinderShape> cylinder) {
+      return cylinder->m_cylinder;
+    }
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrCylinderShape *cylinder) {
+      return cylinder->m_cylinder;
+    }
+
+  }  // end namespace frydom::internal
+
 }  // end namespace frydom

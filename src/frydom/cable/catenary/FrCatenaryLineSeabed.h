@@ -123,7 +123,7 @@ namespace frydom {
 
     void Compute(double time) override;
 
-    internal::FrPhysicsItemBase *GetChronoItem_ptr() const override; // Qu'est ce que ca fait la ???
+//    internal::FrPhysicsItemBase *GetChronoItem_ptr() const override; // Qu'est ce que ca fait la ???
 
     void DefineLogMessages() override;
 

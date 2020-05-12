@@ -19,8 +19,18 @@ namespace frydom {
     return m_sphere->GetSphereGeometry().rad;
   }
 
-  std::shared_ptr<chrono::ChAsset> FrSphereShape::GetChronoAsset() {
-    return m_sphere;
-  }
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrSphereShape> sphere) {
+      return sphere->m_sphere;
+    }
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrSphereShape *sphere) {
+      return sphere->m_sphere;
+    }
+
+  } // end namespace frydom::internal
+
 
 }  // end namespace frydom

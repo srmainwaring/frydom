@@ -18,7 +18,6 @@
 #include "frydom/core/common/FrConvention.h"
 #include "frydom/core/common/FrTreeNode.h"
 #include "frydom/logging/FrLoggable.h"
-//#include "FrCableProperties.h"
 
 
 namespace frydom {

@@ -95,6 +95,13 @@ int main() {
 //  cable->SetStartLinkType(FrFEACable::FREE); // TODO: simplifier l'API en ayant des methodes adaptees
 
 
+  // Adding a clump weight
+  auto clump_weight = cable->AddClumpWeight("clump_weight", cable_length-64., 1);
+  clump_weight->SetSubmergedMass(120e3);
+//  clump_weight->SetDryMass(120e3);
+  clump_weight->SetAsCylinder(1., 1.);
+  clump_weight->SetMorisonCoefficients(0.52, 0.91, 1.595, 1.637);
+
 
   // TODO: le faire en auto !!
 

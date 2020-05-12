@@ -28,7 +28,6 @@ namespace frydom {
     }
 
     void FrMorisonModelBase::Update(double time, bool update_assets) {
-      //m_frydomMorisonCompositeElement->Update();
       ChPhysicsItem::Update(time, update_assets);
 
       mathutils::Matrix66<double> added_mass;
@@ -57,9 +56,8 @@ namespace frydom {
       R.PasteSumVector(Iw, bodyOffset + 3, 0);
     }
 
-    int FrMorisonModelBase::GetBodyOffset() const {
-      auto chronoBody = m_frydomMorisonCompositeElement->GetBody()->GetChronoBody();
-      return chronoBody->GetOffset_w();
+    unsigned int FrMorisonModelBase::GetBodyOffset() const {
+      return internal::GetChronoBody(m_frydomMorisonCompositeElement->GetBody())->GetOffset_w();
     }
 
     void FrMorisonModelBase::IntToDescriptor(const unsigned int off_v, const chrono::ChStateDelta &v,
