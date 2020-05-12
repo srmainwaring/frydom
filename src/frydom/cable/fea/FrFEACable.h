@@ -15,7 +15,6 @@
 #include "frydom/cable/fea/FrFEANode.h"
 
 
-
 // Chrono Forward declarations
 namespace chrono {
   namespace fea {

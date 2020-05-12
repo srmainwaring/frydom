@@ -16,13 +16,8 @@
 #include "FrCatenaryLineBase.h"
 #include "FrCatenaryLineSeabed.h"
 
-
 #include "frydom/environment/FrFluidType.h"
-
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
-
-// TODO: prevoir une discretisation automatique pour laquelle on precise la taille cible d'un element
-// Servira dans la visu et pour l'application de forces comme Morison.
 
 
 namespace frydom {
@@ -156,8 +151,6 @@ namespace frydom {
     void dpe_dt(Jacobian33 &jacobian) const; // inline
 
     void Compute(double time) override;
-
-//    internal::FrPhysicsItemBase *GetChronoItem_ptr() const override; // Qu'est ce que ca fait la ???
 
     void DefineLogMessages() override;
 

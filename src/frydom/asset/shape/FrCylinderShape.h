@@ -31,9 +31,11 @@ namespace frydom {
   class FrCylinderShape;
 
   namespace internal {
+
     std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrCylinderShape> cylinder);
 
     std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrCylinderShape *cylinder);
+
   }  // end namespace frydom::internal
 
 

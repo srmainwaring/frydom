@@ -9,35 +9,21 @@
 //
 // ==========================================================================
 
-//#include <chrono/assets/ChTriangleMeshShape.h>
 #include <chrono/assets/ChColorAsset.h>
 #include <chrono/physics/ChLinkMotorRotation.h>
-#include <chrono/physics/ChLinkMotorLinear.h>
-//#include <chrono_irrlicht/ChIrrNodeAsset.h>
-//#include <chrono/assets/ChAsset.h>
-//
-//
-#include <frydom/core/body/FrBody.h>
-#include <frydom/mesh/FrHydroMesh.h>
-#include <frydom/core/link/links_lib/actuators/FrAngularActuator.h>
-#include <frydom/core/link/links_lib/actuators/FrLinearActuator.h>
+
+
+#include "frydom/core/body/FrBody.h"
+#include "frydom/mesh/FrHydroMesh.h"
+#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
 #include "frydom/mesh/FrTriangleMeshConnected.h"
 #include "shape/FrBoxShape.h"
 #include "shape/FrCylinderShape.h"
 #include "shape/FrSphereShape.h"
 #include "shape/FrTriangleMeshShape.h"
-
 #include "frydom/cable/catenary/FrCatenaryLineBase.h"
-//
 #include "frydom/core/common/FrPhysicsItem.h"
-//#include "frydom/core/FrOffshoreSystem.h"
-//#include "frydom/utils/FrIrrApp.h"
-//
-//#include "FrAssetOwner.h"
-//
-//#include "FrAsset.h"
-
-//#include "FrCatenaryLineAsset.h"
 
 
 namespace frydom {

@@ -13,7 +13,7 @@
 #ifndef FRYDOM_FRASSET_H
 #define FRYDOM_FRASSET_H
 
-#include "chrono/assets/ChAssetLevel.h"
+#include <chrono/assets/ChAssetLevel.h>
 
 #include "frydom/asset/FrAssetOwner.h"
 

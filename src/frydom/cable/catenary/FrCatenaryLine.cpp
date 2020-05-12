@@ -68,8 +68,6 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
-    //    m_q = properties->GetLinearDensity() - properties->GetSectionArea() *
-//                                           startingNode->GetSystem()->GetEnvironment()->GetFluidDensity(fluid_type); // FIXME: bug ici, pas de gravity
     m_q = m_properties->GetLinearDensity() *
           GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
     m_pi = {0., 0., -1.}; // FIXME: en dur pour le moment... (voir aussi dans FrCatenaryLineSeabed::Initialize())
@@ -128,7 +126,7 @@ namespace frydom {
     double err = residue.norm();
 
     if (err < m_tolerance) {
-//      std::cout << "Already at equilibrium" << std::endl;
+      // Already at equilibrium
       return;
     }
 
@@ -206,7 +204,6 @@ namespace frydom {
 
     // Bisection algorithm
     unsigned int iter = 0;
-//        const unsigned int maxIter = 100;
     double dz = 0.;
     while (s1 - s0 > tol && iter < maxIter) {  // FIXME : dz ne change pas pendant les iterations !!!!!
 
@@ -426,10 +423,6 @@ namespace frydom {
   void FrCatenaryLine::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
   }
-
-//  internal::FrPhysicsItemBase *FrCatenaryLine::GetChronoItem_ptr() const {
-//    return m_chronoPhysicsItem.get();
-//  }
 
   void FrCatenaryLine::DefineLogMessages() {
     // TODO

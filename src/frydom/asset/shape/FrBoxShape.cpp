@@ -1,7 +1,9 @@
-#include <frydom/core/math/FrVector.h>
+
+#include <chrono/assets/ChBoxShape.h>
+
+#include "frydom/core/math/FrVector.h"
 #include "FrBoxShape.h"
 
-#include "chrono/assets/ChBoxShape.h"
 
 namespace frydom {
 

@@ -13,10 +13,11 @@
 #define FRYDOM_FRASSETOWNER_H
 
 #include <vector>
-#include "frydom/core/misc/FrColors.h"
+
 #include <vector>
 #include <memory>
 
+#include "frydom/core/misc/FrColors.h"
 #include "frydom/core/math/FrVector.h"
 
 namespace chrono {

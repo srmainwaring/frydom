@@ -12,11 +12,11 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
   seabed->SetBathymetry(-100, NWU); // TODO: depth target -100m
-  seabed->GetSeabedGridAsset()->SetGrid(-500, 500, 500, -50, 50, 50);
+  seabed->GetSeabedGridAsset()->SetGrid(-20, 500, 520, -50, 50, 100);
 
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(
-      -500, 500, 8, -50, 50, 25);
+      -20, 500, 2, -50, 50, 100);
 
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
   system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(
@@ -31,7 +31,7 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
   system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 3., 1.);
-  system.GetEnvironment()->GetTimeRamp()->SetActive(false);
+  system.GetEnvironment()->GetTimeRamp()->SetActive(true);
 
 }
 
@@ -96,11 +96,11 @@ int main() {
 
 
   // Adding a clump weight
-  auto clump_weight = cable->AddClumpWeight("clump_weight", cable_length-64., 1);
-  clump_weight->SetSubmergedMass(120e3);
-//  clump_weight->SetDryMass(120e3);
-  clump_weight->SetAsCylinder(1., 1.);
-  clump_weight->SetMorisonCoefficients(0.52, 0.91, 1.595, 1.637);
+//  auto clump_weight = cable->AddClumpWeight("clump_weight", cable_length-64., 1);
+//  clump_weight->SetSubmergedMass(120e3);
+////  clump_weight->SetDryMass(120e3);
+//  clump_weight->SetAsCylinder(1., 1.);
+//  clump_weight->SetMorisonCoefficients(0.52, 0.91, 1.595, 1.637);
 
 
   // TODO: le faire en auto !!

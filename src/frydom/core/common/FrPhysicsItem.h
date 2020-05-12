@@ -104,17 +104,6 @@ namespace frydom {
 
   };
 
-//  /**
-//   * \class FrPrePhysicsItem
-//   * \brief Class for defining physics items updated before bodies.
-//   */
-//  class FrPrePhysicsItem : public FrPhysicsItem {
-//    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
-//
-//    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
-//  };
-
-
 }  // end namespace frydom
 
 

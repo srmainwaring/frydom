@@ -11,10 +11,6 @@
 
 namespace frydom {
 
-  namespace internal {
-
-  }
-
 
   // Forward declaration
   class FrLink;

@@ -1,7 +1,7 @@
+
+#include <chrono/assets/ChTriangleMeshShape.h>
+
 #include "FrTriangleMeshShape.h"
-
-#include "chrono/assets/ChTriangleMeshShape.h"
-
 #include "frydom/mesh/FrTriangleMeshConnected.h"
 
 namespace frydom {
@@ -25,7 +25,7 @@ namespace frydom {
   std::vector<FrTriangleMeshShape::Vertex> FrTriangleMeshShape::vertices() const {
     std::vector<FrTriangleMeshShape::Vertex> result;
     for (const auto &vertex : m_mesh->GetMesh()->m_vertices) {
-      result.push_back(internal::MakeEigenVector(vertex));
+      result.emplace_back(internal::MakeEigenVector(vertex));
     }
     return result;
   }
@@ -33,7 +33,7 @@ namespace frydom {
   std::vector<FrTriangleMeshShape::Normal> FrTriangleMeshShape::normals() const {
     std::vector<FrTriangleMeshShape::Normal> result;
     for (const auto &normal : m_mesh->GetMesh()->m_normals) {
-      result.push_back(internal::MakeEigenVector(normal));
+      result.emplace_back(internal::MakeEigenVector(normal));
     }
     return result;
   }
@@ -41,7 +41,7 @@ namespace frydom {
   std::vector<FrTriangleMeshShape::FaceVertexIndex> FrTriangleMeshShape::faceVertexIndices() const {
     std::vector<FrTriangleMeshShape::FaceVertexIndex> result;
     for (const auto &index : m_mesh->GetMesh()->m_face_v_indices) {
-      result.push_back(internal::MakeEigenVector(index));
+      result.emplace_back(internal::MakeEigenVector(index));
     }
     return result;
   }
@@ -49,7 +49,7 @@ namespace frydom {
   std::vector<FrTriangleMeshShape::FaceNormalIndex> FrTriangleMeshShape::faceNormalIndices() const {
     std::vector<FrTriangleMeshShape::FaceNormalIndex> result;
     for (const auto &index : m_mesh->GetMesh()->m_face_n_indices) {
-      result.push_back(internal::MakeEigenVector(index));
+      result.emplace_back(internal::MakeEigenVector(index));
     }
     return result;
   }

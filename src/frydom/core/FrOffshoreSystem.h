@@ -100,8 +100,6 @@ namespace frydom {
 
   class FrPhysicsItem;
 
-//  class FrPrePhysicsItem;
-
   class FrFEAMesh;
 
   class FrEnvironment;

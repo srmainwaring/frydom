@@ -1,6 +1,8 @@
+
+#include <chrono/assets/ChSphereShape.h>
+
 #include "FrSphereShape.h"
 
-#include "chrono/assets/ChSphereShape.h"
 
 namespace frydom {
 

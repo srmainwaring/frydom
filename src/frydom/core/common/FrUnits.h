@@ -25,14 +25,6 @@ namespace frydom {
 
   using FREQUENCY_UNIT = mathutils::FREQUENCY_UNIT;
 
-//    /**
-//    * \class FrUnits
-//    * \brief Class not used.
-//    */
-//    class FrUnits {
-//
-//    };
-
 }  // end namespace frydom
 
 

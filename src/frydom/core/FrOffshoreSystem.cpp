@@ -223,28 +223,6 @@ namespace frydom {
 
   FrOffshoreSystem::~FrOffshoreSystem() = default;
 
-
-//  void FrOffshoreSystem::Add(std::shared_ptr<FrObject> newItem) {
-//    assert(std::dynamic_pointer_cast<FrBody>(newItem) ||
-//           std::dynamic_pointer_cast<FrLinkBase>(newItem) ||
-//           std::dynamic_pointer_cast<FrPhysicsItem>(newItem));
-//
-//    if (auto item = std::dynamic_pointer_cast<FrBody>(newItem)) {
-//      AddBody(item);
-//      return;
-//    }
-//
-//    if (auto item = std::dynamic_pointer_cast<FrLinkBase>(newItem)) {
-//      AddLink(item);
-//      return;
-//    }
-//
-//    if (auto item = std::dynamic_pointer_cast<FrPrePhysicsItem>(newItem)) {
-//      AddPhysicsItem(item);
-//      return;
-//    }
-//
-//  }
   const FrConfig &FrOffshoreSystem::config_file() {
     return m_config_file;
   }
@@ -423,41 +401,9 @@ namespace frydom {
     event_logger::info(GetTypeName(), GetName(), "An hydrodynamic mesh has been ADDED to the system");
   }
 
-
-// ***** Physics Item *****
-
-//  void FrOffshoreSystem::AddPhysicsItem(std::shared_ptr<FrPhysicsItem> physicsItem) {
-//
-//    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(physicsItem));
-//    m_physicsItemsList.push_back(physicsItem);
-//    event_logger::info(GetTypeName(), GetName(), "A Physics Item has been ADDED to the system");
-//  }
-
-//  void FrOffshoreSystem::AddPhysicsItem(std::shared_ptr<FrPhysicsItem> otherPhysics) {
-//  m_chronoSystem->AddOtherPhysicsItem(chrono_physics_item);
-//  m_phy
-//  }
-
   FrOffshoreSystem::PhysicsContainer FrOffshoreSystem::GetPhysicsItemList() {
     return m_physicsItemsList;
   }
-
-//  void FrOffshoreSystem::RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> physicsItem) {
-//
-//    m_chronoSystem->RemoveOtherPhysicsItem(internal::GetChronoPhysicsItem(physicsItem));
-//
-//    auto it = std::find(m_physicsItemsList.begin(), m_physicsItemsList.end(), physicsItem);
-//    if (it != m_physicsItemsList.end())
-//      m_physicsItemsList.erase(it);
-//    event_logger::info(GetTypeName(), GetName(), "A Physics Item has been REMOVED to the system");
-//  }
-
-//  void FrOffshoreSystem::RemoveAllPhysicsItem() {
-//
-//    for (auto &item: m_physicsItemsList)
-//      Remove(item);
-//
-//  }
 
 
 // ***** FEAMesh *****
@@ -524,7 +470,6 @@ namespace frydom {
   void FrOffshoreSystem::AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable) {
     // Nothing to do ??
   }
-
 
   void FrOffshoreSystem::MonitorRealTimePerfs(bool val) {
     m_monitor_real_time = val;
@@ -1439,18 +1384,6 @@ namespace frydom {
     } else if (auto actuator = std::dynamic_pointer_cast<FrActuator>(item)) {
       RemoveActuator(actuator);
 
-//      //PHYSICS ITEM
-//    } else if (auto physics_item = std::dynamic_pointer_cast<FrPhysicsItem>(item)) {
-//      RemovePhysicsItem(physics_item);
-//
-//      // FEA MESH
-//    } else if (auto fea_mesh = std::dynamic_pointer_cast<FrFEAMesh>(item)) {
-//      RemoveFEAMesh(fea_mesh, fea_mesh->GetFEAMeshBase());
-//
-//      // DYNAMIC CABLE
-//    } else if (auto dynamic_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
-//      RemoveFEACable(dynamic_cable, dynamic_cable->GetFEAMeshBase());
-
       // UNKNOWN
     } else {
       std::cerr << "Unknown object type " << std::endl;
@@ -1460,7 +1393,6 @@ namespace frydom {
     if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
       m_logManager->Remove(loggable);
     }
-
   }
 
 }  // end namespace frydom

@@ -6,7 +6,6 @@
 #define FRYDOM_FRFEAMESH_H
 
 
-//#include "frydom/core/common/FrPhysicsItem.h"
 
 #include "frydom/asset/FrAssetOwner.h"
 #include "frydom/core/common/FrObject.h"
@@ -20,7 +19,7 @@ namespace frydom {
 
   namespace internal {
 
-    class FrFEAMeshBase : public chrono::fea::ChMesh { // This is a chrono::ChPhysicsItem from ChMesh !
+    class FrFEAMeshBase : public chrono::fea::ChMesh {
 
      public:
       explicit FrFEAMeshBase(FrFEAMesh *frydom_mesh);

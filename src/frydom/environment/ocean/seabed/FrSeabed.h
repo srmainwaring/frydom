@@ -81,8 +81,7 @@ namespace frydom {
     /// \return local bathymetry
     virtual double GetBathymetry(double x, double y, FRAME_CONVENTION fc) const = 0;
 
-    /// Check if the infinite depth condition is applied. If true, a FrNullSeabed is instantiated, otherwise it is a
-    /// FrMeanSeabed.
+    /// Check if the infinite depth condition is applied.
     /// \return true if the infinite depth condition is applied.
     bool IsInfiniteDepth();
 
@@ -113,56 +112,8 @@ namespace frydom {
 
   };
 
-//  /**
-//   * \class FrNullSeabed
-//   * \brief Class for defining a seabed in case of infinite water depth.
-//   */
-//  class FrNullSeabed : public FrSeabed {
-//   public:
-//
-//    /// Default constructor
-//    /// \param ocean ocean containing this seabed
-//    explicit FrNullSeabed(FrOcean *ocean);
-//
-//    //---------------------------- Asset ----------------------------//
-//
-//    /// Get the seabed grid asset
-//    /// \return seabed grid asset
-//    FrSeabedGridAsset *GetSeabedGridAsset() override;
-//
-//    //---------------------------- Seabed elements Getters ----------------------------//
-//
-//    /// Set the mean bathymetry of the seabed (negative in NWU/positive in NED)
-//    /// \param bathymetry mean bathymetry of the seabed
-//    /// \param fc frame convention (NED/NWU)
-//    void SetBathymetry(double bathymetry, FRAME_CONVENTION fc) override;
-//
-//    /// Get the mean bathymetry of the seabed
-//    /// \param fc frame convention (NED/NWU)
-//    /// \return mean bathymetry of the seabed
-//    double GetBathymetry(FRAME_CONVENTION fc) const override;
-//
-//    /// Get the local bathymetry at the position (x,y)
-//    /// \param x x position
-//    /// \param y y position
-//    /// \param fc frame convention (NED/NWU)
-//    /// \return local bathymetry
-//    double GetBathymetry(double x, double y, FRAME_CONVENTION fc) const override;
-//
-//    //---------------------------- Update-Initialize-StepFinalize ----------------------------//
-//
-//    /// Update the state of the seabed
-//    void Update(double time) override;
-//
-//    /// Initialize the state of the seabed
-//    void Initialize() override;
-//
-//    /// Method called at the send of a time step. Logging may be used here
-//    void StepFinalize() override;
-//  };
-
   /**
-   * \class FrMeanSeabed
+   * \class FrFlatSeabed
    * \brief Class for defining a mean seabed in case of finite and constant water depth.
    */
   class FrFlatSeabed : public FrSeabed {
@@ -224,7 +175,6 @@ namespace frydom {
     /// Method called at the send of a time step. Logging may be used here
     void StepFinalize() override;
 
-//   private:
     void CreateContactBox(); // TODO: mettre en prive
 
   };

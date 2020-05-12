@@ -9,13 +9,10 @@
 //
 // ==========================================================================
 
+#include <chrono/assets/ChColor.h>
+#include <chrono/assets/ChLineShape.h>
 
 #include "FrCatenaryLineAsset.h"
-
-#include "chrono/assets/ChColor.h"
-#include "chrono/assets/ChLineShape.h"
-
-#include "frydom/cable/catenary/FrCatenaryLine.h"
 #include "frydom/core/common/FrNode.h"
 
 
