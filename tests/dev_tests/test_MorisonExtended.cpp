@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
   // Morison model
 
-  auto morisonModel = make_morison_model(body);
+  auto morisonModel = make_morison_model("morisonModel", body);
   morisonModel->AddElement({0., -2, -10.}, {0., 2., -10.}, 1., 1., 0., 0.);
   morisonModel->SetExtendedModel(true);
   auto morisonForce = make_morison_force("morison", body, morisonModel);

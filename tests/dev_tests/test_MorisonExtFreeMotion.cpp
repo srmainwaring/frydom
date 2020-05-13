@@ -63,16 +63,39 @@ int main(int argc, char* argv[]) {
 
   FrOffshoreSystem system("test_MorisonExtFreeMotion");
 
+  // Environment
+
+  auto ocean = system.GetEnvironment()->GetOcean();
+  auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
+  waveField->SetWaveHeight(0.1);
+  waveField->SetWavePeriod(10.);
+  waveField->SetDirection(0., DEG, NWU, GOTO);
+
+  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 20., 1.);
+  system.GetEnvironment()->GetTimeRamp()->SetActive(true);
+
   // Body
 
   auto body = system.NewBody("cylinder");
-  body->SetPosition({0., 0., 0.}, NWU);
-  //body->GetDOFMask()->SetLock_X(true);
-  //body->GetDOFMask()->SetLock_Y(true);
-  //body->GetDOFMask()->SetLock_Z(true);
-  //body->GetDOFMask()->SetLock_Rx(true);
-  //body->GetDOFMask()->SetLock_Ry(false);
-  //body->GetDOFMask()->SetLock_Rz(true);
+  body->SetPosition({0., 0., -0.54}, NWU);
+
+  body->GetDOFMask()->SetLock_X(false);
+  body->GetDOFMask()->SetLock_Y(true);
+  body->GetDOFMask()->SetLock_Z(false);
+  body->GetDOFMask()->SetLock_Rx(true);
+  body->GetDOFMask()->SetLock_Ry(false);
+  body->GetDOFMask()->SetLock_Rz(true);
+
+  // Link
+  /*
+  auto bodyNode = body->NewNode("bodyNode");
+  bodyNode->RotateAroundXInWorld(M_PI_2, NWU);
+  auto worldNode = system.GetWorldBody()->NewNode("worldNode");
+  worldNode->RotateAroundXInWorld(M_PI_2, NWU);
+
+  auto link = make_revolute_link("link", &system, bodyNode, worldNode);
+  */
+  // Geometry
 
   double radius = 1.;
   double length = 20.;
@@ -86,8 +109,6 @@ int main(int argc, char* argv[]) {
 
   body->SetInertiaTensor(inertia);
 
-  body->SetPosition({2., 0., 0.}, NWU);
-  body->SetRotation(FrRotation({0., 1., 0.}, 0.5* M_PI_4, NWU));
 
   // Mesh asset
 
@@ -103,6 +124,15 @@ int main(int argc, char* argv[]) {
 
   auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, hydroMesh);
 
+  //auto eqFrame = make_equilibrium_frame("eqFrame", body);
+
+  //auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame);
+
+  //auto stiffMatrix = forceHst->GetStiffnessMatrix();
+  //stiffMatrix.SetNonDiagonal(0., 0., 0.);
+  //stiffMatrix.SetDiagonal(30477., 434650., 434680.);
+  //forceHst->SetStiffnessMatrix(stiffMatrix);
+
   // Morison
 
   auto morisonModel = make_morison_model("morison", body, true);
@@ -116,18 +146,23 @@ int main(int argc, char* argv[]) {
   //auto world_node = system.GetWorldBody()->NewNode("world_node");
   //world_node->SetPositionInWorld({0., 0., -7.}, NWU);
 
-  //Vector3d<double> stiffness(17804., 17804., 10000.);
+  //Vector3d<double> stiffness(17804., 17804., 0.);
 
   //auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
 
   // Simulation
 
-  double dt = 0.01;
-  double t_end = 50.;
+  double dt = 0.1;
+  double t_end = 200.;
   double time = 0.;
 
   system.SetTimeStep(dt);
   system.Initialize();
+
+  //body->SetPosition({5., 0., 0.}, NWU);
+  //body->SetRotation(FrRotation({0., 1., 0.}, 0.5*M_PI_4, NWU));
+  //body->SetPosition({0., 0., 2.}, NWU);
+  //body->SetPosition({0., 0., 0.}, NWU);
 
   bool is_irrlicht = true;
 

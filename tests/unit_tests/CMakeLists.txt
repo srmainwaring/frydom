@@ -37,6 +37,7 @@ set(UNIT_TESTS
         test_FrMesh
         test_FrLink
         test_Torsor
+        #test_FrLinearHydrostaticForce
         )
 
 foreach (test ${UNIT_TESTS})
