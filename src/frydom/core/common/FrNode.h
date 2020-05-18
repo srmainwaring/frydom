@@ -96,6 +96,13 @@ namespace frydom {
     /// Set the node position with respect to body reference frame
     void SetPositionInBody(const Position &bodyPosition, FRAME_CONVENTION fc);
 
+    void SetPositionInBody(const Position &refPos,
+                           const double &heading,
+                           const double &radial_distance,
+                           const double &vertical_distance,
+                           ANGLE_UNIT angle_unit,
+                           FRAME_CONVENTION fc);
+
     void SetPositionInWorld(const Position &worldPosition, FRAME_CONVENTION fc);
 
     void SetPositionInWorld(const Position &refPos,

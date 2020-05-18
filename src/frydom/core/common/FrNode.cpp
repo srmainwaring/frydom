@@ -151,6 +151,23 @@ namespace frydom {
     SetPositionInWorld(position, fc);
   }
 
+  void FrNode::SetPositionInBody(const Position &refPos,
+                                 const double &heading,
+                                 const double &radial_distance,
+                                 const double &vertical_distance,
+                                 ANGLE_UNIT angle_unit,
+                                 FRAME_CONVENTION fc) {
+    double alpha = heading;
+    if (angle_unit == DEG) alpha *= DEG2RAD;
+
+    Position position = {
+        refPos.x() + radial_distance * std::cos(alpha),
+        refPos.y() + radial_distance * std::sin(alpha),
+        vertical_distance
+    };
+    SetPositionInBody(position, fc);
+  }
+
   void FrNode::TranslateInBody(const Translation &translationInBody, FRAME_CONVENTION fc) {
     auto currentFrameInBody = GetFrameInBody();
     currentFrameInBody.TranslateInFrame(translationInBody, fc);
