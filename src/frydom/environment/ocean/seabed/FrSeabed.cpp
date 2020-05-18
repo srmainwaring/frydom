@@ -96,8 +96,8 @@ namespace frydom {
     if (angle_unit == DEG) alpha *= DEG2RAD;
 
     return NewAnchor(name,
-                     distance * std::cos(alpha),
-                     distance * std::sin(alpha),
+                     refPos.x() + distance * std::cos(alpha),
+                     refPos.y() + distance * std::sin(alpha),
                      fc);
   }
 
