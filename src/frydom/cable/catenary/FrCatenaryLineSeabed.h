@@ -52,6 +52,8 @@ namespace frydom {
                          FLUID_TYPE fluid,
                          double seabed_friction_coeff);
 
+    ~FrCatenaryLineSeabed();
+
     void AddClumpWeight(double s, const double &mass, bool reversed = false);
 
     void AddBuoy(double s, const double &mass, bool reversed = false);

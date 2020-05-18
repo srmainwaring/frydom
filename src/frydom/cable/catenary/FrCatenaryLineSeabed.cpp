@@ -36,7 +36,6 @@ namespace frydom {
     // Creating the touchdown point node
     m_touch_down_node = GetSystem()->GetWorldBody()->NewNode(name + "_TouchDownPoint");
 
-
     m_catenary_line = std::make_unique<FrCatenaryLine>(
         name + "catenary_part",
         m_touch_down_node,
@@ -49,6 +48,11 @@ namespace frydom {
 
     m_catenary_line->UseForShapeInitialization(true);
 
+  }
+
+  FrCatenaryLineSeabed::~FrCatenaryLineSeabed() {
+    // Removing any reference to the touch_down_node
+    GetSystem()->GetWorldBody()->RemoveNode(m_touch_down_node);
   }
 
   void FrCatenaryLineSeabed::AddClumpWeight(double s, const double &mass, bool reversed) {

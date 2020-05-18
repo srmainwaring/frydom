@@ -28,13 +28,22 @@ namespace frydom {
                                     mc_rz) {}
 
 
-    void FrFEANodeBodyDistance::Initialize(std::shared_ptr<FrFEANodeBase> fea_node,
-                                           std::shared_ptr<FrNode> body_node) {
+    FrFEANodeBodyDistance::FrFEANodeBodyDistance() : chrono::ChLinkDistance() {
 
-      assert(false);
-//      Initialize(fea_node,
-//          body_node->GetBody()->GetChronoBody())
-// TODO: continuer
+    }
+
+    void FrFEANodeBodyDistance::Initialize(std::shared_ptr<FrFEANodeBase> fea_node,
+                                           std::shared_ptr<FrNode> body_node,
+                                           const double &distance) {
+
+      chrono::ChLinkDistance::Initialize(fea_node,
+                                         internal::GetChronoBody(body_node->GetBody()),
+                                         true,
+                                         chrono::VNULL,
+                                         internal::Vector3dToChVector(body_node->GetPositionInWorld(NWU)),
+                                         false,
+                                         distance
+      );
 
     }
 

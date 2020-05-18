@@ -5,6 +5,7 @@
 #include "FrClumpWeight.h"
 
 #include "frydom/core/body/FrBody.h"
+#include "frydom/core/body/FrBodyEasy.h"
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/force/FrConstantForce.h"
 #include "frydom/logging/FrTypeNames.h"
@@ -18,16 +19,23 @@ namespace frydom {
 
   FrClumpWeight::FrClumpWeight(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
-      m_body(std::make_shared<FrBody>(name + "_body", system)),
+      m_body(system->NewBody(name + "_body")),
       m_body_node(nullptr),
       m_fea_node(nullptr),
-      m_constraint(nullptr),
+      m_constraint(std::make_shared<internal::FrFEANodeBodyDistance>()),
       m_distance_to_node(0.),
       m_is_dry_mass(false),
       m_mass(0.),
       m_morison_coeffs(),
-      m_geometry(nullptr),
+      m_geometry(std::make_unique<internal::FrClumpCylinderGeometry>(1., 1.)),
       m_hydrostatic_force(nullptr) {}
+
+  FrClumpWeight::~FrClumpWeight() {
+    // Removing link and body from system
+//    GetSystem()->Remove(m_body);
+//    // TODO: Remove also the constraint !!
+//    assert(false);
+  }
 
   void FrClumpWeight::SetDryMass(const double &mass) {
     m_mass = mass;
@@ -63,35 +71,27 @@ namespace frydom {
 
     InitializeNode();
 
-    InitializeLink();
+//    InitializeConstraint();
 
-    InitializeMorison();
+    InitializeMorison(); // TODO: remettre
 
     InitializeBuoyancy();
+
+    InitializeAsset();
 
   }
 
   void FrClumpWeight::InitializeBody() {
-    GetSystem()->Add(m_body);
+//    GetSystem()->Add(m_body);
     m_body->SetInertiaTensor(m_geometry->GetInertiaTensor(m_mass));
+    m_body->LogThis(false); // This is the clump weight that have to be logged...
   }
 
-  void FrClumpWeight::InitializeLink() {
+  void FrClumpWeight::InitializeConstraint() {
 
-    auto node_position = internal::Vector3dToChVector(m_body_node->GetPositionInWorld(NWU));
+//    auto node_position = internal::Vector3dToChVector(m_body_node->GetPositionInWorld(NWU));
 
-
-    // TODO: continuer
-    assert(false);
-//    m_constraint->Initialize(m_fea_node,
-//                             m_body->GetChronoBody(),
-//                             true,
-//                             chrono::VNULL,
-//                             node_position,
-//                             false,
-//                             m_distance_to_node);
-//
-//    GetSystem()->Add(m_constraint);
+    m_constraint->Initialize(m_fea_node, m_body_node, m_distance_to_node);
 
   }
 
@@ -99,20 +99,23 @@ namespace frydom {
     auto position = m_geometry->GetRelativePositionForNodeNWU();
     m_body_node = m_body->NewNode(GetName() + "_node");
     m_body_node->SetPositionInBody(position, NWU);
+    m_body_node->LogThis(false);
   }
 
   void FrClumpWeight::InitializeMorison() {
+    std::cerr << "Initialiser morison" << std::endl;
     // TODO
   }
 
   void FrClumpWeight::InitializeBuoyancy() {
 
     if (m_is_dry_mass) {
+      // Here, a buoyancy constant force is applied to get the
       auto buoyancy_node = m_body->NewNode("buoyancy_node");
       buoyancy_node->LogThis(false);
 
       double bforce = m_geometry->GetVolume()
-                      * GetSystem()->GetEnvironment()->GetFluidDensity(WATER)
+                      * GetSystem()->GetEnvironment()->GetFluidDensity(WATER) // FIXME: on pourrait mettre a jour...
                       * GetSystem()->GetGravityAcceleration();
 
       m_hydrostatic_force = make_constant_force(
@@ -122,6 +125,12 @@ namespace frydom {
           {0., 0., bforce},
           NWU
       );
+    }
+  }
+
+  void FrClumpWeight::InitializeAsset() {
+    if (auto cylinder = dynamic_cast<internal::FrClumpCylinderGeometry*>(m_geometry.get())) {
+      makeItCylinder(m_body, cylinder->GetRadius(), cylinder->GetHeight(), m_mass);
     }
   }
 
@@ -141,6 +150,13 @@ namespace frydom {
     // TODO
   }
 
+  void FrClumpWeight::Compute(double time) {
+    // Nothing to do
+  }
+
+  std::shared_ptr<FrBody> FrClumpWeight::GetBody() {
+    return m_body;
+  }
 
   std::shared_ptr<FrClumpWeight>
   make_clump_weight(const std::string &name, FrOffshoreSystem *system) {
@@ -170,6 +186,24 @@ namespace frydom {
       return {0., 0., dynamic_cast<FrCylinder *>(m_geometry.get())->GetRadius()};
     }
 
+    double FrClumpCylinderGeometry::GetRadius() const {
+      return dynamic_cast<FrCylinder*>(m_geometry.get())->GetRadius();
+    }
+
+    double FrClumpCylinderGeometry::GetHeight() const {
+      return dynamic_cast<FrCylinder*>(m_geometry.get())->GetHeight();
+    }
+
+
+
+
+    std::shared_ptr<FrFEANodeBodyDistance> GetClumpWeightConstraint(std::shared_ptr<FrClumpWeight> clump_weight) {
+      return clump_weight->m_constraint;
+    }
+
+//    std::shared_ptr<FrBody> GetClumpWeightBody(std::shared_ptr<FrClumpWeight> clump_weight) {
+//      return clump_weight->m_body;
+//    }
 
   } // end namespace frydom::internal
 

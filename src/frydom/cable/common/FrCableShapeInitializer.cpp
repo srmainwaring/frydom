@@ -15,9 +15,8 @@
 
 namespace frydom {
 
-
   std::unique_ptr<FrCableShapeInitializer>
-  FrCableShapeInitializer::Create(FrCableBase *cable, FrEnvironment *environment) {
+  FrCableShapeInitializer::Create(const std::string &cable_name, FrCableBase *cable, FrEnvironment *environment) {
 
     auto startNode = cable->GetStartingNode();
     auto endNode = cable->GetEndingNode();
@@ -44,13 +43,13 @@ namespace frydom {
 
       // Using a catenary line to estimate if the line is in interaction with seabed by checking the lowest point
       // of this static model
-      auto catenary_line = std::make_unique<FrCatenaryLine>("initialize", cable, true, fluid_type);
+      auto catenary_line = std::make_unique<FrCatenaryLine>(cable_name + "_initialize", cable, true, fluid_type);
       catenary_line->UseForShapeInitialization(true);
       catenary_line->Initialize();
 
       if (catenary_line->HasSeabedInteraction()) {
         // Slack with seabed interactions
-        return std::make_unique<internal::FrCableShapeInitializerSlackSeabed>(cable, environment);
+        return std::make_unique<internal::FrCableShapeInitializerSlackSeabed>(cable_name, cable, environment);
 
       } else {
         // Only slack
@@ -101,7 +100,8 @@ namespace frydom {
       return m_catenary_line->GetTangent(s, fc);
     }
 
-    FrCableShapeInitializerSlackSeabed::FrCableShapeInitializerSlackSeabed(FrCableBase *cable,
+    FrCableShapeInitializerSlackSeabed::FrCableShapeInitializerSlackSeabed(const std::string &cable_name,
+                                                                           FrCableBase *cable,
                                                                            FrEnvironment *environment) :
         m_environment(environment),
         FrCableShapeInitializer(cable) {
@@ -140,7 +140,11 @@ namespace frydom {
       // FIXME: pour le moment, le frottement n'est pas reglable et est nul... (en plus d'etre code en dur)
       double seabed_friction_coeff = 1.;
 
-      m_catenary_line_seabed = std::make_unique<FrCatenaryLineSeabed>("initialize",
+//      assert(false);
+      // FIXME: ici, on cree une ligne catenaire a blanc mais elle est malgre tout enregistree
+      // On a collision de nom
+      // Lors de la destruction de catenary_line_seabed, il faut aussi detruire le noeud TDP !!!
+      m_catenary_line_seabed = std::make_unique<FrCatenaryLineSeabed>(cable_name + "_initialize",
                                                                       origin_node,
                                                                       final_node,
                                                                       cable->GetProperties(),
@@ -150,25 +154,6 @@ namespace frydom {
                                                                       seabed_friction_coeff);
       m_catenary_line_seabed->UseForShapeInitialization(true);
       m_catenary_line_seabed->Initialize();
-
-//      m_origin_position = origin_node->GetPositionInWorld(NWU);
-//      Position final_position = final_node->GetPositionInWorld(NWU);
-//
-//      m_horizontal_direction = final_position - m_origin_position;
-//      double vertical_spreading = m_horizontal_direction.z(); // d
-//
-//      m_horizontal_direction.z() = 0.;
-//      double horizontal_spreading = m_horizontal_direction.norm(); // h
-//
-//      m_horizontal_direction.normalize();
-//
-//      double L = m_cable->GetUnstretchedLength();
-//      m_lying_distance = 0.5 * (L + horizontal_spreading -
-//          (vertical_spreading * vertical_spreading) / (L - horizontal_spreading));
-//
-//      m_touch_down_point_position = m_origin_position + m_lying_distance * m_horizontal_direction;
-//
-//      m_raising_direction = (final_position - m_touch_down_point_position).normalized();
 
     }
 
@@ -197,4 +182,5 @@ namespace frydom {
     }
 
   }  // end namespace frydom::internal
+
 }  // end namespace frydom

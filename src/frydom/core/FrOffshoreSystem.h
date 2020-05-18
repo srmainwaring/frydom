@@ -430,6 +430,8 @@ namespace frydom {
     /// \param omega overrelaxation parameter of both iterative solvers
     void SetSolverOverrelaxationParam(double omega);
 
+    void SetSolverDiagonalPreconditioning(bool val);
+
     /// Adjust the 'sharpness lambda' parameter of both iterative solvers (the one for speed and the other for
     /// pos.stabilization). Note, usually a good sharpness value is in 1..0.8 range (the lower, the more it helps
     /// exact convergence, but overall convergence gets also much slower so maybe better to tolerate some error)

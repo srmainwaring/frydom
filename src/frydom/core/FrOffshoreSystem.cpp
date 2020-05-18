@@ -12,6 +12,7 @@
 #include <chrono/physics/ChLinkMotorRotation.h>
 #include <chrono/physics/ChLinkMotorLinear.h>
 #include <frydom/mesh/FrHydroMesh.h>
+#include <chrono/solver/ChSolverMINRES.h>
 
 
 #include "FrOffshoreSystem.h"
@@ -258,9 +259,11 @@ namespace frydom {
     body->RemoveAllForces();
     body->RemoveAllNodes();
 
+
+
     event_logger::info(GetTypeName(), GetName(), "Body {} has been REMOVED from the system", body->GetName());
 
-    // FIXME : we should launch removal of FrNode and FrForce objects attached to this body from the logManager...
+    // FIXME : we should launch removal of FrNode and FrForce objects attached to this body from the logManager and path manager
 
   }
 
@@ -444,8 +447,11 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::AddClumpWeight(std::shared_ptr<FrClumpWeight> clump_weight) {
-//    m_physicsItemsList.push_back(clump_weight);
-    assert(false);
+    m_physicsItemsList.push_back(clump_weight);
+
+    // Add the link...
+    m_chronoSystem->AddLink(internal::GetClumpWeightConstraint(clump_weight));
+
   }
 
   void FrOffshoreSystem::RemoveFEACable(std::shared_ptr<FrFEACable> cable) {
@@ -698,45 +704,93 @@ namespace frydom {
 
   void FrOffshoreSystem::SetSolverWarmStarting(bool useWarm) {
     m_chronoSystem->SetSolverWarmStarting(useWarm);
+    std::string active;
+    if (useWarm) {
+      active = "activated";
+    } else {
+      active = "deactivated";
+    }
+    event_logger::info(GetTypeName(), GetName(), "Solver warm start {}", active);
   }
 
   void FrOffshoreSystem::SetSolverOverrelaxationParam(double omega) {
     m_chronoSystem->SetSolverOverrelaxationParam(omega);
+    event_logger::info(GetTypeName(), GetName(),
+        "Solver over relaxation parameter set to {}", omega);
+  }
+
+  void FrOffshoreSystem::SetSolverDiagonalPreconditioning(bool val) {
+    if (m_solverType == MINRES) {
+      auto solver = std::static_pointer_cast<chrono::ChSolverMINRES>(m_chronoSystem->GetSolver());
+      solver->SetDiagonalPreconditioning(val);
+      std::string active;
+      if (val) {
+        active = "activated";
+      } else {
+        active = "deactivated";
+      }
+      event_logger::info(GetTypeName(), GetName(), "Solver diagonal preconditioning {}.", active);
+    } else {
+      event_logger::warn(GetTypeName(), GetName(),
+          "Solver diagonal preconditioning is currently only available for MINRES solver");
+    }
   }
 
   void FrOffshoreSystem::SetSolverSharpnessParam(double momega) {
     m_chronoSystem->SetSolverSharpnessParam(momega);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Solver sharpness parameter set to {}", momega);
   }
 
   void FrOffshoreSystem::SetParallelThreadNumber(int nbThreads) {
     m_chronoSystem->SetParallelThreadNumber(nbThreads);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Number of threads for simulation set to {}", nbThreads);
   }
 
   void FrOffshoreSystem::SetSolverMaxIterSpeed(int maxIter) {
     m_chronoSystem->SetMaxItersSolverSpeed(maxIter);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Solver maximum number of iterations for speed set to {}", maxIter);
   }
 
   void FrOffshoreSystem::SetSolverMaxIterStab(int maxIter) {
     m_chronoSystem->SetMaxItersSolverStab(maxIter);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Solver maximum number of iterations for stabilization set to {}", maxIter);
   }
 
   void FrOffshoreSystem::SetSolverMaxIterAssembly(int maxIter) {
     m_chronoSystem->SetMaxiter(maxIter);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Solver maximum number of iterations for constraint assembly the system set to {}", maxIter);
   }
 
   void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
     m_chronoSystem->SetTol(tol);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Solver geometric tolerance set to {}", tol);
   }
 
   void FrOffshoreSystem::SetSolverForceTolerance(double tol) {
     m_chronoSystem->SetTolForce(tol);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Solver force tolerance set to {}", tol);
   }
 
   void FrOffshoreSystem::UseMaterialProperties(bool use) {
     if (m_systemType == SMOOTH_CONTACT) {
       dynamic_cast<chrono::ChSystemSMC *>(m_chronoSystem.get())->UseMaterialProperties(use);
+      std::string active;
+      if (use) {
+        active = "activated";
+      } else {
+        active = "deactivated";
+      }
+      event_logger::info(GetTypeName(), GetName(),"Material properties {}", active);
     } else {
-      std::cerr << "The use of material properties is only for SMOOTH_CONTACT systems" << std::endl;
+      event_logger::error(GetTypeName(), GetName(),
+          "The use of material properties is only for SMOOTH_CONTACT systems");
     }
   }
 
@@ -744,19 +798,25 @@ namespace frydom {
     if (m_systemType == SMOOTH_CONTACT) {
       auto systemSMC = dynamic_cast<chrono::ChSystemSMC *>(m_chronoSystem.get());
       using ContactForceModel = chrono::ChSystemSMC::ContactForceModel;
+      std::string model_str;
       switch (model) {
         case HOOKE:
           systemSMC->SetContactForceModel(ContactForceModel::Hooke);
+          model_str = "HOOKE";
           break;
         case HERTZ:
           systemSMC->SetContactForceModel(ContactForceModel::Hertz);
+          model_str = "HERTZ";
           break;
         case COULOMB:
           systemSMC->SetContactForceModel(ContactForceModel::PlainCoulomb);
+          model_str = "COULOMB";
           break;
       }
+      event_logger::info(GetTypeName(), GetName(), "Constact force model set to {}", model_str);
     } else {
-      std::cerr << "Contact force model is only for SMOOTH_CONTACT systems" << std::endl;
+      event_logger::error(GetTypeName(), GetName(),
+                          "Contact force model is only for SMOOTH_CONTACT systems");
     }
   }
 

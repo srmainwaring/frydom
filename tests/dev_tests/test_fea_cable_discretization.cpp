@@ -75,8 +75,8 @@ int main() {
   std::vector<std::pair<double, unsigned int>> conf = {
 //      {-30, 20},
 //      {-20, 30},
-      {-10, 50},
-//      {0,   75},
+//      {-10, 50},
+      {0,   75},
 //      {10,  100},
 //      {20,  125},
 //      {30,  150},
@@ -117,12 +117,12 @@ int main() {
   }
 
 
-//  // Adding a clump weight
-//  auto clump_weight = cable->AddClumpWeight("clump_weight", cable_length - 64., 10);
-//  clump_weight->SetSubmergedMass(120e3);
-////  clump_weight->SetDryMass(120e3);
-//  clump_weight->SetAsCylinder(1., 1.);
-//  clump_weight->SetMorisonCoefficients(0.52, 0.91, 1.595, 1.637);
+  // Adding a clump weight
+  auto clump_weight = cable->AddClumpWeight("clump_weight", cable_length - 64., 1);
+  clump_weight->SetSubmergedMass(120e3);
+//  clump_weight->SetDryMass(120e3);
+  clump_weight->SetAsCylinder(1., 1.);
+  clump_weight->SetMorisonCoefficients(0.52, 0.91, 1.595, 1.637);
 
 
   // TODO: faire ces settings en auto en cas d'utilisation de cable fea... (ou voir si ce n'est pas un reglage standard
@@ -143,7 +143,7 @@ int main() {
 //  msolver->SetDiagonalPreconditioning(true);
 //  application.SetTimestep(0.01);
 
-  system.RunInViewer(0., 100., false, 10);
+  system.RunInViewer(0., 100., true, 10);
 
   return 0;
 }

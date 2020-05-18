@@ -37,7 +37,8 @@ namespace frydom {
       FrFEANodeBodyDistance();
 
       void Initialize(std::shared_ptr<FrFEANodeBase> fea_node,
-                      std::shared_ptr<FrNode> body_node);
+                      std::shared_ptr<FrNode> body_node,
+                      const double &distance);
 
 
     };

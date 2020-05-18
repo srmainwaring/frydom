@@ -19,7 +19,8 @@ namespace frydom {
 
    public:
     // Factory static method to get the correct Shape initializer for the given cable
-    static std::unique_ptr<FrCableShapeInitializer> Create(FrCableBase *cable, FrEnvironment *environment);
+    static std::unique_ptr<FrCableShapeInitializer>
+    Create(const std::string &cable_name, FrCableBase *cable, FrEnvironment *environment);
 
     virtual Position GetPosition(const double &s, FRAME_CONVENTION fc) const = 0;
 
@@ -67,7 +68,8 @@ namespace frydom {
 
     class FrCableShapeInitializerSlackSeabed : public FrCableShapeInitializer {
      public:
-      FrCableShapeInitializerSlackSeabed(FrCableBase *cable,
+      FrCableShapeInitializerSlackSeabed(const std::string &cable_name,
+                                         FrCableBase *cable,
                                          FrEnvironment *environment);
 
       Position GetPosition(const double &s, FRAME_CONVENTION fc) const override;

@@ -17,27 +17,10 @@
 #include <iostream>
 
 #include "FrPathPolicies.h"
+#include "FrEventLogger.h"
 
 
 namespace frydom {
-
-//  template<class ParentType>
-//  class FrTreeNode;
-//
-//  class FrOffshoreSystem;
-//
-//  class FrBody;
-//
-//  class FrLinkBase;
-//
-//  class FrForce;
-//
-//  class FrNode;
-//
-//  class FrActuator;
-//
-//  class FrCatenaryLine;
-
 
   // TODO : renommer en TreeManager ??
   class FrPathManager {
@@ -62,13 +45,27 @@ namespace frydom {
       auto path = GetPath(node);
 
       if (!RegisterPath(path)) {
-
+        event_logger::error("PathManager", "",
+            "Object with name {} already exists in this context and cannot be defined twice.", node->GetName());
         throw std::runtime_error(
             "Object with name " + node->GetName() + " already exists in this context. Defined twice.");
       }
 
       node->SetTreePath(path);
     }
+
+    template <class NodeType>
+    void UnregisterTreeNode(NodeType *node) {
+      std::string node_path = node->GetTreePath();
+      if (!HasPath(node_path)) {
+        event_logger::error("PathManager", "",
+            "Attempting to unregister a node named {} that does not exist", node->GetName());
+      }
+
+      m_used_paths.erase(node_path);
+
+    }
+
 
    private:
 

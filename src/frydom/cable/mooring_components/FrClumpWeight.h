@@ -13,7 +13,7 @@
 #include "frydom/core/math/Fr3DGeometry.h"
 #include "frydom/core/common/FrObject.h"
 #include "frydom/logging/FrLoggable.h"
-
+#include "frydom/core/common/FrPhysicsItem.h"
 
 namespace frydom {
 
@@ -24,6 +24,13 @@ namespace frydom {
     class FrFEANodeBase;
 
     class FrClumpGeometryBase;
+
+    std::shared_ptr<FrFEANodeBodyDistance>
+    GetClumpWeightConstraint(std::shared_ptr<FrClumpWeight> clump_weight);
+
+//    std::shared_ptr<FrBody>
+//    GetClumpWeightBody(std::shared_ptr<FrClumpWeight> clump_weight);
+
   }
 
   class FrBody;
@@ -35,7 +42,7 @@ namespace frydom {
 
   using FrClumpWeightBuoyancyForce = FrConstantForce;
 
-  class FrClumpWeight : public FrObject, public FrLoggable<FrOffshoreSystem> {
+  class FrClumpWeight : public FrPhysicsItem, public FrLoggable<FrOffshoreSystem> {
 
    public:
 
@@ -45,7 +52,7 @@ namespace frydom {
 
     FrClumpWeight(const std::string &name, FrOffshoreSystem *system);
 
-    ~FrClumpWeight() = default;
+    ~FrClumpWeight() override;
 
     void SetDryMass(const double &mass);
 
@@ -62,7 +69,7 @@ namespace frydom {
 
     void InitializeBody();
 
-    void InitializeLink();
+    void InitializeConstraint();
 
     void InitializeNode();
 
@@ -70,11 +77,17 @@ namespace frydom {
 
     void InitializeBuoyancy();
 
+    void InitializeAsset();
+
     std::shared_ptr<internal::FrFEANodeBase> GetFEANode();
 
     double GetConstraintDistance() const;
 
     void SetBodyNodePositionInWorld(const Position &position, FRAME_CONVENTION fc);
+
+    void Compute(double time) override;
+
+    std::shared_ptr<FrBody> GetBody();
 
    private:
     void DefineLogMessages() override;
@@ -105,6 +118,10 @@ namespace frydom {
 
     std::shared_ptr<FrClumpWeightBuoyancyForce> m_hydrostatic_force;
 
+    friend
+    std::shared_ptr<internal::FrFEANodeBodyDistance> internal::GetClumpWeightConstraint(std::shared_ptr<FrClumpWeight>);
+
+//    friend std::shared_ptr<FrBody> internal::GetClumpWeightBody(std::shared_ptr<FrClumpWeight>);
   };
 
   std::shared_ptr<FrClumpWeight>
@@ -133,7 +150,15 @@ namespace frydom {
 
       Position GetRelativePositionForNodeNWU() const override;
 
+      double GetRadius() const;
+
+      double GetHeight() const;
+
     };
+
+    std::shared_ptr<FrFEANodeBodyDistance> GetClumpWeightConstraint(std::shared_ptr<FrClumpWeight> clump_weight);
+
+    std::shared_ptr<FrBody> GetClumpWeightBody(std::shared_ptr<FrClumpWeight> clump_weight);
 
 
   }  // end namespace frydom::internal

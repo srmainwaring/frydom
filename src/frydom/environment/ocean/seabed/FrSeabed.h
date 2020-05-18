@@ -16,7 +16,9 @@
 
 #include "frydom/core/common/FrObject.h"
 #include "frydom/core/common/FrConvention.h"
+#include "frydom/core/common/FrUnits.h"
 #include "frydom/core/math/FrVector.h"
+
 
 namespace frydom {
 
@@ -97,6 +99,13 @@ namespace frydom {
                     const double atol = 1e-8) const;
 
     std::shared_ptr<FrNode> NewAnchor(const std::string &name, double x, double y, FRAME_CONVENTION fc);
+
+    std::shared_ptr<FrNode> NewAnchor(const std::string &name,
+                                      const Position &refPos,
+                                      const double &heading,
+                                      const double &distance,
+                                      ANGLE_UNIT angle_unit,
+                                      FRAME_CONVENTION fc);
 
 
     //---------------------------- Update-Initialize-StepFinalize ----------------------------//

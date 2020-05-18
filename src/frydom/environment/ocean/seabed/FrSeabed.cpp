@@ -85,6 +85,23 @@ namespace frydom {
 
   }
 
+  std::shared_ptr<FrNode> FrSeabed::NewAnchor(const std::string &name,
+                                              const Position &refPos,
+                                              const double &heading,
+                                              const double &distance,
+                                              ANGLE_UNIT angle_unit,
+                                              FRAME_CONVENTION fc) {
+
+    double alpha = heading;
+    if (angle_unit == DEG) alpha *= DEG2RAD;
+
+    return NewAnchor(name,
+                     distance * std::cos(alpha),
+                     distance * std::sin(alpha),
+                     fc);
+  }
+
+
 //  //------------------------------------------------------------------------------------------------------------------
 //  // FrNullSeabed descriptions
 //
@@ -243,7 +260,7 @@ namespace frydom {
     double hy = 2000;
     double hz = 100;
 
-    collision_model->AddBox(0.5*hx, 0.5*hy, 0.5*hz, {0., 0., -0.5*hz});
+    collision_model->AddBox(0.5 * hx, 0.5 * hy, 0.5 * hz, {0., 0., -0.5 * hz});
     collision_model->BuildModel();
 
     m_seabed_body->AllowCollision(true);

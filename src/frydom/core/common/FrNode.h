@@ -39,6 +39,8 @@ namespace frydom {
 
     };
 
+    std::shared_ptr<FrMarker> GetChronoMarker(std::shared_ptr<FrNode> node);
+
   } // end namespace frydom::internal
 
 
@@ -267,6 +269,8 @@ namespace frydom {
 
 
    private:
+
+    friend std::shared_ptr<internal::FrMarker> internal::GetChronoMarker(std::shared_ptr<FrNode> node);
 
     friend void FrLink::SetNodes(FrNode *, FrNode *);
 

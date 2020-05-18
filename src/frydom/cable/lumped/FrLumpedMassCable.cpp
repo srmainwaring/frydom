@@ -394,7 +394,8 @@ namespace frydom {
       FrLoggable<FrOffshoreSystem>(name, TypeToString(this), startingNode->GetSystem()) {
 
 
-    auto shape_initializer = FrCableShapeInitializer::Create(this, GetSystem()->GetEnvironment());
+    auto shape_initializer =
+        FrCableShapeInitializer::Create(GetName(), this, GetSystem()->GetEnvironment());
 
     double element_rest_length = m_unstretchedLength / nbElements;
 

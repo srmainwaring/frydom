@@ -55,16 +55,14 @@ namespace frydom {
 
       void SetTorqueInBodyNWU(const Torque &body_torque);
 
-//      friend class FrForce;
-
     };
+
+    std::shared_ptr<FrForceBase> GetChronoForce(std::shared_ptr<FrForce> force);
 
   }  // end namespace frydom::internal
 
   // Forward declaration;
   class FrOffshoreSystem;
-
-//  class FrBody;
 
   class FrNode;
 
@@ -114,7 +112,7 @@ namespace frydom {
 
     /// Get the asset related to the force
     /// \return force asset
-    FrForceAsset *GetAsset();
+    std::shared_ptr<FrForceAsset> GetAsset();
 
     // Force Limits
 
@@ -383,13 +381,10 @@ namespace frydom {
     void SetForceTorqueInBodyAtPointInWorld(const Force &bodyForce, const Torque &bodyTorque,
                                             const Position &worldPos, FRAME_CONVENTION fc);
 
-    /// Return the force as a chrono object.
-    /// \return Force vector as a chrono object
-    std::shared_ptr<chrono::ChForce> GetChronoForce();
-
     /// Virtual function to allow updating the child object from the solver
     /// \param time Current time of the simulation from beginning, in seconds
     virtual void Compute(double time) = 0;
+
 
    protected:
 
@@ -406,13 +401,8 @@ namespace frydom {
     double m_forceLimit = 1e20;            ///< Taking very high values by default in case we just set limit to true without
     double m_torqueLimit = 1e20;            ///< setting the values individually.
 
-//      std::string BuildPath(const std::string &rootPath) override;
 
-//    friend class FrBody;
-    friend void FrBody::AddExternalForce(std::shared_ptr<frydom::FrForce>);
-
-    friend void FrBody::RemoveExternalForce(std::shared_ptr<frydom::FrForce>);
-
+    friend std::shared_ptr<internal::FrForceBase> internal::GetChronoForce(std::shared_ptr<FrForce> force);
 
   };
 

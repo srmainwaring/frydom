@@ -29,6 +29,10 @@ namespace frydom {
 
     FrMarker::FrMarker(frydom::FrNode *node) : m_frydomNode(node) {}
 
+    std::shared_ptr<FrMarker> GetChronoMarker(std::shared_ptr<FrNode> node) {
+      return node->m_chronoMarker;
+    }
+
   }  // end namespace frydom::internal
 
 //  const std::string FrNode::s_type = NODE_TYPE;

@@ -65,6 +65,7 @@ namespace frydom {
       double distance = cw.m_distance_to_node;
 
       // Attaching the clump to the nearest node on the line
+      // TODO: a terme, il conviendrait d'inserer un point de controle a cette absc
       auto fea_node = GetNearestFEANode(abscissa / GetUnstretchedLength());
       clump_weight->Attach(fea_node, distance);
 
@@ -73,7 +74,10 @@ namespace frydom {
       position.z() -= clump_weight->GetConstraintDistance();
 
       clump_weight->SetBodyNodePositionInWorld(position, NWU);
+
+      clump_weight->InitializeConstraint();
     }
+
   }
 
   void FrFEACable::StepFinalize() {
@@ -222,7 +226,8 @@ namespace frydom {
       double unstretched_length = fea_cable->GetUnstretchedLength();
 
       // FIXME: pourquoi doit on entrer l'environnement alors qu'on y a acces depuis fea_cable ??
-      auto shape_initializer = FrCableShapeInitializer::Create(fea_cable, fea_cable->GetSystem()->GetEnvironment());
+      auto shape_initializer =
+          FrCableShapeInitializer::Create(m_frydom_mesh->GetName(), fea_cable, fea_cable->GetSystem()->GetEnvironment());
 
       unsigned int n = fea_cable->GetNbNodes();
 
@@ -339,11 +344,7 @@ namespace frydom {
     }
 
     void FrFEACableBase::SetupInitial() {
-
-      // TODO: voir a mettre en pratique le pattern pour integrer la masse ajoutee ici !!!
-
       chrono::fea::ChMesh::SetupInitial();
-
     }
 
     void FrFEACableBase::SetStartLinkConstraint(FrFEACable::FEA_BODY_CONSTRAINT_TYPE ctype) {

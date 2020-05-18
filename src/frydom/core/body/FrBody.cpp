@@ -493,7 +493,7 @@ namespace frydom {
 
   void FrBody::AddExternalForce(std::shared_ptr<frydom::FrForce> force) {
     /// This subroutine is used for adding the hydrodynamic loads.
-    m_chronoBody->AddForce(force->GetChronoForce());  // FrBody is a friend class of FrForce
+    m_chronoBody->AddForce(internal::GetChronoForce(force));  // FrBody is a friend class of FrForce
     m_externalForces.push_back(force);
     GetSystem()->GetPathManager()->RegisterTreeNode(force.get());
 
@@ -504,7 +504,7 @@ namespace frydom {
   }
 
   void FrBody::RemoveExternalForce(std::shared_ptr<FrForce> force) {
-    m_chronoBody->RemoveForce(force->GetChronoForce());
+    m_chronoBody->RemoveForce(internal::GetChronoForce(force));
 
     m_externalForces.erase(
         std::find<std::vector<std::shared_ptr<FrForce>>::iterator>(m_externalForces.begin(), m_externalForces.end(),
@@ -512,18 +512,20 @@ namespace frydom {
 
     event_logger::info(GetTypeName(), GetName(), "External force {} removed", force->GetName());
 
-    if (force->m_asset != nullptr) {
-      m_chronoBody->RemoveAsset(internal::GetChronoAsset(force->m_asset));
+    auto asset = force->GetAsset();
+
+    if (asset) {
+      m_chronoBody->RemoveAsset(internal::GetChronoAsset(asset));
 
       bool asserted = false;
       for (int ia = 0; ia < m_assets.size(); ++ia) {
-        if (m_assets[ia] == force->m_asset) {
+        if (m_assets[ia] == asset) {
           m_assets.erase(m_assets.begin() + ia);
           asserted = true;
         }
       }
       assert(asserted); // FIXME : renvoyer une erreur mais ne pas faire planter !!!
-      force->m_asset = nullptr;
+      asset = nullptr;
 
     }
 
@@ -538,6 +540,7 @@ namespace frydom {
     m_chronoBody->RemoveAllForces();
 
     auto logManager = GetSystem()->GetLogManager();
+    auto pathManager = GetSystem()->GetPathManager();
     for (auto &force : m_externalForces) {
       logManager->Remove(force);
     }
@@ -546,12 +549,19 @@ namespace frydom {
     event_logger::info(GetTypeName(), GetName(), "All forces removed");
   }
 
-  void FrBody::RemoveAllNodes() {
-    m_chronoBody->RemoveAllMarkers();
+  void FrBody::RemoveNode(std::shared_ptr<FrNode> node) {
+    m_chronoBody->RemoveMarker(internal::GetChronoMarker(node));
 
-    auto logManager = GetSystem()->GetLogManager();
+    GetSystem()->GetLogManager()->Remove(node);
+    GetSystem()->GetPathManager()->UnregisterTreeNode(node.get());
+
+    event_logger::info(GetTypeName(), GetName(), "Node {} has been removed", node->GetName());
+
+  }
+
+  void FrBody::RemoveAllNodes() {
     for (auto &node : m_nodes) {
-      logManager->Remove(node);
+      RemoveNode(node);
     }
     m_nodes.clear();
 
@@ -639,6 +649,18 @@ namespace frydom {
 
     m_chronoBody->SetFrame_REF_to_abs(internal::FrFrame2ChFrame(bodyFrame));
     m_chronoBody->UpdateAfterMove();
+  }
+
+  void FrBody::SetPosition(const Position &worlRefPosition,
+                           const double &heading,
+                           const double &distance,
+                           ANGLE_UNIT unit,
+                           FRAME_CONVENTION fc) {
+    double alpha = heading;
+    if (unit == DEG) alpha *= DEG2RAD;
+
+    Direction direction = {std::cos(alpha), std::sin(alpha), 0.};
+    SetPosition(worlRefPosition + direction * distance, fc);
   }
 
   void FrBody::SetGeoPosition(const FrGeographicCoord &geoCoord) {

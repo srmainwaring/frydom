@@ -18,6 +18,8 @@ set(REFACTORING_TESTS
         test_bspline
         test_beam_IGA
         test_fea_cable
+        test_fea_cable_discretization
+        test_fea_mooring_line_with_clump
         )
 
 foreach (test ${REFACTORING_TESTS})
