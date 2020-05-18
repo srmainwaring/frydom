@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
       // Several ways exist to add a Morison model to a body. Remember that a Morison model is a composition of Morison
       // elements (using a composition pattern). Morison elements can be added simply to a Morison model. Note that you
       // can also provide a Morison Force with a Morison element, if you got only one element.
-      auto MorisonModel = make_morison_model(cylinder);
+      auto MorisonModel = make_morison_model("morisonModel", cylinder);
 
       // Define the added mass and drag Morison Coefficients.
       MorisonCoeff AddedMassCoeff(0.5, 0.7);
@@ -88,7 +88,8 @@ int main(int argc, char *argv[]) {
       double frictionCoeff = 0.1;
 
       // Add an element, with parameters corresponding to the cylinder.
-      MorisonModel->AddElement(FrFrame(), height, 2. * radius, AddedMassCoeff, DragCoeff, frictionCoeff);
+      MorisonModel->AddElement({0., 0., -0.5*height}, {0., 0., 0.5*height},
+          2. * radius, AddedMassCoeff, DragCoeff, frictionCoeff);
 
       // Instantiate a Morison Force, using a Morison model, and add it to the cylinder
       auto MorisonForce = make_morison_force("MorisonForce", cylinder, MorisonModel);
@@ -108,7 +109,7 @@ int main(int argc, char *argv[]) {
       Platform->SetFixedInWorld(true);
 
       // Morison Model
-      auto MorisonModel = make_morison_model(Platform);
+      auto MorisonModel = make_morison_model("morisonModel", Platform);
 
       // Define the added mass and friction coefficients.
       MorisonCoeff AddedMassCoeff(0., 0.); // The added mass is not taken into account
@@ -152,7 +153,7 @@ int main(int argc, char *argv[]) {
           {system.config_file().GetDataFolder(), "ce/platform/Platform_GVA7500_Morison.json"});
 
       // Morison Model
-      auto MorisonModel = make_morison_model(body, MorisonFile);
+      auto MorisonModel = make_morison_model("morisonModel", body, MorisonFile);
 
       // Instantiate a Morison Force, using a Morison model, and add it to the cylinder
       auto MorisonForce = make_morison_force("MorisonForce", body, MorisonModel);

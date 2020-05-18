@@ -24,7 +24,8 @@ using namespace frydom;
 class TestMorisonSingleElement : public FrMorisonSingleElement {
 
  public:
-  TestMorisonSingleElement(FrBody *body) : FrMorisonSingleElement(body) {}
+  TestMorisonSingleElement(FrBody* body) : FrMorisonSingleElement(body, {0., 0., 1.}, {0., 0., -1},
+      0.5, 0.1, 0.6, 0.) {}
 
   TestMorisonSingleElement(FrBody *body, Position posA, Position posB, double diameter,
                            MorisonCoeff ca, MorisonCoeff cd, double cf,
@@ -43,6 +44,8 @@ class TestMorisonSingleElement : public FrMorisonSingleElement {
   void TestDragCoeff(double cdX, double cdY);
 
   void TestFriction(double cf);
+
+  void TestDiameter(double diameter);
 
   void CheckDiameter(double d);
 
@@ -86,13 +89,13 @@ TestMorisonSingleElement::TestMorisonSingleElement(std::shared_ptr<FrNode> nodeA
 
 
 void TestMorisonSingleElement::TestAddedMass(double ca) {
-  SetAddedMass(ca);
+  SetAddedMassCoeff(ca);
   EXPECT_FLOAT_EQ(ca, m_property.ca.x);
   EXPECT_FLOAT_EQ(ca, m_property.ca.y);
 }
 
 void TestMorisonSingleElement::TestAddedMass(double caX, double caY) {
-  SetAddedMass({caX, caY});
+  SetAddedMassCoeff({caX, caY});
   EXPECT_FLOAT_EQ(caX, m_property.ca.x);
   EXPECT_FLOAT_EQ(caY, m_property.ca.y);
 }
@@ -112,6 +115,11 @@ void TestMorisonSingleElement::TestDragCoeff(double cdX, double cdY) {
 void TestMorisonSingleElement::TestFriction(double cf) {
   SetFrictionCoeff(cf);
   EXPECT_FLOAT_EQ(cf, m_property.cf);
+}
+
+void TestMorisonSingleElement::TestDiameter(double diameter) {
+  SetDiameter(diameter);
+  EXPECT_FLOAT_EQ(diameter, m_property.diameter);
 }
 
 void TestMorisonSingleElement::CheckDiameter(double d) {
@@ -156,40 +164,9 @@ void TestMorisonSingleElement::CheckFriction(double cf) {
 
 class TestMorisonCompositeElement : public FrMorisonCompositeElement {
 
-
  public:
-  TestMorisonCompositeElement(FrBody *body) : FrMorisonCompositeElement(body) {}
-
-  void TestDragCoeff(double cdX, double cdY);
-
-  void TestAddedMass(double caX, double caY);
-
-  void TestFrictionCoeff(double cf);
-
-  void TestDiameter(double diameter);
+  TestMorisonCompositeElement(const std::string& name, FrBody *body) : FrMorisonCompositeElement(name, body) {}
 };
-
-void TestMorisonCompositeElement::TestDragCoeff(double cdX, double cdY) {
-  SetDragCoeff({cdX, cdY});
-  EXPECT_FLOAT_EQ(cdX, m_property.cd.x);
-  EXPECT_FLOAT_EQ(cdY, m_property.cd.y);
-}
-
-void TestMorisonCompositeElement::TestAddedMass(double caX, double caY) {
-  SetAddedMass({caX, caY});
-  EXPECT_FLOAT_EQ(caX, m_property.ca.x);
-  EXPECT_FLOAT_EQ(caY, m_property.ca.y);
-}
-
-void TestMorisonCompositeElement::TestFrictionCoeff(double cf) {
-  SetFrictionCoeff(cf);
-  EXPECT_FLOAT_EQ(cf, m_property.cf);
-}
-
-void TestMorisonCompositeElement::TestDiameter(double diameter) {
-  SetDiameter(diameter);
-  EXPECT_FLOAT_EQ(diameter, m_property.diameter);
-}
 
 // -----------------------------------------------------------------
 //
@@ -334,14 +311,10 @@ TEST_F(TestMorison, SetFriction) {
 
 TEST_F(TestMorison, SetDiameter) {
   auto morison = std::make_shared<TestMorisonSingleElement>(body.get());
-  morison->SetDiameter(0.5);
-  morison->CheckDiameter(0.5);
-  EXPECT_FLOAT_EQ(0.5, morison->GetDiameter());
+  morison->TestDiameter(0.8);
 }
 
 TEST_F(TestMorison, TestNodes) {
-
-  auto morison = std::make_shared<TestMorisonSingleElement>(body.get());
 
   Position posA = Position(1., -2., -5.);
   Position posB = Position(1.2, 4.5, -3.);
@@ -351,10 +324,13 @@ TEST_F(TestMorison, TestNodes) {
   auto nodeB = body->NewNode("nodeB");
   nodeB->SetPositionInBody(posB, NWU);
 
-  morison->SetNodes(nodeA, nodeB);
+
+  auto morison = std::make_shared<TestMorisonSingleElement>(nodeA, nodeB, m_diameter,
+      m_addedMass, m_dragCoeff, m_frictionCoeff);
   morison->CheckNodesPointer(nodeA, nodeB);
 
-  morison->SetNodes(body.get(), posA, posB);
+  morison = std::make_shared<TestMorisonSingleElement>(body.get(), posA, posB, m_diameter,
+                                                            m_addedMass, m_dragCoeff, m_frictionCoeff);
   morison->CheckNodesPointer(body.get(), posA, posB);
   morison->CheckLength(length);
 }
@@ -410,7 +386,7 @@ TEST_F(TestMorison, CompositeElementWithPositions) {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database);
 
-  auto morison = std::make_shared<FrMorisonCompositeElement>(body.get());
+  auto morison = std::make_shared<FrMorisonCompositeElement>("morison", body.get());
 
   morison->AddElement(m_pointA, m_pointB, m_diameter, m_addedMass, m_dragCoeff, m_frictionCoeff);
 
@@ -425,7 +401,7 @@ TEST_F(TestMorison, CompositeElementWithNodes) {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database);
 
-  auto morison = std::make_shared<FrMorisonCompositeElement>(body.get());
+  auto morison = std::make_shared<FrMorisonCompositeElement>("morison", body.get());
 
   auto nodeA = body->NewNode("nodeA");
   nodeA->SetPositionInBody(m_pointA, NWU);
@@ -445,7 +421,7 @@ TEST_F(TestMorison, ElementDiscretization) {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database);
 
-  auto morison = std::make_shared<FrMorisonCompositeElement>(body.get());
+  auto morison = std::make_shared<FrMorisonCompositeElement>("morison", body.get());
 
   morison->AddElement(m_pointA, m_pointB, m_diameter, m_addedMass, m_dragCoeff, m_frictionCoeff, 10);
 
@@ -460,7 +436,7 @@ TEST_F(TestMorison, TwoElements) {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database);
 
-  auto morison = std::make_shared<FrMorisonCompositeElement>(body.get());
+  auto morison = std::make_shared<FrMorisonCompositeElement>("morison", body.get());
 
   morison->AddElement(m_pointA, m_pointB, m_diameter, m_addedMass, m_dragCoeff, m_frictionCoeff);
   morison->AddElement(m_pointA, m_pointB, m_diameter, m_addedMass, m_dragCoeff, m_frictionCoeff);
@@ -482,48 +458,13 @@ TEST_F(TestMorison, TwoElements) {
   EXPECT_NEAR(2. * m_MorisonTorque.GetMz(), torqueBody.GetMz(), 10e-8);
 }
 
-TEST_F(TestMorison, CompositeDragCoeff) {
-  auto morison = std::make_shared<TestMorisonCompositeElement>(body.get());
-  morison->TestDragCoeff(0.1, 0.15);
-  auto cd = morison->GetDragCoeff();
-  EXPECT_FLOAT_EQ(0.1, cd.x);
-  EXPECT_FLOAT_EQ(0.15, cd.y);
-}
-
-TEST_F(TestMorison, CompositeAddedMass) {
-  auto morison = std::make_shared<TestMorisonCompositeElement>(body.get());
-  morison->TestAddedMass(1.5, 2.);
-  auto ca = morison->GetAddedMass();
-  EXPECT_FLOAT_EQ(1.5, ca.x);
-  EXPECT_FLOAT_EQ(2., ca.y);
-}
-
-TEST_F(TestMorison, CompositeFrictionCoeff) {
-  auto morison = std::make_shared<TestMorisonCompositeElement>(body.get());
-  morison->TestFrictionCoeff(0.01);
-  auto cf = morison->GetFrictionCoeff();
-  EXPECT_FLOAT_EQ(0.01, cf);
-}
-
-TEST_F(TestMorison, CompositeDiameter) {
-  auto morison = std::make_shared<TestMorisonCompositeElement>(body.get());
-  morison->TestDiameter(0.5);
-  auto diameter = morison->GetDiameter();
-  EXPECT_FLOAT_EQ(0.5, diameter);
-}
-
 TEST_F(TestMorison, CompositionElementGeneralProperty) {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database);
 
-  auto morison = std::make_shared<FrMorisonCompositeElement>(body.get());
+  auto morison = std::make_shared<FrMorisonCompositeElement>("morison", body.get());
 
-  morison->SetAddedMass(m_addedMass);
-  morison->SetDiameter(m_diameter);
-  morison->SetDragCoeff(m_dragCoeff);
-  morison->SetFrictionCoeff(m_frictionCoeff);
-
-  morison->AddElement(m_pointA, m_pointB);
+  morison->AddElement(m_pointA, m_pointB, m_diameter, m_addedMass, m_dragCoeff, m_frictionCoeff);
   auto force = make_morison_force("Morison", body, morison);
   system.Initialize();
 
@@ -536,19 +477,14 @@ TEST_F(TestMorison, CompositionElementGeneralPropertyNode) {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database);
 
-  auto morison = std::make_shared<FrMorisonCompositeElement>(body.get());
-
-  morison->SetAddedMass(m_addedMass);
-  morison->SetDiameter(m_diameter);
-  morison->SetDragCoeff(m_dragCoeff);
-  morison->SetFrictionCoeff(m_frictionCoeff);
+  auto morison = std::make_shared<FrMorisonCompositeElement>("morison", body.get());
 
   auto nodeA = body->NewNode("nodeA");
   nodeA->SetPositionInBody(m_pointA, NWU);
   auto nodeB = body->NewNode("nodeB");
   nodeB->SetPositionInBody(m_pointB, NWU);
 
-  morison->AddElement(nodeA, nodeB);
+  morison->AddElement(nodeA, nodeB, m_diameter, m_addedMass, m_dragCoeff, m_frictionCoeff);
   auto force = make_morison_force("Morison", body, morison);
   system.Initialize();
 

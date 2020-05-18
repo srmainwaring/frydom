@@ -218,7 +218,7 @@ namespace frydom {
     m_property.cf = cf;
   }
 
-  void FrMorisonSingleElement::SetDiameter(const double diameter) {
+  void FrMorisonSingleElement::SetDiameter(double diameter) {
     assert(diameter >= -FLT_EPSILON or std::abs(diameter) <= FLT_EPSILON);
     m_property.diameter = diameter;
   }
