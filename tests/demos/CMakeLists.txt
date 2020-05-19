@@ -10,16 +10,16 @@ set(DEMOS
         Body
         Rotation_and_Frame
         Hydrodynamic
-        Morison
-        Cable
-        Hub_Installation
+#        Morison
+#        Cable
+#        Hub_Installation
         Langlee
-        FOSWEC
-        MooringLines
+#        FOSWEC
+#        MooringLines
         NonLinearHydrostatics
         Constraints
         Links
-        HexagonalArticulatedBuoy
+#        HexagonalArticulatedBuoy
         )
 
 set(BENCH
@@ -27,7 +27,7 @@ set(BENCH
         SphereRegular
         SphereIrregular
         DTMB5512
-        Cables
+#        Cables
         NonlinearHydrostaticBox
         HS_equilibrium
         )

@@ -254,6 +254,14 @@ namespace frydom {
     }
 
 
+    std::shared_ptr<FrLinkLockBase> GetChronoLink(std::shared_ptr<FrLink> link) {
+      return link->m_chronoLink;
+    }
+
+    std::shared_ptr<FrLinkLockBase> GetChronoLink(FrLink *link) {
+      return link->m_chronoLink;
+    }
+
   }  // end namespace frydom::internal
 
 
@@ -282,13 +290,13 @@ namespace frydom {
     m_chronoLink->ReferenceMarkers(node2->m_chronoMarker.get(), node1->m_chronoMarker.get());
   }
 
-  std::shared_ptr<chrono::ChLink> FrLink::GetChronoLink() {
-    return m_chronoLink;
-  }
-
-  internal::FrLinkLockBase *FrLink::GetChronoItem_ptr() const {
-    return m_chronoLink.get();
-  }
+//  std::shared_ptr<chrono::ChLink> FrLink::GetChronoLink() {
+//    return m_chronoLink;
+//  }
+//
+//  internal::FrLinkLockBase *FrLink::GetChronoItem_ptr() const {
+//    return m_chronoLink.get();
+//  }
 
 
   bool FrLink::IsDisabled() const {

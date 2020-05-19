@@ -9,13 +9,10 @@
 //
 // ==========================================================================
 
+#include <chrono/assets/ChColor.h>
+#include <chrono/assets/ChLineShape.h>
 
 #include "FrCatenaryLineAsset.h"
-
-#include "chrono/assets/ChColor.h"
-#include "chrono/assets/ChLineShape.h"
-
-#include "frydom/cable/FrCatenaryLine.h"
 #include "frydom/core/common/FrNode.h"
 
 
@@ -24,7 +21,7 @@ namespace frydom {
   void FrCatenaryAssetOwner::InitMaxTension() {
 
     if (GetMaxTension() == 0) {
-      double ds = GetUnstrainedLength() / GetAssetElements();
+      double ds = GetUnstretchedLength() / GetAssetElements();
       double max = GetTension(0, NWU).norm();
       for (int i = 1; i < GetAssetElements(); i++) {
         auto LocalTension = GetTension(i * ds, NWU).norm();
@@ -76,21 +73,21 @@ namespace frydom {
     InitRangeTensionColor();
 
     // Generating line segments
-    double ds = m_catenaryLine->GetUnstrainedLength() / m_catenaryLine->GetAssetElements();
+    double ds = m_catenaryLine->GetUnstretchedLength() / m_catenaryLine->GetAssetElements();
 
     double s0 = 0.;
     double s1 = ds;
 
     chrono::ChVector<double> p0, p1;
     chrono::ChColor color;
-    p0 = internal::Vector3dToChVector(m_catenaryLine->GetNodePositionInWorld(s0, NWU));
+    p0 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(s0, NWU));
 
 
     auto index = m_chronoAsset->GetAssets().size();
 
-    while (s1 <= m_catenaryLine->GetUnstrainedLength() - ds) {
+    while (s1 <= m_catenaryLine->GetUnstretchedLength() - ds) {
 
-      p1 = internal::Vector3dToChVector(m_catenaryLine->GetNodePositionInWorld(s1, NWU));
+      p1 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(s1, NWU));
       auto newElement = std::make_shared<chrono::ChLineShape>();
       color = chrono::ChColor::ComputeFalseColor(m_catenaryLine->GetTension(0.5 * (s0 + s1), NWU).norm(), 0,
                                                  m_maxTension, true);
@@ -109,9 +106,9 @@ namespace frydom {
 
     // For the last element
     auto last_ele = m_elements.back();
-    s1 = m_catenaryLine->GetUnstrainedLength();
-    if (std::get<1>(last_ele) < m_catenaryLine->GetUnstrainedLength()) {
-      p1 = internal::Vector3dToChVector(m_catenaryLine->GetNodePositionInWorld(s1, NWU));
+    s1 = m_catenaryLine->GetUnstretchedLength();
+    if (std::get<1>(last_ele) < m_catenaryLine->GetUnstretchedLength()) {
+      p1 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(s1, NWU));
       auto newElement = std::make_shared<chrono::ChLineShape>();
       color = chrono::ChColor::ComputeFalseColor(m_catenaryLine->GetTension(0.5 * (s0 + s1), NWU).norm(), 0,
                                                  m_maxTension, true);
@@ -129,7 +126,7 @@ namespace frydom {
     chrono::ChVector<double> p0, p1;
     double s0, s1;
 
-    p0 = internal::Vector3dToChVector(m_catenaryLine->GetNodePositionInWorld(0., NWU));
+    p0 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(0., NWU));
 
     for (auto &element : m_elements) {
 
@@ -139,7 +136,7 @@ namespace frydom {
 
       auto lineSegment = std::dynamic_pointer_cast<chrono::geometry::ChLineSegment>(lineShape->GetLineGeometry());
 
-      p1 = internal::Vector3dToChVector(m_catenaryLine->GetNodePositionInWorld(s1, NWU));
+      p1 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(s1, NWU));
 
       lineSegment->pA = p0;
       lineSegment->pB = p1;
@@ -158,7 +155,7 @@ namespace frydom {
     if (maxTension > 0) {
       m_maxTension = maxTension;
     } else {
-      double ds = m_catenaryLine->GetUnstrainedLength() / m_catenaryLine->GetAssetElements();
+      double ds = m_catenaryLine->GetUnstretchedLength() / m_catenaryLine->GetAssetElements();
       double max = m_catenaryLine->GetTension(0., NWU).norm();
       for (int i = 1; i < m_catenaryLine->GetAssetElements(); i++) {
         auto LocalTension = m_catenaryLine->GetTension(i * ds, NWU).norm();

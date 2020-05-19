@@ -17,15 +17,16 @@
 
 #include "frydom/core/force/FrForce.h"
 
-
 namespace frydom {
 
   // Forward declarations
   class FrMorisonElement;
-
   class FrMorisonSingleElement;
-
   class FrMorisonCompositeElement;
+
+  namespace internal {
+    class FrVariablesAddedMass;
+  }
 
 
   /**
@@ -33,7 +34,6 @@ namespace frydom {
    * \brief Class for computing Morison loads.
    */
   class FrMorisonForce : public FrForce {
-
 
    private:
     std::shared_ptr<FrMorisonElement> m_model;      ///< Morison model linked with the morison force
@@ -47,12 +47,12 @@ namespace frydom {
     /// Define a single element morison model
     /// \param body Body to which the morison model is applied
     /// \return Single element morison model
-    FrMorisonSingleElement *SetSingleElementModel(FrBody *body);
+    //FrMorisonSingleElement *SetSingleElementModel(FrBody *body);
 
     /// Define a composite element morison model
     /// \param body Body to which the morison model is applied
     /// \return Composite element morison model
-    FrMorisonCompositeElement *SetCompositeElementModel(FrBody *body);
+    //FrMorisonCompositeElement *SetCompositeElementModel(FrBody *body);
 
     /// Method to initialized the morison force
     void Initialize() override;
@@ -65,6 +65,9 @@ namespace frydom {
     /// Compute the Morison force
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
+
+    mathutils::Matrix66<double> c_AM;
+
   };
 
   /// Maker of a Morison model force : instantiate and return a FrMorisonForce, based on a Morison element.

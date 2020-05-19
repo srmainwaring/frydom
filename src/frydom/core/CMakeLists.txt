@@ -22,11 +22,14 @@ list(APPEND SRC_FILES
         common/FrPhysicsItem.cpp
         common/FrFEAMesh.cpp
         common/FrRotation.cpp
+        common/FrVariablesBodyBase.cpp
+        common/FrVariablesAddedMass.cpp
         )
 
 # FORCE
 list(APPEND SRC_FILES
         force/FrForce.cpp
+        force/FrConstantForce.cpp
         )
 
 # LINK // TODO : cmakiser les repertoires !!
@@ -61,6 +64,8 @@ list(APPEND SRC_FILES
         math/FrVector.cpp
         math/Torsor.cpp
 
+        math/Fr3DGeometry.cpp
+
         math/functions/FrFunctionBase.cpp
 
         math/functions/ramp/FrLinearRampFunction.cpp
@@ -76,6 +81,7 @@ list(APPEND SRC_FILES
         math/functions/lib/FrHyperbolicTrigonometricFunctions.cpp
         math/functions/lib/FrMiscFunctions.cpp
 
+#        math/BSpline/FrBSpline.cpp
         )
 
 # MISC

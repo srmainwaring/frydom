@@ -96,6 +96,16 @@ namespace frydom {
 
     void Add(const FrInertiaTensor &tensor, const FrFrame &frame2Toframe1);
 
+    void Normalize();
+
+    FrInertiaTensor GetNormalized();
+
+    void AdaptToThisMass(const double &mass);
+
+    void Scale(const double &s);
+
+
+
    protected:
 
     void SetInertiaTensorAtCOG(double mass, const InertiaMatrix &inertia, const Position &cogPos, FRAME_CONVENTION fc);

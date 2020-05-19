@@ -10,6 +10,7 @@
 // ==========================================================================
 
 
+#include <cfloat>
 #include "FrKinematicStretching.h"
 #include "FrWaveField.h"
 
@@ -82,6 +83,26 @@ namespace frydom {
       return konde * exp(konde * z);
     } else {
       return konde * sinh(konde * (z + depth)) / sinh(konde * depth);
+    }
+  }
+
+  // --------------------------------------------------------
+  // Cut-off stretching
+  // --------------------------------------------------------
+
+  double FrKinStretchingCutoff::Eval(const double &z, const double &konde, const double &depth) const {
+    if (z <= DBL_EPSILON) {
+      return Ez(z, konde, depth);
+    } else {
+      return 0.;
+    }
+  }
+
+  double FrKinStretchingCutoff::EvalDZ(const double &z, const double &konde, const double &depth) const {
+    if (z <= DBL_EPSILON) {
+      return diffEz(z, konde, depth);
+    } else {
+      return 0.;
     }
   }
 

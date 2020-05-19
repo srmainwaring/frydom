@@ -13,25 +13,24 @@
 #define FRYDOM_FRASSETOWNER_H
 
 #include <vector>
-#include "frydom/core/misc/FrColors.h"
+
 #include <vector>
 #include <memory>
 
-namespace chrono {
-  class ChPhysicsItem;
-}
+#include "frydom/core/misc/FrColors.h"
+#include "frydom/core/math/FrVector.h"
 
 namespace chrono {
+
   class ChPhysicsItem;
 
   class ChAsset;
+
 }  // end namespace chrono
 
 namespace frydom {
 
   // Forward declarations:
-  class FrPhysicsItem;
-
   class FrAsset;
 
   class FrTriangleMeshConnected;
@@ -59,45 +58,36 @@ namespace frydom {
     using SphereShapeConstContainer = std::vector<std::shared_ptr<const FrSphereShape>>;
     using TriangleMeshShapeContainer = std::vector<std::shared_ptr<FrTriangleMeshShape>>;
     using TriangleMeshShapeConstContainer = std::vector<std::shared_ptr<const FrTriangleMeshShape>>;
-    BoxShapeContainer m_boxShapes;
-    CylinderShapeContainer m_cylinderShapes;
-    SphereShapeContainer m_sphereShapes;
-    TriangleMeshShapeContainer m_meshShapes;
-
-    /// Get the internal item, related to chrono::ChPhysicsItem
-    /// \return internal item, related to chrono::ChPhysicsItem
-    virtual chrono::ChPhysicsItem *GetChronoItem_ptr() const = 0;
-
-    virtual std::shared_ptr<chrono::ChPhysicsItem *> GetChronoItem_shared() const { return nullptr; }
-
-    virtual void RemoveChronoAsset(std::shared_ptr<chrono::ChAsset> asset);
 
    public:
 
-//        /// Gets the simulation time of this object
-//        /// \return simulation time of this object
-//        double GetTime(); //FIXME : bug in release?
+    virtual ~FrAssetOwner() = default; // At least one virtual method to make the class polymorphic
 
     /// Update the assets
     void UpdateAsset();
-
 
     /// Add a box shape to the body with its dimensions defined in absolute coordinates. Dimensions in meters
     /// \param xSize size of the box along the x absolute coordinates
     /// \param ySize size of the box along the y absolute coordinates
     /// \param zSize size of the box along the z absolute coordinates
-    void AddBoxShape(double xSize, double ySize,
-                     double zSize);  // TODO : definir plutot les dimensions dans le repere local du corps...
+    void AddBoxShape(double xSize,
+                     double ySize,
+                     double zSize,
+                     const Position &relative_position,
+                     FRAME_CONVENTION fc);
 
     /// Add a cylinder shape to the body with its dimensions defined in ???? Dimensions in meters
     /// \param radius radius of the cylinder shape.
     /// \param height height of the cylinder shape.
     void AddCylinderShape(double radius,
-                          double height);  // FIXME : travailler la possibilite de definir un axe... dans le repere local du corps
+                          double height,
+                          const Position &relative_position,
+                          FRAME_CONVENTION fc);  // FIXME : travailler la possibilite de definir un axe... dans le repere local du corps
 
     /// Add a sphere shape to the body. Dimensions in meters.
     /// \param radius radius of the sphere shape.
-    void AddSphereShape(double radius);  // TODO : permettre de definir un centre en coords locales du corps
+    void AddSphereShape(double radius, const Position &relative_position,
+                        FRAME_CONVENTION fc);  // TODO : permettre de definir un centre en coords locales du corps
 
     /// Add a mesh as an asset for visualization given a WaveFront .obj file name
     /// \param obj_filename filename of the asset to be added
@@ -121,8 +111,8 @@ namespace frydom {
     void AddAsset(std::shared_ptr<FrAsset> asset);
 
     void RemoveAssets();
-
-    void RemoveAsset(std::shared_ptr<FrAsset> asset);
+//
+//    void RemoveAsset(std::shared_ptr<FrAsset> asset);
 
     /// Set the asset color in visualization given a color id
     /// \param colorName color of the asset
@@ -144,7 +134,21 @@ namespace frydom {
 
     ConstAssetIter asset_end() const;
 
+   protected:
+    BoxShapeContainer m_boxShapes;
+    CylinderShapeContainer m_cylinderShapes;
+    SphereShapeContainer m_sphereShapes;
+    TriangleMeshShapeContainer m_meshShapes;
+
   };
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChPhysicsItem> GetChronoPhysicsItemFromAsset(FrAssetOwner *assetOwner);
+
+  }  // end namespace frydom::internal
+
+
 
 }// end namespace frydom
 #endif //FRYDOM_FRASSETOWNER_H

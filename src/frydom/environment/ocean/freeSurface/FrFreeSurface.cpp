@@ -64,6 +64,12 @@ namespace frydom {
     worldPos[2] = GetPosition(worldPos[0], worldPos[1], fc);
   }
 
+  bool FrFreeSurface::IsInWater(const Position& position, FRAME_CONVENTION fc) const {
+    auto delta = position.z() - GetPosition(position.x(), position.y(), NWU);
+    if (IsNED(fc)) delta = -delta;
+    return delta <= 0.;
+  }
+
   double FrFreeSurface::GetPressure(double x, double y, double z, FRAME_CONVENTION fc) const {
     // This function computes the pressure.
     return m_waveField->GetPressure(x, y, z, fc);
@@ -166,7 +172,7 @@ namespace frydom {
     }
   }
 
-  void FrFreeSurface::ShowFreeSurface(bool showFreeSurface) {
+  void FrFreeSurface::Show(bool showFreeSurface) { // FIXME: le show ne doit etre que de la visu !!!
     if (showFreeSurface && m_showFreeSurface != showFreeSurface) {
       std::cout << "Be careful to set new free surface grid, wave field and tidal model" << std::endl;
     }

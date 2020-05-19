@@ -9,17 +9,15 @@
 //
 // ==========================================================================
 
+#include <MathUtils/VectorGeneration.h>
+#include <MathUtils/Constants.h>
 
+#include <chrono/assets/ChColorAsset.h>
+#include <chrono/assets/ChTriangleMeshShape.h>
 
 #include "FrGridAsset.h"
 
-#include "chrono/assets/ChColorAsset.h"
-#include "chrono/assets/ChTriangleMeshShape.h"
-
 #include "frydom/mesh/FrTriangleMeshConnected.h"
-
-#include <MathUtils/VectorGeneration.h>
-#include <MathUtils/Constants.h>
 
 
 namespace frydom {

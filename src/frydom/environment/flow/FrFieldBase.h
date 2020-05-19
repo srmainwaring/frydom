@@ -40,7 +40,9 @@ namespace frydom {
     virtual void Update(double time) = 0;
 
     /// Initialize the field object
-    void Initialize() override {};
+    void Initialize() override {}
+
+    void StepFinalize() override {}
 
   };
 }

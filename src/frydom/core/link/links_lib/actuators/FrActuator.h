@@ -28,17 +28,6 @@ namespace frydom {
 
     FrActuator(const std::string &name, const std::string &type_name, FrLink *actuatedLink);
 
-    /// \return Pointer to the offshore system
-    inline FrLink *GetSystem() const {
-      return GetParent();
-    }
-
-    /// Tells if all constraints of this link are currently turned on or off by the user.
-    bool IsDisabled() const override;
-
-    /// User can use this to enable/disable all the constraint of the link as desired.
-    void SetDisabled(bool disabled) override;
-
 //        /// Tells if the link is broken, for excess of pulling/pushing.
 //        virtual bool IsBroken() const override;
 //
@@ -99,16 +88,6 @@ namespace frydom {
     /// \param fc Frame convention (NED/NWU)
     /// \return motor torque applied on body 2 at the node reference frame origin
     virtual Torque GetMotorTorqueInBody2(FRAME_CONVENTION fc) const;
-
-   protected:
-
-    chrono::ChLinkBase *GetChronoItem_ptr() const override = 0;
-
-
-    // Fiends
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
 
   };
 

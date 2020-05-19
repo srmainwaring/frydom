@@ -4,7 +4,6 @@
 
 #include "FrMeshClipper.h"
 
-//#include "frydom/core/link/constraint/FrCGeometrical.h"
 #include "FrPlane.h"
 
 #include "frydom/environment/ocean/freeSurface/FrFreeSurface.h"
@@ -63,7 +62,7 @@ namespace frydom {
 
       // This function gives the distance between the node and the clipping plane.
 
-      auto PointInWorld = OpenMeshPointToVector3d<Position>(point);
+      auto PointInWorld = OpenMeshPointToVector3d<Position>(point); // FIXME: c'est plus utile depuis OpenMesh 8.0 !!
 
       auto planeOrigin = m_plane->GetOrigin(NWU);
 

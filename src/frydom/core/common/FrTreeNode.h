@@ -61,8 +61,10 @@ namespace frydom {
 
     FrOffshoreSystem *GetSystem();
 
+    const FrOffshoreSystem *GetSystem() const;
+
    private:
-    ParentType *m_parent = nullptr;
+    ParentType *m_parent;
 
   };
 

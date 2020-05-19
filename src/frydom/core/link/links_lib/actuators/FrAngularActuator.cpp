@@ -14,6 +14,8 @@
 #include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrTypeNames.h"
 
+#include "frydom/core/body/FrBody.h"
+
 namespace frydom {
 
 
@@ -45,18 +47,12 @@ namespace frydom {
 
   }
 
-  std::shared_ptr<chrono::ChLink> FrAngularActuator::GetChronoLink() {
-    return m_chronoActuator;
-  }
-
-  chrono::ChLinkMotorRotation *FrAngularActuator::GetChronoItem_ptr() const {
-    return m_chronoActuator.get();
-  }
-
   void FrAngularActuator::Initialize() {
 
     // IMPORTANT : in FRyDoM the first node is the master and the second one the slave, as opposed to Chrono !!!
-    m_chronoActuator->Initialize(GetChronoBody2(), GetChronoBody1(), true,
+    m_chronoActuator->Initialize(internal::GetChronoBody2(this),
+                                 internal::GetChronoBody1(this),
+                                 true,
                                  internal::FrFrame2ChFrame(GetNode2()->GetFrameWRT_COG_InBody()),
                                  internal::FrFrame2ChFrame(GetNode1()->GetFrameWRT_COG_InBody()));
 
@@ -66,6 +62,14 @@ namespace frydom {
 
   double FrAngularActuator::GetMotorPower() const {
     return m_chronoActuator->GetMotorTorque() * m_chronoActuator->GetMotorRot_dt();
+  }
+
+  bool FrAngularActuator::IsDisabled() const {
+    return m_chronoActuator->IsDisabled(); // TODO : voir si on teste aussi m_actuatedLink
+  }
+
+  void FrAngularActuator::SetDisabled(bool disabled) {
+    m_chronoActuator->SetDisabled(disabled);
   }
 
   Force FrAngularActuator::GetMotorForceInNode(FRAME_CONVENTION fc) const {
@@ -101,5 +105,17 @@ namespace frydom {
 
   }
 
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChLinkMotorRotation> GetChronoActuator(std::shared_ptr<FrAngularActuator> actuator) {
+      return actuator->m_chronoActuator;
+    }
+
+    std::shared_ptr<chrono::ChLinkMotorRotation> GetChronoActuator(FrAngularActuator *actuator) {
+      return actuator->m_chronoActuator;
+    }
+
+  }  // end namespace frydom::internal
 
 } // end namespace frydom

@@ -14,7 +14,7 @@
 
 #include "FrHydroMapper.h"
 #include "FrBEMBody.h"
-#include "frydom/IO/FrHDF5.h"
+#include "frydom/io/FrHDF5.h"
 
 #include "MathUtils/VectorGeneration.h"
 #include "MathUtils/Constants.h"

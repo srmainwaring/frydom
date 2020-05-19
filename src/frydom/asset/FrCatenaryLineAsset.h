@@ -17,10 +17,10 @@
 #include <memory>
 #include <vector>
 
+#include "frydom/core/math/FrVector.h"
 #include "frydom/asset/FrAsset.h"
 #include "frydom/asset/FrAssetOwner.h"
 
-#include "frydom/core/math/FrVector.h"
 
 // Chrono forward declaration
 namespace chrono {
@@ -30,7 +30,6 @@ namespace chrono {
 namespace frydom {
 
   // Forward declarations:
-//    class FrCatenaryLine;
   class FrNode;
 
   class FrCatenaryAssetOwner : public FrAssetOwner {
@@ -44,11 +43,11 @@ namespace frydom {
     //--------------------------------------------------------------------------------------------------------------
     // Pure virtual methods, used in FrCatenaryAsset
 
-    virtual double GetUnstrainedLength() const = 0;
+    virtual double GetUnstretchedLength() const = 0;
 
-    virtual Position GetNodePositionInWorld(double s, FRAME_CONVENTION fc) const = 0;
+    virtual Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const = 0;
 
-    virtual Force GetTension(double s, FRAME_CONVENTION fc) const = 0;
+    virtual Force GetTension(const double &s, FRAME_CONVENTION fc) const = 0;
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -84,8 +83,6 @@ namespace frydom {
 
     FrCatenaryAssetOwner *m_catenaryLine;    ///< Catenary line containing this asset
 
-//        using Triplet = std::tuple<double, double, std::shared_ptr<chrono::ChLineShape>>;
-//        std::vector<Triplet> m_elements;    ///< container of elements based on ChLineShape
     using Triplet = std::tuple<double, double, unsigned int>;
     std::vector<Triplet> m_elements;
 

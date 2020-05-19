@@ -43,6 +43,7 @@ namespace frydom {
                   FrOffshoreSystem *system,
                   const std::shared_ptr<FrNode> &node1,
                   const std::shared_ptr<FrNode> &node2);
+
 }  // end namespace frydom
 
 #endif //FRYDOM_FRFIXEDLINK_H

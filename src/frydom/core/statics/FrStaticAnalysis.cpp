@@ -13,10 +13,14 @@
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/link/FrLinkBase.h"
+#include "frydom/core/link/links_lib/FrLink.h"
 #include "frydom/core/common/FrPhysicsItem.h"
 #include "frydom/core/force/FrForce.h"
 
+#include "frydom/core/common/FrFEAMesh.h"
+
 #include "frydom/environment/FrEnvironment.h"
+
 #include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
 namespace frydom {
@@ -86,7 +90,7 @@ namespace frydom {
 //            link->SetLogged(link->IncludedInStaticAnalysis() && link->IsLogged());
     }
 
-    for (auto &pi : m_system->GetPrePhysicsItemList()) {
+    for (auto &pi : m_system->GetPhysicsItemList()) {
       m_map.emplace(pi.get(), std::make_pair(pi->IsActive(), true));
       pi->SetActive(pi->IncludedInStaticAnalysis());
 //            pi->SetLogged(pi->IncludedInStaticAnalysis() && pi->IsLogged());
@@ -144,7 +148,7 @@ namespace frydom {
 
     }
 
-    for (auto &pi : m_system->GetPrePhysicsItemList()) {
+    for (auto &pi : m_system->GetPhysicsItemList()) {
 
       pi->SetActive(m_map.find(pi.get())->second.first);
 //            pi->SetLogged(m_map.find(pi.get())->second.second);

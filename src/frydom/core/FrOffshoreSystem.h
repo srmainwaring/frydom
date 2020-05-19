@@ -25,8 +25,6 @@
 #include "frydom/core/statics/FrStaticAnalysis.h"
 #include "frydom/core/common/FrTreeNode.h"
 
-//#include "frydom/logging/FrTypeName.h"
-
 
 namespace frydom {
 
@@ -81,9 +79,11 @@ namespace frydom {
 
   // Forward declarations
   namespace internal {
+
     class FrBodyBase;
 
     class FrPhysicsItemBase;
+
   }
 
   class FrBody;
@@ -100,21 +100,39 @@ namespace frydom {
 
   class FrPhysicsItem;
 
-  class FrPrePhysicsItem;
-
   class FrFEAMesh;
 
   class FrEnvironment;
 
-  class FrCable;
+  class FrCableBase;
 
-  class FrDynamicCable;
+  class FrFEACable;
+
+  class FrClumpWeight;
 
   class FrPathManager;
 
   class FrLogManager;
 
   class FrIrrApp;
+
+  class FrCatenaryLineBase;
+
+  class FrEquilibriumFrame;
+
+  class FrHydroMesh;
+
+  namespace internal {
+    class FrLMNode;
+
+    class FrLMElement;
+
+    class FrFEAMeshBase;
+
+    class FrFEACableBase;
+  }
+
+  class FrLumpedMassCable;
 
   /// Main class for a FRyDoM offshore system. This class is used to represent a multibody physical system,
   /// so it acts also as a database for most items involved in simulations, most noticeably objects of FrBody and FrLink
@@ -178,21 +196,21 @@ namespace frydom {
     enum SOLVER {
       SOR,                ///< An iterative solver based on projective fixed point method, with overrelaxation and
       ///< immediate variable update as in SOR methods.
-          SYMMSOR,            ///< An iterative solver based on symmetric projective fixed point method, with
+      SYMMSOR,            ///< An iterative solver based on symmetric projective fixed point method, with
       ///< overrelaxation and immediate variable update as in SSOR methods.
-          JACOBI,             ///< An iterative solver for VI (VI/CCP/LCP/linear problems,..) based on projective
+      JACOBI,             ///< An iterative solver for VI (VI/CCP/LCP/linear problems,..) based on projective
       ///< fixed point method, similar to a projected Jacobi method. Note: this method is here
       ///< mostly for comparison and tests: we suggest you to use the more efficient ChSolverSOR
       ///< - similar, but faster & converges better.
 //            SOR_MULTITHREAD,
 //            PMINRES,
-          BARZILAIBORWEIN,    ///< An iterative solver based on modified Krylov iteration of spectral projected
+      BARZILAIBORWEIN,    ///< An iterative solver based on modified Krylov iteration of spectral projected
       ///< gradients with Barzilai-Borwein.
-          PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
+      PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
       APGD,               ///< An iterative solver based on Nesterov's Projected Gradient Descent.
       MINRES,             ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
       ///< with gradient projection (active set).
-          SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
+      SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
     };
 
     /// enum for smooth contact models (SMC)
@@ -238,7 +256,7 @@ namespace frydom {
     using LinkContainer = std::vector<std::shared_ptr<FrLink>>;
     using ConstraintContainer = std::vector<std::shared_ptr<FrConstraint>>;
     using ActuatorContainer = std::vector<std::shared_ptr<FrActuator>>;
-    using PrePhysicsContainer = std::vector<std::shared_ptr<FrPrePhysicsItem>>;
+    using PhysicsContainer = std::vector<std::shared_ptr<FrPhysicsItem>>;
     using FEAMeshContainer = std::vector<std::shared_ptr<FrFEAMesh>>;
 
     // Container: list of objects.
@@ -246,14 +264,14 @@ namespace frydom {
     LinkContainer m_linkList;               ///< list of links between bodies managed by this offshore system
     ConstraintContainer m_constraintList;   ///< list of constraints between bodies managed by this offshore system
     ActuatorContainer m_actuatorList;       ///< list of actuators between bodies managed by this offshore system
-    PrePhysicsContainer m_PrePhysicsList;   ///< list of physics items, updated before the bodies
+    PhysicsContainer m_physicsItemsList;   ///< list of physics items, updated before the bodies
     FEAMeshContainer m_feaMeshList;         ///< list of FEA mesh items, managed by this offshore system
 
     bool m_isInitialized = false;
 
     // Logs
     std::unique_ptr<FrPathManager> m_pathManager;
-    std::unique_ptr<FrLogManager> m_LogManager;
+    std::unique_ptr<FrLogManager> m_logManager;
 
     bool m_monitor_real_time;
 
@@ -331,7 +349,7 @@ namespace frydom {
 
     /// Get the list of pre physics items added to the system
     /// \return List of the pre physics items added to the system
-    PrePhysicsContainer GetPrePhysicsItemList();
+    PhysicsContainer GetPhysicsItemList();
 
 //    /// Remove all physics items from the system
 //    void RemoveAllPhysicsItem();
@@ -411,6 +429,8 @@ namespace frydom {
     /// for other iter.solvers can be up to 1.0
     /// \param omega overrelaxation parameter of both iterative solvers
     void SetSolverOverrelaxationParam(double omega);
+
+    void SetSolverDiagonalPreconditioning(bool val);
 
     /// Adjust the 'sharpness lambda' parameter of both iterative solvers (the one for speed and the other for
     /// pos.stabilization). Note, usually a good sharpness value is in 1..0.8 range (the lower, the more it helps
@@ -717,66 +737,81 @@ namespace frydom {
 
     /// Add a body to the offshore system
     /// \param body body to add
-    void AddBody(std::shared_ptr<FrBody> body, std::shared_ptr<internal::FrBodyBase> chrono_body);
+    void AddBody(std::shared_ptr<FrBody> body);
 
     /// Remove a body from the system
     /// \param body Body removed from the system
-    void RemoveBody(std::shared_ptr<FrBody> body, std::shared_ptr<internal::FrBodyBase> chrono_body);
+    void RemoveBody(std::shared_ptr<FrBody> body);
 
     /// Add a link between bodies to the offshore system
     /// \param link link to be added
-    void AddLink(std::shared_ptr<FrLink> link, std::shared_ptr<chrono::ChLink> chrono_link);
+    void AddLink(std::shared_ptr<FrLink> link);
 
     /// Remove a link from the system
     /// \param link Link removed from the system
-    void RemoveLink(std::shared_ptr<FrLink> link, std::shared_ptr<chrono::ChLink> chrono_link);
+    void RemoveLink(std::shared_ptr<FrLink> link);
 
     /// Add a constraint between bodies to the offshore system
     /// \param constraint constraint to be added
-    void AddConstraint(std::shared_ptr<FrConstraint> constraint, std::shared_ptr<chrono::ChLink> chrono_constraint);
+    void AddConstraint(std::shared_ptr<FrConstraint> constraint);
 
     /// Remove a constraint from the system
     /// \param constraint Constraint removed from the system
-    void RemoveConstraint(std::shared_ptr<FrConstraint> constraint, std::shared_ptr<chrono::ChLink> chrono_constraint);
+    void RemoveConstraint(std::shared_ptr<FrConstraint> constraint);
 
     /// Add a actuator between bodies to the offshore system
     /// \param actuator actuator to be added
-    void AddActuator(std::shared_ptr<FrActuator> actuator, std::shared_ptr<chrono::ChLink> chrono_actuator);
+    void AddActuator(std::shared_ptr<FrActuator> actuator);
 
     /// Remove a actuator from the system
     /// \param actuator Actuator removed from the system
-    void RemoveActuator(std::shared_ptr<FrActuator> actuator, std::shared_ptr<chrono::ChLink> chrono_actuator);
+    void RemoveActuator(std::shared_ptr<FrActuator> actuator);
 
-    /// Add other physics item to the offshore system
-    /// \param otherPhysics other physic item to be added
-    void AddPhysicsItem(std::shared_ptr<FrPrePhysicsItem> otherPhysics,
-                        std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item);
+    void AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base);
 
-    /// Remove a Physics items from the system
-    /// \param item Physics items removed from the system
-    void RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> item,
-                           std::shared_ptr<internal::FrPhysicsItemBase> chrono_physics_item);
+    void AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame);
+
+    void AddHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
+
+
+
+//    /// Add other physics item to the offshore system (physics item that need to be updated before normal items)
+//    /// \param otherPhysics other physic item to be added
+//    void AddPrePhysicsItem(std::shared_ptr<FrPhysicsItem> otherPhysics);
+
+//    /// Add other physics item to the offshore system
+//    /// \param physicsItem other physic item to be added
+//    void AddPhysicsItem(std::shared_ptr<FrPhysicsItem> physicsItem);
+
+//    /// Remove a Physics items from the system
+//    /// \param physicsItem Physics items removed from the system
+//    void RemovePhysicsItem(std::shared_ptr<FrPhysicsItem> physicsItem);
 
     /// Add a FEA mesh to the offshore system
     /// \param feaMesh FEA mesh to be added
-    void AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-                    std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    void AddFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh);
 
     /// Remove a FEA mesh from the offshore system
     /// \param feaMesh FEA mesh to be added
-    void RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh,
-                       std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    void RemoveFEAMesh(std::shared_ptr<FrFEAMesh> feaMesh);
 
-    /// Add a Dynamic Cable to the offshore system
-    /// \param cable dynamic cable to be added
-    void AddDynamicCable(std::shared_ptr<FrDynamicCable> cable,
-                         std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    /// Add a FEA Cable to the offshore system
+    /// \param cable fea cable to be added
+    void AddFEACable(std::shared_ptr<FrFEACable> cable);
 
-    /// Remove a Dynamic Cable from the offshore system
-    /// \param cable dynamic cable to be added
-    void RemoveDynamicCable(std::shared_ptr<FrDynamicCable> cable,
-                            std::shared_ptr<chrono::fea::ChMesh> chrono_mesh);
+    void AddClumpWeight(std::shared_ptr<FrClumpWeight> clump_weight);
 
+    /// Remove a FEA Cable from the offshore system
+    /// \param cable fea cable to be added
+    void RemoveFEACable(std::shared_ptr<FrFEACable> cable);
+
+    /// Add a lumped mass node to the offshore system
+    void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);
+
+    /// Add a lumped mass element to the offshore system
+    void AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element);
+
+    void AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable);
 
    private:
 
@@ -789,6 +824,8 @@ namespace frydom {
 
     /// Check the compatibility between the system contact method and the specified body contact type
     bool CheckBodyContactMethod(std::shared_ptr<FrBody> body);
+
+    void FinalizeDynamicSimulation() const;
 
    public:
 
@@ -806,8 +843,8 @@ namespace frydom {
     using ActuatorIter      = ActuatorContainer::iterator;
     using ConstActuatorIter = ActuatorContainer::const_iterator;
 
-    using PrePhysicsIter = PrePhysicsContainer::iterator;
-    using ConstPrePhysicsIter = PrePhysicsContainer::const_iterator;
+    using PrePhysicsIter = PhysicsContainer::iterator;
+    using ConstPrePhysicsIter = PhysicsContainer::const_iterator;
 
     using FEAMestIter = FEAMeshContainer::iterator;
     using ConstFEAMestIter = FEAMeshContainer::const_iterator;

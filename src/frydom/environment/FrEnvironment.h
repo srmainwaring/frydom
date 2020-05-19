@@ -114,8 +114,12 @@ namespace frydom {
     /// \return fluid density
     double GetFluidDensity(FLUID_TYPE ft) const;
 
+    double GetFluidDensity(const Position &worldPos, FRAME_CONVENTION fc, bool waveDeformation);
+
     FLUID_TYPE GetFluidTypeAtPointInWorld(const Position &worldPos, FRAME_CONVENTION fc,
-                                          bool waveDeformation = true);
+                                          bool waveDeformation);
+
+
 
     //---------------------------- Environment elements Getters ----------------------------//
 

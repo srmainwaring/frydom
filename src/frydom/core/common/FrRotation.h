@@ -106,7 +106,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     void Set(const Direction &axis, double angleRAD, FRAME_CONVENTION fc);
 
-    /// Set the quaternion using a roration matrix.
+    /// Set the quaternion using a rotation matrix.
     /// The matrix must be orthogonal
     /// \param matrix the 3x3 rotation matrix
     /// \param fc frame convention (NED/NWU)
@@ -380,6 +380,10 @@ namespace frydom {
     // Matrix representation
 
     void Set(const Direction &xaxis, const Direction &yaxis, const Direction &zaxis, FRAME_CONVENTION fc);
+
+    /// Set the rotation matrix so that it represents a rotation respecting the given X axis.
+    /// \param xdir
+    void SetXaxis(const Direction &xdir, const Direction &singular_dir, FRAME_CONVENTION fc);
 
     // Euler angles representation
 

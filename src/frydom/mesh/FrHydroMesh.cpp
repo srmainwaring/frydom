@@ -81,7 +81,7 @@ namespace frydom {
     }
 
     // Initialization of the parent class.
-    FrPrePhysicsItem::Initialize();
+    FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
 
   }
@@ -142,7 +142,6 @@ namespace frydom {
   }
 
   void FrHydroMesh::StepFinalize() {
-    FrObject::StepFinalize();
 
     if (m_showAsset and GetSystem()->GetIrrApp()) {
 

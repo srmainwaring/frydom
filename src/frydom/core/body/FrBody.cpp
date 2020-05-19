@@ -10,27 +10,24 @@
 // ==========================================================================
 
 
-
-#include <frydom/logging/FrEventLogger.h>
 #include "FrBody.h"
 
 
+#include "frydom/logging/FrEventLogger.h"
 #include "chrono/assets/ChColorAsset.h"
-
-
 #include "frydom/core/math/FrMatrix.h"
 #include "frydom/core/force/FrForce.h"
+#include "frydom/core/common/FrNode.h"
 #include "frydom/asset/FrAsset.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/environment/geographicServices/FrGeographicServices.h"
 #include "frydom/asset/FrForceAsset.h"
 #include "frydom/collision/FrCollisionModel.h"
-#include "frydom/core/link/links_lib/FrDOFMaskLink.h"
-#include "frydom/core/link/links_lib/FrFixedLink.h"
 #include "frydom/logging/FrLogManager.h"
-
 #include "frydom/logging/FrPathManager.h"
 #include "frydom/logging/FrTypeNames.h"
+
+#include "frydom/core/common/FrVariablesBodyBase.h"
 
 
 namespace frydom {
@@ -207,18 +204,24 @@ namespace frydom {
     }
 
 
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(std::shared_ptr<FrBody> body) {
+      return body->m_chronoBody;
+    }
+
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(FrBody *body) {
+      return body->m_chronoBody;
+    }
+
+
   }  // end namespace frydom::internal
 
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
-      FrLoggable(name, TypeToString(this), system) {
+      FrLoggable(name, TypeToString(this), system),
+      m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
+      m_DOFMask(std::make_unique<FrDOFMask>()) {
 
-//        SetLogged(true);
-
-    m_chronoBody = std::make_shared<internal::FrBodyBase>(this);
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
-
-    m_DOFMask = std::make_unique<FrDOFMask>();
 
     event_logger::info(GetTypeName(), GetName(), "Body created");
 
@@ -232,6 +235,10 @@ namespace frydom {
       event_logger::info(GetTypeName(), GetName(), "Body no more fixed in world");
     }
 
+  }
+
+  bool FrBody::IsFixedInWorld() const {
+    return m_chronoBody->GetBodyFixed();
   }
 
   void FrBody::SetUseSleeping(bool state) {
@@ -314,26 +321,17 @@ namespace frydom {
     // Update the asset
     FrAssetOwner::UpdateAsset();
 
-    // StepFinalize of forces
+    // Finalize forces
     auto forceIter = force_begin();
     for (; forceIter != force_end(); forceIter++) {
       (*forceIter)->StepFinalize();
     }
 
-    // Initializing nodes
+    // Finalize nodes
     auto nodeIter = node_begin();
     for (; nodeIter != node_end(); nodeIter++) {
       (*nodeIter)->StepFinalize();
     }
-
-//        // StepFinalize of assets
-//        auto assetIter = asset_begin();
-//        for (; assetIter != asset_end(); assetIter++) {
-//            (*assetIter)->StepFinalize();
-//        }
-
-    // Send the message to the logging system
-    FrObject::StepFinalize();
 
   }
 
@@ -495,7 +493,7 @@ namespace frydom {
 
   void FrBody::AddExternalForce(std::shared_ptr<frydom::FrForce> force) {
     /// This subroutine is used for adding the hydrodynamic loads.
-    m_chronoBody->AddForce(force->GetChronoForce());  // FrBody is a friend class of FrForce
+    m_chronoBody->AddForce(internal::GetChronoForce(force));  // FrBody is a friend class of FrForce
     m_externalForces.push_back(force);
     GetSystem()->GetPathManager()->RegisterTreeNode(force.get());
 
@@ -506,7 +504,7 @@ namespace frydom {
   }
 
   void FrBody::RemoveExternalForce(std::shared_ptr<FrForce> force) {
-    m_chronoBody->RemoveForce(force->GetChronoForce());
+    m_chronoBody->RemoveForce(internal::GetChronoForce(force));
 
     m_externalForces.erase(
         std::find<std::vector<std::shared_ptr<FrForce>>::iterator>(m_externalForces.begin(), m_externalForces.end(),
@@ -514,18 +512,20 @@ namespace frydom {
 
     event_logger::info(GetTypeName(), GetName(), "External force {} removed", force->GetName());
 
-    if (force->m_asset != nullptr) {
-      m_chronoBody->RemoveAsset(force->m_asset->GetChronoAsset());
+    auto asset = force->GetAsset();
+
+    if (asset) {
+      m_chronoBody->RemoveAsset(internal::GetChronoAsset(asset));
 
       bool asserted = false;
       for (int ia = 0; ia < m_assets.size(); ++ia) {
-        if (m_assets[ia] == force->m_asset) {
+        if (m_assets[ia] == asset) {
           m_assets.erase(m_assets.begin() + ia);
           asserted = true;
         }
       }
       assert(asserted); // FIXME : renvoyer une erreur mais ne pas faire planter !!!
-      force->m_asset = nullptr;
+      asset = nullptr;
 
     }
 
@@ -540,6 +540,7 @@ namespace frydom {
     m_chronoBody->RemoveAllForces();
 
     auto logManager = GetSystem()->GetLogManager();
+    auto pathManager = GetSystem()->GetPathManager();
     for (auto &force : m_externalForces) {
       logManager->Remove(force);
     }
@@ -548,12 +549,19 @@ namespace frydom {
     event_logger::info(GetTypeName(), GetName(), "All forces removed");
   }
 
-  void FrBody::RemoveAllNodes() {
-    m_chronoBody->RemoveAllMarkers();
+  void FrBody::RemoveNode(std::shared_ptr<FrNode> node) {
+    m_chronoBody->RemoveMarker(internal::GetChronoMarker(node));
 
-    auto logManager = GetSystem()->GetLogManager();
+    GetSystem()->GetLogManager()->Remove(node);
+    GetSystem()->GetPathManager()->UnregisterTreeNode(node.get());
+
+    event_logger::info(GetTypeName(), GetName(), "Node {} has been removed", node->GetName());
+
+  }
+
+  void FrBody::RemoveAllNodes() {
     for (auto &node : m_nodes) {
-      logManager->Remove(node);
+      RemoveNode(node);
     }
     m_nodes.clear();
 
@@ -587,6 +595,8 @@ namespace frydom {
   std::shared_ptr<FrNode> FrBody::NewNode(const std::string &name) {
     auto node = std::make_shared<FrNode>(name, this);
     m_nodes.push_back(node);
+
+    SetPosition(GetPosition(NWU), NWU);
 
     auto pos = node->GetNodePositionInBody(NWU);
 
@@ -639,6 +649,18 @@ namespace frydom {
 
     m_chronoBody->SetFrame_REF_to_abs(internal::FrFrame2ChFrame(bodyFrame));
     m_chronoBody->UpdateAfterMove();
+  }
+
+  void FrBody::SetPosition(const Position &worlRefPosition,
+                           const double &heading,
+                           const double &distance,
+                           ANGLE_UNIT unit,
+                           FRAME_CONVENTION fc) {
+    double alpha = heading;
+    if (unit == DEG) alpha *= DEG2RAD;
+
+    Direction direction = {std::cos(alpha), std::sin(alpha), 0.};
+    SetPosition(worlRefPosition + direction * distance, fc);
   }
 
   void FrBody::SetGeoPosition(const FrGeographicCoord &geoCoord) {
@@ -1129,32 +1151,35 @@ namespace frydom {
          fmt::format("body angular acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetAngularAccelerationInWorld(GetLogFC()); });
 
-//        m_message->AddField<Eigen::Matrix<double, 3, 1>>
-//                ("TotalExtForceInBody","N",fmt::format("Total external force, expressed in body reference frame in {}", GetLogFC()),
-//                 [this] () {return GetTotalExtForceInBody(GetLogFC());});
-//
-//        m_message->AddField<Eigen::Matrix<double, 3, 1>>
-//                ("TotalExtTorqueInBodyAtCOG","Nm",fmt::format("Total external torque at COG, expressed in body reference frame in {}", GetLogFC()),
-//                 [this] () {return GetTotalExtTorqueInBodyAtCOG(GetLogFC());});
-//
-//        m_message->AddField<Eigen::Matrix<double, 3, 1>>
-//                ("TotalExtForceInWorld","N",fmt::format("Total external force, expressed in world reference frame in {}", GetLogFC()),
-//                 [this] () {return GetTotalExtForceInWorld(GetLogFC());});
-//
-//        m_message->AddField<Eigen::Matrix<double, 3, 1>>
-//                ("TotalExtTorqueInWorldAtCOG","Nm",fmt::format("Total external torque at COG, expressed in world reference frame in {}", GetLogFC()),
-//                 [this] () {return GetTotalExtTorqueInWorldAtCOG(GetLogFC());});n GetPosition(GetLogFC());});
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TotalExtForceInBody", "N",
+         fmt::format("Total external force, expressed in body reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtForceInBody(GetLogFC()); });
 
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TotalExtTorqueInBodyAtCOG", "Nm",
+         fmt::format("Total external torque at COG, expressed in body reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtTorqueInBodyAtCOG(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TotalExtForceInWorld", "N",
+         fmt::format("Total external force, expressed in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtForceInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TotalExtTorqueInWorldAtCOG", "Nm",
+         fmt::format("Total external torque at COG, expressed in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTotalExtTorqueInWorldAtCOG(GetLogFC()); });
 
   }
 
-  std::shared_ptr<internal::FrBodyBase> FrBody::GetChronoBody() {
-    return m_chronoBody;
-  }
+//  std::shared_ptr<internal::FrBodyBase> FrBody::GetChronoBody() {
+//    return m_chronoBody;
+//  }
 
-  internal::FrBodyBase *FrBody::GetChronoItem_ptr() const {
-    return m_chronoBody.get();
-  }
+//  internal::FrBodyBase *FrBody::GetChronoItem_ptr() const {
+//    return m_chronoBody.get();
+//  }
 
   FrBody::ForceContainer FrBody::GetForceList() const { return m_externalForces; }
 

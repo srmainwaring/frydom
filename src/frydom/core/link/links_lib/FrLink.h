@@ -130,6 +130,10 @@ namespace frydom {
 
     };
 
+    std::shared_ptr<FrLinkLockBase> GetChronoLink(std::shared_ptr<FrLink> link);
+
+    std::shared_ptr<FrLinkLockBase> GetChronoLink(FrLink *link);
+
   }  // end namespace frydom::internal
 
 
@@ -350,6 +354,8 @@ namespace frydom {
     /// Initialize the link by setting the markers
     void Initialize() override;
 
+    void StepFinalize() override {}
+
     /// Update the link
     /// \param time time of the simulation
     virtual void Update(double time);
@@ -361,12 +367,12 @@ namespace frydom {
     /// Set the markers of the link. This method must be used during the Initialization of the link
     void SetNodes(FrNode *node1, FrNode *node2);
 
-    /// Get the embedded Chrono object
-    std::shared_ptr<chrono::ChLink> GetChronoLink() override;
-
-    /// Get the internal item, as internal::FrLinkLockBase
-    /// \return internal item, as internal::FrLinkLockBase
-    internal::FrLinkLockBase *GetChronoItem_ptr() const override;
+//    /// Get the embedded Chrono object
+//    std::shared_ptr<chrono::ChLink> GetChronoLink() override;
+//
+//    /// Get the internal item, as internal::FrLinkLockBase
+//    /// \return internal item, as internal::FrLinkLockBase
+//    internal::FrLinkLockBase *GetChronoItem_ptr() const override;
 
     void DefineLogMessages() override;
 
@@ -383,11 +389,13 @@ namespace frydom {
     /// Update the cached values
     virtual void UpdateCache();
 
+    friend std::shared_ptr<internal::FrLinkLockBase> internal::GetChronoLink(std::shared_ptr<FrLink>);
 
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
+    friend std::shared_ptr<internal::FrLinkLockBase> internal::GetChronoLink(FrLink *);
 
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
-
+//    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
+//
+//    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
 
   };
 

@@ -10,9 +10,9 @@
 // ==========================================================================
 
 
-#include "FrForceAsset.h"
-
 #include "chrono/assets/ChGlyphs.h"
+
+#include "FrForceAsset.h"
 
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/force/FrForce.h"

@@ -19,6 +19,7 @@
 #include "FrObject.h"
 
 #include "frydom/core/link/links_lib/FrLink.h"
+#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/logging/FrLoggable.h"
 
@@ -37,6 +38,8 @@ namespace frydom {
       explicit FrMarker(FrNode *node);
 
     };
+
+    std::shared_ptr<FrMarker> GetChronoMarker(std::shared_ptr<FrNode> node);
 
   } // end namespace frydom::internal
 
@@ -66,7 +69,7 @@ namespace frydom {
 
     /// Default Constructor
     /// \param body body to which the node belongs
-    explicit FrNode(const std::string &name, FrBody *body);
+    FrNode(const std::string &name, FrBody *body);
 
     /// Destructor
 //        ~FrNode() = default;
@@ -93,7 +96,21 @@ namespace frydom {
     /// Set the node position with respect to body reference frame
     void SetPositionInBody(const Position &bodyPosition, FRAME_CONVENTION fc);
 
+    void SetPositionInBody(const Position &refPos,
+                           const double &heading,
+                           const double &radial_distance,
+                           const double &vertical_distance,
+                           ANGLE_UNIT angle_unit,
+                           FRAME_CONVENTION fc);
+
     void SetPositionInWorld(const Position &worldPosition, FRAME_CONVENTION fc);
+
+    void SetPositionInWorld(const Position &refPos,
+                            const double &heading,
+                            const double &radial_distance,
+                            const double &vertical_distance,
+                            ANGLE_UNIT angle_unit,
+                            FRAME_CONVENTION fc);
 
     void TranslateInBody(const Translation &translationInBody, FRAME_CONVENTION fc);
 
@@ -206,12 +223,10 @@ namespace frydom {
     /// \return the node acceleration in the node reference frame
     Acceleration GetAccelerationInNode(FRAME_CONVENTION fc) const;
 
-    /// Initialize method not implemented yet
+    /// Initialize method
     void Initialize() override;
 
-//        // Logging
-//
-//        void AddFields() override;
+    void StepFinalize() override {}
 
 
     // =============================================================================================================
@@ -269,7 +284,11 @@ namespace frydom {
 
    private:
 
+    friend std::shared_ptr<internal::FrMarker> internal::GetChronoMarker(std::shared_ptr<FrNode> node);
+
     friend void FrLink::SetNodes(FrNode *, FrNode *);
+
+    friend chrono::ChMarker *internal::FrLMBoundaryNode::GetMarker() const;
 
   };
 

@@ -13,7 +13,7 @@
 #ifndef FRYDOM_FRCORE_H_H
 #define FRYDOM_FRCORE_H_H
 
-#include "FrPlatform.h"
+//#include "FrPlatform.h"
 #include "FrOffshoreSystem.h"
 
 #include "body/FrBodyInc.h"

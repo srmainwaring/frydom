@@ -24,20 +24,33 @@ namespace chrono {
 
 namespace frydom {
 
+
+  // forward declaration
+  class FrSphereShape;
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrSphereShape> sphere);
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrSphereShape *sphere);
+
+  } // end namespace frydom::internal
+
+
   class FrSphereShape {
 
    public:
-    explicit FrSphereShape(double radius);
+    FrSphereShape(double radius, const Position& relative_position, FRAME_CONVENTION fc);
 
     double radius() const;
 
-   protected:
-    std::shared_ptr<chrono::ChAsset> GetChronoAsset();
-
    private:
-    friend void FrAssetOwner::AddSphereShape(double);
-
     std::shared_ptr<chrono::ChSphereShape> m_sphere;
+
+    friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(std::shared_ptr<FrSphereShape>);
+
+    friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(FrSphereShape *);
+
   };
 
 }  // end namespace frydom

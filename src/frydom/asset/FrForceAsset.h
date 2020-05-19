@@ -13,10 +13,9 @@
 #ifndef FRYDOM_FRFORCEASSET_H
 #define FRYDOM_FRFORCEASSET_H
 
-#include "chrono/assets/ChColor.h"
+#include <chrono/assets/ChColor.h>
 
 #include "frydom/asset/FrAsset.h"
-
 #include "frydom/core/body/FrBody.h"
 
 // TODO : Cet asset doit etre ajoute directement au corps qui contient la force

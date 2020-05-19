@@ -17,17 +17,18 @@
 
 #include "chrono/geometry/ChTriangleMeshConnected.h"
 
+#include "frydom/core/math/FrVector.h"
 
 namespace frydom {
 
   // Forward declaration
   class FrRotation;
 
-  class Direction;
 
   // FIXME : ne plus reposer sur l'heritage chrono. Proposer une fonction de conversion depuis openmesh vers
   // le format de maillage chrono
 
+  // TODO: mettre en internal !!
   /**
    * \class FrTriangleMeshConnected
    * \brief Class for dealing with connected triangle meshes.

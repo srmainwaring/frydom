@@ -67,6 +67,10 @@ namespace frydom {
       m_torque = internal::Vector3dToChVector(body_torque);
     }
 
+    std::shared_ptr<FrForceBase> GetChronoForce(std::shared_ptr<FrForce> force) {
+      return force->m_chronoForce;
+    }
+
   }  // end namespace frydom::internal
 
 
@@ -83,18 +87,13 @@ namespace frydom {
 
   void FrForce::Initialize() {
 
-    // This subroutine initializes the object FrForce.
-
     if (m_showAsset) {
       m_asset->Initialize();
       GetBody()->AddAsset(m_asset);
     }
-
   }
 
-  std::shared_ptr<chrono::ChForce> FrForce::GetChronoForce() {
-    return m_chronoForce;
-  }
+  void FrForce::StepFinalize() {}
 
   void FrForce::DefineLogMessages() {
 
@@ -427,8 +426,8 @@ namespace frydom {
     SetTorqueInBodyAtCOG(GetTorqueInBodyAtCOG(fc) + bodyTorque, fc);
   }
 
-  FrForceAsset *FrForce::GetAsset() {
-    return m_asset.get();
+  std::shared_ptr<FrForceAsset> FrForce::GetAsset() {
+    return m_asset;
   }
 
   bool FrForce::IsActive() const { return m_isActive; }

@@ -22,18 +22,14 @@ endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 #-----------------------------------------------------------------------------
 project(FRyDoM)
 
-set(FRYDOM_VERSION_MAJOR 0)
-set(FRYDOM_VERSION_MINOR 1)
-set(FRYDOM_VERSION_PATCH 0)
-
-set(FRYDOM_VERSION
-        "${FRYDOM_VERSION_MAJOR}.${FRYDOM_VERSION_MINOR}.${FRYDOM_VERSION_PATCH}")
-
+#-----------------------------------------------------------------------------
+# C++ dialect
+#-----------------------------------------------------------------------------
+set(CMAKE_CXX_STANDARD 14)
 
 #-----------------------------------------------------------------------------
-# Setting the configuration of the build (Debug, Release...)
+# Setting up the configuration
 #-----------------------------------------------------------------------------
-#set(CMAKE_BUILD_TYPE Debug)
 
 option(frydom_build_tests "Activate build tests" ON)
 option(frydom_build_unit_test "Build unit tests" ON)
@@ -43,10 +39,7 @@ option(frydom_download_demo_data "Downloading demo data" ON)
 
 option(frydom_build_tools "Build the standalone tools" ON)
 
-#-----------------------------------------------------------------------------
-# C++ dialect
-#-----------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 14)
+
 
 
 # Access to local cmake scripts
