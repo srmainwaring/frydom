@@ -120,6 +120,8 @@ namespace frydom {
 
   class FrEquilibriumFrame;
 
+  class FrRadiationModel;
+
   class FrHydroMesh;
 
   namespace internal {
@@ -770,6 +772,8 @@ namespace frydom {
     void AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base);
 
     void AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame);
+
+    void AddRadiationModel(std::shared_ptr<FrRadiationModel> radiation_model);
 
     void AddHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
 

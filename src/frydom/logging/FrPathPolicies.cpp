@@ -61,6 +61,10 @@ namespace frydom {
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrEquilibriumFrame, "")
 
+  class FrRadiationModel;
+
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrRadiationModel, "")
+
   class FrHydroMesh;
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrHydroMesh, "")
