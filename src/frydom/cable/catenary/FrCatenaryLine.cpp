@@ -152,7 +152,8 @@ namespace frydom {
 
     if (iter == m_maxiter) {
       event_logger::warn(GetTypeName(), GetName(),
-                         "No convergence of the solver after {} max iterations", m_maxiter);
+                         "No convergence of the solver after {} max iterations. Position error is {} m.",
+                         m_maxiter, pos_error);
     } else {
 //      std::cout << "CONVERGENCE IN " << iter << std::endl;
     }
