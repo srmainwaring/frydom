@@ -46,7 +46,7 @@ int main() {
 
   auto cable = make_catenary_line("cable", node1, node2, cable_properties, true, 220, AIR);
 
-  cable->AddBuoy(110, 5000);
+//  cable->AddBuoy(110, 5000);
 //  cable->AddClumpWeight(110, 1000);
 
   cable->Initialize();

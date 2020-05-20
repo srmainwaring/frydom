@@ -117,34 +117,36 @@ namespace frydom {
 
   void FrCatenaryLine::solve() {
 
-    unsigned int iter = 0;
-
     // Defining the linear solver
     Eigen::FullPivLU<Eigen::Matrix3d> linear_solver;
 
+    Tension t0_prec = m_t0;
+
     Residue3 residue = GetResidue();
-    double err = residue.norm();
 
-    if (err < m_tolerance) {
-      // Already at equilibrium
-      return;
-    }
+    linear_solver.compute(GetJacobian());
+    Tension dt0 = linear_solver.solve(-residue);
 
-    while (iter < m_maxiter) {
+    m_t0 += dt0;
 
+    double tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /
+                                (1. + m_t0.array().abs().min(t0_prec.array().abs()))).maxCoeff();
+
+    double pos_error = residue.array().abs().maxCoeff();
+
+    unsigned int iter = 1;
+
+    while (tension_criterion > 1e-4 && iter < m_maxiter) {
       iter++;
-
+      residue = GetResidue();
       linear_solver.compute(GetJacobian());
-      Tension dt0 = linear_solver.solve(-residue);
-
+      dt0 = linear_solver.solve(-residue);
+      t0_prec = m_t0;
       m_t0 += dt0;
 
-      residue = GetResidue();
-      err = residue.norm();
-
-      if (err < m_tolerance) {
-        break;
-      }
+      pos_error = residue.array().abs().maxCoeff();
+      tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /
+                           (1. + m_t0.array().abs().min(t0_prec.array().abs()))).maxCoeff();
 
     }
 
@@ -154,6 +156,46 @@ namespace frydom {
     } else {
 //      std::cout << "CONVERGENCE IN " << iter << std::endl;
     }
+
+
+
+//    unsigned int iter = 0;
+//
+//    // Defining the linear solver
+//    Eigen::FullPivLU<Eigen::Matrix3d> linear_solver;
+//
+//    Residue3 residue = GetResidue();
+//    double err = residue.norm();
+//
+//    if (err < m_tolerance) {
+//      // Already at equilibrium
+//      return;
+//    }
+//
+//    while (iter < m_maxiter) {
+//
+//      iter++;
+//
+//      linear_solver.compute(GetJacobian());
+//      Tension dt0 = linear_solver.solve(-residue);
+//
+//      m_t0 += dt0;
+//
+//      residue = GetResidue();
+//      err = residue.norm();
+//
+//      if (err < m_tolerance) {
+//        break;
+//      }
+//
+//    }
+//
+//    if (iter == m_maxiter) {
+//      event_logger::warn(GetTypeName(), GetName(),
+//                         "No convergence of the solver after {} max iterations", m_maxiter);
+//    } else {
+////      std::cout << "CONVERGENCE IN " << iter << std::endl;
+//    }
 
   }
 
