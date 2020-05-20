@@ -596,7 +596,8 @@ namespace frydom {
     auto node = std::make_shared<FrNode>(name, this);
     m_nodes.push_back(node);
 
-    SetPosition(GetPosition(NWU), NWU);
+//    SetPosition(GetPosition(NWU), NWU);
+    node->SetPositionInBody({0., 0., 0.}, NWU);
 
     auto pos = node->GetNodePositionInBody(NWU);
 

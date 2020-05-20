@@ -49,14 +49,15 @@ int main(int argc, char *argv[]) {
 
   auto ocean = system.GetEnvironment()->GetOcean();
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
-  waveField->SetWaveHeight(0.);
+  waveField->SetWaveHeight(0.2);
   waveField->SetWavePeriod(10.);
   waveField->SetDirection(0., DEG, NWU, GOTO);
 
-  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 15., 1.);
+  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 5., 1.);
   system.GetEnvironment()->GetTimeRamp()->SetActive(false);
 
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-14., 14, 2, -14, 14, 2);
+  ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
   // Bodies
 
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]) {
 
   // -- Position
   auto flap2 = system.NewBody("flap2");
-  auto flap2Mesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/Langlee/FullFlap2.obj"});
+  auto flap2Mesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/Langlee/FullFlap1.obj"});
   flap2->AddMeshAsset(flap2Mesh);
   flap2->SetPosition(Position(12.5, 0., -8.5), NWU);
 
@@ -183,8 +184,8 @@ int main(int argc, char *argv[]) {
 
   // Excitation
 
-  //auto excitation1 = make_linear_excitation_force(hdb, flap1);
-  //auto excitation2 = make_linear_excitation_force(hdb, flap2);
+  auto excitation1 = make_linear_excitation_force("excitation_flap1", flap1, hdb);
+  auto excitation2 = make_linear_excitation_force("excitation_flap2", flap2, hdb);
 
   // Simulation
 
@@ -194,7 +195,7 @@ int main(int argc, char *argv[]) {
 
   system.Initialize();
 
-  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
+//  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
   bool is_irrlicht = true;
 

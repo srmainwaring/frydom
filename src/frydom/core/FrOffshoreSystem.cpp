@@ -35,6 +35,7 @@
 #include "frydom/utils/FrIrrApp.h"
 #include "frydom/core/statics/FrStaticAnalysis.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
+#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
 #include "frydom/cable/fea/FrFEALink.h"
 
 #include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
@@ -396,6 +397,12 @@ namespace frydom {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(equilibrium_frame));
     m_physicsItemsList.push_back(equilibrium_frame);
     event_logger::info(GetTypeName(), GetName(), "An equilibrium frame has been ADDED to the system");
+  }
+
+  void FrOffshoreSystem::AddRadiationModel(std::shared_ptr<FrRadiationModel> radiation_model) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(radiation_model));
+    m_physicsItemsList.push_back(radiation_model);
+    event_logger::info(GetTypeName(), GetName(), "A radiation model has been ADDED to the system");
   }
 
   void FrOffshoreSystem::AddHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh) {
@@ -1345,8 +1352,8 @@ namespace frydom {
       AddActuator(actuator);
       m_pathManager->RegisterTreeNode(actuator.get());
 
-//      // CATENARY LINE
-//      // MUST BE BEFORE PHYSICS ITEM
+      // CATENARY LINE
+      // MUST BE BEFORE PHYSICS ITEM
     } else if (auto catenary_line = std::dynamic_pointer_cast<FrCatenaryLineBase>(item)) {
       AddCatenaryLineBase(catenary_line);
       m_pathManager->RegisterTreeNode(catenary_line.get());
@@ -1368,6 +1375,11 @@ namespace frydom {
 //      m_pathManager->RegisterTreeNode(equilibrium_frame.get());
 
 
+
+      // RADIATION MODEL
+    } else if (auto model = std::dynamic_pointer_cast<FrRadiationModel>(item)) {
+      AddRadiationModel(model);
+      m_pathManager->RegisterTreeNode(model.get());
 
 
 //      //PHYSICS ITEM
@@ -1407,6 +1419,7 @@ namespace frydom {
       // UNKNOWN
     } else {
       added = false;
+      event_logger::info(GetTypeName(), GetName(), "object added to the system not recognized : {}", item->GetName());
     }
 //    else {
 //      std::cerr << "Unknown object type " << std::endl;
