@@ -60,8 +60,34 @@ class TestBody : public FrBody {
 //
 //    }
 
-
 };
+
+void init_bench1(FrOffshoreSystem& system, const std::shared_ptr<FrBody> &body, bool hydrostatic_linearity) {
+
+  double L, B, H, c;
+  L = 8; B = 4; H = 2; c = 0.5;
+
+  auto mass = L * H * B * c * system.GetEnvironment()->GetFluidDensity(WATER);
+  makeItBox(body, L, B, H, mass);
+
+  auto boxMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/box/box_250.obj"});
+  if (hydrostatic_linearity) {
+    // -- Linear hydrostatics
+    auto eqFrame = make_equilibrium_frame("EqFrame", body);
+
+    auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame, boxMesh, FrFrame());
+  } else {
+    // Nonlinear hydrostatics
+    auto bodyMesh = make_hydro_mesh("boxMesh", body, boxMesh, FrFrame(), FrHydroMesh::ClippingSupport::PLANESURFACE);
+//    bodyMesh->ShowAsset(true);
+    //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
+    auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
+  }
+
+  auto dampingForce = make_linear_damping_force("linear_damping", body, WATER, true);
+  dampingForce->SetDiagonalDamping(1E4, 1E4, 1E4, 1E5, 1E5, 1E5);
+}
+
 
 int main(int argc, char *argv[]) {
 
@@ -77,39 +103,40 @@ int main(int argc, char *argv[]) {
   Ocean->SetDensity(1023.);
 
   // -- Body
+  auto body = system.NewBody("Box");
+//  auto body = std::make_shared<TestBody>("box", &system);
+//  system.Add(body);
 
-//    auto body = system.NewBody();
-  auto body = std::make_shared<TestBody>("box", &system);
-  system.Add(body);
+  init_bench1(system, body, true);
 
-  double L, B, H, c;
-  L = H = B = 5.;
-  c = 0.1;
-//    L = 8; B = 4; H = 2; c = 0.5;
-
-  auto mass = L * H * B * c * system.GetEnvironment()->GetFluidDensity(WATER);
-  makeItBox(body, L, B, H, mass);
-
-//    body->RemoveAssets();
-
-  bool linear = false;
-  auto boxMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/box/box_385.obj"});
-  if (linear) {
-    // -- Linear hydrostatics
-    auto eqFrame = make_equilibrium_frame("EqFrame", body);
-
-    auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame, boxMesh, FrFrame());
-  } else {
-    // Nonlinear hydrostatics
-    auto bodyMesh = make_hydro_mesh("boxMesh", body, boxMesh, FrFrame(), FrHydroMesh::ClippingSupport::PLANESURFACE);
-//        bodyMesh->ShowAsset(true);
-    //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
-    auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
-  }
-
-
-  auto dampingForce = make_linear_damping_force("linear_damping", body, WATER, true);
-  dampingForce->SetDiagonalDamping(1E4, 1E4, 1E4, 1E5, 1E5, 1E5);
+//  double L, B, H, c;
+////  L = H = B = 5.;
+////  c = 0.5;
+//  L = 8; B = 4; H = 2; c = 0.5;
+//
+//  auto mass = L * H * B * c * system.GetEnvironment()->GetFluidDensity(WATER);
+//  makeItBox(body, L, B, H, mass);
+//
+////    body->RemoveAssets();
+//
+//  bool linear = false;
+//  auto boxMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/box/box_385.obj"});
+//  if (linear) {
+//    // -- Linear hydrostatics
+//    auto eqFrame = make_equilibrium_frame("EqFrame", body);
+//
+//    auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame, boxMesh, FrFrame());
+//  } else {
+//    // Nonlinear hydrostatics
+//    auto bodyMesh = make_hydro_mesh("boxMesh", body, boxMesh, FrFrame(), FrHydroMesh::ClippingSupport::PLANESURFACE);
+////        bodyMesh->ShowAsset(true);
+//    //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
+//    auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
+//  }
+//
+//
+//  auto dampingForce = make_linear_damping_force("linear_damping", body, WATER, true);
+//  dampingForce->SetDiagonalDamping(1E4, 1E4, 1E4, 1E5, 1E5, 1E5);
 
   // -- Simulation
 
@@ -121,7 +148,7 @@ int main(int argc, char *argv[]) {
   // Decay test initial position.
   FrRotation decayRot;
   decayRot.SetCardanAngles_DEGREES(20., 0., 0., NWU);
-  body->SetPosition(Position(0., 0., 2.), NWU);
+//  body->SetPosition(Position(0., 0., 2.), NWU);
   body->SetRotation(decayRot);
 
   bool irrlicht = true;

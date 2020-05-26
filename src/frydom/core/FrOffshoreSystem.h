@@ -777,6 +777,7 @@ namespace frydom {
 
     void AddHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
 
+    void RemoveHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
 
 
 //    /// Add other physics item to the offshore system (physics item that need to be updated before normal items)
@@ -847,11 +848,11 @@ namespace frydom {
     using ActuatorIter      = ActuatorContainer::iterator;
     using ConstActuatorIter = ActuatorContainer::const_iterator;
 
-    using PrePhysicsIter = PhysicsContainer::iterator;
-    using ConstPrePhysicsIter = PhysicsContainer::const_iterator;
+    using PhysicsIter = PhysicsContainer::iterator;
+    using ConstPhysicsIter = PhysicsContainer::const_iterator;
 
-    using FEAMestIter = FEAMeshContainer::iterator;
-    using ConstFEAMestIter = FEAMeshContainer::const_iterator;
+    using FEAMeshIter = FEAMeshContainer::iterator;
+    using ConstFEAMeshIter = FEAMeshContainer::const_iterator;
 
     BodyIter body_begin();
 
@@ -884,6 +885,14 @@ namespace frydom {
     ActuatorIter actuator_end();
 
     ConstActuatorIter actuator_end() const;
+
+    PhysicsIter physics_item_begin();
+
+    ConstPhysicsIter physics_item_begin() const;
+
+    PhysicsIter physics_item_end();
+
+    ConstPhysicsIter physics_item_end() const;
 
   };
 

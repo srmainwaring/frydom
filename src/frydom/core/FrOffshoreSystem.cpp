@@ -411,6 +411,22 @@ namespace frydom {
     event_logger::info(GetTypeName(), GetName(), "An hydrodynamic mesh has been ADDED to the system");
   }
 
+  void FrOffshoreSystem::RemoveHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh) {
+
+    m_chronoSystem->RemoveOtherPhysicsItem(internal::GetChronoPhysicsItem(hydro_mesh));
+
+    auto it = std::find(physics_item_begin(), physics_item_end(), hydro_mesh);
+    assert(it != physics_item_end());
+    if (it == physics_item_end()) {
+      event_logger::error(GetTypeName(), GetName(),
+                          "Fail to remove hydro mesh {} as it is not registered", hydro_mesh->GetName());
+      return;
+    }
+
+    m_physicsItemsList.erase(it);
+    event_logger::info(GetTypeName(), GetName(), "Hydro mesh {} has been REMOVED from the system", hydro_mesh->GetName());
+  }
+
   FrOffshoreSystem::PhysicsContainer FrOffshoreSystem::GetPhysicsItemList() {
     return m_physicsItemsList;
   }
@@ -1319,6 +1335,22 @@ namespace frydom {
     return m_actuatorList.cend();
   }
 
+  FrOffshoreSystem::PhysicsIter FrOffshoreSystem::physics_item_begin() {
+    return m_physicsItemsList.begin();
+  }
+
+  FrOffshoreSystem::ConstPhysicsIter FrOffshoreSystem::physics_item_begin() const {
+    return m_physicsItemsList.cbegin();
+  }
+
+  FrOffshoreSystem::PhysicsIter FrOffshoreSystem::physics_item_end() {
+    return m_physicsItemsList.end();
+  }
+
+  FrOffshoreSystem::ConstPhysicsIter FrOffshoreSystem::physics_item_end() const {
+    return m_physicsItemsList.cend();
+  }
+
 
   void FrOffshoreSystem::SetSolverVerbose(bool verbose) {
     m_chronoSystem->GetSolver()->SetVerbose(verbose);
@@ -1457,9 +1489,13 @@ namespace frydom {
     } else if (auto actuator = std::dynamic_pointer_cast<FrActuator>(item)) {
       RemoveActuator(actuator);
 
+      // HYDRO MESH
+    } else if (auto hydro_mesh = std::dynamic_pointer_cast<FrHydroMesh>(item)) {
+      RemoveHydroMesh(hydro_mesh);
+
       // UNKNOWN
     } else {
-      std::cerr << "Unknown object type " << std::endl;
+      std::cerr << "FrOffshoreSystem::Remove : Unknown object type " << std::endl;
       exit(EXIT_FAILURE);
     }
 
