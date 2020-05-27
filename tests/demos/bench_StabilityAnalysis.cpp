@@ -62,16 +62,17 @@ class TestBody : public FrBody {
 
 };
 
-void init_bench1(FrOffshoreSystem& system, const std::shared_ptr<FrBody> &body, bool hydrostatic_linearity) {
+void init(FrOffshoreSystem &system, const std::shared_ptr<FrBody> &body, bool linear) {
 
   double L, B, H, c;
-  L = 8; B = 4; H = 2; c = 0.5;
+  L = H = B = 5.;
+  c = 0.5;
 
   auto mass = L * H * B * c * system.GetEnvironment()->GetFluidDensity(WATER);
   makeItBox(body, L, B, H, mass);
 
-  auto boxMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/box/box_250.obj"});
-  if (hydrostatic_linearity) {
+  auto boxMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/box/box_385.obj"});
+  if (linear) {
     // -- Linear hydrostatics
     auto eqFrame = make_equilibrium_frame("EqFrame", body);
 
@@ -79,13 +80,14 @@ void init_bench1(FrOffshoreSystem& system, const std::shared_ptr<FrBody> &body, 
   } else {
     // Nonlinear hydrostatics
     auto bodyMesh = make_hydro_mesh("boxMesh", body, boxMesh, FrFrame(), FrHydroMesh::ClippingSupport::PLANESURFACE);
-//    bodyMesh->ShowAsset(true);
+//        bodyMesh->ShowAsset(true);
     //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
     auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
   }
 
   auto dampingForce = make_linear_damping_force("linear_damping", body, WATER, true);
   dampingForce->SetDiagonalDamping(1E4, 1E4, 1E4, 1E5, 1E5, 1E5);
+
 }
 
 
@@ -102,41 +104,34 @@ int main(int argc, char *argv[]) {
   auto Ocean = system.GetEnvironment()->GetOcean();
   Ocean->SetDensity(1023.);
 
+  enum bench_cases {
+    linear,
+    nonlinear,
+    varying_density
+  };
+
+  bench_cases currentCase = varying_density;
+
   // -- Body
-  auto body = system.NewBody("Box");
-//  auto body = std::make_shared<TestBody>("box", &system);
-//  system.Add(body);
-
-  init_bench1(system, body, true);
-
-//  double L, B, H, c;
-////  L = H = B = 5.;
-////  c = 0.5;
-//  L = 8; B = 4; H = 2; c = 0.5;
-//
-//  auto mass = L * H * B * c * system.GetEnvironment()->GetFluidDensity(WATER);
-//  makeItBox(body, L, B, H, mass);
-//
-////    body->RemoveAssets();
-//
-//  bool linear = false;
-//  auto boxMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/box/box_385.obj"});
-//  if (linear) {
-//    // -- Linear hydrostatics
-//    auto eqFrame = make_equilibrium_frame("EqFrame", body);
-//
-//    auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame, boxMesh, FrFrame());
-//  } else {
-//    // Nonlinear hydrostatics
-//    auto bodyMesh = make_hydro_mesh("boxMesh", body, boxMesh, FrFrame(), FrHydroMesh::ClippingSupport::PLANESURFACE);
-////        bodyMesh->ShowAsset(true);
-//    //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
-//    auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
-//  }
-//
-//
-//  auto dampingForce = make_linear_damping_force("linear_damping", body, WATER, true);
-//  dampingForce->SetDiagonalDamping(1E4, 1E4, 1E4, 1E5, 1E5, 1E5);
+  switch (currentCase) {
+    case linear: {
+      auto body = system.NewBody("Box");
+      init(system, body, true);
+      break;
+    }
+    case nonlinear: {
+      auto body = system.NewBody("Box");
+      init(system, body, false);
+      break;
+    }
+    case varying_density: {
+      auto body = std::make_shared<TestBody>("box", &system);
+      system.Add(body);
+      init(system, body, false);
+      body->SetPosition(Position(0., 0., 2.), NWU);
+      break;
+    }
+  }
 
   // -- Simulation
 
@@ -147,9 +142,9 @@ int main(int argc, char *argv[]) {
 
   // Decay test initial position.
   FrRotation decayRot;
-  decayRot.SetCardanAngles_DEGREES(20., 0., 0., NWU);
+  decayRot.SetCardanAngles_DEGREES(2., 0., 0., NWU);
 //  body->SetPosition(Position(0., 0., 2.), NWU);
-  body->SetRotation(decayRot);
+  system.GetBodyList()[1]->SetRotation(decayRot);
 
   bool irrlicht = true;
 
@@ -158,7 +153,6 @@ int main(int argc, char *argv[]) {
   } else {
 
     auto time = 0.;
-
     clock_t begin = clock();
 
     while (time < 300.) {

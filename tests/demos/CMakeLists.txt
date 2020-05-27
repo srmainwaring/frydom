@@ -28,7 +28,8 @@ set(BENCH
         SphereIrregular
         DTMB5512
 #        Cables
-        NonlinearHydrostaticBox
+        BoxDecayTests
+        StabilityAnalysis
         HS_equilibrium
         )
 
