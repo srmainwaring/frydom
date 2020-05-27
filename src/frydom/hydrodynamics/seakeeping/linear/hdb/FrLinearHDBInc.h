@@ -8,5 +8,7 @@
 #include "FrHydroMapper.h"
 #include "FrBEMBody.h"
 #include "FrHydroDB.h"
+#include "FrHydroDB_new.h"
+#include "FrHydroMapper_new.h"
 
 #endif //FRYDOM_FRLINEARHDBINC_H

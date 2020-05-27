@@ -34,26 +34,36 @@ set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
 set(mathutils_TAG v1.2)
 
 
+# HDB5_IO
+set(hdb5io_URL git@frydom-ce.org:ce/hdb5-io.git)
+set(hdb5io_TAG develop)
+
+
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
 #set(timezone_TAG v2.4.1)
 set(timezone_TAG 9454aeda2bd6b23c5dabe997a6b392cef88e321d)
 
+
 # CPPFS
 set(cppfs_URL https://github.com/cginternals/cppfs.git)
 set(cppfs_TAG v1.2.0)
+
 
 # JSON
 set(json_URL https://github.com/nlohmann/json.git)
 set(json_TAG v3.6.1)
 
+
 # OpenMesh
 set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-7.0)
 
+
 # spdlog
 set(spdlog_URL https://github.com/gabime/spdlog.git)
 set(spdlog_TAG v1.4.2)
+
 
 # cxxopts
 set(cxxopts_URL https://github.com/jarro2783/cxxopts.git)

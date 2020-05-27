@@ -3,7 +3,9 @@ message(STATUS "    ...hdb")
 set(SRC_FILES
         FrBEMBody.cpp
         FrHydroDB.cpp
+        FrHydroDB_new.cpp
         FrHydroMapper.cpp
+        FrHydroMapper_new.cpp
         )
 
 set(FRYDOM_HYDRODYNAMICS_HDB_SOURCES "")

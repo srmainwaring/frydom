@@ -44,6 +44,7 @@ target_link_libraries(FRyDoM_Engine
         ChronoEngine
         ChronoEngine_irrlicht
         MathUtils::MathUtils
+        hdb5io
         HDF5
         GeographicLib
         fmt
