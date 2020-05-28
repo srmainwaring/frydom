@@ -89,14 +89,14 @@ namespace frydom {
   };
 
   // --------------------------------------------------------
-  // FrHydroDB
+  // FrHydroDB_old
   // --------------------------------------------------------
 
   /**
-   * \class FrHydroDB
+   * \class FrHydroDB_old
    * \brief Class for dealling with hydrodynamic databases.
    */
-  class FrHydroDB {
+  class FrHydroDB_old {
 
    private:
 
@@ -116,7 +116,7 @@ namespace frydom {
    public:
 
     /// Constructor of the hydrodynamic database with specified HDF5 filename
-    explicit FrHydroDB(std::string h5file);
+    explicit FrHydroDB_old(std::string h5file);
 
     /// Readers of the different items present in the HDF5 database
     /// reader : HDF5 reader
@@ -250,7 +250,9 @@ namespace frydom {
 
   };
 
-  std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file);
+  using FrHydroDB = FrHydroDB_old;
+
+  std::shared_ptr<FrHydroDB_old> make_hydrodynamic_database(std::string h5file);
 
 }  // end namespace frydom
 

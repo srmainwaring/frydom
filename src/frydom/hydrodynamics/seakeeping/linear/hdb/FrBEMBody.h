@@ -24,7 +24,7 @@
 namespace frydom {
 
   // Forward declaration
-  class FrHydroDB;
+  class FrHydroDB_old;
 
   /**
    * \class FrBEMMode
@@ -169,7 +169,7 @@ namespace frydom {
 
    private:
 
-    FrHydroDB *m_HDB;       ///< HDB from which BEM data are extracted
+    FrHydroDB_old *m_HDB;       ///< HDB from which BEM data are extracted
     unsigned int m_id;      ///< ID of the BEM Body
     std::string m_name;     ///< Name of the body
     Position m_position;    ///< Position of the body from HDB
@@ -201,7 +201,7 @@ namespace frydom {
     /// \param id Unique integer identifier of the database
     /// \param name Name of the BEM body
     /// \param HDB Hydrodynamic database
-    FrBEMBody(unsigned int id, std::string name, FrHydroDB *HDB)
+    FrBEMBody(unsigned int id, std::string name, FrHydroDB_old *HDB)
         : m_id(id), m_name(name), m_HDB(HDB) {}
 
     /// Return the name of the BEM body database

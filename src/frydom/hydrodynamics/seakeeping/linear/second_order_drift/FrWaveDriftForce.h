@@ -18,11 +18,12 @@
 
 #include "frydom/core/force/FrForce.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 
 namespace frydom {
 
   // forward declarations
-  class FrHydroDB;
+//  class FrHydroDB;
 
   class FrWaveDriftPolarData;
 

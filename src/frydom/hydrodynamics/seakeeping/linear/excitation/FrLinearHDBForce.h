@@ -17,10 +17,12 @@
 #include "MathUtils/Interp1d.h"
 #include "frydom/core/force/FrForce.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+
 namespace frydom {
 
   // Forward declarations.
-  class FrHydroDB;
+//  class FrHydroDB;
 
   /**
    * \class FrLinearHDBForce

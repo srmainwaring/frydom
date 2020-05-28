@@ -45,6 +45,8 @@ namespace frydom {
 
   };
 
+//  using FrHydroDB = FrHydroDB_new;
+
   std::shared_ptr<FrHydroDB_new> make_new_hydrodynamic_database(std::string h5file);
 
 } //end namespace frydom

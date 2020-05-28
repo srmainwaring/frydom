@@ -20,11 +20,12 @@
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrPhysicsItem.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 
 namespace frydom {
 
   // Forward declarations
-  class FrHydroDB;
+//  class FrHydroDB;
 
   class FrBEMBody;
 
