@@ -23,25 +23,29 @@
 
 #include "frydom/core/link/links_lib/FrLink.h"
 #include "frydom/core/link/links_lib/actuators/FrActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
 #include "frydom/core/link/constraint/FrConstraint.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrFEAMesh.h"
+#include "frydom/core/statics/FrStaticAnalysis.h"
+
+#include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
+
 #include "frydom/cable/fea/FrFEACable.h"
+#include "frydom/cable/fea/FrFEALink.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/environment/FrEnvironment.h"
-#include "frydom/utils/FrIrrApp.h"
-#include "frydom/core/statics/FrStaticAnalysis.h"
+
+#ifdef USE_IRRLICHT
+  #include "frydom/utils/FrIrrApp.h"
+#endif
+
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
-#include "frydom/cable/fea/FrFEALink.h"
-
-#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
-#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
-
-#include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
 #include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrPathManager.h"
@@ -1165,6 +1169,7 @@ namespace frydom {
   }
 
 
+#ifdef USE_IRRLICHT
 // Irrlicht visualization
 
   FrIrrApp *FrOffshoreSystem::GetIrrApp() const {
@@ -1250,6 +1255,7 @@ namespace frydom {
   void FrOffshoreSystem::VisualizeStaticAnalysis() {
     VisualizeStaticAnalysis(100);
   }
+#endif
 
   void FrOffshoreSystem::AddAsset(std::shared_ptr<chrono::ChAsset> asset) {
     m_chronoSystem->AddAsset(std::move(asset));

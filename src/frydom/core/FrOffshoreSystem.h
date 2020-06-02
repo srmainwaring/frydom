@@ -114,7 +114,9 @@ namespace frydom {
 
   class FrLogManager;
 
+#ifdef USE_IRRLICHT
   class FrIrrApp;
+#endif
 
   class FrCatenaryLineBase;
 
@@ -251,7 +253,9 @@ namespace frydom {
 
     std::unique_ptr<FrStaticAnalysis> m_statics;
 
+    #ifdef USE_IRRLICHT
     std::unique_ptr<FrIrrApp> m_irrApp;
+    #endif
 
     // Container: definition.
     using BodyContainer = std::vector<std::shared_ptr<FrBody>>;
@@ -683,6 +687,7 @@ namespace frydom {
     void Clear();
 
 
+#ifdef USE_IRRLICHT
     // Visualization
 
     // Irrlicht Application
@@ -721,6 +726,7 @@ namespace frydom {
     void VisualizeStaticAnalysis(double dist);
 
     void VisualizeStaticAnalysis();
+#endif
 
     /// Add an optional asset (it can be used to define visualization shapes, or textures, or custom attached
     /// properties that the user can define by creating his class inherited from FrAssetComponent)

@@ -18,7 +18,7 @@
 #include "frydom/core/link/constraint/FrCGeometrical.h"
 #include "FrTriangleMeshConnected.h"
 #include "frydom/asset/shape/FrTriangleMeshShape.h"
-#include "frydom/utils/FrIrrApp.h"
+//#include "frydom/utils/FrIrrApp.h"
 
 namespace frydom {
 
@@ -143,6 +143,7 @@ namespace frydom {
 
   void FrHydroMesh::StepFinalize() {
 
+    #ifdef USE_IRRLICHT
     if (m_showAsset and GetSystem()->GetIrrApp()) {
 
       // Remove former asset
@@ -164,6 +165,7 @@ namespace frydom {
       irrApp->AssetUpdate(GetChronoPhysicsItem());
 
     }
+    #endif
   }
 
   std::shared_ptr<FrHydroMesh>

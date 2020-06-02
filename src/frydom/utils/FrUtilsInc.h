@@ -7,8 +7,12 @@
 
 #include "FrConfig.h"
 #include "FrFileSystem.h"
-#include "FrIrrApp.h"
-#include "FrIrrCamera.h"
+
+#ifdef USE_IRRLICHT
+  #include "FrIrrApp.h"
+  #include "FrIrrCamera.h"
+#endif
+
 #include "FrRecorder.h"
 
 #endif //FRYDOM_FRUTILSINC_H
