@@ -53,7 +53,7 @@ namespace frydom {
 
     InitializeClumpWeights();
 
-    DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
+    //DefineLogMessages(); // TODO: voir si on appelle ca ici avec les autres classes ...
   }
 
   void FrFEACable::InitializeClumpWeights() {
@@ -129,8 +129,64 @@ namespace frydom {
     return GetFrFEACableBase()->GetNearestFEANode(s);
   }
 
+  //##CC
+  Force FrFEACable::GetForceStartNodeInWorld(FRAME_CONVENTION fc) {
+
+    auto base_cable = GetFrFEACableBase();
+    auto start_link = base_cable->GetStartLink();
+
+    auto force = internal::ChVectorToVector3d<Force>(start_link->Get_react_force());
+    if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
+    return m_startingNode->GetFrameWRT_COG_InBody().ProjectVectorFrameInParent(force, fc);
+  }
+
+  Force FrFEACable::GetForceEndNodeInWorld(FRAME_CONVENTION fc) {
+
+    auto base_cable = GetFrFEACableBase();
+    auto end_link = base_cable->GetEndLink();
+
+    auto force = internal::ChVectorToVector3d<Force>(end_link->Get_react_force());
+    if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
+    return m_endingNode->GetFrameWRT_COG_InBody().ProjectVectorFrameInParent(force, fc);
+  }
+
+  Force FrFEACable::GetForceEndNodeInBody(FRAME_CONVENTION fc) {
+
+    auto base_cable = GetFrFEACableBase();
+    auto end_link = base_cable->GetEndLink();
+
+    auto force = internal::ChVectorToVector3d<Force>(end_link->Get_react_force());
+    if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
+    return force;
+  }
+  //##CC
+
   void FrFEACable::DefineLogMessages() {
     // TODO
+
+    //##CC
+    auto msg = NewMessage("", "Cable FEA message");
+
+    msg->AddField<double>("time", "s", "Current time of the simulation",
+                          [this]() { return GetSystem()->GetTime(); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>(
+        "StartingNode", "m", fmt::format("position of the starting node in world reference frame in {}", GetLogFC()),
+        [this]() { return m_startingNode->GetPositionInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>(
+        "ForceStartNodeInWorld", "N", fmt::format("force at the starting point in world reference frame in {}", GetLogFC()),
+        [this]() { return GetForceStartNodeInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>(
+        "EndingNode", "m", fmt::format("position of the ending node in world reference frame in {}", GetLogFC()),
+        [this]() { return m_endingNode->GetPositionInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>(
+        "ForceEndNodeInWorld", "N", fmt::format("force at the ending point in world reference frame in {}", GetLogFC()),
+        [this]() { return GetForceEndNodeInWorld(GetLogFC()); });
+
+    //##CC
   }
 
   void FrFEACable::BuildCache() {

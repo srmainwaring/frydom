@@ -77,6 +77,13 @@ namespace frydom {
 
     std::shared_ptr<FrClumpWeight> AddClumpWeight(const std::string &name, const double &s, const double &distance);
 
+    //##CC
+    Force GetForceStartNodeInWorld(FRAME_CONVENTION fc);
+
+    Force GetForceEndNodeInWorld(FRAME_CONVENTION fc);
+
+    Force GetForceEndNodeInBody(FRAME_CONVENTION fc);
+    //##CC
 
    protected:
 

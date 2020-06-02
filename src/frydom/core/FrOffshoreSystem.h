@@ -117,12 +117,15 @@ namespace frydom {
   class FrIrrApp;
 
   class FrCatenaryLineBase;
+  class FrCatenaryLine_ee444;
 
   class FrEquilibriumFrame;
 
   class FrRadiationModel;
 
   class FrHydroMesh;
+
+  class FrMorisonCompositeElement;
 
   namespace internal {
     class FrLMNode;
@@ -771,6 +774,8 @@ namespace frydom {
 
     void AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base);
 
+    void AddCatenaryLine(std::shared_ptr<FrCatenaryLine_ee444> catenary_line);
+
     void AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame);
 
     void AddRadiationModel(std::shared_ptr<FrRadiationModel> radiation_model);
@@ -779,6 +784,7 @@ namespace frydom {
 
     void RemoveHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
 
+    void AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements);
 
 //    /// Add other physics item to the offshore system (physics item that need to be updated before normal items)
 //    /// \param otherPhysics other physic item to be added

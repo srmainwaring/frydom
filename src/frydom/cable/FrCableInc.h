@@ -21,4 +21,6 @@
 #include "frydom/cable/fea/FrFEACable.h"
 #include "frydom/cable/fea/FrFEALink.h"
 
+#include "frydom/cable/catenary_ee444075/FrCableInc_ee444.h"
+
 #endif //FRYDOM_FRCABLEINC_H
