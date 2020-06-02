@@ -58,9 +58,9 @@ namespace frydom {
     // --> Getting sizes
 
     auto nbFreqInterp = waveFrequencies.size();
-    auto nbFreqBDD = BEMBody->GetNbFrequencies();
+    auto nbFreqBDD = m_HDB->GetFrequencyDiscretization().size();// GetNbFrequencies();
     auto nbDirInterp = waveDirections.size();
-    auto nbForceMode = BEMBody->GetNbForceMode();
+    auto nbForceMode = BEMBody->GetForceMask().GetNbDOF(); //->GetNbForceMode();
 
     // Wave direction is expressed between 0 and 2*pi.
     for (auto &dir : waveDirections) dir = mathutils::Normalize_0_2PI(dir);
@@ -70,7 +70,10 @@ namespace frydom {
 
     // -> Building interpolator and return vector
 
-    auto freqsBDD = std::make_shared<std::vector<double>>(BEMBody->GetFrequencies());
+//    auto freqsBDD = std::make_shared<std::vector<double>>(BEMBody->GetFrequencies());
+    auto frequencies = m_HDB->GetFrequencyDiscretization();
+    std::vector<double> vec(frequencies.data(), frequencies.data() + frequencies.rows() * frequencies.cols());
+    auto freqsBDD = std::make_shared<std::vector<double>>(vec);
 
     auto freqCoeffs = std::make_shared<std::vector<std::complex<double>>>();
     freqCoeffs->reserve(nbFreqBDD);
@@ -106,14 +109,18 @@ namespace frydom {
     // BEMBody.
     auto BEMBody = m_HDB->GetBody(GetBody());
 
-    auto nbWaveDirections = BEMBody->GetNbWaveDirections();
-    auto nbFreq = BEMBody->GetNbFrequencies();
-    auto nbForceModes = BEMBody->GetNbForceMode();
+    auto nbWaveDirections = m_HDB->GetWaveDirectionDiscretization().size(); //BEMBody->GetNbWaveDirections();
+    auto nbFreq = m_HDB->GetFrequencyDiscretization().size(); //BEMBody->GetNbFrequencies();
+    auto nbForceModes = BEMBody->GetForceMask().GetNbDOF(); //BEMBody->GetNbForceMode();
 
     m_waveDirInterpolators.clear();
     m_waveDirInterpolators.reserve(nbForceModes);
 
-    auto angles = std::make_shared<std::vector<double>>(BEMBody->GetWaveDirections(mathutils::RAD, NWU));
+//    auto angles = std::make_shared<std::vector<double>>(BEMBody->GetWaveDirections(mathutils::RAD, NWU));
+
+    auto waveDirections = m_HDB->GetWaveDirectionDiscretization();
+    std::vector<double> vec(waveDirections.data(), waveDirections.data() + waveDirections.rows() * waveDirections.cols());
+    auto angles = std::make_shared<std::vector<double>>(vec);
 
     auto interpolators = std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>();
     interpolators.reserve(nbFreq);
@@ -157,7 +164,7 @@ namespace frydom {
                                                             NWU);
 
     // DOF.
-    auto nbMode = m_HDB->GetBody(body)->GetNbForceMode();
+    auto nbMode = m_HDB->GetBody(body)->GetForceMask().GetNbDOF(); //m_HDB->GetBody(body)->GetNbForceMode();
 
     // Number of wave frequencies.
     auto nbFreq = waveField->GetWaveFrequencies(RADS).size();
@@ -182,16 +189,17 @@ namespace frydom {
     Torque torque;
     torque.SetNull();
 
-    for (unsigned int imode = 0; imode < nbMode; ++imode) {
+    auto dofs = m_HDB->GetBody(body)->GetForceMask().GetDOFs();
 
-      auto mode = m_HDB->GetBody(body)->GetForceMode(imode);
-      Direction direction = mode->GetDirection(); // Unit vector for the force direction.
-      switch (mode->GetType()) {
-        case FrBEMMode::LINEAR:
-          force += direction * forceMode(imode);
+    for (const auto &dof : dofs) {
+      Direction direction = dof.GetDirection();
+      auto index = dof.GetIndex();
+      switch (dof.GetType()) {
+        case HDB5_io::DOF::LINEAR:
+          force += direction * forceMode(index);
           break;
-        case FrBEMMode::ANGULAR:
-          torque += direction * forceMode(imode);
+        case HDB5_io::DOF::ANGULAR:
+          torque += direction * forceMode(index);
           break;
       }
     }

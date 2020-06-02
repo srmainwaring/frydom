@@ -23,7 +23,7 @@
 namespace frydom {
 
   // forward declarations
-//  class FrHydroDB;
+  class FrHydroDB;
 
   class FrWaveDriftPolarData;
 

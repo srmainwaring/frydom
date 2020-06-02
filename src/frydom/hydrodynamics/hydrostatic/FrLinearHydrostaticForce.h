@@ -25,7 +25,7 @@ namespace frydom {
 
   // Forward declarations
   class FrEquilibriumFrame;
-//    class FrHydroDB;
+  class FrHydroDB;
 
   /// This class defines the linear hydrostatic restoring force applied to a hydrodynamic body.
   /// The force takes into account the position of the body (at COG) regards to the equilibrium frame.

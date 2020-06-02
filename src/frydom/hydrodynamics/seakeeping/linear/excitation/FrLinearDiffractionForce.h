@@ -25,7 +25,7 @@
 namespace frydom {
 
   // Forward declaration
-//  class FrHydroDB;
+  class FrHydroDB;
 
   class FrBody;
 

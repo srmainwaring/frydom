@@ -113,7 +113,7 @@ namespace frydom {
 
   void FrWaveDriftForce::Initialize() {
     FrForce::Initialize();
-    m_table = m_hdb->GetBody(GetBody())->GetWaveDrift();
+    m_table = m_hdb->GetWaveDrift();
   }
 
   std::vector<double> FrWaveDriftForce::GetRelativeWaveDir() const {

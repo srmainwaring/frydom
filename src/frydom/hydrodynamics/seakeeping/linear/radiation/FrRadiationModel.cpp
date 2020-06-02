@@ -184,14 +184,15 @@ namespace frydom {
 
         auto vtime = m_recorder[BEMBodyMotion->first].GetTime();
 
-        for (auto idof : BEMBodyMotion->first->GetListDOF()) {
+        for (auto idof : BEMBodyMotion->first->GetMotionMask().GetListDOF()) {
 
-          auto interpK = BEMBody->first->GetIRFInterpolatorK(BEMBodyMotion->first, idof);
+          auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_KU)->at(idof);
+//          auto interpK = BEMBody->first->GetIRFInterpolatorK(BEMBodyMotion->first, idof);
 
           std::vector<mathutils::Vector6d<double>> kernel;
           kernel.reserve(vtime.size());
           for (unsigned int it = 0; it < vtime.size(); ++it) {
-            kernel.push_back(interpK->Eval(vtime[it]) * velocity.at(it).at(idof));
+            kernel.push_back(interpK->Eval(BEMBodyMotion->first->GetName(),vtime[it]) * velocity.at(it).at(idof));
           }
           radiationForce += TrapzLoc(vtime, kernel);
         }
@@ -220,7 +221,10 @@ namespace frydom {
 
     auto timeStep = GetParent()->GetTimeStep();
 
-    auto freqStep = m_HDB->GetStepFrequency();
+//    auto freqStep = m_HDB->GetStepFrequency();
+    // FIXME : check this
+    auto frequencies = m_HDB->GetFrequencyDiscretization();
+    auto freqStep = frequencies[1] - frequencies[0];
 
     Te = 0.5 * MU_2PI / freqStep;
 
@@ -245,11 +249,12 @@ namespace frydom {
 
         for (unsigned int idof = 4; idof < 6; idof++) {
 
-          auto interpKu = BEMBody->first->GetIRFInterpolatorKu(BEMBodyMotion->first, idof);
+          auto interpKu = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_KU)->at(idof);
+//          auto interpKu = BEMBody->first->GetIRFInterpolatorKu(BEMBodyMotion->first, idof);
 
           std::vector<mathutils::Vector6d<double>> kernel;
           for (unsigned int it = 0; it < vtime.size(); ++it) {
-            kernel.push_back(interpKu->Eval(vtime[it]) * velocity[it].at(idof));
+            kernel.push_back(interpKu->Eval(BEMBodyMotion->first->GetName(), vtime[it]) * velocity[it].at(idof));
           }
           radiationForce += TrapzLoc(vtime, kernel) * meanSpeed;
         }
