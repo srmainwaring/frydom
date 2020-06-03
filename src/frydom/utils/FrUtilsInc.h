@@ -8,7 +8,7 @@
 #include "FrConfig.h"
 #include "FrFileSystem.h"
 
-#ifdef USE_IRRLICHT
+#ifdef H5_USE_IRRLICHT
   #include "FrIrrApp.h"
   #include "FrIrrCamera.h"
 #endif

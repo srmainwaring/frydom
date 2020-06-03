@@ -41,7 +41,7 @@
 
 #include "frydom/environment/FrEnvironment.h"
 
-#ifdef USE_IRRLICHT
+#ifdef H5_USE_IRRLICHT
   #include "frydom/utils/FrIrrApp.h"
 #endif
 
@@ -1185,7 +1185,7 @@ namespace frydom {
   }
 
 
-#ifdef USE_IRRLICHT
+#ifdef H5_USE_IRRLICHT
 // Irrlicht visualization
 
   FrIrrApp *FrOffshoreSystem::GetIrrApp() const {
