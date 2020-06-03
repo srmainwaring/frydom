@@ -56,7 +56,8 @@ target_link_libraries(FRyDoM_Engine
         )
 if(frydom_use_irrlicht)
     target_link_libraries(FRyDoM_Engine ChronoEngine_irrlicht)
-    target_compile_definitions(FRyDoM_Engine PUBLIC -DH5_USE_IRRLICHT)
+else()
+    target_compile_definitions(FRyDoM_Engine PUBLIC -DH5_NO_IRRLICHT)
 endif()
 
 target_include_directories(FRyDoM_Engine PUBLIC

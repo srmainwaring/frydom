@@ -114,7 +114,7 @@ namespace frydom {
 
   class FrLogManager;
 
-#ifdef H5_USE_IRRLICHT
+#ifndef H5_NO_IRRLICHT
   class FrIrrApp;
 #endif
 
@@ -253,7 +253,7 @@ namespace frydom {
 
     std::unique_ptr<FrStaticAnalysis> m_statics;
 
-    #ifdef H5_USE_IRRLICHT
+    #ifndef H5_NO_IRRLICHT
     std::unique_ptr<FrIrrApp> m_irrApp;
     #endif
 
@@ -687,7 +687,7 @@ namespace frydom {
     void Clear();
 
 
-#ifdef H5_USE_IRRLICHT
+#ifndef H5_NO_IRRLICHT
     // Visualization
 
     // Irrlicht Application
