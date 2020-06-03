@@ -39,7 +39,7 @@ option(frydom_download_demo_data "Downloading demo data" ON)
 
 option(frydom_build_tools "Build the standalone tools" ON)
 
-
+option(frydom_use_irrlicht "Use Irrlicht" ON)
 
 
 # Access to local cmake scripts
