@@ -18,7 +18,7 @@
 #include "frydom/core/link/constraint/FrCGeometrical.h"
 #include "FrTriangleMeshConnected.h"
 #include "frydom/asset/shape/FrTriangleMeshShape.h"
-#ifdef H5_USE_IRRLICHT
+#ifndef H5_NO_IRRLICHT
   #include "frydom/utils/FrIrrApp.h"
 #endif
 
@@ -145,7 +145,7 @@ namespace frydom {
 
   void FrHydroMesh::StepFinalize() {
 
-    #ifdef H5_USE_IRRLICHT
+    #ifndef H5_NO_IRRLICHT
     if (m_showAsset and GetSystem()->GetIrrApp()) {
 
       // Remove former asset
