@@ -14,7 +14,7 @@
 
 #include <cstdlib>
 
-#ifdef USE_IRRLICHT
+#ifdef H5_USE_IRRLICHT
   #include <irrlicht.h>
 #endif
 
