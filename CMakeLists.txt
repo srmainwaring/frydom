@@ -66,6 +66,12 @@ if (${frydom_download_demo_data})
 endif ()
 
 
+# Grouping binaries and libraries
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+
 include(Add_googletest)
 
 include(Add_chrono)
@@ -79,6 +85,11 @@ include(Add_hermes)
 include(Add_OpenMesh)
 include(Add_json)
 include(Add_spdlog)
+
+
+
+
+
 
 #=============================================================================
 # Adding the FRyDoM project sources

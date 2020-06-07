@@ -127,6 +127,7 @@ cmake-build-release
 /visual/.vs
 /thirdparty/eigen_build/
 tests/_junk/
+tests/data
 
 # Doxygen
 docs/api/html
