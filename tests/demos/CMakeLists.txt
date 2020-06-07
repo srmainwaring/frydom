@@ -31,6 +31,7 @@ set(BENCH
         BoxDecayTests
         StabilityAnalysis
         HS_equilibrium
+        FEACable_Orcaflex
         )
 
 # Compile target
