@@ -47,6 +47,8 @@ namespace frydom {
 
     unsigned int GetNumberOfLoggables() const;
 
+    void SetNFreqOutput(int n);
+
     virtual void Initialize();
 
     void StepFinalize();
@@ -87,6 +89,9 @@ namespace frydom {
     FrOffshoreSystem *m_system;
 
     bool m_log_CSV;
+
+    int m_nfreq_output;
+    int m_ifreq_output;
 
   };
 
