@@ -283,6 +283,8 @@ namespace frydom {
                                                           LINE_START);
       auto starting_body = m_startingNode->GetBody();
       starting_body->AddExternalForce(m_startingForce);
+
+      m_startingForce->LogThis(this->IsLogged());
     }
 
     if (!m_endingForce) {
@@ -290,6 +292,8 @@ namespace frydom {
                                                         LINE_END);
       auto ending_body = m_endingNode->GetBody();
       ending_body->AddExternalForce(m_endingForce);
+
+      m_endingForce->LogThis(this->IsLogged());
     }
 
     //FrCatenaryAssetOwner::Initialize();
