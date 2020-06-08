@@ -211,6 +211,12 @@ namespace frydom {
     return m_loggable_list.size();
   }
 
+  void FrLogManager::DisableAllLogs() {
+    for (auto &obj : m_loggable_list) {
+      obj->LogThis(false);
+    }
+  }
+
   void FrLogManager::SetNFreqOutput(int n) {
     m_nfreq_output = n;
   }

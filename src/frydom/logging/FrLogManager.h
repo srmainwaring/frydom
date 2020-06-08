@@ -57,6 +57,8 @@ namespace frydom {
 
     void NoCSVLlog();  // TODO: permettre de ne pas logger en CSV... -> perf !
 
+    void DisableAllLogs();
+
     using LoggableList = std::list<FrLoggableBase *>;
     using LoggableIter = LoggableList::iterator;
 
