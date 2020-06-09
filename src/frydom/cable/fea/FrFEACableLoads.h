@@ -39,6 +39,11 @@ namespace frydom {
 
       explicit FrFEACableHydroLoader(std::shared_ptr<chrono::ChLoadableU> loadable);
 
+      void ComputeF_(const double U,
+                    chrono::ChVectorDynamic<> &F,
+                    chrono::ChVectorDynamic<> *state_x,
+                    chrono::ChVectorDynamic<> *state_w); // TODO: supprimer
+
       void ComputeF(const double U,
                     chrono::ChVectorDynamic<> &F,
                     chrono::ChVectorDynamic<> *state_x,
@@ -46,22 +51,22 @@ namespace frydom {
 
       void SetCable(FrFEACable *cable);
 
-     private:
-      static inline double fn(const double &alpha) {
-        double twice_alpha = 2. * alpha;
-        return 0.5 - 0.1 * std::cos(alpha) + 0.1 * std::sin(alpha) - 0.4 * cos(twice_alpha) - 0.11 * sin(twice_alpha);
-//        return 1.; // TODO: supprimer
-      }
-
-      static inline double ft(const double &alpha) {
-        double alpha2 = alpha * alpha;
-        double alpha3 = alpha2 * alpha;
-        double alpha4 = alpha3 * alpha;
-        double alpha5 = alpha4 * alpha;
-        return 0.01 *
-               (2.008 - 0.3858 * alpha + 1.9159 * alpha2 - 4.16147 * alpha3 + 3.5064 * alpha4 - 1.187299 * alpha5);
-//        return 1.; // TODO: supprimer
-      }
+//     private:
+//      static inline double fn(const double &alpha) {
+//        double twice_alpha = 2. * alpha;
+//        return 0.5 - 0.1 * std::cos(alpha) + 0.1 * std::sin(alpha) - 0.4 * cos(twice_alpha) - 0.11 * sin(twice_alpha);
+////        return 1.; // TODO: supprimer
+//      }
+//
+//      static inline double ft(const double &alpha) {
+//        double alpha2 = alpha * alpha;
+//        double alpha3 = alpha2 * alpha;
+//        double alpha4 = alpha3 * alpha;
+//        double alpha5 = alpha4 * alpha;
+//        return 0.01 *
+//               (2.008 - 0.3858 * alpha + 1.9159 * alpha2 - 4.16147 * alpha3 + 3.5064 * alpha4 - 1.187299 * alpha5);
+////        return 1.; // TODO: supprimer
+//      }
 
      protected:
       FrFEACable *m_cable;

@@ -20,6 +20,7 @@ set(REFACTORING_TESTS
         test_fea_cable
         test_fea_cable_discretization
         test_fea_mooring_line_with_clump
+        test_vertical_fea_cable_in_waves
         )
 
 foreach (test ${REFACTORING_TESTS})

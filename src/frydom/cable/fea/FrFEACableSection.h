@@ -42,7 +42,7 @@ namespace frydom {
       double GetVIVAmpFactor() const;
 
      private:
-      double m_Cm;
+      double m_Cm; // TODO: voir si ces coeffs doivent etre gardes en data ou bien un pointeur vers les pptes d'element serait pas mieux...
       double m_Cd;
       double m_VIV_amp_factor;
 

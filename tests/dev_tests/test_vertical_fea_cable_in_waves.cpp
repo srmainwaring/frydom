@@ -1,5 +1,5 @@
 //
-// Created by frongere on 07/06/2020.
+// Created by frongere on 09/06/2020.
 //
 
 #include <frydom/frydom.h>
@@ -14,12 +14,12 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   seabed->Show(true);
   // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
   seabed->SetBathymetry(-100, NWU); // TODO: depth target -100m
-  seabed->GetSeabedGridAsset()->SetGrid(-150, 50, 200, -50, 50, 100);
+  seabed->GetSeabedGridAsset()->SetGrid(-20, 500, 520, -50, 50, 100);
 
   // Free surface
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(
-      -150, 50, 2, -50, 50, 100);
+      -20, 500, 2, -50, 50, 100);
 
   // Current
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
@@ -43,7 +43,7 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
   double waveDirAngle = 0.;
 
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(waveHeight, wavePeriod, waveDirAngle,
-      DEG, NWU, GOTO);
+                                                                                 DEG, NWU, COMEFROM);
 
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
@@ -90,27 +90,30 @@ int main() {
   auto world_body = system.GetWorldBody();
 
 
-  double cable_length = 170.; // m
+  double cable_length = 50.; // m
 //  int nb_elements = 68;
-  int nb_elements = 68; // 44
+  int nb_elements = 20; // 44
 
 
-  auto left_node = world_body->NewNode("left_node");
-  auto right_node = world_body->NewNode("right_node");
+  auto higher_node = world_body->NewNode("higher_node");
+  auto lower_node = world_body->NewNode("lower_node");
 
-  left_node->SetPositionInWorld({-100., 0., -55.}, NWU);
-  right_node->SetPositionInWorld({0., 0., -5.}, NWU);
+  higher_node->SetPositionInWorld({0., 0., -5.}, NWU);
+  lower_node->SetPositionInWorld({0., 0., -55.}, NWU);
 
   // Create cable properties
   auto cable_properties = InitializeCableProperties();
 
   // Creating the cable
   auto cable = make_fea_cable("cable",
-                              left_node,
-                              right_node,
+                              higher_node,
+                              lower_node,
                               cable_properties,
                               cable_length,
                               nb_elements);
+
+//  cable->SetStartLinkType(frydom::FrFEACable::FREE);
+  cable->SetEndLinkType(frydom::FrFEACable::FREE);
 
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverWarmStarting(true);
@@ -119,15 +122,10 @@ int main() {
   system.SetSolverForceTolerance(1e-14);
   system.SetSolverDiagonalPreconditioning(true);
 
-//  system.SetTimeStepper(frydom::FrOffshoreSystem::NEWMARK);
 
   system.SetTimeStep(0.01);
 
   system.RunInViewer(0., 100., false, 10);
-
-
-//double time = 0.;
-//  system.RunDynamics(1e-2);
 
 
   return 0;

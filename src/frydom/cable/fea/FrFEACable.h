@@ -55,6 +55,10 @@ namespace frydom {
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
+    Force GetForceAtStartLink(FRAME_CONVENTION fc);
+
+    Force GetForceAtEndLink(FRAME_CONVENTION fc);
+
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
 
     void Initialize() override;
