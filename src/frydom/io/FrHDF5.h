@@ -43,7 +43,7 @@ namespace frydom {
     HDF5_READ_MODE m_mode = READ;    ///> The file opening mode
 
     std::string m_filename;          ///> The file path name
-    std::unique_ptr<H5File> m_file;  ///> The HDF5 file object
+//    std::unique_ptr<H5File> m_file;  ///> The HDF5 file object
 
    public:
 
