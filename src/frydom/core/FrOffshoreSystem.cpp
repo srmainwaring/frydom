@@ -54,7 +54,7 @@
 #include "frydom/logging/FrTypeNames.h"
 
 #include "frydom/logging/FrEventLogger.h"
-#include "frydom/logging/FrSerializerFactory.h"
+//#include "frydom/logging/FrSerializerFactory.h"
 
 #include "frydom/hydrodynamics/morison/FrMorisonElements.h"
 
