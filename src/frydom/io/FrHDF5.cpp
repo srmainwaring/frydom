@@ -27,13 +27,13 @@ namespace frydom {
   void FrHDF5Reader::SetFilename(const std::string &filename, HDF5_READ_MODE mode) {
     m_filename = filename;
 //    m_file.release();
-    try {
-//      m_file = std::make_unique<H5File>(filename, mode);
-    } catch (const H5::FileIException &e) {
-      // TODO : throw a frydom exception
-      std::cout << "   --- ERROR : HDF5 file '" << filename << "' not found.";
-      throw (e);
-    }
+//    try {
+////      m_file = std::make_unique<H5File>(filename, mode);
+//    } catch (const H5::FileIException &e) {
+//      // TODO : throw a frydom exception
+//      std::cout << "   --- ERROR : HDF5 file '" << filename << "' not found.";
+//      throw (e);
+//    }
   }
 
   void FrHDF5Reader::Close() {} //m_file->close(); }
@@ -55,8 +55,8 @@ namespace frydom {
 //    hsize_t dims[ndims];
 //    dspace.getSimpleExtentDims(dims);
 //
-    hsize_t nb_rows = 0;
-    hsize_t nb_cols = 0;
+    size_t nb_rows = 0;
+    size_t nb_cols = 0;
 //    hsize_t nb_elt = 0;
 //
 //    switch (ndims) {
@@ -127,8 +127,8 @@ namespace frydom {
 //    hsize_t dims[ndims];
 //    dspace.getSimpleExtentDims(dims);
 //
-    hsize_t nb_rows = 0;
-    hsize_t nb_cols = 0;
+    size_t nb_rows = 0;
+    size_t nb_cols = 0;
 //    hsize_t nb_elt = 0;
 //
 //    switch (ndims) {
@@ -193,19 +193,19 @@ namespace frydom {
     return i[0];
   }
 
-  hbool_t FrHDF5Reader::ReadBool(std::string h5Path) {
-//    DataSet dset = m_file->openDataSet(h5Path);
-
-    hbool_t b[1];
-//    dset.read(b, PredType::NATIVE_HBOOL);
-
-    return b[0];
-  }
+//  hbool_t FrHDF5Reader::ReadBool(std::string h5Path) {
+////    DataSet dset = m_file->openDataSet(h5Path);
+//
+//    hbool_t b[1];
+////    dset.read(b, PredType::NATIVE_HBOOL);
+//
+//    return b[0];
+//  }
 
   std::string FrHDF5Reader::ReadString(std::string h5Path) {
 
-    StrType dtype(0, H5T_VARIABLE);
-    DataSpace dspace(H5S_SCALAR);
+//    StrType dtype(0, H5T_VARIABLE);
+//    DataSpace dspace(H5S_SCALAR);
 //    DataSet dset = m_file->openDataSet(h5Path);
 
     std::string str;
