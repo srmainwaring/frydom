@@ -15,7 +15,7 @@
 
 #include <vector>
 #include <cfloat>
-
+#include <assert.h>
 #include "boost/circular_buffer.hpp"
 
 namespace frydom {
