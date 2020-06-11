@@ -302,9 +302,8 @@ class pyHDB():
                 # Integration of the pressure of the wetted surface.
                 for i_force in range(0, 6):
                     if (body.Force_mask[i_force]):
-                        nds = body.get_nds(i_force)  # n*ds.
-                        body.Froude_Krylov[i_force, :, :] = np.einsum('ijk, i -> jk', pressure,
-                                                                      -nds)  # Il s'agit de la normale entrante.
+                        nds = body.get_nds(i_force)  # n*A*ds.
+                        body.Froude_Krylov[i_force, :, :] = np.einsum('ijk, i -> jk', pressure, -nds)  # Il s'agit de la normale entrante.
 
     def eval_impulse_response_function(self, full=True):
         """Computes the impulse response functions.
@@ -979,10 +978,11 @@ class pyHDB():
                                  "and generates forces on body %u." % (j, body.i_body)
 
             # Infinite added mass.
-            dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
-                                         data=body.Inf_Added_mass[:, 6 * j:6 * (j + 1)])
-            dset.attrs['Description'] = "Infinite added mass matrix that modifies the apparent mass of body %u from " \
-                                        "acceleration of body %u." % (body.i_body, j)
+            if(body.Inf_Added_mass is not None):
+                dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
+                                             data=body.Inf_Added_mass[:, 6 * j:6 * (j + 1)])
+                dset.attrs['Description'] = "Infinite added mass matrix that modifies the apparent mass of body %u from " \
+                                            "acceleration of body %u." % (body.i_body, j)
 
             # Radiation mask.
             dset = writer.create_dataset(radiation_body_motion_path + "/RadiationMask",
@@ -1006,14 +1006,16 @@ class pyHDB():
                                             "on body %u." % (j, body.i_body)
 
                 # Impulse response functions without forward speed.
-                dset = writer.create_dataset(irf_path + "/DOF_%u" % idof,
-                                             data=body.irf[:, 6 * j + idof, :])
-                dset.attrs['Description'] = "Impulse response functions"
+                if(body.irf is not None):
+                    dset = writer.create_dataset(irf_path + "/DOF_%u" % idof,
+                                                 data=body.irf[:, 6 * j + idof, :])
+                    dset.attrs['Description'] = "Impulse response functions"
 
                 # Impulse response function with forward speed.
-                dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof,
-                                             data=body.irf_ku[:, 6 * j + idof, :])
-                dset.attrs['Description'] = "Impulse response functions Ku"
+                if(body.irf_ku is not None):
+                    dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof,
+                                                 data=body.irf_ku[:, 6 * j + idof, :])
+                    dset.attrs['Description'] = "Impulse response functions Ku"
 
     def write_hydrostatic(self, writer, body, hydrostatic_path="/Hydrostatic"):
 
