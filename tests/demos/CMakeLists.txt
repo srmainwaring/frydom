@@ -19,20 +19,21 @@ set(DEMOS
         NonLinearHydrostatics
         Constraints
         Links
+        Tensegrity
 #        HexagonalArticulatedBuoy
         )
 
-set(BENCH
-        SphereDecay
-        SphereRegular
-        SphereIrregular
-        DTMB5512
-#        Cables
-        BoxDecayTests
-        StabilityAnalysis
-        HS_equilibrium
-        FEACable_Orcaflex
-        )
+#set(BENCH
+#        SphereDecay
+#        SphereRegular
+#        SphereIrregular
+#        DTMB5512
+##        Cables
+#        BoxDecayTests
+#        StabilityAnalysis
+#        HS_equilibrium
+#        FEACable_Orcaflex
+#        )
 
 # Compile target
 foreach (test ${DEMOS})
@@ -41,17 +42,17 @@ foreach (test ${DEMOS})
     target_link_libraries(demo_${test} FRyDoM_Engine)
 endforeach ()
 
-foreach (test ${BENCH})
-    message(STATUS "        ...add bench_${test}")
-    add_executable(bench_${test} bench_${test}.cpp)
-    target_link_libraries(bench_${test} FRyDoM_Engine)
-endforeach ()
+#foreach (test ${BENCH})
+#    message(STATUS "        ...add bench_${test}")
+#    add_executable(bench_${test} bench_${test}.cpp)
+#    target_link_libraries(bench_${test} FRyDoM_Engine)
+#endforeach ()
 
-set(subdirs
-        # add here the test source subdirectories
-        )
-
-foreach (subdir ${subdirs})
-    add_subdirectory(${subdir})
-endforeach ()
+#set(subdirs
+#        # add here the test source subdirectories
+#        )
+#
+#foreach (subdir ${subdirs})
+#    add_subdirectory(${subdir})
+#endforeach ()
 

@@ -10,6 +10,7 @@ set(FRYDOM_DATA_FOLDER ${CMAKE_SOURCE_DIR}/data)
 set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/../bin)
 configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/../bin/.frydom_config)
 
+
 #if (${frydom_build_dev_test})
 #    set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/dev_tests)
 #    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/dev_tests/.frydom_config)
@@ -27,4 +28,6 @@ configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/../bin/.frydom_confi
 #    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/demos/.frydom_config)
     add_subdirectory(demos)
 #endif ()
+
+add_subdirectory(validation)
 

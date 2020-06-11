@@ -10,21 +10,21 @@ using namespace frydom;
 void InitializeEnvironment(FrOffshoreSystem &system) {
 
   // Seabed
-  auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
-  seabed->Show(true);
-  // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
-  seabed->SetBathymetry(-100, NWU); // TODO: depth target -100m
-  seabed->GetSeabedGridAsset()->SetGrid(-20, 500, 520, -50, 50, 100);
+//  auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
+//  seabed->Show(true);
+//  // FIXME: le no show seabed ne doit pas declencher de profondeur infine !!! Ca doit seulement concerner l'asset !!
+//  seabed->SetBathymetry(-110, NWU); // TODO: depth target -100m
+//  seabed->GetSeabedGridAsset()->SetGrid(-50, 50, 100, -50, 50, 100);
 
   // Free surface
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(true);
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(
-      -20, 500, 2, -50, 50, 100);
+      -50, 50, 2, -50, 50, 2);
 
   // Current
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
   system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform()->Set(
-      90, 0.,
+      0., 10.,
       DEG, KNOT, NED, GOTO);
 
   // water props
@@ -38,9 +38,9 @@ void InitializeEnvironment(FrOffshoreSystem &system) {
 //  double Tp = 10.;
 //  double wave_dir = 0.;
 //  system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularOptimWaveField(Hs, Tp, wave_dir, RAD, NWU, GOTO);
-  double waveHeight = 5.;
+  double waveHeight = 15.;
   double wavePeriod = 10.;
-  double waveDirAngle = 0.;
+  double waveDirAngle = 45.;
 
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(waveHeight, wavePeriod, waveDirAngle,
                                                                                  DEG, NWU, COMEFROM);
@@ -90,16 +90,16 @@ int main() {
   auto world_body = system.GetWorldBody();
 
 
-  double cable_length = 50.; // m
+  double cable_length = 500.; // m
 //  int nb_elements = 68;
-  int nb_elements = 20; // 44
+  int nb_elements = 50; // 44
 
 
   auto higher_node = world_body->NewNode("higher_node");
   auto lower_node = world_body->NewNode("lower_node");
 
   higher_node->SetPositionInWorld({0., 0., -5.}, NWU);
-  lower_node->SetPositionInWorld({0., 0., -55.}, NWU);
+  lower_node->SetPositionInWorld({0., 0., -cable_length - 5.}, NWU);
 
   // Create cable properties
   auto cable_properties = InitializeCableProperties();

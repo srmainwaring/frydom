@@ -42,6 +42,7 @@ namespace frydom {
       double GetVIVAmpFactor() const;
 
      private:
+      // FIXME: il faut faire une diff entre les coeffs de drag et de masse ajoutee normaux et tangentiels
       double m_Cm; // TODO: voir si ces coeffs doivent etre gardes en data ou bien un pointeur vers les pptes d'element serait pas mieux...
       double m_Cd;
       double m_VIV_amp_factor;

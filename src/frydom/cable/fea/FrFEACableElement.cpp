@@ -148,9 +148,12 @@ namespace frydom {
       chrono::ChMatrixDynamic<> Mloc(6 * (int) nodes.size(), 6 * (int) nodes.size());
 
       double nmass = mass / (double) nodes.size();
+
+      // FIXME: il y a litige sur qui est linerx et lineryz...
       //Iyy and Izz: (orthogonal to spline) approx as 1/50 lumped mass at half dist:
-      double linerx = (1. / 50.) * nmass * pow(length,
-                                               2);  // note: 1/50 can be even less (this is 0 in many texts, but 0 means no explicit integrator could be used)
+      double linerx = (1. / 50.) * nmass * pow(length, 2);
+      // note: 1/50 can be even less (this is 0 in many texts, but 0 means no explicit integrator could be used)
+
       //Ixx: (tangent to spline) approx as node cuboid
       double lineryz =
           (1. / 12.) * nmass * (pow(section->GetDrawThicknessY(), 2) + pow(section->GetDrawThicknessZ(), 2));
@@ -160,7 +163,7 @@ namespace frydom {
       double Ca_n = dynamic_cast<FrFEACableSection *>(section.get())->GetCm();
 
       // Estimated unit length for a node
-      double dL = length / (double) nodes.size();
+      double node_equiv_length = length / (double) nodes.size();
 
 
       for (int i = 0; i < nodes.size(); ++i) {
@@ -178,7 +181,10 @@ namespace frydom {
         Mloc(stride + 4, stride + 4) += Mfactor * lineryz;
         Mloc(stride + 5, stride + 5) += Mfactor * lineryz;
 
-        // Including added mass
+
+        /**
+         * Including added mass
+         */
 
         double fluid_density = m_environment->GetFluidDensity(
             internal::ChVectorToVector3d<Position>(nodes[i]->coord.pos),
@@ -195,126 +201,25 @@ namespace frydom {
         double txty = tx * ty;
         double txtz = tx * tz;
         double tytz = ty * tz;
-        double tx2 = tx * tx;
-        double ty2 = ty * ty;
-        double tz2 = tz * tz;
 
-        double beta = fluid_density * Ca_n * section->GetArea() * dL; // Essayer avec length
+        double beta = fluid_density * Ca_n * section->GetArea() * node_equiv_length;
 
-//        /// Normal added mass
-        Mloc(stride + 0, stride + 0) -= Mfactor * beta * (tx2 - 1.);
+        /// Normal added mass
+        Mloc(stride + 0, stride + 0) -= Mfactor * beta * (tx * tx - 1.);
         Mloc(stride + 0, stride + 1) -= Mfactor * beta * txty;
         Mloc(stride + 0, stride + 2) -= Mfactor * beta * txtz;
         Mloc(stride + 1, stride + 0) -= Mfactor * beta * txty;
-        Mloc(stride + 1, stride + 1) -= Mfactor * beta * (ty2 - 1.);
+        Mloc(stride + 1, stride + 1) -= Mfactor * beta * (ty * ty - 1.);
         Mloc(stride + 1, stride + 2) -= Mfactor * beta * tytz;
         Mloc(stride + 2, stride + 0) -= Mfactor * beta * txtz;
         Mloc(stride + 2, stride + 1) -= Mfactor * beta * tytz;
-        Mloc(stride + 2, stride + 2) -= Mfactor * beta * (tz2 - 1.);
+        Mloc(stride + 2, stride + 2) -= Mfactor * beta * (tz * tz - 1.);
 
-        /// TODO: tagential added mass
+        /// TODO: introduce tangential added mass too...
 
       }
 
       H.PasteSumMatrix(Mloc, 0, 0);
-
-
-
-
-//      //
-//      // The M mass matrix of this element span: (lumped version)
-//      //
-//
-//      chrono::ChMatrixDynamic<> Mloc(6 * (int) nodes.size(), 6 * (int) nodes.size());
-//
-//      double nmass = mass / (double) nodes.size();
-//
-//
-//      /*
-//       * FIXME: Il est tres etrange que ce soit lineryz qui soit egal a une inertie toute petite !!
-//       * Ici on considere un rod et pas reelement un solide...
-//       * D'autre part, j'aurais tendance a inverser ici les inerties entre linerx et lineryz, ce que semble confirmer
-//       * le placement des inerties dans MLoc...
-//       */
-//
-//
-//      //Iyy and Izz: (orthogonal to spline) approx as 1/50 lumped mass at half dist:
-//      // note: 1/50 can be even less (this is 0 in many texts, but 0 means no explicit integrator could be used)
-////      double lineryz = (1. / 50.) * nmass * pow(length,
-//      double linerx = (1. / 50.) * nmass * pow(length, 2);
-//      //Ixx: (tangent to spline) approx as node cuboid
-//      // FIXME: il n'est pas normal de considerer a priori un cuboid si on utilise une section circulaire
-//      // mais surtout, les draw_thickness sont censee seulement alimenter la visu, pas la physique (chrono le dit lui
-//      // meme...
-//      // On peut certainement aller chercher la notion de section circulaire dans section->IsCircular() ??
-//      auto is_circular = section->IsCircular();
-//
-//
-////      double linerx = (1. / 12.) * nmass * (pow(section->GetDrawThicknessY(), 2) +
-////                                            pow(section->GetDrawThicknessZ(), 2));
-//      double lineryz = (1. / 12.) * nmass * (pow(section->GetDrawThicknessY(), 2) +
-//                                             pow(section->GetDrawThicknessZ(), 2));
-//
-//
-//      double dL = length / (double) nodes.size();
-//      double Cm = dynamic_cast<FrFEACableSection *>(section.get())->GetCm();
-//
-//      std::vector<double> uvec = mathutils::linspace(-1., 1., nodes.size());
-//
-//      for (int i = 0; i < nodes.size(); ++i) {
-//        int stride = i * 6;
-//
-//        /*
-//         * TODO: c'est ici qu'il faut introduire la masse ajoutee car alors, cela apparait dans la matrice masse
-//         * pour la dynamique mais pas dans le loader de gravite.
-//         * Il faut dans ce cas uniquement jouer avec les 3 premieres equations de composantes lineaires (pas rotation)
-//         * et s'assurer qu'on parvient a introduire un effet d'inertie de Morison qui soit suivant la normale et la
-//         * tangente a l'element. On pourrait essayer de voir ce que fait une integration directe type Gauss mais
-//         * cela changerait l'approche Chrono et ce sera a voir plus tard. La premiere question est, la partie
-//         * force lineaire suppose-t-elle des accelerations linearires dans le repere absolu ou relatif ??
-//         * Pour la partie rotation, d'apres les articles, c'est relatif. Franchement pas certain pour la partie
-//         * lineair !! (en tout cas, quand on parle de force, la resultante est en absolu et le moment est en relatif...)
-//         * Il y a des chances que ce soit pareil ici, auquel cas il faut faire des projections ici pour passer de
-//         * relatif a absolu pour la masse ajoutee.
-//         *
-//         * CONFIRMATION: en regardant le IntStateGather qui donne w, on a bien la partie lineaire exprimee dans le
-//         * repere absolu tandis que la partie angulaire est en relatif !! ---> Il faut passer d'une masse ajoutee
-//         * relative au cable a une masse ajoutee absolue. Les termes des 3 premieres equations seront donc differents !!
-//         *
-//         * Question, comment cela se passe-t-il pour le inerties ??? on peut s'attendre a avoir des inerties ajoutees
-//         * Ne peut-on pas les prendre en compte juste par des considerations sur la masse ajoutee lineaire ???
-//         * (formule ou autre...)
-//         */
-//
-//        // FIXME: ICI, ON AGIT fonction de ce qui precede !!!!!!!!!!!!!!!!!!!!!!!!!
-//
-//        // Get the fluid density at node
-//        double fluid_density = m_environment->GetFluidDensity(
-//            internal::ChVectorToVector3d<Position>(nodes[i]->coord.pos),
-//            NWU,
-//            false
-//        );
-//
-//        double nadded_mass = fluid_density * section->GetArea() * Cm * dL;
-//
-//        // Computing the normal acceleration of the node
-//        auto node_acceleration = nodes[i]->coord_dtdt.pos;
-//        chrono::ChVector<double> tangent = GetTangent(uvec[i]);
-//        chrono::ChVector<double> normal_acceleration_direction =
-//            (node_acceleration - (tangent.Dot(node_acceleration)) * tangent).GetNormalized();
-//
-//        chrono::ChVector<double> n_ma = nadded_mass * normal_acceleration_direction;
-//
-//
-//        Mloc(stride + 0, stride + 0) += Mfactor * (nmass + n_ma[0]);  // node A x,y,z
-//        Mloc(stride + 1, stride + 1) += Mfactor * (nmass + n_ma[1]);
-//        Mloc(stride + 2, stride + 2) += Mfactor * (nmass + n_ma[2]);
-//        Mloc(stride + 3, stride + 3) += Mfactor * linerx;  // node A Ixx,Iyy,Izz
-//        Mloc(stride + 4, stride + 4) += Mfactor * lineryz;
-//        Mloc(stride + 5, stride + 5) += Mfactor * lineryz;
-//      }
-//
-//      H.PasteSumMatrix(Mloc, 0, 0);
 
     }
 

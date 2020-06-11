@@ -31,11 +31,11 @@ foreach (test ${REFACTORING_TESTS})
 
 endforeach ()
 
-set(subdirs
-        # add here the test source subdirectories
-        )
-
-foreach (subdir ${subdirs})
-    add_subdirectory(${subdir})
-endforeach ()
+#set(subdirs
+#        # add here the test source subdirectories
+#        )
+#
+#foreach (subdir ${subdirs})
+#    add_subdirectory(${subdir})
+#endforeach ()
 

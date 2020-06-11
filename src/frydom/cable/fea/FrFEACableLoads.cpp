@@ -273,10 +273,6 @@ namespace frydom {
                                          chrono::ChVectorDynamic<> *state_x,
                                          chrono::ChVectorDynamic<> *state_w) {
 
-      // This implementation of cable hydrodynamics comes from:
-      // Westin C., Modelling and Simulation of Marine Cables with Dynamic Winch and Sheave Contact, 2018,
-      // Master thesis, Carleton University, Ottawa, Ontario.
-
       auto element = dynamic_cast<internal::FrFEACableElementBase *>(loadable.get());
       auto el_section = dynamic_cast<internal::FrFEACableSection *>(element->GetSection().get());
 
