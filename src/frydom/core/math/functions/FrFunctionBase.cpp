@@ -102,13 +102,11 @@ namespace frydom {
 
   void FrFunctionBase::Initialize() {}
 
+  void FrFunctionBase::StepFinalize() {}
+
   double FrFunctionBase::operator()(double x) const {
     return Get_y(x);
   }
-
-//    std::shared_ptr<chrono::ChFunction> FrFunctionBase::GetChronoFunction() {
-//        return m_chronoFunction;
-//    }
 
   void FrFunctionBase::WriteToGnuPlotFile(double xmin, double xmax, double dx, std::string filename) const {
 

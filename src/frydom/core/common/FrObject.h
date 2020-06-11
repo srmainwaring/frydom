@@ -13,10 +13,7 @@
 #ifndef FRYDOM_FROBJECT_H
 #define FRYDOM_FROBJECT_H
 
-#include "boost/lexical_cast.hpp"
-#include "boost/uuid/uuid_io.hpp"
-#include "boost/uuid/uuid.hpp"
-#include "boost/uuid/uuid_generators.hpp"
+#include <string>
 
 namespace frydom {
 
@@ -53,7 +50,7 @@ namespace frydom {
     virtual void Initialize() = 0;
 
     /// This function is called at the end of the time step, after the last step of the integration scheme.
-    virtual void StepFinalize() {}; // FIXME : pourquoi pas virtuel pur ?
+    virtual void StepFinalize() {}; // FIXME: make it pure abstract
 
   };
 

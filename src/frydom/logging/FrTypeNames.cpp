@@ -28,16 +28,27 @@ namespace frydom {
 
   // CABLES
 
-  class FrDynamicCable;
+  class FrFEACable;
 
-  TYPE_TO_STRING(FrDynamicCable, "DynamicCable")
+  TYPE_TO_STRING(FrFEACable, "DynamicCable")
 
   class FrCatenaryLine;
 
   TYPE_TO_STRING(FrCatenaryLine, "CatenaryLine")
 
+  class FrCatenaryLineSeabed;
+
+  TYPE_TO_STRING(FrCatenaryLineSeabed, "CatenaryLineSeabed")
+
+  class FrClumpWeight;
+
+  TYPE_TO_STRING(FrClumpWeight, "ClumpWeight");
 
   // FORCES
+
+  class FrConstantForce;
+
+  TYPE_TO_STRING(FrConstantForce, "ConstantForce")
 
   class FrCatenaryForce;
 
@@ -183,6 +194,12 @@ namespace frydom {
   class FrAngularActuator;
 
   TYPE_TO_STRING(FrAngularActuator, "AngularActuator")
+
+  // LUMPED MASS CABLE
+
+  class FrLumpedMassCable;
+
+  TYPE_TO_STRING(FrLumpedMassCable, "LumpedMassCable")
 
 
 }

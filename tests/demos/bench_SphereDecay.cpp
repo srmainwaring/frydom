@@ -67,6 +67,12 @@ int main(int argc, char *argv[]) {
 
   auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
 
+  //auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame);
+  //auto matrixHst = forceHst->GetStiffnessMatrix();
+  //matrixHst.SetNonDiagonal(0., 0. ,0.);
+  //matrixHst.SetDiagonal(7.6947e5, 5.1263e6, 5.1263e6);
+  //forceHst->SetStiffnessMatrix(matrixHst);
+
   // Nonlinear hydrostatics
   //auto bodyMesh = make_hydro_mesh(body,"Sphere_10000_faces.obj",FrFrame(),FrHydroMesh::ClippingSupport::WAVESURFACE);
   //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");

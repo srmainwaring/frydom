@@ -2,9 +2,9 @@
 // Created by lletourn on 06/03/19.
 //
 
-#include "FrNodeAsset.h"
+#include <chrono/assets/ChGlyphs.h>
 
-#include "chrono/assets/ChGlyphs.h"
+#include "FrNodeAsset.h"
 
 #include "frydom/core/common/FrNode.h"
 

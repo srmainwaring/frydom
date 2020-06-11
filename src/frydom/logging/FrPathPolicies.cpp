@@ -41,18 +41,32 @@ namespace frydom {
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrRootNode, "ROOT_");
 
-  class FrDynamicCable;
+  class FrFEACable;
 
-  TYPE_TO_NORMALIZED_PATH_PREFIX(FrDynamicCable, "CABLES/CAT_CABLE_");
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrFEACable, "CABLES/DYN_CABLE_");
 
-  class FrCatenaryLine;
+  class FrClumpWeight;
 
-  TYPE_TO_NORMALIZED_PATH_PREFIX(FrCatenaryLine, "CABLES/DYN_CABLE_");
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrClumpWeight, "CABLES/CLUMP_WEIGHT_");
 
-  //
+  class FrCatenaryLineBase;
+
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrCatenaryLineBase, "CABLES/CATENARY_CABLE_");
+
+  class FrLumpedMassCable;
+
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrLumpedMassCable, "CABLES/LUMPED_MASS_CABLE_");
 
   class FrEquilibriumFrame;
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrEquilibriumFrame, "")
+
+  class FrRadiationModel;
+
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrRadiationModel, "")
+
+  class FrHydroMesh;
+
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrHydroMesh, "")
 
 }  // end namespace frydom

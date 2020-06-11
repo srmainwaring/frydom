@@ -7,6 +7,19 @@ set(REFACTORING_TESTS
         test_FrFunction
         test_FrFileSystem
         test_spdlog
+        test_MorisonExtended
+        test_MorisonExtFreeMotion
+        test_lumped_mass_cable
+        test_chrono_spring_bodies
+        test_LM_element
+        test_catenary_clump_weight
+        test_catenary_seabed
+        test_pendulum_lumped_mass
+        test_bspline
+        test_beam_IGA
+        test_fea_cable
+        test_fea_cable_discretization
+        test_fea_mooring_line_with_clump
         )
 
 foreach (test ${REFACTORING_TESTS})

@@ -13,13 +13,14 @@
 #ifndef FRYDOM_FRASSET_H
 #define FRYDOM_FRASSET_H
 
-#include "chrono/assets/ChAssetLevel.h"
+#include <chrono/assets/ChAssetLevel.h>
 
 #include "frydom/asset/FrAssetOwner.h"
 
 
 namespace frydom {
 
+  // Forward declaration
   class FrAsset;
 
   namespace internal {
@@ -30,9 +31,9 @@ namespace frydom {
 
       explicit FrAssetBase(FrAsset *asset);
 
-//            void Update(chrono::ChPhysicsItem* updater, const chrono::ChCoordsys<>& coords) override;
-
     };
+
+    std::shared_ptr<FrAssetBase> GetChronoAsset(std::shared_ptr<FrAsset> asset);
 
   }  // end namespace frydom::internal
 
@@ -54,15 +55,8 @@ namespace frydom {
     /// Update the state of the asset, at the end of a time step
     virtual void StepFinalize() = 0;
 
-   protected:
 
-    std::shared_ptr<chrono::ChAsset> GetChronoAsset();
-
-   private:
-
-    friend void FrAssetOwner::AddAsset(std::shared_ptr<FrAsset>);
-
-    friend void FrAssetOwner::RemoveAsset(std::shared_ptr<FrAsset>);
+    friend std::shared_ptr<internal::FrAssetBase> internal::GetChronoAsset(std::shared_ptr<FrAsset> asset);
 
   };
 

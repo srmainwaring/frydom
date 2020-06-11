@@ -55,16 +55,14 @@ namespace frydom {
 
       void SetTorqueInBodyNWU(const Torque &body_torque);
 
-//      friend class FrForce;
-
     };
+
+    std::shared_ptr<FrForceBase> GetChronoForce(std::shared_ptr<FrForce> force);
 
   }  // end namespace frydom::internal
 
   // Forward declaration;
   class FrOffshoreSystem;
-
-//  class FrBody;
 
   class FrNode;
 
@@ -76,21 +74,6 @@ namespace frydom {
    */
   class FrForce : public FrObject, public FrLoggable<FrBody> {
 
-   protected:
-
-    std::shared_ptr<internal::FrForceBase> m_chronoForce;     ///< Pointer to the force chrono object
-
-    bool m_isActive = true;         ///< boolean to check if the force is active
-
-    // Force Asset
-    bool m_showAsset = false;                         ///< A ForceAsset (vector) is displayed if true
-    std::shared_ptr<FrForceAsset> m_asset = nullptr;  ///< pointer to the ForceAsset object.
-
-    // Limits on forces to stabilize simulation
-    bool m_limitForce = false;              ///< Flag equals to true if the maximum force and torque limit are used, false otherwise
-    double m_forceLimit = 1e20;            ///< Taking very high values by default in case we just set limit to true without
-    double m_torqueLimit = 1e20;            ///< setting the values individually.
-
    public:
 
     /// Default constructor that builds a new force with zero force and torque
@@ -98,6 +81,8 @@ namespace frydom {
 
     /// This subroutine initializes the object FrForce.
     void Initialize() override;
+
+    void StepFinalize() override;
 
     /// Check if the force is active before updating it
     /// \param time Current time of the simulation from beginning, in seconds
@@ -127,7 +112,7 @@ namespace frydom {
 
     /// Get the asset related to the force
     /// \return force asset
-    FrForceAsset *GetAsset();
+    std::shared_ptr<FrForceAsset> GetAsset();
 
     // Force Limits
 
@@ -396,23 +381,28 @@ namespace frydom {
     void SetForceTorqueInBodyAtPointInWorld(const Force &bodyForce, const Torque &bodyTorque,
                                             const Position &worldPos, FRAME_CONVENTION fc);
 
-    /// Return the force as a chrono object.
-    /// \return Force vector as a chrono object
-    std::shared_ptr<chrono::ChForce> GetChronoForce();
-
     /// Virtual function to allow updating the child object from the solver
     /// \param time Current time of the simulation from beginning, in seconds
     virtual void Compute(double time) = 0;
 
+
    protected:
 
-//      std::string BuildPath(const std::string &rootPath) override;
+    std::shared_ptr<internal::FrForceBase> m_chronoForce;     ///< Pointer to the force chrono object
 
-//    friend class FrBody;
-    friend void FrBody::AddExternalForce(std::shared_ptr<frydom::FrForce>);
+    bool m_isActive = true;         ///< boolean to check if the force is active
 
-    friend void FrBody::RemoveExternalForce(std::shared_ptr<frydom::FrForce>);
+    // Force Asset
+    bool m_showAsset = false;                         ///< A ForceAsset (vector) is displayed if true
+    std::shared_ptr<FrForceAsset> m_asset = nullptr;  ///< pointer to the ForceAsset object.
 
+    // Limits on forces to stabilize simulation
+    bool m_limitForce = false;              ///< Flag equals to true if the maximum force and torque limit are used, false otherwise
+    double m_forceLimit = 1e20;            ///< Taking very high values by default in case we just set limit to true without
+    double m_torqueLimit = 1e20;            ///< setting the values individually.
+
+
+    friend std::shared_ptr<internal::FrForceBase> internal::GetChronoForce(std::shared_ptr<FrForce> force);
 
   };
 

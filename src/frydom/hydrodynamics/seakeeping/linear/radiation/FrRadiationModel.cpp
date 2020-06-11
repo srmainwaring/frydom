@@ -71,7 +71,7 @@ namespace frydom {
   }
 
   void FrRadiationModel::Initialize() {
-    FrPrePhysicsItem::Initialize();
+    FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
   }
 

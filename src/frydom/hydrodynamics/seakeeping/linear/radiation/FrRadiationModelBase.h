@@ -34,7 +34,6 @@ namespace frydom {
   namespace internal {
 
     // Forward declaration
-    class FrVariablesAddedMassBase;
 
     // hash defition for the map with pair as a key
     struct pair_hash {
@@ -87,7 +86,7 @@ namespace frydom {
       void IntFromDescriptor(const unsigned int off_v, chrono::ChStateDelta &v,
                              const unsigned int off_L, chrono::ChVectorDynamic<> &L) override;
 
-      int GetBodyOffset(FrBody *body) const;
+      unsigned int GetBodyOffset(FrBody *body) const;
 
       void InjectVariablesToBody();
 

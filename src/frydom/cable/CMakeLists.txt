@@ -1,12 +1,28 @@
 message(STATUS "    ...Cable")
 
 set(SRC_FILES
-        FrCable.cpp
-        FrCatenaryForce.cpp
-        FrCatenaryLine.cpp
-        FrMooringBuoy.cpp
-        FrDynamicCable.cpp
-        )
+        common/FrCableProperties.cpp
+        common/FrCableBase.cpp
+        common/FrCableShapeInitializer.cpp
+
+        catenary/FrCatenaryLineBase.cpp
+        catenary/FrCatenaryLine.cpp
+        catenary/FrCatenaryLineSeabed.cpp
+
+        lumped/FrLumpedMassCable.cpp
+
+        mooring_components/FrAnchor.cpp
+        mooring_components/FrMooringBuoy.cpp
+        mooring_components/FrClumpWeight.cpp
+
+        fea/FrFEACable.cpp
+        fea/FrFEANode.cpp
+        fea/FrFEACableElement.cpp
+        fea/FrFEACableLoads.cpp
+        fea/FrFEALink.cpp
+        fea/FrFEACableSection.cpp
+
+)
 
 set(FRYDOM_CABLE_SOURCES "")
 foreach (file ${SRC_FILES})

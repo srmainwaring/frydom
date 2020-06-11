@@ -69,8 +69,8 @@ int main(int argc, char *argv[]) {
                                          rayleighDamping, nbElements);
 
   // To test with constrained hinges, uncomment the following lines.
-//  DynamicCable->SetStartingHingeType(FrDynamicCable::CONSTRAINED);
-//  DynamicCable->SetEndingHingeType(FrDynamicCable::CONSTRAINED);
+//  DynamicCable->SetStartingHingeType(FrFEACable::CONSTRAINED);
+//  DynamicCable->SetEndingHingeType(FrFEACable::CONSTRAINED);
 //  Node2->RotateAroundZInBody(MU_PI, NWU); // need to set the frame node orientation correctly.
 
   // Catenary line for comparison purpose

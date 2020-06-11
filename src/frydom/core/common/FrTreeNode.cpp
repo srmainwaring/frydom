@@ -28,7 +28,16 @@ namespace frydom {
     if (auto system = dynamic_cast<FrOffshoreSystem *>(this)) {
       return system;
     } else {
-      return GetParent()->GetSystem();
+      return m_parent->GetSystem();
+    }
+  }
+
+  template<class ParentType>
+  const FrOffshoreSystem *FrTreeNode<ParentType>::GetSystem() const {
+    if (auto system = dynamic_cast<const FrOffshoreSystem *>(this)) {
+      return system;
+    } else {
+      return m_parent->GetSystem();
     }
   }
 

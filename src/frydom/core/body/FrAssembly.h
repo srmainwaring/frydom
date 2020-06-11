@@ -5,6 +5,9 @@
 #ifndef FRYDOM_FRASSEMBLY_H
 #define FRYDOM_FRASSEMBLY_H
 
+#include <memory>
+#include <vector>
+
 #include "frydom/core/common/FrObject.h"
 
 namespace frydom {
@@ -34,6 +37,8 @@ namespace frydom {
 
     /// Initialize the assembly
     void Initialize() override {};
+
+    void StepFinalize() override {};
 
     /// Clear the body list
     void Clear() {

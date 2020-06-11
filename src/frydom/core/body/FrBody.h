@@ -14,25 +14,20 @@
 #define FRYDOM_FRBODY_H
 
 #include "chrono/physics/ChBodyAuxRef.h"
-#include "chrono/solver/ChVariables.h"
 
 #include "frydom/asset/FrAssetOwner.h"
-#include "frydom/cable/FrDynamicCable.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/body/FrInertiaTensor.h"
-#include "frydom/core/common/FrNode.h"
-#include "frydom/core/common/FrObject.h"
 #include "frydom/core/link/links_lib/FrDOFMaskLink.h"
-#include "frydom/core/misc/FrColors.h"
-#include "frydom/mesh/FrMesh.h"
-#include "frydom/logging/FrLoggable.h"
 
-// TODO : voir si il n'y a pas moyen de passer ces includes
-#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBase.h"
-#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrVariablesBEMBodyBase.h"
 
 #define DEFAULT_MAX_SPEED (float)10.
 #define DEFAULT_MAX_ROTATION_SPEED (float)(180.*DEG2RAD)
+
+// Forward declaration Chrono
+namespace chrono {
+  class ChVariables;
+}
 
 namespace frydom {
 
@@ -44,10 +39,10 @@ namespace frydom {
 
   class FrForce;
 
-
   namespace internal {
 
     // Forward declarations
+    class FrVariablesBodyBase;
 
     /// Base class inheriting from chrono ChBodyAuxRef
     /// This class must not be used by external FRyDoM users. It is used in composition rule along with the FrBody_ FRyDoM class
@@ -123,6 +118,11 @@ namespace frydom {
 
     };
 
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(std::shared_ptr<FrBody> body);
+
+    std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(FrBody *body);
+
+
   }  // end namespace internal
 
 
@@ -140,6 +140,8 @@ namespace frydom {
   class FrTriangleMeshConnected;
 
   class FrCollisionModel;
+
+  class FrDOFMask;
 
   /// Main class for a FRyDoM rigid body
   /**
@@ -170,14 +172,18 @@ namespace frydom {
     /// Default constructor
     FrBody(const std::string &name, FrOffshoreSystem *system);
 
-    /// Get the FrOffshoreSystem where the body has been registered
-    inline FrOffshoreSystem *GetSystem() const {
-      return GetParent();
-    }
+//    /// Get the FrOffshoreSystem where the body has been registered
+//    inline FrOffshoreSystem *GetSystem() const {
+//      return GetParent();
+//    }
+    ~FrBody() = default;
 
     /// Make the body fixed
     /// \param state true if body is fixed, false otherwise
     void SetFixedInWorld(bool state);
+
+    /// Returns true if the body is fixed in world
+    bool IsFixedInWorld() const;
 
     /// Enable/disable option for setting bodies to "sleep".
     /// If use sleeping = true, bodies which stay in same place
@@ -310,6 +316,9 @@ namespace frydom {
     /// Remove all forces from the body
     void RemoveAllForces();
 
+    /// Remove a node from the body
+    void RemoveNode(std::shared_ptr<FrNode> node);
+
     /// Remove all forces from the body
     void RemoveAllNodes();
 
@@ -363,6 +372,18 @@ namespace frydom {
     /// \param worldPos position in world frame of the origin of the body reference frame
     /// \param fc frame convention (NED/NWU)
     void SetPosition(const Position &worldPos, FRAME_CONVENTION fc);
+
+    /// Set the position in world frame of the origin of the body reference frame relatively to a reference point and
+    /// given a distance and an angle in the horizontal plane
+    /// Note that it moves the entire body along with its nodes and other attached elements to the body (nodes...)
+    /// which are updated
+    /// \param worldPos position in world frame of the origin of the body reference frame
+    /// \param fc frame convention (NED/NWU)
+    void SetPosition(const Position &worlRefPosition,
+                     const double &heading,
+                     const double &distance,
+                     ANGLE_UNIT unit,
+                     FRAME_CONVENTION fc);
 
     /// Set the position in world frame of the origin of the body reference frame, at a geographic position
     /// Note that it moves the entire body along with its nodes and other attached elements to the body (nodes...)
@@ -941,16 +962,6 @@ namespace frydom {
     /// \return cartPos cartesian position
     Position GeoToCart(const FrGeographicCoord &geoCoord, FRAME_CONVENTION fc);
 
-   protected:
-    /// Get the shared pointer to the chronoBody attribute
-    /// \return shared pointer to the chronoBody attribute
-    std::shared_ptr<internal::FrBodyBase> GetChronoBody();
-
-   protected:
-
-    /// Get the chronoBody attribute pointer
-    /// \return Pointer to the chronoBody attribute
-    internal::FrBodyBase *GetChronoItem_ptr() const override;
 
     void InitializeLockedDOF();
 
@@ -997,34 +1008,9 @@ namespace frydom {
     // friend declarations
     // ===================================================================================================
 
-    friend void makeItBox(std::shared_ptr<FrBody>, double, double, double, double);
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(std::shared_ptr<FrBody> body);
 
-    friend void makeItCylinder(std::shared_ptr<FrBody>, double, double, double);
-
-    friend void makeItSphere(std::shared_ptr<FrBody>, double, double);
-
-
-    friend FrNode::FrNode(const std::string &name, FrBody *);
-
-    friend FrLinkBase::FrLinkBase(const std::shared_ptr<FrNode> &,
-                                  const std::shared_ptr<FrNode> &);
-
-
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
-
-    friend void internal::FrDynamicCableBase::InitializeLinks();
-
-
-    // For radiation model purpose
-    friend int internal::FrRadiationModelBase::GetBodyOffset(FrBody *body) const;
-
-    friend void internal::FrRadiationModelBase::InjectVariablesToBody();
-
-    friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesFb(FrBody *body) const;
-
-    friend chrono::ChMatrix<double> internal::FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *) const;
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(FrBody *body);
 
   };
 

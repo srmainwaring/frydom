@@ -10,6 +10,7 @@
 
 #include "frydom/core/math/functions/FrFunctionsInc.h"
 #include "frydom/core/common/FrNode.h"
+#include "frydom/core/body/FrBody.h"
 #include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrTypeNames.h"
 
@@ -44,14 +45,6 @@ namespace frydom {
 
   }
 
-  std::shared_ptr<chrono::ChLink> FrLinearActuator::GetChronoLink() {
-    return m_chronoActuator;
-  }
-
-  chrono::ChLinkMotorLinear *FrLinearActuator::GetChronoItem_ptr() const {
-    return m_chronoActuator.get();
-  }
-
   void FrLinearActuator::Initialize() {
 
     // IMPORTANT : in FRyDoM the first node is the master and the second one the slave, as opposed to Chrono !!!
@@ -61,10 +54,20 @@ namespace frydom {
     auto frame2 = GetNode2()->GetFrameWRT_COG_InBody();
     frame2.RotY_RADIANS(MU_PI_2, NWU, true);
 
-    m_chronoActuator->Initialize(GetChronoBody2(), GetChronoBody1(), true,
+    m_chronoActuator->Initialize(internal::GetChronoBody2(this),
+                                 internal::GetChronoBody1(this),
+                                 true,
                                  internal::FrFrame2ChFrame(frame2), internal::FrFrame2ChFrame(frame1));
 
 //      GetSystem()->GetLogManager()->Add(this);
+  }
+
+  bool FrLinearActuator::IsDisabled() const {
+    return m_chronoActuator->IsDisabled(); // TODO : voir si on teste aussi m_actuatedLink
+  }
+
+  void FrLinearActuator::SetDisabled(bool disabled) {
+    m_chronoActuator->SetDisabled(disabled);
   }
 
   double FrLinearActuator::GetMotorPower() const {
@@ -96,5 +99,16 @@ namespace frydom {
 
   }
 
+  namespace internal {
+
+    std::shared_ptr<chrono::ChLinkMotorLinear> GetChronoActuator(std::shared_ptr<FrLinearActuator> actuator) {
+      return actuator->m_chronoActuator;
+    }
+
+    std::shared_ptr<chrono::ChLinkMotorLinear> GetChronoActuator(FrLinearActuator *actuator) {
+      return actuator->m_chronoActuator;
+    }
+
+  }  // end namespace frydom::internal
 
 } // end namespace frydom

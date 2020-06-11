@@ -23,6 +23,8 @@ TEST(FrKinematicStretching, FrKinematicStretching) {
   double depth = 100;
 
   FrOffshoreSystem system("test_FrKinematicStretching");
+
+  system.GetEnvironment()->GetOcean()->GetSeabed()->SetBathymetry(-depth, NWU);
   auto wavefield = system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(1., 10., 0., RAD, NWU,
                                                                                                   GOTO);
 
@@ -92,8 +94,9 @@ TEST(FrKinematicStretching, FrKinematicStretching) {
               DeltaStretching.EvalDZ(x, y, z, konde, depth), 1E-8);
 
   DeltaStretching.SetParam(depth, 0);
-  EXPECT_NEAR(wheelStretch.Eval(x, y, z, konde, depth), DeltaStretching.Eval(x, y, z, konde, depth), 1E-8);
-  EXPECT_NEAR(wheelStretch.EvalDZ(x, y, z, konde, depth), DeltaStretching.EvalDZ(x, y, z, konde, depth), 1E-8);
+  double z1 = 0.15;
+  EXPECT_NEAR(wheelStretch.Eval(x, y, z1, konde, depth), DeltaStretching.Eval(x, y, z1, konde, depth), 1E-8);
+  EXPECT_NEAR(wheelStretch.EvalDZ(x, y, z1, konde, depth), DeltaStretching.EvalDZ(x, y, z1, konde, depth), 1E-8);
 
   DeltaStretching.SetParam(depth, 1);
   EXPECT_NEAR(extStretch.Eval(z, konde, depth), DeltaStretching.Eval(x, y, z, konde, depth), 1E-8);

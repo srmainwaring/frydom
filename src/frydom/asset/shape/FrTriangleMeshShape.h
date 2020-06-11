@@ -27,6 +27,19 @@ namespace chrono {
 
 
 namespace frydom {
+
+  // forward declaration
+  class FrTriangleMeshShape;
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrTriangleMeshShape> mesh);
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrTriangleMeshShape *mesh);
+
+  } // end namespace frydom::internal
+
+
   class FrTriangleMeshConnected;
 
   class FrTriangleMeshShape {
@@ -47,13 +60,12 @@ namespace frydom {
 
     std::vector<FaceNormalIndex> faceNormalIndices() const;
 
-   protected:
-    std::shared_ptr<chrono::ChAsset> GetChronoAsset();
-
    private:
-    friend void FrAssetOwner::AddMeshAsset(std::shared_ptr<frydom::FrTriangleMeshConnected>);
-
     std::shared_ptr<chrono::ChTriangleMeshShape> m_mesh;
+
+    friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(std::shared_ptr<FrTriangleMeshShape>);
+
+    friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(FrTriangleMeshShape *);
   };
 
 }  // end namespace frydom

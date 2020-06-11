@@ -5,50 +5,62 @@
 #ifndef FRYDOM_FRFEAMESH_H
 #define FRYDOM_FRFEAMESH_H
 
+
+
 #include "frydom/asset/FrAssetOwner.h"
 #include "frydom/core/common/FrObject.h"
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/common/FrTreeNode.h"
 
-namespace chrono {
-  namespace fea {
-    class ChMesh;
-  }
-}
 
 namespace frydom {
 
-  // Forward declarations
-  class FrOffshoreSystem;
+  class FrFEAMesh;
 
-  class FrFEAMesh : public FrObject {
+  namespace internal {
 
-   protected:
+    class FrFEAMeshBase : public chrono::fea::ChMesh {
 
-    virtual std::shared_ptr<chrono::fea::ChMesh> GetChronoMesh() = 0;
+     public:
+      explicit FrFEAMeshBase(FrFEAMesh *frydom_mesh);
+
+      virtual void Initialize() = 0;
+
+     protected:
+      FrFEAMesh *m_frydom_mesh;
+
+    };
+
+    std::shared_ptr<FrFEAMeshBase> GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh);
+
+  }  // end namespace frydom::internal
+
+
+  class FrFEAMesh : public FrObject, public FrLoggable<FrOffshoreSystem> {
 
    public:
 
-//        FrOffshoreSystem* GetSystem() { return m_system; };
+    FrFEAMesh(const std::string &name,
+              const std::string &type_name,
+              FrOffshoreSystem *system,
+              std::shared_ptr<internal::FrFEAMeshBase> chrono_mesh);
 
-    FrFEAMesh() = default;
-
-    virtual void Update(double time) = 0;
-
-//        virtual void SetupInitial();
-
-    void Initialize() override {}
 
     virtual double GetStaticResidual() = 0;
 
     virtual void Relax() = 0;
 
 
-    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase> item);
+   protected:
+    std::shared_ptr<internal::FrFEAMeshBase> GetFEAMeshBase();
 
-    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase> item);
+    std::shared_ptr<internal::FrFEAMeshBase> m_chrono_mesh;
+
+    friend std::shared_ptr<internal::FrFEAMeshBase> internal::GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh);
 
   };
 
 } //end namespace frydom
+
+
 #endif //FRYDOM_FRFEAMESH_H

@@ -76,7 +76,6 @@ namespace frydom {
     m_chronoQuaternion = quaternion;
   }
 
-
   void FrUnitQuaternion::SetNullRotation() {
     m_chronoQuaternion.SetUnit();
   }
@@ -322,6 +321,47 @@ namespace frydom {
         xaxis.Getuz(), yaxis.Getuz(), zaxis.Getuz();
 
     m_frQuaternion.Set(matrix, fc);
+  }
+
+  void FrRotation::SetXaxis(const Direction &xdir, const Direction &singular_dir, FRAME_CONVENTION fc) {
+
+    Direction xdir_nwu = (IsNWU(fc)) ? xdir : internal::SwapFrameConvention(xdir);
+
+    Direction xaxis, yaxis, zaxis;
+
+    // set Vx.
+    if (mathutils::IsClose(xdir_nwu.norm(), 0.)) {
+      xaxis = {1., 0., 0.};
+    } else {
+      xaxis = xdir_nwu.normalized();
+    }
+
+    zaxis = xaxis.cross(singular_dir);
+    double zlen = zaxis.norm();
+
+    // if near singularity, change the singularity reference vector.
+    if (zlen < 0.0001) {
+      Direction singular_dir_tmp;
+
+      if (fabs(singular_dir.Getux()) < 0.9)
+        singular_dir_tmp = {1., 0., 0.};
+      else if (fabs(singular_dir.Getuy()) < 0.9)
+        singular_dir_tmp = {0., 1., 0.};
+      else if (fabs(singular_dir.Getuz()) < 0.9)
+        singular_dir_tmp = {0., 0., 1.};
+
+      zaxis = xaxis.cross(singular_dir);
+      zlen = zaxis.norm();  // now should be nonzero length.
+    }
+
+    // normalize Vz.
+    zaxis *= 1 / zlen;
+
+    // compute Vy.
+    yaxis = zaxis.cross(xaxis);
+
+    Set(xaxis, yaxis, zaxis, fc);
+
   }
 
   void

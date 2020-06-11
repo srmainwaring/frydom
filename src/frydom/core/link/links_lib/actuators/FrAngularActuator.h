@@ -8,9 +8,24 @@
 
 #include "FrActuator.h"
 
-#include "chrono/physics/ChLinkMotorRotation.h"
+//#include "chrono/physics/ChLinkMotorRotation.h"
+
+namespace chrono {
+  class ChLinkMotorRotation;
+}
 
 namespace frydom {
+
+  // Forward declaration
+  class FrAngularActuator;
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChLinkMotorRotation> GetChronoActuator(std::shared_ptr<FrAngularActuator> actuator);
+
+    std::shared_ptr<chrono::ChLinkMotorRotation> GetChronoActuator(FrAngularActuator *actuator);
+
+  }  // end namespace frydom::internal
 
   // Forward declaration
   class FrLink;
@@ -30,6 +45,12 @@ namespace frydom {
 
     double GetMotorPower() const override;
 
+    /// Tells if all constraints of this link are currently turned on or off by the user.
+    bool IsDisabled() const override;
+
+    /// User can use this to enable/disable all the constraint of the link as desired.
+    void SetDisabled(bool disabled) override;
+
     void Initialize() override;
 
     void StepFinalize() override {};
@@ -38,10 +59,9 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
-    std::shared_ptr<chrono::ChLink> GetChronoLink() override;
+    friend std::shared_ptr<chrono::ChLinkMotorRotation> internal::GetChronoActuator(std::shared_ptr<FrAngularActuator>);
 
-    chrono::ChLinkMotorRotation *GetChronoItem_ptr() const override;
-
+    friend std::shared_ptr<chrono::ChLinkMotorRotation> internal::GetChronoActuator(FrAngularActuator *actuator);
 
   };
 

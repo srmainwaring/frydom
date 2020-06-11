@@ -29,6 +29,10 @@ namespace frydom {
 
     FrMarker::FrMarker(frydom::FrNode *node) : m_frydomNode(node) {}
 
+    std::shared_ptr<FrMarker> GetChronoMarker(std::shared_ptr<FrNode> node) {
+      return node->m_chronoMarker;
+    }
+
   }  // end namespace frydom::internal
 
 //  const std::string FrNode::s_type = NODE_TYPE;
@@ -39,16 +43,17 @@ namespace frydom {
 
     m_chronoMarker = std::make_shared<internal::FrMarker>(this);
     //Chrono body can be retrieved because this constructor is a friend of FrBody
-    body->GetChronoBody()->AddMarker(m_chronoMarker);
+    internal::GetChronoBody(body)->AddMarker(m_chronoMarker);
 
-    event_logger::info(GetTypeName(), GetName(), "Node created");
+    event_logger::info(GetTypeName(), GetName(),
+                       "Node created, attached to body {}", body->GetName());
 
   }
 
   void FrNode::Set(const Position &position, const Direction &e1, const Direction &e2, const Direction &e3,
                    FRAME_CONVENTION fc) {
 
-    mathutils::Matrix33<double> matrix;                 // FIXME : passer un FrRotation plutôt que matrix33
+    mathutils::Matrix33<double> matrix;   // FIXME : passer un FrRotation plutôt que matrix33
     matrix << e1.Getux(), e2.Getux(), e3.Getux(),
         e1.Getuy(), e2.Getuy(), e3.Getuy(),
         e1.Getuz(), e2.Getuz(), e3.Getuz();
@@ -91,8 +96,8 @@ namespace frydom {
   FrFrame FrNode::GetFrameInBody() const {
     auto frame = GetFrameWRT_COG_InBody();
 //        frame.SetPosition(frame.GetPosition(NWU) + m_body->GetCOG(NWU), NWU);
-    frame.TranslateInParent(GetBody()->GetCOG(NWU),
-                            NWU);  // TODO : comparer cette implementation a la ligne precendente...
+    frame.TranslateInParent(GetBody()->GetCOG(NWU), NWU);
+    // TODO : comparer cette implementation a la ligne precendente...
     return frame;
   }
 
@@ -127,6 +132,40 @@ namespace frydom {
     auto currentFrameInWorld = GetFrameInWorld();
     currentFrameInWorld.SetPosition(worldPosition, fc);
     SetFrameInWorld(currentFrameInWorld);
+  }
+
+  void FrNode::SetPositionInWorld(const Position &refPos,
+                                  const double &heading,
+                                  const double &radial_distance,
+                                  const double &vertical_distance,
+                                  ANGLE_UNIT angle_unit,
+                                  FRAME_CONVENTION fc) {
+    double alpha = heading;
+    if (angle_unit == DEG) alpha *= DEG2RAD;
+
+    Position position = {
+        refPos.x() + radial_distance * std::cos(alpha),
+        refPos.y() + radial_distance * std::sin(alpha),
+        vertical_distance
+    };
+    SetPositionInWorld(position, fc);
+  }
+
+  void FrNode::SetPositionInBody(const Position &refPos,
+                                 const double &heading,
+                                 const double &radial_distance,
+                                 const double &vertical_distance,
+                                 ANGLE_UNIT angle_unit,
+                                 FRAME_CONVENTION fc) {
+    double alpha = heading;
+    if (angle_unit == DEG) alpha *= DEG2RAD;
+
+    Position position = {
+        refPos.x() + radial_distance * std::cos(alpha),
+        refPos.y() + radial_distance * std::sin(alpha),
+        vertical_distance
+    };
+    SetPositionInBody(position, fc);
   }
 
   void FrNode::TranslateInBody(const Translation &translationInBody, FRAME_CONVENTION fc) {
@@ -224,7 +263,6 @@ namespace frydom {
   Position FrNode::GetNodePositionInBody(FRAME_CONVENTION fc) const {
     return GetFrameInBody().GetPosition(fc);
   }
-
 
   Position FrNode::GetPositionInWorld(FRAME_CONVENTION fc) const {
     return GetFrameInWorld().GetPosition(fc);

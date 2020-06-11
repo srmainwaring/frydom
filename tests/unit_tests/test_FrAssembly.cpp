@@ -32,18 +32,12 @@ void makeBox(const ::std::shared_ptr<FrBody> &body, double xSize, double ySize, 
 
   FrInertiaTensor inertiaAtCOG(mass, Ixx, Iyy, Izz, 0., 0., 0., COG, NWU);
 
-//    FrFrame corner(Position(-0.5*xSize, -0.5*ySize, -0.5*zSize), FrRotation(), NWU);
-//
-//    inertiaAtCOG.GetInertiaCoeffsAtFrame(Ixx, Iyy, Izz, Ixy, Ixz, Iyz, corner, NWU);
-//
-//    FrInertiaTensor inertiaAtCorner (mass, Ixx, Iyy, Izz, Ixy, Ixz, Iyz, -corner.GetPosition(NWU), NWU);
-
   // Building the chrono body
   body->SetInertiaTensor(inertiaAtCOG);
 
 
   // Asset
-  body->AddBoxShape(xSize, ySize, zSize);
+  body->AddBoxShape(xSize, ySize, zSize, {0., 0., 0.}, NWU);
 
 
   for (const auto &box:body->GetBoxShapes()) {

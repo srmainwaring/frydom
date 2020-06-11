@@ -33,6 +33,22 @@ namespace chrono {
 
 namespace frydom {
 
+  // Forward declaration
+  class FrBodyBase;
+
+  namespace internal {
+
+    std::shared_ptr<FrBodyBase> GetChronoBody1(std::shared_ptr<FrLinkBase> link);
+
+    std::shared_ptr<FrBodyBase> GetChronoBody1(FrLinkBase *link);
+
+    std::shared_ptr<FrBodyBase> GetChronoBody2(std::shared_ptr<FrLinkBase> link);
+
+    std::shared_ptr<FrBodyBase> GetChronoBody2(FrLinkBase *link);
+
+  }  // end namespace frydom::internal
+
+
   enum ACTUATOR_CONTROL {
     POSITION,
     VELOCITY,
@@ -50,7 +66,7 @@ namespace frydom {
    * \brief Pure abstract class for every FRyDoM constraints (FrLink, FrConstraint_, FrActuator_).
    */
   // FIXME :: pass the FrLoggable from FrLinkBase to FrLink ( don't forget constraints and actuators)
-  class FrLinkBase : public FrObject, public FrAssetOwner {
+  class FrLinkBase : public FrObject {
 
    protected:
 
@@ -68,12 +84,6 @@ namespace frydom {
     /// User can use this to enable/disable all the constraint of the link as desired.
     virtual void SetDisabled(bool disabled) = 0;
 
-//        /// Tells if the link is broken, for excess of pulling/pushing.
-//        virtual bool IsBroken() const = 0;
-//
-//        /// Set the 'broken' status vof this link.
-//        virtual void SetBroken(bool broken) = 0;
-
     /// Tells if the link is currently active, in general,
     /// that is tells if it must be included into the system solver or not.
     /// This method cumulates the effect of various flags (so a link may
@@ -82,7 +92,6 @@ namespace frydom {
 
     /// Return true if the link is included in the static analysis
     bool IncludedInStaticAnalysis() const { return true; }
-
 
     /// Returns the first node of the link
     std::shared_ptr<FrNode> GetNode1();
@@ -96,24 +105,20 @@ namespace frydom {
 
     /// Returns the first body of the link
     FrBody *GetBody1();
-//        const FrBody* GetBody1() const;
 
     /// Returns the second body of the link
     FrBody *GetBody2();
-//        const  FrBody* GetBody2() const;
 
-   protected:  // TODO : voir si on rend cela private
-
-
-    virtual std::shared_ptr<chrono::ChLink> GetChronoLink() = 0;
-
-    std::shared_ptr<chrono::ChBody> GetChronoBody1();
-
-    std::shared_ptr<chrono::ChBody> GetChronoBody2();
+    void StepFinalize() override {}
 
 
-    std::shared_ptr<chrono::ChBody> c_chrono_body_1;
-    std::shared_ptr<chrono::ChBody> c_chrono_body_2;
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody1(std::shared_ptr<FrLinkBase>);
+
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody1(FrLinkBase *);
+
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody2(std::shared_ptr<FrLinkBase>);
+
+    friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody2(FrLinkBase *);
 
   };
 

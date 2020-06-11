@@ -15,7 +15,7 @@ using namespace frydom;
 
 
 bool ValidationResults(const std::shared_ptr<FrCatenaryLine> CatenaryLine,
-                       const std::shared_ptr<FrDynamicCable> DynamicCable,
+                       const std::shared_ptr<FrFEACable> DynamicCable,
                        double unstrainedLength, unsigned int nbElements, double TargetLenghtRelError,
                        double TargetTensionRelError) {
 

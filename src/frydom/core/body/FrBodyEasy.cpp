@@ -34,7 +34,7 @@ namespace frydom {
 
 
     // Collision
-    auto collisionModel = body->GetChronoBody()->GetCollisionModel();
+    auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
     collisionModel->ClearModel();
     collisionModel->AddBox(xSize * 0.5, ySize * 0.5, zSize * 0.5,
                            chrono::ChVector<double>()); // TODO: permettre de specifier une position relative (et orientation ?)
@@ -43,7 +43,7 @@ namespace frydom {
     body->SetSmoothContact();
 
     // Asset
-    body->AddBoxShape(xSize, ySize, zSize);
+    body->AddBoxShape(xSize, ySize, zSize, {0., 0., 0.}, NWU);
 
   }
 
@@ -60,7 +60,7 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, Ixx, Iyy, Izz, 0., 0., 0., Position(), NWU));
 
     // Collision
-    auto collisionModel = body->m_chronoBody->GetCollisionModel();
+    auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
     collisionModel->ClearModel();
     collisionModel->AddCylinder(radius, radius, height * 0.5,
                                 chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
@@ -69,7 +69,7 @@ namespace frydom {
     body->SetSmoothContact();  // Smooth contact by default
 
     // Asset
-    body->AddCylinderShape(radius, height);
+    body->AddCylinderShape(radius, height, {0., 0., 0.}, NWU);
 
   }
 
@@ -82,16 +82,16 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, inertia, inertia, inertia, 0., 0., 0., Position(), NWU));
 
     // Collision
-    auto collisionModel = body->m_chronoBody->GetCollisionModel();
+    auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
     collisionModel->ClearModel();
-    collisionModel->AddSphere(radius,
-                              chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
+    // TODO: permettre de specifier les coords relatives dans le modele !!
+    collisionModel->AddSphere(radius, chrono::ChVector<double>());
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ?
     body->SetSmoothContact();  // Smooth contact by default
 
     // Asset
-    body->AddSphereShape(radius);
+    body->AddSphereShape(radius, {0., 0., 0.}, NWU);
 
   }
 

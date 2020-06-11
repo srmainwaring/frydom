@@ -14,7 +14,7 @@
 
 #include "frydom/core/common/FrUnits.h"
 #include "frydom/core/body/FrBody.h"
-#include "frydom/IO/FrLoader.h"
+#include "frydom/io/FrLoader.h"
 #include "frydom/environment/FrEnvironmentInc.h"
 #include "frydom/logging/FrTypeNames.h"
 

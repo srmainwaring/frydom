@@ -23,13 +23,26 @@ namespace chrono {
 
 }
 
+
 namespace frydom {
 
+  // forward declaration
+  class FrBoxShape;
+
+  namespace internal {
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(std::shared_ptr<FrBoxShape> box);
+
+    std::shared_ptr<chrono::ChAsset> GetChronoAsset(FrBoxShape *box);
+
+  } // end namespace frydom::internal
+
+  // forward declaration
   class Direction;
 
   class FrBoxShape {
    public:
-    FrBoxShape(double xSize, double ySize, double zSize);
+    FrBoxShape(double xSize, double ySize, double zSize, const Position& relative_position, FRAME_CONVENTION fc);
 
     double xSize() const;
 
@@ -39,15 +52,16 @@ namespace frydom {
 
     void Translate(const Direction &direction) const;
 
-   protected:
-    std::shared_ptr<chrono::ChAsset> GetChronoAsset();
-
    private:
-
-    friend void FrAssetOwner::AddBoxShape(double, double, double);
-
     std::shared_ptr<chrono::ChBoxShape> m_box;
+
+    friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(std::shared_ptr<FrBoxShape>);
+
+    friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(FrBoxShape *);
+
   };
+
+
 
 }  // end namespace frydom
 

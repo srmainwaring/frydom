@@ -19,14 +19,6 @@ namespace frydom {
       ),
       m_actuatedLink(actuatedLink) {}
 
-  bool FrActuator::IsDisabled() const {
-    return GetChronoItem_ptr()->IsDisabled(); // TODO : voir si on teste aussi m_actuatedLink
-  }
-
-  void FrActuator::SetDisabled(bool disabled) {
-    GetChronoItem_ptr()->SetDisabled(disabled);
-  }
-
   bool FrActuator::IsActive() const {
     return true;
   }

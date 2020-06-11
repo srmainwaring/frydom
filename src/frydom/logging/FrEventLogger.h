@@ -21,7 +21,6 @@ namespace frydom {
 
   namespace event_logger {
 
-
     enum LOG_LEVEL {
       TRACE,
       DEBUG,
@@ -30,7 +29,6 @@ namespace frydom {
       ERROR,
       CRITICAL
     };
-
 
     using string_view = spdlog::string_view_t;
     using memory_buffer = spdlog::memory_buf_t;
@@ -143,6 +141,10 @@ namespace frydom {
     void init(FrOffshoreSystem *system, const std::string &name, const std::string &event_log_file);
 
     void flush();
+
+    void switch_to_simulation_formatter(FrOffshoreSystem *system);
+
+    void back_to_default_formatter();
 
     void reset_to_default_logger();
 

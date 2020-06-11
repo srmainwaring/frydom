@@ -103,6 +103,8 @@ namespace frydom {
 
     void Initialize() override;
 
+    void StepFinalize() override;
+
     double operator()(double x) const;
 
     // TODO : ajouter operateurs pour ajout de scalaire...

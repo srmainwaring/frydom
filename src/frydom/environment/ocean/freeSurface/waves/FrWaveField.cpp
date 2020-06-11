@@ -23,35 +23,13 @@
 namespace frydom {
 
   FrWaveField::FrWaveField(FrFreeSurface *freeSurface) : m_freeSurface(freeSurface) {
-    m_infinite_depth = freeSurface->GetOcean()->GetSeabed()->GetInfiniteDepth();
+    m_infinite_depth = freeSurface->GetOcean()->GetSeabed()->IsInfiniteDepth();
   }
 
   FrWaveField::WAVE_MODEL FrWaveField::GetWaveModel() const { return m_waveModel; }
 
-  Velocity FrWaveField::GetVelocity(double x, double y, double z, bool cutoff, FRAME_CONVENTION fc) const {
-
-    if (cutoff) {
-      auto wave_elevation = GetElevation(x, y, fc);
-      if (wave_elevation < z) {
-        return {0., 0., 0.};
-      }
-    }
-    return GetVelocity(x, y, z, fc);
-  }
-
   Velocity FrWaveField::GetVelocity(const Position &worldPos, FRAME_CONVENTION fc) const {
     return GetVelocity(worldPos.GetX(), worldPos.GetY(), worldPos.GetZ(), fc);
-  }
-
-  Acceleration FrWaveField::GetAcceleration(double x, double y, double z, bool cutoff, FRAME_CONVENTION fc) const {
-
-    if (cutoff) {
-      auto wave_elevation = GetElevation(x, y, fc);
-      if (wave_elevation < z) {
-        return {0., 0., 0.};
-      }
-    }
-    return GetAcceleration(x, y, z, fc);
   }
 
   Acceleration FrWaveField::GetAcceleration(const Position &worldPos, FRAME_CONVENTION fc) const {
@@ -59,7 +37,7 @@ namespace frydom {
   }
 
   void FrWaveField::Initialize() {
-    m_infinite_depth = m_freeSurface->GetOcean()->GetSeabed()->GetInfiniteDepth();
+    m_infinite_depth = m_freeSurface->GetOcean()->GetSeabed()->IsInfiniteDepth();
     if (!m_infinite_depth) { c_depth = m_freeSurface->GetOcean()->GetDepth(NWU); }
     c_density = m_freeSurface->GetOcean()->GetDensity();
     c_gravity = m_freeSurface->GetOcean()->GetEnvironment()->GetGravityAcceleration();

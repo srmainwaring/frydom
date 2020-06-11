@@ -82,7 +82,7 @@ namespace frydom {
 
     /// Set if the free surface is to be shown/exist
     /// \param showFreeSurface showfreesurface true means the free surface exists
-    void ShowFreeSurface(bool showFreeSurface);
+    void Show(bool showFreeSurface);
 
     /// Get the free surface grid asset
     /// \return free surface grid asset
@@ -135,6 +135,12 @@ namespace frydom {
     /// \param worldPos position in world reference frame, (x,y) are used as input and result is returned in z
     /// \param fc frame convention (NED/NWU)
     void GetPosition(Position &worldPos, FRAME_CONVENTION fc) const;
+
+    /// If the given position is under the free surface, it returns true
+    /// \param position position to test for position with respect to the free surface
+    bool IsInWater(const Position& position, FRAME_CONVENTION fc) const;
+
+
 
     //---------------------------- Pressure ----------------------------//
 

@@ -5,7 +5,7 @@
 #ifndef FRYDOM_FRMORISONINC_H
 #define FRYDOM_FRMORISONINC_H
 
-#include "FrMorisonModel.h"
+#include "FrMorisonElements.h"
 #include "FrMorisonForce.h"
 
 #endif //FRYDOM_FRMORISONINC_H

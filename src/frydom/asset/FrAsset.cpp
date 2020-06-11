@@ -15,23 +15,17 @@ namespace frydom {
 
   namespace internal {
 
-    FrAssetBase::FrAssetBase(FrAsset *asset) : m_frydomAsset(asset) {
+    FrAssetBase::FrAssetBase(FrAsset *asset) : m_frydomAsset(asset) {}
 
+    std::shared_ptr<FrAssetBase> GetChronoAsset(std::shared_ptr<FrAsset> asset) {
+      return asset->m_chronoAsset;
     }
-
-//        void FrAssetBase::Update(chrono::ChPhysicsItem *updater, const chrono::ChCoordsys<> &coords) {
-//            m_frydomAsset->Update();
-//        }
 
   } // end namespace frydom::internal
 
 
   FrAsset::FrAsset() {
     m_chronoAsset = std::make_shared<internal::FrAssetBase>(this);
-  }
-
-  std::shared_ptr<chrono::ChAsset> FrAsset::GetChronoAsset() {
-    return m_chronoAsset;
   }
 
 } // end namespace frydom

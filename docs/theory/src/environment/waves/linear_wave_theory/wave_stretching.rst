@@ -66,15 +66,17 @@ Delta-stretching:
 This method is a coupling between the Wheeler and the extrapolation stretching, proposed by Rodenbush and Forristall [Rodenbush1986]_.
 While :math:`E(z)` is still replaced by :math:`E(z')`, the transformation :math:`z \longrightarrow z'` becomes
 
-- for :math:`z > -H_{\Delta}` : :math:`z' = (z + H_{\Delta}) \frac{H_{\Delta} + \Delta.eta}{H_{\Delta} + \eta} - H_{\Delta}`
+- for :math:`z > -H_{\Delta}` : :math:`z' = (z + H_{\Delta}) \frac{H_{\Delta} + \Delta \eta}{H_{\Delta} + \eta} - H_{\Delta}`
 - for :math:`z < -H_{\Delta}` : :math:`z' = z`
 
 :math:`\Delta` is a parameter taken between 0 and 1, and :math:`H_{\Delta}` is the water height on which the stretching is applied.
 
+When :math:`z'` is positive, the wave kinematic is linearly extrapolated from the one at :math:`z'=0`, the same way it is done in the extrapolation stretching.
+
 The Delta-stretching method can be downgraded to one of the two methods, in using specific values for :math:`H_{\Delta}`
 and :math:`\Delta`:
 
-- for :math:`H_{\Delta} = H` and :math:`\Delta = 0`, the method is equivalent to the Wheeler stretching.
+- for :math:`H_{\Delta} = H` and :math:`\Delta = 0`, the method is equivalent to the Wheeler stretching, as long as :math:`z'<0`.
 - for :math:`H_{\Delta} = H` and :math:`\Delta = 1`, it is equivalent to the extrapolation stretching.
 
 Rodenbush and Forristall recommend using :math:`\Delta = 0.3` and :math:`H_{\Delta} = H_S/2`. However Molin [Molin2002]_ suggests that
