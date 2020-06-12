@@ -23,25 +23,30 @@
 
 #include "frydom/core/link/links_lib/FrLink.h"
 #include "frydom/core/link/links_lib/actuators/FrActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
 #include "frydom/core/link/constraint/FrConstraint.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrFEAMesh.h"
+#include "frydom/core/statics/FrStaticAnalysis.h"
+
+#include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
+
 #include "frydom/cable/fea/FrFEACable.h"
+#include "frydom/cable/fea/FrFEALink.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
+#include "frydom/cable/catenary_ee444075/FrCatenaryLine_ee444.h"
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/environment/FrEnvironment.h"
-#include "frydom/utils/FrIrrApp.h"
-#include "frydom/core/statics/FrStaticAnalysis.h"
+
+#ifndef H5_NO_IRRLICHT
+  #include "frydom/utils/FrIrrApp.h"
+#endif
+
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
-#include "frydom/cable/fea/FrFEALink.h"
-
-#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
-#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
-
-#include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
 #include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrPathManager.h"
@@ -50,6 +55,9 @@
 
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/logging/FrSerializerFactory.h"
+
+#include "frydom/hydrodynamics/morison/FrMorisonElements.h"
+
 
 
 namespace frydom {
@@ -387,10 +395,17 @@ namespace frydom {
       Remove(actuator);
   }
 
+
   void FrOffshoreSystem::AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base) {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(catenary_line_base));
     m_physicsItemsList.push_back(catenary_line_base);
     event_logger::info(GetTypeName(), GetName(), "A Catenary line has been ADDED to the system");
+  }
+
+  void FrOffshoreSystem::AddCatenaryLine(std::shared_ptr<FrCatenaryLine_ee444> catenary_line) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(catenary_line));
+    m_physicsItemsList.push_back(catenary_line);
+    event_logger::info(GetTypeName(), GetName(), "A catenary line has been ADDED to the system");
   }
 
   void FrOffshoreSystem::AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame) {
@@ -431,6 +446,11 @@ namespace frydom {
     return m_physicsItemsList;
   }
 
+  void FrOffshoreSystem::AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(morison_elements));
+    m_physicsItemsList.push_back(morison_elements);
+    event_logger::info(GetTypeName(), GetName(), "Morison elements have been ADDED to the system");
+  }
 
 // ***** FEAMesh *****
 
@@ -1165,6 +1185,7 @@ namespace frydom {
   }
 
 
+#ifndef H5_NO_IRRLICHT
 // Irrlicht visualization
 
   FrIrrApp *FrOffshoreSystem::GetIrrApp() const {
@@ -1250,6 +1271,7 @@ namespace frydom {
   void FrOffshoreSystem::VisualizeStaticAnalysis() {
     VisualizeStaticAnalysis(100);
   }
+#endif
 
   void FrOffshoreSystem::AddAsset(std::shared_ptr<chrono::ChAsset> asset) {
     m_chronoSystem->AddAsset(std::move(asset));
@@ -1390,6 +1412,10 @@ namespace frydom {
       AddCatenaryLineBase(catenary_line);
       m_pathManager->RegisterTreeNode(catenary_line.get());
 
+    } else if (auto catenary_line = std::dynamic_pointer_cast<FrCatenaryLine_ee444>(item)) {
+      AddCatenaryLine(catenary_line);
+      m_pathManager->RegisterTreeNode(catenary_line.get());
+
     } else if (auto equilibrium_frame = std::dynamic_pointer_cast<FrEquilibriumFrame>(item)) {
       AddEquilibriumFrame(equilibrium_frame);
       m_pathManager->RegisterTreeNode(equilibrium_frame.get());
@@ -1406,7 +1432,10 @@ namespace frydom {
 //      AddPhysicsItem(equilibrium_frame);
 //      m_pathManager->RegisterTreeNode(equilibrium_frame.get());
 
-
+      // MORISON MODEL
+    } else if (auto morison = std::dynamic_pointer_cast<FrMorisonCompositeElement>(item)) {
+      AddMorisonElements(morison);
+      m_pathManager->RegisterTreeNode(morison.get());
 
       // RADIATION MODEL
     } else if (auto model = std::dynamic_pointer_cast<FrRadiationModel>(item)) {

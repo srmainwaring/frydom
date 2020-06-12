@@ -36,7 +36,9 @@ namespace frydom {
 
   FrLogManager::FrLogManager(FrOffshoreSystem *system) :
       m_log_CSV(true),
-      m_system(system) { // FIXME : Du coup LogManager devrait etre un TreeNode...
+      m_system(system),
+      m_nfreq_output(1),
+      m_ifreq_output(0) { // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
     m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), GetDateFolder()});
@@ -184,10 +186,17 @@ namespace frydom {
   }
 
   void FrLogManager::StepFinalize() {
-    for (auto &obj : m_loggable_list) {
-      if (!obj->IsLogged()) continue;
-      obj->StepFinalizeLog();
+
+    m_ifreq_output += 1;
+
+    if (m_ifreq_output == m_nfreq_output) {
+      for (auto &obj : m_loggable_list) {
+        if (!obj->IsLogged()) continue;
+        obj->StepFinalizeLog();
+      }
+      m_ifreq_output = 0;
     }
+
   }
 
   void FrLogManager::SetLogFrameConvention(FRAME_CONVENTION fc) {
@@ -200,6 +209,16 @@ namespace frydom {
 
   unsigned int FrLogManager::GetNumberOfLoggables() const {
     return m_loggable_list.size();
+  }
+
+  void FrLogManager::DisableAllLogs() {
+    for (auto &obj : m_loggable_list) {
+      obj->LogThis(false);
+    }
+  }
+
+  void FrLogManager::SetNFreqOutput(int n) {
+    m_nfreq_output = n;
   }
 
 }  // end namespace frydom

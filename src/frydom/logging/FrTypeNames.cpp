@@ -36,6 +36,12 @@ namespace frydom {
 
   TYPE_TO_STRING(FrCatenaryLine, "CatenaryLine")
 
+  class FrCatenaryLine_ee444;
+  TYPE_TO_STRING(FrCatenaryLine_ee444, "CatenaryLine_ee444")
+
+  class FrCatenaryForce_ee444;
+  TYPE_TO_STRING(FrCatenaryForce_ee444, "CatenaryForce_ee444")
+
   class FrCatenaryLineSeabed;
 
   TYPE_TO_STRING(FrCatenaryLineSeabed, "CatenaryLineSeabed")
@@ -201,6 +207,9 @@ namespace frydom {
 
   TYPE_TO_STRING(FrLumpedMassCable, "LumpedMassCable")
 
+  // MORISON ELEMENTS
+  class FrMorisonCompositeElement;
+  TYPE_TO_STRING(FrMorisonCompositeElement, "MorisonElements");
 
 }
 

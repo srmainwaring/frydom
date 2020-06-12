@@ -114,15 +114,20 @@ namespace frydom {
 
   class FrLogManager;
 
+#ifndef H5_NO_IRRLICHT
   class FrIrrApp;
+#endif
 
   class FrCatenaryLineBase;
+  class FrCatenaryLine_ee444;
 
   class FrEquilibriumFrame;
 
   class FrRadiationModel;
 
   class FrHydroMesh;
+
+  class FrMorisonCompositeElement;
 
   namespace internal {
     class FrLMNode;
@@ -251,7 +256,9 @@ namespace frydom {
 
     std::unique_ptr<FrStaticAnalysis> m_statics;
 
+    #ifndef H5_NO_IRRLICHT
     std::unique_ptr<FrIrrApp> m_irrApp;
+    #endif
 
     // Container: definition.
     using BodyContainer = std::vector<std::shared_ptr<FrBody>>;
@@ -683,6 +690,7 @@ namespace frydom {
     void Clear();
 
 
+#ifndef H5_NO_IRRLICHT
     // Visualization
 
     // Irrlicht Application
@@ -721,6 +729,7 @@ namespace frydom {
     void VisualizeStaticAnalysis(double dist);
 
     void VisualizeStaticAnalysis();
+#endif
 
     /// Add an optional asset (it can be used to define visualization shapes, or textures, or custom attached
     /// properties that the user can define by creating his class inherited from FrAssetComponent)
@@ -771,6 +780,8 @@ namespace frydom {
 
     void AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base);
 
+    void AddCatenaryLine(std::shared_ptr<FrCatenaryLine_ee444> catenary_line);
+
     void AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame);
 
     void AddRadiationModel(std::shared_ptr<FrRadiationModel> radiation_model);
@@ -779,6 +790,7 @@ namespace frydom {
 
     void RemoveHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
 
+    void AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements);
 
 //    /// Add other physics item to the offshore system (physics item that need to be updated before normal items)
 //    /// \param otherPhysics other physic item to be added
