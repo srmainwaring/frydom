@@ -70,7 +70,7 @@ include(Add_googletest)
 
 include(Add_chrono)
 include(Add_MathUtils)
-include(Add_HDF5)
+#include(Add_HDF5)
 include(Add_GeographicLib)
 include(Add_fmt)
 include(Add_cppfs)
