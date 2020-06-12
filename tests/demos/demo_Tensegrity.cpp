@@ -25,12 +25,22 @@ int main() {
   top_plate->RotateAroundCOG(FrRotation({1., 0., 0.}, 90*DEG2RAD, NWU), NWU);
   top_plate->SetPosition({0., 0., 45.}, NWU);
 
+  top_plate->SetFixedInWorld(true);
+
   auto node_A = top_plate->NewNode("node_A");
   node_A->SetPositionInBody({0., 0., -325}, NWU);
 
 
+  // Mobile nodes
   auto node_C = top_plate->NewNode("node_C");
-//  node_C->SetPositionInBody({0., 0., 0.}, 120., 248, 1, )
+  node_C->SetPositionInBody({0., 0., 0.}, 120, 24.8, 1, DEG, NED);
+
+  auto node_D = top_plate->NewNode("node_D");
+  node_D->SetPositionInBody({0., 0., 0.}, 90, 24.8, -1., DEG, NWU);
+
+  auto node_E = top_plate->NewNode("node_E");
+  node_E->SetPositionInBody({0., 0., 0.}, 60, 24.8, 1, DEG, NED);
+
 
 
   // Fixed nodes
@@ -47,6 +57,23 @@ int main() {
   auto node_H = world_body->NewNode("node_H");
   node_H->SetPositionInWorld({0., 0., 0.}, 60, 24.8, -1., DEG, NED);
 
+
+  // cable properties
+
+  auto props = make_cable_properties();
+  props->SetLinearDensity(30.);
+  props->SetDiameter(0.05);
+  props->SetYoungModulus(1e9);
+
+
+  double tendons_length = 44;
+
+//  auto tendon_1 = make_catenary_line("tendon_1", node_F, node_C, props, true, tendons_length, AIR);
+//  auto tendon_2 = make_catenary_line("tendon_2", node_G, node_D, props, true, tendons_length, AIR);
+//  auto tendon_3 = make_catenary_line("tendon_3", node_H, node_E, props, true, tendons_length, AIR);
+
+
+  auto tendon_1 = make_fea_cable("tendon_1", node_F, node_C, props, tendons_length, 10);
 
 
 
