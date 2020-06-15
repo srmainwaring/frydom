@@ -44,6 +44,32 @@ namespace frydom {
     // TODO
   }
 
+  /*
+  Force FrFEACable::GetForceAtStartLink(FRAME_CONVENTION fc) {
+    auto cable_base = GetFrFEACableBase();
+    auto start_link = cable_base->GetStartLink();
+    auto start_force = internal::ChVectorToVector3d<Force>(start_link->Get_react_force());
+
+    if (IsNED(fc)) internal::SwapFrameConvention(start_force);
+
+    // FIXME: il faut voir la convention qu'on veut adopter. Une possibilite est d'avoir la force appliquee par le
+    // cable sur son environnement... Certainement des ajustements ici...
+    return start_force;
+  }
+
+  Force FrFEACable::GetForceAtEndLink(FRAME_CONVENTION fc) {
+    auto cable_base = GetFrFEACableBase();
+    auto end_link = cable_base->GetEndLink();
+    auto end_force = internal::ChVectorToVector3d<Force>(end_link->Get_react_force());
+
+    if (IsNED(fc)) internal::SwapFrameConvention(end_force);
+
+    // FIXME: il faut voir la convention qu'on veut adopter. Une possibilite est d'avoir la force appliquee par le
+    // cable sur son environnement... Certainement des ajustements ici...
+    return end_force;
+  }
+   */
+
   Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
     // TODO
   }
@@ -159,15 +185,13 @@ namespace frydom {
     if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
     return force;
   }
-  //##CC
 
   void FrFEACable::DefineLogMessages() {
-    // TODO
 
-    //##CC
-    auto msg = NewMessage("", "Cable FEA message");
+    auto msg = NewMessage("Cable states", "Data of cable");
 
-    msg->AddField<double>("time", "s", "Current time of the simulation",
+
+    msg->AddField<double>("Time", "s", "Simulation time",
                           [this]() { return GetSystem()->GetTime(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>(
@@ -178,6 +202,13 @@ namespace frydom {
         "ForceStartNodeInWorld", "N", fmt::format("force at the starting point in world reference frame in {}", GetLogFC()),
         [this]() { return GetForceStartNodeInWorld(GetLogFC()); });
 
+    //msg->AddField<Eigen::Matrix<double, 3, 1>>("Start_tension_vector", "N",
+    //                                           "Tension vector at start node",
+    //                                           [this]() { return GetForceAtStartLink(NWU); });
+
+    msg->AddField<double>("Start_tension", "N", "Tension at start node",
+                          [this]() { return GetForceStartNodeInWorld(NWU).norm(); });
+
     msg->AddField<Eigen::Matrix<double, 3, 1>>(
         "EndingNode", "m", fmt::format("position of the ending node in world reference frame in {}", GetLogFC()),
         [this]() { return m_endingNode->GetPositionInWorld(GetLogFC()); });
@@ -186,7 +217,13 @@ namespace frydom {
         "ForceEndNodeInWorld", "N", fmt::format("force at the ending point in world reference frame in {}", GetLogFC()),
         [this]() { return GetForceEndNodeInWorld(GetLogFC()); });
 
-    //##CC
+    //msg->AddField<Eigen::Matrix<double, 3, 1>>("End_tension_vector", "N",
+    //                                           "Tension vector at end node",
+    //                                           [this]() { return GetForceAtEndLink(NWU); });
+
+    msg->AddField<double>("End_tension", "N",
+                          "Tension at end node",
+                          [this]() { return GetForceEndNodeInWorld(NWU).norm(); });
   }
 
   void FrFEACable::BuildCache() {
@@ -283,7 +320,8 @@ namespace frydom {
 
       // FIXME: pourquoi doit on entrer l'environnement alors qu'on y a acces depuis fea_cable ??
       auto shape_initializer =
-          FrCableShapeInitializer::Create(m_frydom_mesh->GetName(), fea_cable, fea_cable->GetSystem()->GetEnvironment());
+          FrCableShapeInitializer::Create(m_frydom_mesh->GetName(), fea_cable,
+                                          fea_cable->GetSystem()->GetEnvironment());
 
       unsigned int n = fea_cable->GetNbNodes();
 
@@ -384,7 +422,7 @@ namespace frydom {
       elements_assets->SetWireframe(false);
       // TODO : mettre en place un mode "BIG VIZ" qui grossit le cable et tout
 //      m_section->SetDrawCircularRadius(cable_diam * 0.5);
-      m_section->SetDrawCircularRadius(cable_diam * 5);
+      m_section->SetDrawCircularRadius(cable_diam);
       ChMesh::AddAsset(elements_assets);
 
       // Assets for the nodes
@@ -392,7 +430,7 @@ namespace frydom {
 //        node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_DOT_POS);
       node_assets->SetFEMglyphType(chrono::fea::ChVisualizationFEAmesh::E_GLYPH_NODE_CSYS);
       node_assets->SetFEMdataType(chrono::fea::ChVisualizationFEAmesh::E_PLOT_NONE);
-      node_assets->SetSymbolsThickness(cable_diam * 10);
+      node_assets->SetSymbolsThickness(cable_diam * 5);
       node_assets->SetSymbolsScale(0.001);
       node_assets->SetZbufferHide(false);
       ChMesh::AddAsset(node_assets);

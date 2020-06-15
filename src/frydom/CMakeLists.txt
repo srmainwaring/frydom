@@ -44,7 +44,8 @@ target_link_libraries(FRyDoM_Engine
         ChronoEngine
 #        ChronoEngine_irrlicht
         MathUtils::MathUtils
-#        HDF5
+#        HDF5  # when using the findHDF5 script into the Add_HDF5.cmake file
+        hdf5_cpp-static
         GeographicLib
         fmt
         cppfs

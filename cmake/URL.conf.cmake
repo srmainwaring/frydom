@@ -39,22 +39,32 @@ set(timezone_URL https://github.com/HowardHinnant/date.git)
 #set(timezone_TAG v2.4.1)
 set(timezone_TAG 9454aeda2bd6b23c5dabe997a6b392cef88e321d)
 
+
 # CPPFS
 set(cppfs_URL https://github.com/cginternals/cppfs.git)
 set(cppfs_TAG v1.2.0)
+
 
 # JSON
 set(json_URL https://github.com/nlohmann/json.git)
 set(json_TAG v3.6.1)
 
+
 # OpenMesh
 set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-7.0)
+
 
 # spdlog
 set(spdlog_URL https://github.com/gabime/spdlog.git)
 set(spdlog_TAG v1.4.2)
 
+
 # cxxopts
 set(cxxopts_URL https://github.com/jarro2783/cxxopts.git)
 set(cxxopts_TAG v2.2.0)
+
+
+# HDF5
+set(HDF5_URL https://github.com/HDFGroup/hdf5.git)
+set(HDF5_TAG hdf5-1_8_21)

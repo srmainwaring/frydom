@@ -64,19 +64,14 @@ namespace frydom {
           chrono::ChMatrix33<> mrot;
           chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline.EvalDeriv(abscyssa).normalized());
 
-          // Computing ydir
-//          chrono::ChVector<double> z_axis = {0., 0., 1.};
+          // Computing ydir:
+          // this is the direction normal to the vertical plane that owns the cable under the gravity field only
           Direction u = (bspline.Eval(1.) - bspline.Eval(0.));
           u.z() = 0.;
           u.Normalize();
           chrono::ChVector<double> ydir = internal::Vector3dToChVector(u.cross(Direction{0., 0., 1.}));
 
-
-
-          // FIXME: l'axe Y suggere ici doit etre calcule de telle maniere qu'il soit normal au plan vertical contenant
-          // le cable (a calculer ici ou bien a passer en argument du builder...)
-//          chrono::ChVector<double> ydir = {0., 1., 0.};
-
+          // Set the rotation matrix
           mrot.Set_A_Xdir(tangent, ydir);
 
           auto hnode_i = std::make_shared<internal::FrFEANodeBase>(chrono::ChFrame<>(pos, mrot));
