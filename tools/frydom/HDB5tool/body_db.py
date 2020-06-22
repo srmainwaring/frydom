@@ -24,7 +24,7 @@ class BodyDB(object):
         Class for writing the body data into the *.hdb5 file.
     """
 
-    def __init__(self, i_body, nb_bodies, nw, nbeta, mesh):
+    def __init__(self, i_body, nb_bodies, nw, nbeta, mesh = None):
 
         """
         Constructor of the class BodyDB.
@@ -68,7 +68,8 @@ class BodyDB(object):
         # self.Excitation = np.zeros((6, nw, nbeta), dtype=np.complex)
 
         # Mesh.
-        self.mesh = mesh
+        if(mesh is not None):
+            self.mesh = mesh
 
         # Force mask.
         self.Force_mask = np.zeros(6,dtype = np.int)

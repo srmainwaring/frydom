@@ -47,7 +47,10 @@ class HDB5reader():
             self.read_environment(reader, pyHDB)
 
             # Discretization.
-            self.read_discretization(reader, pyHDB)
+            if (pyHDB.version <= 2.0):
+                self.read_discretization_v2(reader, pyHDB)
+            else:
+                self.read_discretization_v3(reader, pyHDB)
 
             # Bodies
             if(pyHDB.version == 1.0):
@@ -93,7 +96,7 @@ class HDB5reader():
         except:
             pyHDB.solver = "Nemoh"
 
-    def read_discretization(self, reader, pyHDB):
+    def read_discretization_v2(self, reader, pyHDB):
         """This function reads the discretization parameters of the *.hdb5 file.
 
         Parameter
@@ -134,6 +137,55 @@ class HDB5reader():
             pyHDB.dt = np.array(reader[time_path + "/TimeStep"])
         except:
             pyHDB.dt = final_time / (pyHDB.nb_time_samples - 1)
+        pyHDB.time = np.linspace(start=0., stop=final_time, num=pyHDB.nb_time_samples)
+
+    def read_discretization_v3(self, reader, pyHDB):
+        """This function reads the discretization parameters of the *.hdb5 file.
+
+        Parameter
+        ---------
+        reader : string.
+            *.hdb5 file.
+        pyHDB : object
+            pyHDB object for storing the hydrodynamic database.
+        """
+
+        discretization_path = "/Discretizations"
+
+        # Frequency discretization.
+
+        frequential_path = discretization_path + "/Frequency"
+
+        wave_frequency = np.array(reader[frequential_path])
+        pyHDB.nb_wave_freq = wave_frequency.shape[0]
+        pyHDB.min_wave_freq = wave_frequency[0]
+        pyHDB.max_wave_freq = wave_frequency[-1]
+        pyHDB.set_wave_frequencies()  # Definition of omega.
+
+        # Wave direction discretization.
+
+        wave_direction_path = discretization_path + "/WaveDirection"
+
+        wave_dir = np.array(reader[wave_direction_path])
+        pyHDB.nb_wave_dir = wave_dir.shape[0]
+        pyHDB.min_wave_dir = wave_dir[0] # Deg.
+        pyHDB.max_wave_dir = wave_dir[-1] # Deg.
+        pyHDB.set_wave_directions() # Definition of beta in rad.
+
+        # Time sample.
+
+        time_path = discretization_path + "/Time"
+
+        time = np.array(reader[time_path])
+        pyHDB.nb_time_samples = time.shape[0]
+        final_time = time[-1]
+        try:
+            pyHDB.dt = np.array(reader[time_path + "/TimeStep"])
+        except:
+            if(pyHDB.nb_time_samples != 1):
+                pyHDB.dt = final_time / (pyHDB.nb_time_samples - 1)
+            else:
+                pyHDB.dt = 0
         pyHDB.time = np.linspace(start=0., stop=final_time, num=pyHDB.nb_time_samples)
 
     def read_mesh(self, reader, mesh_path):
@@ -349,7 +401,7 @@ class HDB5reader_v2(HDB5reader):
             Path to excitation loads.
         """
 
-        # Froude-Krylov loads;
+        # Froude-Krylov loads.
 
         fk_path = excitation_path + "/FroudeKrylov"
 
@@ -399,8 +451,12 @@ class HDB5reader_v2(HDB5reader):
 
         # Initializations.
         body.Inf_Added_mass = np.zeros((6, 6 * pyHDB.nb_bodies), dtype=np.float)
-        body.irf = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
-        body.irf_ku = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionK/DOF_0"] # Read for cheking if the foled is present or not.
+            body.irf = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+            body.irf_ku = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
 
         for j in range(pyHDB.nb_bodies):
 
@@ -429,10 +485,12 @@ class HDB5reader_v2(HDB5reader):
                 body.Damping[:, 6 * j + imotion, :] = np.array(reader[radiation_damping_path + "/DOF_%u" % imotion])
 
                 # Impulse response functions without forward speed.
-                body.irf[:, 6 * j + imotion, :] = np.array(reader[irf_path + "/DOF_%u" % imotion])
+                if(body.irf is not None):
+                    body.irf[:, 6 * j + imotion, :] = np.array(reader[irf_path + "/DOF_%u" % imotion])
 
                 # Impulse response functions with forward speed.
-                body.irf_ku[:, 6 * j + imotion, :] = np.array(reader[irf_ku_path + "/DOF_%u" % imotion])
+                if(body.irf_ku is not None):
+                    body.irf_ku[:, 6 * j + imotion, :] = np.array(reader[irf_ku_path + "/DOF_%u" % imotion])
 
     def read_mass_matrix(self, reader, body, inertia_path):
 
@@ -514,10 +572,14 @@ class HDB5reader_v2(HDB5reader):
             assert ibody == id
 
             # Mesh.
-            mesh = self.read_mesh(reader, body_path + "/Mesh")
+            if(pyHDB.version == 2.0):
+                mesh = self.read_mesh(reader, body_path + "/Mesh")
 
-            # Body definition.
-            body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir, mesh)
+                # Body definition.
+                body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir, mesh)
+            else:
+                # Body definition.
+                body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir)
 
             # Body name.
             try:
@@ -531,11 +593,12 @@ class HDB5reader_v2(HDB5reader):
             except:
                 pass
 
-            # Force modes.
-            self.read_mode(reader, body, 0, body_path + "/Modes")
+            if (pyHDB.version == 2.0):
+                # Force modes.
+                self.read_mode(reader, body, 0, body_path + "/Modes")
 
-            # Motion modes.
-            self.read_mode(reader, body, 1, body_path + "/Modes")
+                # Motion modes.
+                self.read_mode(reader, body, 1, body_path + "/Modes")
 
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
