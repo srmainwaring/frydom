@@ -9,13 +9,14 @@
 #include "chrono/solver/ChVariablesBodyOwnMass.h"
 
 #include "MathUtils/Matrix66.h"
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody_new.h"
 
 namespace frydom {
 
   // Forward declaration
   class FrBody;
 
-  class FrBEMBody;
+//  class FrBEMBody;
 
   namespace internal {
 

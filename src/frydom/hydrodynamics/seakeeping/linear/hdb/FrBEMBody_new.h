@@ -9,27 +9,25 @@
 
 namespace frydom {
 
-//  using FrBEMBody = HDB5_io::Body;
+  using FrBEMBody = HDB5_io::Body;
 
-  class FrBEMBody : public HDB5_io::Body {
-
-  };
-
-  class FrWaveDriftPolarData : public HDB5_io::WaveDrift {
-
-    bool HasSurge() const { return m_data->HasSerie("surge"); }
-
-    bool HasSway() const { return m_data->HasSerie("sway"); }
-
-    bool HasHeave() const { return m_data->HasSerie("heave"); }
-
-    bool HasPitch() const { return m_data->HasSerie("pitch"); }
-
-    bool HasRoll() const { return m_data->HasSerie("roll"); }
-
-    bool HasYaw() const { return m_data->HasSerie("yaw"); }
-
-  };
+//  class FrWaveDriftPolarData : public HDB5_io::WaveDrift {
+//
+//   public:
+//
+//    bool HasSurge() const { return m_data->HasSerie("surge"); }
+//
+//    bool HasSway() const { return m_data->HasSerie("sway"); }
+//
+//    bool HasHeave() const { return m_data->HasSerie("heave"); }
+//
+//    bool HasPitch() const { return m_data->HasSerie("pitch"); }
+//
+//    bool HasRoll() const { return m_data->HasSerie("roll"); }
+//
+//    bool HasYaw() const { return m_data->HasSerie("yaw"); }
+//
+//  };
 
 }
 

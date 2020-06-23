@@ -11,9 +11,10 @@
 namespace frydom {
 
   // Forward declarations
-  class FrBEMBody;
+//  class FrBEMBody;
 
-  class FrWaveDriftPolarData;
+//  class FrWaveDriftPolarData;
+  using FrWaveDriftPolarData = HDB5_io::WaveDrift;
 
   class FrHydroDB {
 
@@ -70,7 +71,7 @@ namespace frydom {
 
     mathutils::VectorN<double> GetTimeDiscretization() const {return m_HDB->GetTimeDiscretization();};
 
-    std::shared_ptr<FrWaveDriftPolarData> GetWaveDrift() const;
+    FrWaveDriftPolarData * GetWaveDrift() const;
 
 
    private:

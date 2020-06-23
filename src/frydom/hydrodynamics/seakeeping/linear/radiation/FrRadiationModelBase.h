@@ -19,6 +19,7 @@
 
 #include "frydom/core/common/FrPhysicsItem.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody_new.h"
 
 namespace frydom {
 
@@ -27,8 +28,6 @@ namespace frydom {
   class FrRadiationModel;
 
   class FrBody;
-
-  class FrBEMBody;
 
 
   namespace internal {

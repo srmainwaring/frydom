@@ -2,8 +2,8 @@
 // Created by lletourn on 27/05/20.
 //
 
-#include "FrHydroDB_new.h"
 #include "FrBEMBody_new.h"
+#include "FrHydroDB_new.h"
 
 namespace frydom {
 
@@ -49,7 +49,7 @@ namespace frydom {
     return m_mapper->end();
   }
 
-  std::shared_ptr<FrWaveDriftPolarData> FrHydroDB::GetWaveDrift() const {
+  FrWaveDriftPolarData * FrHydroDB::GetWaveDrift() const {
     return m_HDB->GetWaveDrift();
   };
 

@@ -25,7 +25,7 @@ namespace frydom {
   // forward declarations
   class FrHydroDB;
 
-  class FrWaveDriftPolarData;
+//  class FrWaveDriftPolarData;
 
   /**
   * \class FrWaveDriftForce
@@ -35,7 +35,6 @@ namespace frydom {
 
    private:
     std::shared_ptr<FrHydroDB> m_hdb;               ///< Hydrodynamic database
-    std::shared_ptr<FrWaveDriftPolarData> m_table;  ///< Wave drift coefficient polar table
 
    public:
 
