@@ -1077,12 +1077,6 @@ class pyHDB():
         dset = writer.create_dataset(body_path + "/BodyPosition", data=body.position)
         dset.attrs['Description'] = "Center of gravity of the body in the absolute frame"
 
-        # Force modes.
-        self.write_mode(writer, body, 0, body_path + "/Modes")
-
-        # Motion modes.
-        self.write_mode(writer, body, 1, body_path + "/Modes")
-
         # Masks.
         self.write_mask(writer, body, body_path + "/Mask")
 
