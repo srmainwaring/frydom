@@ -52,6 +52,10 @@ class HDB5reader():
             else:
                 self.read_discretization_v3(reader, pyHDB)
 
+            # Symmetries.
+            if(pyHDB.version >= 3.0):
+                self.read_symmetries(reader, pyHDB)
+
             # Bodies
             if(pyHDB.version == 1.0):
                 HDB5reader_v1(reader, pyHDB)
@@ -190,6 +194,22 @@ class HDB5reader():
             else:
                 pyHDB.dt = 0
         pyHDB.time = np.linspace(start=0., stop=final_time, num=pyHDB.nb_time_samples)
+
+    def read_symmetries(self, reader, pyHDB):
+        """This function reads the symmetry parameters of the *.hdb5 file.
+
+        Parameter
+        ---------
+        reader : string.
+            *.hdb5 file.
+        pyHDB : object
+            pyHDB object for storing the hydrodynamic database.
+        """
+
+        symmetry_path = "/Symmetries"
+        pyHDB.bottom_sym = np.array(reader[symmetry_path + "/Bottom"])
+        pyHDB.xoz_sym = np.array(reader[symmetry_path + "/xOz"])
+        pyHDB.yoz_sym = np.array(reader[symmetry_path + "/yOz"])
 
     def read_mesh(self, reader, mesh_path):
 

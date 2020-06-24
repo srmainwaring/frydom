@@ -48,6 +48,11 @@ class pyHDB():
         self.max_wave_dir = 0. # deg.
         self.wave_dir = np.array([]) # rad.
 
+        # Symmetries.
+        self.bottom_sym = None
+        self.xoz_sym = None
+        self.yoz_sym = None
+
         # Kochin parameters.
         self.has_kochin = False
         self.nb_angle_kochin = 0
@@ -652,6 +657,10 @@ class pyHDB():
             # Discretization.
             self.write_discretization(writer)
 
+            # Symmetries.
+            if(self.version >= 3.0):
+                self.write_symmetries(writer)
+
             # Bodies.
             for body in self.bodies:
                 self.write_body(writer, body)
@@ -747,6 +756,27 @@ class pyHDB():
         dset = writer.create_dataset(time_path, data=self.time)
         dset.attrs['Description'] = "Time samples."
         dset.attrs['Unit'] = "s"
+
+    def write_symmetries(self,writer):
+        """This function writes the symmetry parameters into the *.hdb5 file.
+
+        Parameter
+        ---------
+        Writer : string.
+            *.hdb5 file.
+        """
+
+        symmetry_path = "/Symmetries"
+        writer.create_group(symmetry_path)
+
+        dset = writer.create_dataset(symmetry_path + "/Bottom", data=self.bottom_sym)
+        dset.attrs['Description'] = "Bottom symmetry."
+
+        dset = writer.create_dataset(symmetry_path + "/xOz", data=self.xoz_sym)
+        dset.attrs['Description'] = "(xOz) symmetry."
+
+        dset = writer.create_dataset(symmetry_path + "/yOz", data=self.yoz_sym)
+        dset.attrs['Description'] = "(yOz)) symmetry."
 
     def write_mode(self, writer, body, ForceOrMotion, body_modes_path="/Modes"):
         """This function writes the force and motion modes into the *.hdb5 file.
