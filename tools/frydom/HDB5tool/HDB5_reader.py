@@ -501,7 +501,7 @@ class HDB5reader_v2(HDB5reader):
 
     def read_mass_matrix(self, reader, body, inertia_path):
 
-        """This function reads the mass matrix matrix into the *.hdb5 file.
+        """This function reads the mass matrix into the *.hdb5 file.
 
         Parameters
         ----------
@@ -519,6 +519,49 @@ class HDB5reader_v2(HDB5reader):
             body.inertia.matrix = np.array(reader[inertia_path + "/InertiaMatrix"])
         except:
             pass
+
+    def read_mooring_matrix(self, reader, body, mooring_path):
+
+        """This function reads the mooring matrix into the *.hdb5 file.
+
+        Parameters
+        ----------
+        reader : string
+            *.hdb5 file.
+        body : BodyDB.
+            Body.
+        mooring_path : string
+            Path to mooring matrix.
+        """
+
+        try:
+            reader[mooring_path + "/MooringMatrix"]
+            body.activate_mooring()
+            body.mooring = np.array(reader[mooring_path + "/MooringMatrix"])
+        except:
+            pass
+
+    def read_extra_linear_damping_matrix(self, reader, body, extra_linear_damping_path):
+
+        """This function reads the extra linear damping matrix into the *.hdb5 file.
+
+        Parameters
+        ----------
+        reader : string
+            *.hdb5 file.
+        body : BodyDB.
+            Body.
+        extra_linear_damping_path : string
+            Path to extra linear damping matrix.
+        """
+
+        try:
+            reader[extra_linear_damping_path + "/DampingMatrix"]
+            body.activate_extra_damping()
+            body.extra_damping = np.array(reader[extra_linear_damping_path + "/DampingMatrix"])
+        except:
+            pass
+
 
     def read_RAO(self, reader, pyHDB, body, RAO_path):
 
@@ -618,6 +661,12 @@ class HDB5reader_v2(HDB5reader):
 
             # Mass matrix.
             self.read_mass_matrix(reader, body, body_path + "/Inertia")
+
+            # Mooring matrix.
+            self.read_mooring_matrix(reader, body, body_path + "/Mooring")
+
+            # Extra linear damping matrix.
+            self.read_extra_linear_damping_matrix(reader, body, body_path + "/LinearDamping")
 
             # RAO.
             self.read_RAO(reader, pyHDB, body, body_path + "/RAO")

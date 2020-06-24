@@ -995,7 +995,7 @@ class pyHDB():
 
     def write_mass_matrix(self, writer, body, inertia_path="/Inertia"):
 
-        """This function writes the mass matrix matrix into the *.hdb5 file.
+        """This function writes the mass matrix into the *.hdb5 file.
 
         Parameters
         ----------
@@ -1011,6 +1011,44 @@ class pyHDB():
 
         dset = dg.create_dataset(inertia_path + "/InertiaMatrix", data=body.inertia.matrix)
         dset.attrs['Description'] = "Mass matrix."
+
+    def write_mooring_matrix(self, writer, body, mooring_path="/Mooring"):
+
+        """This function writes the mooring matrix into the *.hdb5 file.
+
+        Parameters
+        ----------
+        Writer : string
+            *.hdb5 file.
+        body : BodyDB.
+            Body.
+        mooring_path : string
+            Path to mooring matrix.
+        """
+
+        dg = writer.create_group(mooring_path)
+
+        dset = dg.create_dataset(mooring_path + "/MooringMatrix", data=body.mooring)
+        dset.attrs['Description'] = "Mooring matrix."
+
+    def write_extra_linear_damping_matrix(self, writer, body, extra_linear_damping_path ="/LinearDampign"):
+
+        """This function writes the extra linear damping matrix matrix into the *.hdb5 file.
+
+        Parameters
+        ----------
+        Writer : string
+            *.hdb5 file.
+        body : BodyDB.
+            Body.
+        extra_linear_damping_path : string
+            Path to extra linear damping matrix.
+        """
+
+        dg = writer.create_group(extra_linear_damping_path)
+
+        dset = dg.create_dataset(extra_linear_damping_path + "/DampingMatrix", data=body.extra_damping)
+        dset.attrs['Description'] = "Extra linear damping matrix."
 
     def write_RAO(self, writer, body, RAO_path="/RAO"):
 
@@ -1097,6 +1135,14 @@ class pyHDB():
         # Mass matrix.
         if body._inertia:
             self.write_mass_matrix(writer, body, body_path + "/Inertia")
+
+        # Mooring matrix.
+        if (body._mooring is not None):
+            self.write_mooring_matrix(writer, body, body_path + "/Mooring")
+
+        # Extra linear damping matrix.
+        if (body._extra_damping is not None):
+            self.write_extra_linear_damping_matrix(writer, body, body_path + "/LinearDamping")
 
         # RAO.
         if(self.has_RAO):

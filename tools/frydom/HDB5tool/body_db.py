@@ -103,6 +103,12 @@ class BodyDB(object):
         # Inertia matrix.
         self._inertia = None
 
+        # Mooring matrix.
+        self._mooring = None
+
+        # Linear extra damping matrix.
+        self._extra_damping = None
+
         # RAO.
         self.RAO = None
 
@@ -263,3 +269,69 @@ class BodyDB(object):
 
         if(self._inertia is None):
             self._inertia = Inertia()
+
+    @property
+    def mooring(self):
+
+        """This function gives the mooring data of the body.
+
+        Returns
+        -------
+        Mooring
+            mooring data of the body.
+        """
+
+        return self._mooring
+
+    def activate_mooring(self):
+
+        """This function initializes the mooring matrix."""
+
+        if (self._mooring is None):
+            self._mooring = np.zeros((6, 6))
+
+    @mooring.setter
+    def mooring(self, value):
+
+        """This function sets the mooring data of the body.
+
+        Parameter
+        ---------
+        Mooring
+            mooring data of the body.
+        """
+
+        self._mooring = value
+
+    @property
+    def extra_damping(self):
+
+        """This function gives the extra linear damping data of the body.
+
+        Returns
+        -------
+        Extra linear damping
+            extra linear damping data of the body.
+        """
+
+        return self._extra_damping
+
+    def activate_extra_damping(self):
+
+        """This function initializes the extra linear damping matrix."""
+
+        if (self._extra_damping is None):
+            self._extra_damping = np.zeros((6, 6))
+
+    @extra_damping.setter
+    def extra_damping(self, value):
+
+        """This function sets the extra linear damping data of the body.
+
+        Parameter
+        ---------
+        Extra linear damping
+            extra linear damping data of the body.
+        """
+
+        self._extra_damping = value
