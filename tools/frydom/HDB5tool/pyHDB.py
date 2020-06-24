@@ -1087,7 +1087,8 @@ class pyHDB():
         self.write_mask(writer, body, body_path + "/Mask")
 
         # Mesh file.
-        self.write_mesh(writer, body, body_path + "/Mesh")
+        if(body.mesh is not None):
+            self.write_mesh(writer, body, body_path + "/Mesh")
 
         # Diffraction and Froude-Krylov loads.
         self.write_excitation(writer, body, body_path + "/Excitation")
