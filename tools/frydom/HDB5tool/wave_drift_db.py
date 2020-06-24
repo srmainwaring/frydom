@@ -53,6 +53,7 @@ class WaveDriftDB(object):
         self._nb_frequencies = None
         self._discrete_frequency = None
         self._discrete_wave_dir = None
+        self._kochin_step = None  # Kochin function angular step.
 
     @property
     def modes(self):
@@ -227,6 +228,32 @@ class WaveDriftDB(object):
                 print("warning : dimension must be equal to 1")
         else:
             print("warning : type must be nd array")
+
+    @property
+    def kochin_step(self):
+
+        """This function gives the Kochin function angular step.
+
+        Returns
+        -------
+        float
+            Kochin function angular step.
+        """
+
+        return self._kochin_step
+
+    @kochin_step.setter
+    def kochin_step(self, value):
+
+        """This function sets the Kochin function angular step.
+
+        Parameter
+        ----------
+        float : value
+            Kochin function angular step.
+        """
+
+        self._kochin_step = value
 
     def scaling_mode(self, mode, factor):
 

@@ -315,6 +315,12 @@ class HDB5reader():
                 # Wave frequencies.
                 pyHDB._wave_drift.discrete_frequency = np.array(reader[wave_drift_path + "/freq"])
 
+            # Kochin function angular step.
+            try:
+                pyHDB._wave_drift.kochin_step = np.array(reader[wave_drift_path + "/KochinStep"])
+            except:
+                pass
+
             # Modes.
             for mode in ["/surge", "/sway", "/heave", "/roll", "/pitch", "/yaw"]:
                 try:

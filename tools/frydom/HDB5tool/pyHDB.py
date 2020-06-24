@@ -91,7 +91,7 @@ class pyHDB():
         # Wave field.
         self.has_wave_field = False
 
-        # Drift loads from Kochin functions.
+        # Mean wave drift loads from Kochin functions.
         self.has_Drift_Kochin = False
         self.Wave_drift_force = None
 
@@ -1217,6 +1217,10 @@ class pyHDB():
         dset.attrs['Description'] = "Symmetry along x"
         dset = dg.create_dataset('sym_y', data=self.wave_drift.sym_y)
         dset.attrs['Description'] = "Symmetry along y"
+
+        # Kochin function angular step.
+        dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
+        dset.attrs['Description'] = "Kochin function angular step"
 
     def UpdateDriftObject(self):
 
