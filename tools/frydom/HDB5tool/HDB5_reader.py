@@ -459,7 +459,13 @@ class HDB5reader_v2(HDB5reader):
         # Initializations.
         body.Inf_Added_mass = np.zeros((6, 6 * pyHDB.nb_bodies), dtype=np.float)
         try:
-            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionK/DOF_0"] # Read for cheking if the foled is present or not.
+            reader[radiation_path + "/BodyMotion_0/ZeroFreqAddedMass"] # Read for cheking if the folder is present or not.
+            body.Zero_Added_mass = np.zeros((6, 6 * pyHDB.nb_bodies), dtype=np.float)
+        except:
+            pass
+
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionK/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
             body.irf_ku = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
         except:
@@ -474,8 +480,14 @@ class HDB5reader_v2(HDB5reader):
             irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
             irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
 
-            # Infinite added mass.
+            # Infinite-frequency added mass.
             body.Inf_Added_mass[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/InfiniteAddedMass"])
+
+            # Zero-frequency added mass.
+            try:
+                body.Zero_Added_mass[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/ZeroFreqAddedMass"])
+            except:
+                pass
 
             # Radiation mask.
             try:

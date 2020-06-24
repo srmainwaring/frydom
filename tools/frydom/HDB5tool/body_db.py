@@ -52,8 +52,11 @@ class BodyDB(object):
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
 
-        # Infinite added mass matrices.
+        # Infinite-frequency added mass matrices.
         self.Inf_Added_mass = None
+
+        # Zero-frequency added mass matrices.
+        self.Zero_Added_mass = None
 
         # Damping matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Damping = np.zeros((6, 6 * nb_bodies, nw), dtype=np.float)
@@ -229,6 +232,21 @@ class BodyDB(object):
             return
         else:
             return self.Inf_Added_mass * self._flags
+
+    def zero_added_mass(self):
+
+        """This function gives the zero-frequency added mass coefficients.
+
+        Returns
+        -------
+        Array of floats
+            Zero-frequency added mass coefficients.
+        """
+
+        if self.Zero_Added_mass is None:
+            return
+        else:
+            return self.Zero_Added_mass * self._flags
 
     @property
     def hydrostatic(self):

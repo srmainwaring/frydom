@@ -938,8 +938,14 @@ class pyHDB():
             # Infinite added mass.
             dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
                                          data=body.Inf_Added_mass[:,6*j:6*(j+1)])
-            dset.attrs['Description'] = "Infinite added mass matrix that modifies the apparent mass of body %u from " \
+            dset.attrs['Description'] = "Infinite-frequency added mass matrix that modifies the apparent mass of body %u from " \
                                         "acceleration of body %u." % (body.i_body, j)
+
+            if(body.Zero_Added_mass is not None):
+                dset = writer.create_dataset(radiation_body_motion_path + "/ZeroFreqAddedMass",
+                                             data=body.Zero_Added_mass[:, 6 * j:6 * (j + 1)])
+                dset.attrs['Description'] = "Zero-frequency added mass matrix that modifies the apparent mass of body %u from " \
+                                            "acceleration of body %u." % (body.i_body, j)
 
             # Radiation mask.
             dset = writer.create_dataset(radiation_body_motion_path + "/RadiationMask",
