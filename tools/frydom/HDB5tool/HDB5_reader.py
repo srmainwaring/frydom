@@ -58,6 +58,9 @@ class HDB5reader():
             else:
                 HDB5reader_v2(reader, pyHDB)
 
+            # Wave field.
+            self.read_wave_field(reader, pyHDB, "/WaveField")
+
             # Wave drift coefficients.
             self.read_wave_drift(reader, pyHDB, "/WaveDrift")
 
@@ -259,8 +262,28 @@ class HDB5reader():
         except:
             pass
 
+    def read_wave_field(self, reader, pyHDB, wave_field_path):
+        """This function reads the wave field data of the *.hdb5 file.
+
+        Parameters
+        ----------
+        reader : string
+            *.hdb5 file.
+        pyHDB : object
+            pyHDB object for storing the hydrodynamic database.
+        wave_field_path : string, optional
+            Path to wave field data.
+        """
+
+        try:
+            reader[wave_field_path]
+            pyHDB.has_wave_field = True
+
+        except:
+            pass
+
     def read_wave_drift(self, reader, pyHDB, wave_drift_path):
-        """This function writes the wave drift loads into the *.hdb5 file.
+        """This function reads the wave drift loads of the *.hdb5 file.
 
         Parameters
         ----------

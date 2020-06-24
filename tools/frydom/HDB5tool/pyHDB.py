@@ -88,6 +88,9 @@ class pyHDB():
         # Eigenfrequencies.
         self.has_Eigenfrequencies = False
 
+        # Wave field.
+        self.has_wave_field = False
+
         # Drift loads from Kochin functions.
         self.has_Drift_Kochin = False
         self.Wave_drift_force = None
@@ -657,6 +660,10 @@ class pyHDB():
             if(self.has_Drift_Kochin is False and self._wave_drift is None and self.Wave_drift_force is not None):
                 self.UpdateDriftObject()
 
+            # Wave field.
+            if(self.has_wave_field):
+                self.write_wave_field(writer, "/WaveField")
+
             # Wave drift coefficients.
             if (self._wave_drift):
                 self.write_wave_drift(writer, "/WaveDrift")
@@ -1153,6 +1160,20 @@ class pyHDB():
         # RAO.
         if(self.has_RAO):
             self.write_RAO(writer, body, body_path + "/RAO")
+
+    def write_wave_field(self, writer, wave_field_path="/WaveField"):
+
+        """This function writes the wave field data into the *.hdb5 file.
+
+        Parameters
+        ----------
+        Writer : string
+            *.hdb5 file.
+        wave_field_path : string, optional
+            Path to wave field loads.
+        """
+
+        dg = writer.create_group(wave_field_path)
 
     def write_wave_drift(self, writer, wave_drift_path="/WaveDrift"):
 
