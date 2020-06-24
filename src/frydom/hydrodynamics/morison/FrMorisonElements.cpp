@@ -374,6 +374,8 @@ namespace frydom {
     Force localForce;
     Vector3d<double> Cd = {m_property.cd.x, m_property.cd.y, M_PI * m_property.cf};
     localForce = 0.5 * rho * m_property.diameter * m_property.length * Vnorm_n * velocity_n.cwiseProduct(Cd);
+    // friction
+    localForce.z() = 0.5 * rho * m_property.diameter * m_property.length * std::abs(velocity.z()) * velocity.z() * Cd[2];
 
     // Flow acceleration part
     if (m_extendedModel and m_isImmerged) {
