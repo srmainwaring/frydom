@@ -427,7 +427,7 @@ class pyHDB():
 
             body.irf_ku = irf_data
 
-    def interpolation(self,discretization):
+    def interpolation(self, discretization):
         """this function interpolates with respect to the wave directions and the wave frequencies."""
 
         for body in self.bodies:
@@ -721,46 +721,25 @@ class pyHDB():
 
         frequential_path = discretization_path + "/Frequency"
 
-        dset = writer.create_dataset(frequential_path + "/NbFrequencies", data=self.nb_wave_freq)
-        dset.attrs['Description'] = "Number of frequencies"
-
-        dset = writer.create_dataset(frequential_path + "/MinFrequency", data=self.min_wave_freq)
+        dset = writer.create_dataset(frequential_path, data=self.wave_freq)
         dset.attrs['Unit'] = "rad/s"
-        dset.attrs['Description'] = "Minimum frequency."
-
-        dset = writer.create_dataset(frequential_path + "/MaxFrequency", data=self.max_wave_freq)
-        dset.attrs['Unit'] = "rad/s"
-        dset.attrs['Description'] = "Maximum frequency."
+        dset.attrs['Description'] = "Wave frequencies."
 
         # Wave direction discretization.
 
-        wave_direction_path = discretization_path + "/WaveDirections"
+        wave_direction_path = discretization_path + "/WaveDirection"
 
-        dset = writer.create_dataset(wave_direction_path + "/NbWaveDirections", data=self.nb_wave_dir)
-        dset.attrs['Description'] = "Number of wave directions."
-
-        dset = writer.create_dataset(wave_direction_path + "/MinAngle", data=self.min_wave_dir)
+        dset = writer.create_dataset(wave_direction_path, data=self.wave_dir * 180 / np.pi)
         dset.attrs['Unit'] = "deg"
-        dset.attrs['Description'] = "Minimum wave direction."
-
-        dset = writer.create_dataset(wave_direction_path + "/MaxAngle", data=self.max_wave_dir)
-        dset.attrs['Unit'] = "deg"
-        dset.attrs['Description'] = "Maximum wave direction."
+        dset.attrs['Description'] = "Wave directions."
 
         # Time sample.
 
         time_path = discretization_path + "/Time"
 
-        dset = writer.create_dataset(time_path + "/NbTimeSample", data=self.nb_time_samples)
-        dset.attrs['Description'] = "Number of time samples."
-
-        dset = writer.create_dataset(time_path + "/FinalTime", data=self.time[-1])
+        dset = writer.create_dataset(time_path, data=self.time)
+        dset.attrs['Description'] = "Time samples."
         dset.attrs['Unit'] = "s"
-        dset.attrs['Description'] = "Final time for the evaluation of the impulse response functions."
-
-        dset = writer.create_dataset(time_path + "/TimeStep", data=self.dt)
-        dset.attrs['Unit'] = "s"
-        dset.attrs['Description'] = "Time step."
 
     def write_mode(self, writer, body, ForceOrMotion, body_modes_path="/Modes"):
         """This function writes the force and motion modes into the *.hdb5 file.
