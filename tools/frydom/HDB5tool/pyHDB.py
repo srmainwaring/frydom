@@ -1184,6 +1184,6 @@ class pyHDB():
         """
 
         # Version.
-        dset = writer.create_dataset('Version', data=self.version)
+        dset = writer.create_dataset('Version', data= 3.0)
         dset.attrs['Description'] = "Version of the hdb5 output file."
 
