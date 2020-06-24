@@ -1122,22 +1122,22 @@ class pyHDB():
 
             # Loop over the wave directions.
             for i_angle, angle in enumerate(mode.heading):
-                grp_dir = grp_modes.require_group("heading_%i" % i_angle)
+                grp_dir = grp_modes.require_group("angle_%i" % i_angle)
 
                 # Set heading angle.
-                dset = grp_dir.create_dataset("heading", data=angle)
-                dset.attrs['Unit'] = 'rad'
+                dset = grp_dir.create_dataset("angle", data=angle * 180 / np.pi)
+                dset.attrs['Unit'] = 'deg'
                 dset.attrs['Description'] = "Heading angle"
 
                 # Set data.
                 dset = grp_dir.create_dataset("data", data=np.array(mode.data)[i_angle, :])
-                dset.attrs['Description'] = "Wave Drift force coefficients"
+                dset.attrs['Description'] = "Mean wave drift load coefficients"
 
         # Set frequency.
         if(self.wave_drift.discrete_frequency is not None):
             dset = dg.create_dataset("freq", data=self.wave_drift.discrete_frequency)
             dset.attrs['Unit'] = "rads"
-            dset.attrs['Description'] = "Time discretization of the data"
+            dset.attrs['Description'] = "Wave discretization of the data"
 
         # Set sym.
         dset = dg.create_dataset("sym_x", data=self.wave_drift.sym_x)
