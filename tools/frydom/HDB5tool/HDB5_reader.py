@@ -288,8 +288,9 @@ class HDB5reader():
             else:
                 pyHDB._wave_drift.sym_y = True
 
-            # Wave frequencies.
-            pyHDB._wave_drift.discrete_frequency = np.array(reader[wave_drift_path + "/freq"])
+            if (pyHDB.version <= 2.0):
+                # Wave frequencies.
+                pyHDB._wave_drift.discrete_frequency = np.array(reader[wave_drift_path + "/freq"])
 
             # Modes.
             for mode in ["/surge", "/sway", "/heave", "/roll", "/pitch", "/yaw"]:
@@ -300,10 +301,16 @@ class HDB5reader():
                     for ibeta in range(0, pyHDB.nb_wave_dir):
 
                         # Path.
-                        heading_path = wave_drift_path + mode + "/heading_%u" % ibeta
+                        if(pyHDB.version <= 2.0):
+                            heading_path = wave_drift_path + mode + "/heading_%u" % ibeta
+                        else:
+                            heading_path = wave_drift_path + mode + "/angle_%u" % ibeta
 
                         # Check wave direction.
-                        assert(abs(pyHDB.wave_dir[ibeta] - np.array(reader[heading_path + "/heading"])) < pow(10,-5))
+                        if(pyHDB.version <= 2.0):
+                            assert(abs(pyHDB.wave_dir[ibeta] - np.array(reader[heading_path + "/heading"])) < pow(10,-5))
+                        else:
+                            assert (abs(pyHDB.wave_dir[ibeta] - np.array(reader[heading_path + "/angle"]) * np.pi / 180.) < pow(10, -5))
 
                         # Wave drift coefficients.
                         if(mode == "/surge"):
