@@ -100,6 +100,12 @@ class pyHDB():
         self.has_Drift_Kochin = False
         self.Wave_drift_force = None
 
+        # Vector fitting.
+        self.has_VF = False
+        self.max_order = None
+        self.relaxed = None
+        self.tolerance = None
+
         # Solver.
         self.solver = None
 
@@ -676,6 +682,10 @@ class pyHDB():
             # Wave drift coefficients.
             if (self._wave_drift):
                 self.write_wave_drift(writer, "/WaveDrift")
+
+            # Vector fitting.
+            if(self.has_VF):
+                self.write_VF(writer, "/VectorFitting")
 
             # Version.
             self.write_version(writer)
@@ -1281,16 +1291,35 @@ class pyHDB():
 
         self.has_Drift_Kochin = False
 
-    def write_version(self, writer):
-        """This function writes the version of the *.hdb5 file.
+    def write_VF(self, writer, VF_path = "/VectorFitting"):
+        """This function writes the vector fitting parameters into the *.hdb5 file.
 
         Parameter
         ---------
-        Writer : string
+        Writer : string.
             *.hdb5 file.
         """
+        writer.create_group(VF_path)
 
-        # Version.
-        dset = writer.create_dataset('Version', data= 3.0)
-        dset.attrs['Description'] = "Version of the hdb5 output file."
+        dset = writer.create_dataset(VF_path + "/MaxOrder", data=self.max_order)
+        dset.attrs['Description'] = "Maximum vector fitting order."
+
+        dset = writer.create_dataset(VF_path + "/Relaxed", data=self.relaxed)
+        dset.attrs['Description'] = "Relaxed vector-fitting (true) or original algorithm (false);"
+
+        dset = writer.create_dataset(VF_path + "/Tolerance", data=self.tolerance)
+        dset.attrs['Description'] = "Least-square tolerance of the vector fitting algorithm."
+
+    def write_version(self, writer):
+            """This function writes the version of the *.hdb5 file.
+
+            Parameter
+            ---------
+            Writer : string
+                *.hdb5 file.
+            """
+
+            # Version.
+            dset = writer.create_dataset('Version', data= 3.0)
+            dset.attrs['Description'] = "Version of the hdb5 output file."
 

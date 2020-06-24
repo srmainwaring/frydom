@@ -68,6 +68,9 @@ class HDB5reader():
             # Wave drift coefficients.
             self.read_wave_drift(reader, pyHDB, "/WaveDrift")
 
+            # Vector fitting.
+            self.read_VF(reader, pyHDB, "/VectorFitting")
+
     def read_environment(self, reader, pyHDB):
         """This function reads the environmental data of the *.hdb5 file.
 
@@ -377,6 +380,29 @@ class HDB5reader():
 
                 except:
                     pass
+
+        except:
+            pass
+
+    def read_VF(self, reader, pyHDB, VF_path):
+        """This function reads the vector fitting parameters of the *.hdb5 file.
+
+        Parameters
+        ----------
+        reader : string
+            *.hdb5 file.
+        pyHDB : object
+            pyHDB object for storing the hydrodynamic database.
+        VF_path : string, optional
+            Path to VF parameters.
+        """
+
+        try:
+            reader[VF_path]
+            pyHDB.max_order = np.array(reader[VF_path + "/MaxOrder"])
+            pyHDB.relaxed = np.array(reader[VF_path + "/Relaxed"])
+            pyHDB.tolerance = np.array(reader[VF_path + "/Tolerance"])
+            pyHDB.has_VF = True
 
         except:
             pass
