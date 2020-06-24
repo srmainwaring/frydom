@@ -68,8 +68,10 @@ class BodyDB(object):
         # self.Excitation = np.zeros((6, nw, nbeta), dtype=np.complex)
 
         # Mesh.
-        if(mesh is not None):
-            self.mesh = mesh
+        self.mesh = mesh
+
+        # Body name (body mesh name until version 2).
+        self.name = None
 
         # Force mask.
         self.Force_mask = np.zeros(6,dtype = np.int)
@@ -107,25 +109,25 @@ class BodyDB(object):
         # Eigenfrequencies.
         self.Eigenfrequencies = None
 
-    @property
-    def name(self):
-
-        """This function gives the name of the mesh of a body.
-
-        Returns
-        -------
-        string
-            Name of the mesh of a body.
-        """
-
-        return self.mesh.name
-
-    @name.setter
-    def name(self, value):
-
-        """This function sets the name of the body mesh."""
-
-        self.mesh.name = value
+    # @property
+    # def name(self):
+    #
+    #     """This function gives the name of the mesh of a body.
+    #
+    #     Returns
+    #     -------
+    #     string
+    #         Name of the mesh of a body.
+    #     """
+    #
+    #     return self.name
+    #
+    # @name.setter
+    # def name(self, value):
+    #
+    #     """This function sets the name of the body mesh."""
+    #
+    #     self.name = value
 
     def _compute_nds(self):
         """Computes the term n dS for each force mode of the body."""

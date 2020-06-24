@@ -581,11 +581,8 @@ class HDB5reader_v2(HDB5reader):
                 # Body definition.
                 body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir)
 
-            # Body name.
-            try:
-                body.name = str(np.array(reader[body_path + "/BodyName"]))
-            except:
-                pass
+            # Body name (body mesh name until version 2).
+            body.name = str(np.array(reader[body_path + "/BodyName"]))
 
             # Position of the body.
             try:
