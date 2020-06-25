@@ -118,6 +118,9 @@ class BodyDB(object):
         # Eigenfrequencies.
         self.Eigenfrequencies = None
 
+        # Poles and residues.
+        self.poles_residues = None
+
     # @property
     # def name(self):
     #

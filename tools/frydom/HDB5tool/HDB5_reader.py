@@ -21,6 +21,7 @@ from meshmagick.mesh import Mesh
 
 import frydom.HDB5tool.body_db as body_db
 import frydom.HDB5tool.wave_drift_db as wave_drift_db
+import frydom.HDB5tool.PoleResidue as PoleResidue
 
 class HDB5reader():
     """
@@ -56,6 +57,9 @@ class HDB5reader():
             if(pyHDB.version >= 3.0):
                 self.read_symmetries(reader, pyHDB)
 
+            # Vector fitting.
+            self.read_VF(reader, pyHDB, "/VectorFitting") # Always before HDBRreader for setting has_VF.
+
             # Bodies
             if(pyHDB.version == 1.0):
                 HDB5reader_v1(reader, pyHDB)
@@ -67,9 +71,6 @@ class HDB5reader():
 
             # Wave drift coefficients.
             self.read_wave_drift(reader, pyHDB, "/WaveDrift")
-
-            # Vector fitting.
-            self.read_VF(reader, pyHDB, "/VectorFitting")
 
     def read_environment(self, reader, pyHDB):
         """This function reads the environmental data of the *.hdb5 file.
@@ -546,6 +547,10 @@ class HDB5reader_v2(HDB5reader):
         except:
             pass
 
+        if(pyHDB.has_VF):
+            body.poles_residues = []
+
+
         for j in range(pyHDB.nb_bodies):
 
             # Paths.
@@ -554,6 +559,7 @@ class HDB5reader_v2(HDB5reader):
             radiation_damping_path = radiation_body_motion_path + "/RadiationDamping"
             irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
             irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
+            modal_path = radiation_body_motion_path + "/Modal"
 
             # Infinite-frequency added mass.
             body.Inf_Added_mass[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/InfiniteAddedMass"])
@@ -585,6 +591,41 @@ class HDB5reader_v2(HDB5reader):
                 # Impulse response functions with forward speed.
                 if(body.irf_ku is not None):
                     body.irf_ku[:, 6 * j + imotion, :] = np.array(reader[irf_ku_path + "/DOF_%u" % imotion])
+
+                # Poles and residues.
+                if(pyHDB.has_VF):
+                    for iforce in range(0, 6):
+                        modal_coef_path = modal_path + "/DOF_%u/FORCE_%u" % (imotion, iforce)
+                        PR = PoleResidue.PoleResidue()
+
+                        # Real poles and residues.
+                        try:
+                            real_poles = np.array(reader[modal_coef_path + "/RealPoles"])
+                            real_residues = np.array(reader[modal_coef_path + "/RealResidues"])
+                            PR.add_real_pole_residue(real_poles, real_residues)
+                        except:
+                            pass
+
+                        # Complex poles and residues.
+                        try:
+
+                            # Poles.
+                            cc_poles_path = modal_coef_path + "/ComplexPoles"
+                            cc_poles_Re = np.array(reader[cc_poles_path + "/RealCoeff"])
+                            cc_poles_Im = np.array(reader[cc_poles_path + "/ImagCoeff"])
+                            cc_poles = cc_poles_Re + 1j * cc_poles_Im
+
+                            # Residues.
+                            cc_residues_path = modal_coef_path + "/ComplexResidues"
+                            cc_residues_Re = np.array(reader[cc_residues_path + "/RealCoeff"])
+                            cc_residues_Im = np.array(reader[cc_residues_path + "/ImagCoeff"])
+                            cc_residues = cc_residues_Re + 1j * cc_residues_Im
+
+                            PR.add_cc_pole_residue(cc_poles, cc_residues)
+                        except:
+                            pass
+
+                        body.poles_residues.append(PR)
 
     def read_mass_matrix(self, reader, body, inertia_path):
 
@@ -740,7 +781,7 @@ class HDB5reader_v2(HDB5reader):
             # Diffraction and Froude-Krylov loads.
             self.read_excitation(reader, pyHDB, body, body_path + "/Excitation")
 
-            # Added mass and damping coefficients and impulse response functions.
+            # Added mass and damping coefficients, impulse response functions and poles and residues of the VF.
             self.read_radiation(reader, pyHDB, body, body_path + "/Radiation")
 
             # Hydrostatics.

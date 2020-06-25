@@ -982,6 +982,11 @@ class pyHDB():
             dg.attrs['Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
                                       "and generates forces on body %u." % (j, body.i_body)
 
+            modal_path = radiation_body_motion_path + "/Modal"
+            dg = writer.create_group(modal_path)
+            dg.attrs['Description'] = "Poles and residues corresponding to the radiation coefficients due to the motion of body %u " \
+                                      "and generating the loads on body %u." % (j, body.i_body)
+
             # Infinite added mass.
             dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
                                          data=body.Inf_Added_mass[:,6*j:6*(j+1)])
@@ -1026,6 +1031,40 @@ class pyHDB():
                     dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof,
                                             data=body.irf_ku[:, 6*j+idof, :])
                     dset.attrs['Description'] = "Impulse response functions Ku"
+
+                # Poles and residues.
+                if(self.has_VF):
+                    dg = writer.create_group(modal_path + "/DOF_%u" % idof)
+                    for iforce in range(0, 6):
+                        modal_coef_path = modal_path + "/DOF_%u/FORCE_%u" % (idof, iforce)
+                        dg = writer.create_group(modal_coef_path)
+                        PR = body.poles_residues[j * self.nb_bodies + 6 * idof + iforce]
+
+                        # Real poles and residues.
+                        if(PR.nb_real_poles() > 0):
+                            dset = writer.create_dataset(modal_coef_path + "/RealPoles",
+                                                         data=PR.real_poles())
+                            dset = writer.create_dataset(modal_coef_path + "/RealResidues",
+                                                         data=PR.real_residues())
+
+                        # Complex poles and residues.
+                        if(PR.nb_cc_poles() > 0):
+
+                            # Poles.
+                            cc_poles_path = modal_coef_path + "/ComplexPoles"
+                            dg = writer.create_group(cc_poles_path)
+                            dset = writer.create_dataset(cc_poles_path + "/RealCoeff",
+                                                         data=PR.cc_poles().real)
+                            dset = writer.create_dataset(cc_poles_path + "/ImagCoeff",
+                                                         data=PR.cc_poles().imag)
+
+                            # Residues.
+                            cc_residues_path = modal_coef_path + "/ComplexResidues"
+                            dg = writer.create_group(cc_residues_path)
+                            dset = writer.create_dataset(cc_residues_path + "/RealCoeff",
+                                                         data=PR.cc_residues().real)
+                            dset = writer.create_dataset(cc_residues_path + "/ImagCoeff",
+                                                         data=PR.cc_residues().imag)
 
     def write_hydrostatic(self, writer, body, hydrostatic_path="/Hydrostatic"):
 
