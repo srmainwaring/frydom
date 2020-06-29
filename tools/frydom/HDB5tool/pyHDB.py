@@ -19,8 +19,7 @@ from datetime import datetime
 from frydom.HDB5tool.wave_dispersion_relation import solve_wave_dispersion_relation
 from frydom.HDB5tool.wave_drift_db import WaveDriftDB
 
-inf = float('inf')  # Definition of infinity for depth.
-
+inf = float('inf') # Definition of infinity for depth.
 
 class pyHDB():
     """
@@ -45,9 +44,14 @@ class pyHDB():
 
         # Wave directions.
         self.nb_wave_dir = 0
-        self.min_wave_dir = 0.  # deg.
-        self.max_wave_dir = 0.  # deg.
-        self.wave_dir = np.array([])  # rad.
+        self.min_wave_dir = 0. # deg.
+        self.max_wave_dir = 0. # deg.
+        self.wave_dir = np.array([]) # rad.
+
+        # Symmetries.
+        self.bottom_sym = None
+        self.xoz_sym = None
+        self.yoz_sym = None
 
         # Kochin parameters.
         self.has_kochin = False
@@ -55,12 +59,12 @@ class pyHDB():
         self.min_angle_kochin = 0.
         self.max_angle_kochin = 0.
         self.angle_kochin = np.array([])
-        self.kochin_diffraction = None  # Diffraction Kochin functions.
-        self.kochin_radiation = None  # Radiation Kochin functions.
-        self.nb_dir_kochin = 0  # Different from self.nb_wave_dir if the symmetry was used.
-        self.min_dir_kochin = 0.  # Different from self.min_wave_dir if the symmetry was used (deg).
-        self.max_dir_kochin = 0.  # Different from self.max_wave_dir if the symmetry was used (deg).
-        self.wave_dir_kochin = np.array([])  # Different from self.wave_dir if the symmetry was used (rad).
+        self.kochin_diffraction = None # Diffraction Kochin functions.
+        self.kochin_radiation = None # Radiation Kochin functions.
+        self.nb_dir_kochin = 0 # Different from self.nb_wave_dir if the symmetry was used.
+        self.min_dir_kochin = 0. # Different from self.min_wave_dir if the symmetry was used (deg).
+        self.max_dir_kochin = 0. # Different from self.max_wave_dir if the symmetry was used (deg).
+        self.wave_dir_kochin = np.array([]) # Different from self.wave_dir if the symmetry was used (rad).
 
         # Bodies.
         self.nb_bodies = 0
@@ -89,9 +93,18 @@ class pyHDB():
         # Eigenfrequencies.
         self.has_Eigenfrequencies = False
 
-        # Drift loads from Kochin functions.
+        # Wave field.
+        self.has_wave_field = False
+
+        # Mean wave drift loads from Kochin functions.
         self.has_Drift_Kochin = False
         self.Wave_drift_force = None
+
+        # Vector fitting.
+        self.has_VF = False
+        self.max_order = None
+        self.relaxed = None
+        self.tolerance = None
 
         # Solver.
         self.solver = None
@@ -178,8 +191,7 @@ class pyHDB():
         self.nb_dir_kochin = self.nb_wave_dir
         self.min_dir_kochin = self.min_wave_dir
         self.max_dir_kochin = self.max_wave_dir
-        self.wave_dir_kochin = np.radians(
-            np.linspace(self.min_dir_kochin, self.max_dir_kochin, self.nb_dir_kochin, dtype=np.float))
+        self.wave_dir_kochin = np.radians(np.linspace(self.min_dir_kochin, self.max_dir_kochin, self.nb_dir_kochin, dtype=np.float))
 
     # @property
     # def wave_dir(self):
@@ -270,41 +282,38 @@ class pyHDB():
                 z = centers[:, 2]
 
                 # COMPUTING FIELDS.
-                ctheta = np.cos(self.wave_dir)  # cos(beta).
-                stheta = np.sin(self.wave_dir)  # sin(beta).
+                ctheta = np.cos(self.wave_dir) # cos(beta).
+                stheta = np.sin(self.wave_dir) # sin(beta).
 
-                kctheta = np.einsum('i, j -> ij', k_wave, ctheta)  # k*cos(beta).
-                kstheta = np.einsum('i, j -> ij', k_wave, stheta)  # k*sin(beta).
+                kctheta = np.einsum('i, j -> ij', k_wave, ctheta) # k*cos(beta).
+                kstheta = np.einsum('i, j -> ij', k_wave, stheta) # k*sin(beta).
 
-                kw_bar = np.einsum('i, jk -> ijk', x - self.x_wave_measure, kctheta)  # kw = k * (x - xref)*cos(beta).
-                kw_bar += np.einsum('i, jk -> ijk', y - self.y_wave_measure,
-                                    kstheta)  # kw = k * ((x - xref)*cos(beta) + (y - yref)*sin(beta)).
-                exp_jkw_bar = np.exp(1j * kw_bar)  # e^(j * k * ((x - xref)*cos(beta) + (y - yref)*sin(beta))).
+                kw_bar = np.einsum('i, jk -> ijk', x - self.x_wave_measure, kctheta) # kw = k * (x - xref)*cos(beta).
+                kw_bar += np.einsum('i, jk -> ijk', y - self.y_wave_measure, kstheta) # kw = k * ((x - xref)*cos(beta) + (y - yref)*sin(beta)).
+                exp_jkw_bar = np.exp(1j * kw_bar) # e^(j * k * ((x - xref)*cos(beta) + (y - yref)*sin(beta))).
 
-                if np.isinf(self.depth):  # Infinite depth.
+                if np.isinf(self.depth): # Infinite depth.
 
-                    kxzph = np.einsum('i, j -> ij', z, k_wave)  # k*z.
-                    cih = np.exp(kxzph)  # e^(kz).
+                    kxzph = np.einsum('i, j -> ij', z, k_wave) # k*z.
+                    cih = np.exp(kxzph) # e^(kz).
 
-                else:  # Finite depth.
+                else: # Finite depth.
 
-                    kxzph = np.einsum('i, j -> ij', z + self.depth, k_wave)  # k*(z+h).
-                    chkh_1 = 1. / np.cosh(k_wave * self.depth)  # 1/ch(k*h).
+                    kxzph = np.einsum('i, j -> ij', z + self.depth, k_wave) # k*(z+h).
+                    chkh_1 = 1. / np.cosh(k_wave * self.depth) # 1/ch(k*h).
 
-                    cih = np.einsum('ij, j -> ij', np.cosh(kxzph), chkh_1)  # ch(k(z+h)) / ch(k*h).
+                    cih = np.einsum('ij, j -> ij', np.cosh(kxzph), chkh_1) # ch(k(z+h)) / ch(k*h).
 
-                cih_exp_jkw_bar = np.einsum('ij, ijk -> ijk', cih,
-                                            exp_jkw_bar)  # ch(k(z+h)) / ch(k*h) *  e^(j * k * ((x - xref)*cos(beta) + (y - yref)*sin(beta))).
+                cih_exp_jkw_bar = np.einsum('ij, ijk -> ijk', cih, exp_jkw_bar) # ch(k(z+h)) / ch(k*h) *  e^(j * k * ((x - xref)*cos(beta) + (y - yref)*sin(beta))).
 
                 # Pressure.
-                pressure = self.rho_water * self.grav * cih_exp_jkw_bar  # rho * g * ch(k(z+h)) / ch(k*h) *  e^(j * k * ((x - xref)*cos(beta) + (y - yref)*sin(beta))).
+                pressure = self.rho_water * self.grav * cih_exp_jkw_bar # rho * g * ch(k(z+h)) / ch(k*h) *  e^(j * k * ((x - xref)*cos(beta) + (y - yref)*sin(beta))).
 
                 # Integration of the pressure of the wetted surface.
-                for i_force in range(0, 6):
-                    if (body.Force_mask[i_force]):
-                        nds = body.get_nds(i_force)  # n*ds.
-                        body.Froude_Krylov[i_force, :, :] = np.einsum('ijk, i -> jk', pressure,
-                                                                      -nds)  # Il s'agit de la normale entrante.
+                for i_force in range(0,6):
+                    if(body.Force_mask[i_force]):
+                        nds = body.get_nds(i_force) # n*ds.
+                        body.Froude_Krylov[i_force, :, :] = np.einsum('ijk, i -> jk', pressure, -nds) # Il s'agit de la normale entrante.
 
     def eval_impulse_response_function(self, full=True):
         """Computes the impulse response functions.
@@ -332,9 +341,9 @@ class pyHDB():
             irf_data = np.empty(0, dtype=np.float)
 
             if full:
-                ca = np.einsum('ijk, ij -> ijk', body.Damping, body._flags)  # Damping.
+                ca = np.einsum('ijk, ij -> ijk', body.Damping, body._flags) # Damping.
             else:
-                ca = body.radiation_damping(self._iwcut)  # Damping.
+                ca = body.radiation_damping(self._iwcut) # Damping.
 
             kernel = np.einsum('ijk, kl -> ijkl', ca, cwt)  # Damping*cos(wt).
 
@@ -361,12 +370,12 @@ class pyHDB():
 
         # Computation.
         wt = np.einsum('i, j -> ij', w, self.time)  # w*t.
-        sin_wt = np.sin(wt)  # sin(w*t).
+        sin_wt = np.sin(wt) # sin(w*t).
 
         for body in self.bodies:
 
             # Initialization.
-            body.Inf_Added_mass = np.zeros((6, 6 * self.nb_bodies), dtype=np.float)
+            body.Inf_Added_mass = np.zeros((6, 6*self.nb_bodies), dtype = np.float)
 
             # IRF.
             irf = body.irf
@@ -378,8 +387,7 @@ class pyHDB():
                 cm = body.radiation_added_mass(self._iwcut)
 
             kernel = np.einsum('ijk, lk -> ijlk', irf, sin_wt)  # irf*sin(w*t).
-            integral = np.einsum('ijk, k -> ijk', np.trapz(kernel, x=self.time, axis=3),
-                                 1. / w)  # 1/w * int(irf*sin(w*t),dt).
+            integral = np.einsum('ijk, k -> ijk', np.trapz(kernel, x=self.time, axis=3), 1. / w)  # 1/w * int(irf*sin(w*t),dt).
 
             body.Inf_Added_mass = (cm + integral).mean(axis=2)  # mean( A(w) + 1/w * int(irf*sin(w*t),dt) ) wrt w.
 
@@ -410,15 +418,15 @@ class pyHDB():
             irf_data = np.empty(0, dtype=np.float)
 
             if full:
-                cm = np.einsum('ijk, ij -> ijk', body.Added_mass, body._flags)  # Added mass.
+                cm = np.einsum('ijk, ij -> ijk', body.Added_mass, body._flags) # Added mass.
             else:
-                cm = self.radiation_added_mass(self._iwcut)  # Added mass.
+                cm = self.radiation_added_mass(self._iwcut) # Added mass.
 
             cm_inf = body.Inf_Added_mass
 
             cm_diff = np.zeros(cm.shape)
             for j in range(w.size):
-                cm_diff[:, :, j] = cm_inf[:, :] - cm[:, :, j]  # A(inf) - A(w).
+                cm_diff[:, :, j] = cm_inf[:, :] - cm[:, :, j] # A(inf) - A(w).
 
             cm_diff[:, 4, :] = -cm_diff[:, 2, :]
             cm_diff[:, 5, :] = cm_diff[:, 1, :]
@@ -427,9 +435,9 @@ class pyHDB():
             cm_diff[:, 2, :] = 0.
             cm_diff[:, 3, :] = 0.
 
-            kernel = np.einsum('ijk, kl -> ijkl', cm_diff, cwt)  # int((A(inf) - A(w))*L*cos(wt),dw).
+            kernel = np.einsum('ijk, kl -> ijkl', cm_diff, cwt) # int((A(inf) - A(w))*L*cos(wt),dw).
 
-            irf_data = (2. / np.pi) * np.trapz(kernel, x=w, axis=2)  # (2/pi) * int((A(inf) - A(w))*L*cos(wt),dw).
+            irf_data = (2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int((A(inf) - A(w))*L*cos(wt),dw).
 
             body.irf_ku = irf_data
 
@@ -439,75 +447,62 @@ class pyHDB():
         for body in self.bodies:
 
             # Diffraction loads - Wave frequencies.
-            f_interp_diffraction_freq = interpolate.interp1d(self.wave_freq, body.Diffraction,
-                                                             axis=1)  # axis = 1 -> wave frequencies.
+            f_interp_diffraction_freq = interpolate.interp1d(self.wave_freq, body.Diffraction, axis=1) # axis = 1 -> wave frequencies.
             body.Diffraction = f_interp_diffraction_freq(discretization._wave_frequencies)
 
             # Froude-Krylov loads - Wave frequencies.
-            f_interp_fk_freq = interpolate.interp1d(self.wave_freq, body.Froude_Krylov,
-                                                    axis=1)  # axis = 1 -> wave frequencies.
+            f_interp_fk_freq = interpolate.interp1d(self.wave_freq, body.Froude_Krylov, axis=1) # axis = 1 -> wave frequencies.
             body.Froude_Krylov = f_interp_fk_freq(discretization._wave_frequencies)
 
             # Added mass - Wave frequencies.
-            f_interp_Added_mass_freq = interpolate.interp1d(self.wave_freq, body.Added_mass,
-                                                            axis=2)  # axis = 2 -> wave frequencies.
+            f_interp_Added_mass_freq = interpolate.interp1d(self.wave_freq, body.Added_mass, axis=2) # axis = 2 -> wave frequencies.
             body.Added_mass = f_interp_Added_mass_freq(discretization._wave_frequencies)
 
             # Damping - Wave frequencies.
-            f_interp_Damping_freq = interpolate.interp1d(self.wave_freq, body.Damping,
-                                                         axis=2)  # axis = 2 -> wave frequencies.
+            f_interp_Damping_freq = interpolate.interp1d(self.wave_freq, body.Damping, axis=2) # axis = 2 -> wave frequencies.
             body.Damping = f_interp_Damping_freq(discretization._wave_frequencies)
 
             # Wave directions.
-            if (self.nb_wave_dir > 1):  # Several wave directions, so the interpolations are possible.
+            if(self.nb_wave_dir > 1): # Several wave directions, so the interpolations are possible.
 
                 # Diffraction loads - Wave directions.
-                f_interp_diffraction_dir = interpolate.interp1d(self.wave_dir, body.Diffraction,
-                                                                axis=2)  # axis = 2 -> wave directions.
-                body.Diffraction = f_interp_diffraction_dir(
-                    discretization._wave_dirs)  # Application of the interpolation.
+                f_interp_diffraction_dir = interpolate.interp1d(self.wave_dir, body.Diffraction, axis=2) # axis = 2 -> wave directions.
+                body.Diffraction = f_interp_diffraction_dir(discretization._wave_dirs) # Application of the interpolation.
 
                 # Froude-Krylov loads - Wave directions.
-                f_interp_fk_dir = interpolate.interp1d(self.wave_dir, body.Froude_Krylov,
-                                                       axis=2)  # axis = 2 -> wave directions.
-                body.Froude_Krylov = f_interp_fk_dir(discretization._wave_dirs)  # Application of the interpolation.
+                f_interp_fk_dir = interpolate.interp1d(self.wave_dir, body.Froude_Krylov, axis=2) # axis = 2 -> wave directions.
+                body.Froude_Krylov = f_interp_fk_dir(discretization._wave_dirs) # Application of the interpolation.
 
-            else:  # Only one wave direction so the data are copied along a second direction.
+            else: # Only one wave direction so the data are copied along a second direction.
 
                 # Diffraction loads - Wave directions.
-                body.Diffraction = np.repeat(body.Diffraction, 2, axis=2)  # axis = 2 -> wave directions.
+                body.Diffraction = np.repeat(body.Diffraction, 2, axis=2) # axis = 2 -> wave directions.
 
                 # Froude-Krylov loads - Wave directions.
-                body.Froude_Krylov = np.repeat(body.Froude_Krylov, 2, axis=2)  # axis = 2 -> wave directions.
+                body.Froude_Krylov = np.repeat(body.Froude_Krylov, 2, axis=2) # axis = 2 -> wave directions.
 
         # Kochin functions.
-        if (self.has_kochin):
+        if(self.has_kochin):
 
             # Diffraction Kochin functions - Wave frequencies.
-            f_interp_kochin_diffraction_freq = interpolate.interp1d(self.wave_freq, self.kochin_diffraction,
-                                                                    axis=1)  # axis = 1 -> wave frequencies.
-            self.kochin_diffraction = f_interp_kochin_diffraction_freq(
-                discretization._wave_frequencies)  # Application of the interpolation.
+            f_interp_kochin_diffraction_freq = interpolate.interp1d(self.wave_freq, self.kochin_diffraction, axis=1) # axis = 1 -> wave frequencies.
+            self.kochin_diffraction = f_interp_kochin_diffraction_freq(discretization._wave_frequencies) # Application of the interpolation.
 
             # Wave directions.
             if (self.nb_wave_dir > 1):  # Several wave directions, so the interpolations are possible.
 
                 # Diffraction Kochin functions - Wave directions.
-                f_interp_kochin_diffraction_dir = interpolate.interp1d(self.wave_dir, self.kochin_diffraction,
-                                                                       axis=0)  # axis = 0 -> wave directions.
-                self.kochin_diffraction = f_interp_kochin_diffraction_dir(
-                    discretization._wave_dirs)  # Application of the interpolation.
+                f_interp_kochin_diffraction_dir = interpolate.interp1d(self.wave_dir, self.kochin_diffraction, axis=0) # axis = 0 -> wave directions.
+                self.kochin_diffraction = f_interp_kochin_diffraction_dir(discretization._wave_dirs) # Application of the interpolation.
 
-            else:  # Only one wave direction so the data are copied along a second direction.
+            else: # Only one wave direction so the data are copied along a second direction.
 
                 # Diffraction Kochin functions - Wave directions.
-                self.kochin_diffraction = np.repeat(self.kochin_diffraction, 2, axis=0)  # axis = 0 -> wave directions.
+                self.kochin_diffraction = np.repeat(self.kochin_diffraction, 2, axis=0) # axis = 0 -> wave directions.
 
             # Radiation Kochin functions - Wave frequencies.
-            f_interp_kochin_radiation_freq = interpolate.interp1d(self.wave_freq, self.kochin_radiation,
-                                                                  axis=1)  # axis = 1 -> wave frequencies.
-            self.kochin_radiation = f_interp_kochin_radiation_freq(
-                discretization._wave_frequencies)  # Application of the interpolation.
+            f_interp_kochin_radiation_freq = interpolate.interp1d(self.wave_freq, self.kochin_radiation, axis=1) # axis = 1 -> wave frequencies.
+            self.kochin_radiation = f_interp_kochin_radiation_freq(discretization._wave_frequencies) # Application of the interpolation.
 
         # Update wave directions and frequencies vectors.
         self.min_wave_freq = discretization._min_frequency
@@ -545,7 +540,7 @@ class pyHDB():
 
         for i in range(ndir):
 
-            if (np.degrees(self.wave_dir[i]) > np.float32(0.)):
+            if(np.degrees(self.wave_dir[i]) > np.float32(0.)):
 
                 # New wave direction.
                 new_dir = -np.degrees(self.wave_dir[i]) % 360
@@ -560,29 +555,25 @@ class pyHDB():
 
                     # Froude-Krylov loads.
                     fk_db_temp = np.copy(body.Froude_Krylov[:, :, i])
-                    fk_db_temp[(1, 3, 5), :] = -fk_db_temp[(1, 3, 5), :]  # 1 = sway, 3 = roll and 5 = yaw.
-                    body.Froude_Krylov = np.concatenate((body.Froude_Krylov, fk_db_temp.reshape(6, nw, 1)),
-                                                        axis=2)  # Axis of the wave directions.
+                    fk_db_temp[(1, 3, 5), :] = -fk_db_temp[(1, 3, 5), :] # 1 = sway, 3 = roll and 5 = yaw.
+                    body.Froude_Krylov = np.concatenate((body.Froude_Krylov, fk_db_temp.reshape(6, nw, 1)), axis=2) # Axis of the wave directions.
 
                     # Diffraction loads.
                     diff_db_temp = np.copy(body.Diffraction[:, :, i])
-                    diff_db_temp[(1, 3, 5), :] = -diff_db_temp[(1, 3, 5), :]  # 1 = sway, 3 = roll and 5 = yaw.
-                    body.Diffraction = np.concatenate((body.Diffraction, diff_db_temp.reshape(6, nw, 1)),
-                                                      axis=2)  # Axis of the wave directions.
+                    diff_db_temp[(1, 3, 5), :] = -diff_db_temp[(1, 3, 5), :] # 1 = sway, 3 = roll and 5 = yaw.
+                    body.Diffraction = np.concatenate((body.Diffraction, diff_db_temp.reshape(6, nw, 1)), axis=2) # Axis of the wave directions.
 
                     # RAO.
-                    if (self.has_RAO):
+                    if(self.has_RAO):
                         RAO_db_temp = np.copy(body.RAO[:, :, i])
                         RAO_db_temp[(1, 3, 5), :] = -RAO_db_temp[(1, 3, 5), :]  # 1 = sway, 3 = roll and 5 = yaw.
-                        body.RAO = np.concatenate((body.RAO, RAO_db_temp.reshape(6, nw, 1)),
-                                                  axis=2)  # Axis of the wave directions.
+                        body.RAO = np.concatenate((body.RAO, RAO_db_temp.reshape(6, nw, 1)), axis=2)  # Axis of the wave directions.
 
                 # Wave drift loads.
-                if (self.has_Drift_Kochin):
+                if(self.has_Drift_Kochin):
                     Drift_db_temp = np.copy(self.Wave_drift_force[:, :, i])
-                    Drift_db_temp[(1, 2), :] = -Drift_db_temp[(1, 2), :]  # 1 = sway and 2 = yaw.
-                    self.Wave_drift_force = np.concatenate((self.Wave_drift_force, Drift_db_temp.reshape(3, nw, 1)),
-                                                           axis=2)  # Axis of the wave directions.
+                    Drift_db_temp[(1, 2), :] = -Drift_db_temp[(1, 2), :] # 1 = sway and 2 = yaw.
+                    self.Wave_drift_force = np.concatenate((self.Wave_drift_force, Drift_db_temp.reshape(3, nw, 1)), axis=2)  # Axis of the wave directions.
 
     def _initialize_wave_dir(self):
 
@@ -644,8 +635,8 @@ class pyHDB():
             self.Wave_drift_force = self.Wave_drift_force[:, :, sort_dirs]
 
         # Update parameters.
-        self.min_wave_dir = np.degrees(np.min(self.wave_dir))  # deg.
-        self.max_wave_dir = np.degrees(np.max(self.wave_dir))  # deg.
+        self.min_wave_dir = np.degrees(np.min(self.wave_dir)) # deg.
+        self.max_wave_dir = np.degrees(np.max(self.wave_dir)) # deg.
         self.nb_wave_dir = self.wave_dir.shape[0]
 
         print("")
@@ -672,17 +663,29 @@ class pyHDB():
             # Discretization.
             self.write_discretization(writer)
 
+            # Symmetries.
+            if(self.version >= 3.0):
+                self.write_symmetries(writer)
+
             # Bodies.
             for body in self.bodies:
                 self.write_body(writer, body)
 
             # Update the format of the drift coefficients if computed from Kochin functions.
-            if (self.has_Drift_Kochin is False and self._wave_drift is None and self.Wave_drift_force is not None):
+            if(self.has_Drift_Kochin is False and self._wave_drift is None and self.Wave_drift_force is not None):
                 self.UpdateDriftObject()
+
+            # Wave field.
+            if(self.has_wave_field):
+                self.write_wave_field(writer, "/WaveField")
 
             # Wave drift coefficients.
             if (self._wave_drift):
                 self.write_wave_drift(writer, "/WaveDrift")
+
+            # Vector fitting.
+            if(self.has_VF):
+                self.write_VF(writer, "/VectorFitting")
 
             # Version.
             self.write_version(writer)
@@ -728,7 +731,7 @@ class pyHDB():
         dset = writer.create_dataset('Solver', data=self.solver.encode('utf-8'))
         dset.attrs['Description'] = 'Hydrodynamic solver used for computing the hydrodynamic database.'
 
-    def write_discretization(self, writer):
+    def write_discretization(self,writer):
         """This function writes the discretization parameters into the *.hdb5 file.
 
         Parameter
@@ -744,46 +747,47 @@ class pyHDB():
 
         frequential_path = discretization_path + "/Frequency"
 
-        dset = writer.create_dataset(frequential_path + "/NbFrequencies", data=self.nb_wave_freq)
-        dset.attrs['Description'] = "Number of frequencies"
-
-        dset = writer.create_dataset(frequential_path + "/MinFrequency", data=self.min_wave_freq)
+        dset = writer.create_dataset(frequential_path, data=self.wave_freq)
         dset.attrs['Unit'] = "rad/s"
-        dset.attrs['Description'] = "Minimum frequency."
-
-        dset = writer.create_dataset(frequential_path + "/MaxFrequency", data=self.max_wave_freq)
-        dset.attrs['Unit'] = "rad/s"
-        dset.attrs['Description'] = "Maximum frequency."
+        dset.attrs['Description'] = "Wave frequencies."
 
         # Wave direction discretization.
 
-        wave_direction_path = discretization_path + "/WaveDirections"
+        wave_direction_path = discretization_path + "/WaveDirection"
 
-        dset = writer.create_dataset(wave_direction_path + "/NbWaveDirections", data=self.nb_wave_dir)
-        dset.attrs['Description'] = "Number of wave directions."
-
-        dset = writer.create_dataset(wave_direction_path + "/MinAngle", data=self.min_wave_dir)
+        dset = writer.create_dataset(wave_direction_path, data=self.wave_dir * 180 / np.pi)
         dset.attrs['Unit'] = "deg"
-        dset.attrs['Description'] = "Minimum wave direction."
-
-        dset = writer.create_dataset(wave_direction_path + "/MaxAngle", data=self.max_wave_dir)
-        dset.attrs['Unit'] = "deg"
-        dset.attrs['Description'] = "Maximum wave direction."
+        dset.attrs['Description'] = "Wave directions."
 
         # Time sample.
 
         time_path = discretization_path + "/Time"
 
-        dset = writer.create_dataset(time_path + "/NbTimeSample", data=self.nb_time_samples)
-        dset.attrs['Description'] = "Number of time samples."
-
-        dset = writer.create_dataset(time_path + "/FinalTime", data=self.time[-1])
+        dset = writer.create_dataset(time_path, data=self.time)
+        dset.attrs['Description'] = "Time samples."
         dset.attrs['Unit'] = "s"
         dset.attrs['Description'] = "Final time for the evaluation of the impulse response functions."
 
-        dset = writer.create_dataset(time_path + "/TimeStep", data=self.dt)
-        dset.attrs['Unit'] = "s"
-        dset.attrs['Description'] = "Time step."
+    def write_symmetries(self,writer):
+        """This function writes the symmetry parameters into the *.hdb5 file.
+
+        Parameter
+        ---------
+        Writer : string.
+            *.hdb5 file.
+        """
+
+        symmetry_path = "/Symmetries"
+        writer.create_group(symmetry_path)
+
+        dset = writer.create_dataset(symmetry_path + "/Bottom", data=self.bottom_sym)
+        dset.attrs['Description'] = "Bottom symmetry."
+
+        dset = writer.create_dataset(symmetry_path + "/xOz", data=self.xoz_sym)
+        dset.attrs['Description'] = "(xOz) symmetry."
+
+        dset = writer.create_dataset(symmetry_path + "/yOz", data=self.yoz_sym)
+        dset.attrs['Description'] = "(yOz)) symmetry."
 
     def write_mode(self, writer, body, ForceOrMotion, body_modes_path="/Modes"):
         """This function writes the force and motion modes into the *.hdb5 file.
@@ -800,25 +804,25 @@ class pyHDB():
             Path to body modes.
         """
 
-        if (ForceOrMotion == 0):  # Force.
+        if(ForceOrMotion == 0): # Force.
             dset = writer.create_dataset(body_modes_path + "/NbForceModes", data=6)
             dset.attrs['Description'] = "Number of force modes for body number %u" % body.i_body
-        else:  # Motion.
+        else: # Motion.
             dset = writer.create_dataset(body_modes_path + "/NbMotionModes", data=6)
             dset.attrs['Description'] = "Number of motion modes for body number %u" % body.i_body
 
-        for iforce in range(0, 6):
+        for iforce in range(0,6):
 
-            if (ForceOrMotion == 0):  # Force.
+            if(ForceOrMotion == 0): # Force.
                 mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
-            else:  # Motion.
+            else: # Motion.
                 mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
             writer.create_group(mode_path)
-            if (iforce == 0 or iforce == 3):
+            if(iforce == 0 or iforce == 3):
                 direction = np.array([1., 0., 0.])
-            elif (iforce == 1 or iforce == 4):
+            elif(iforce == 1 or iforce == 4):
                 direction = np.array([0., 1., 0.])
-            elif (iforce == 2 or iforce == 5):
+            elif(iforce == 2 or iforce == 5):
                 direction = np.array([0., 0., 1.])
             writer.create_dataset(mode_path + "/Direction", data=direction)
 
@@ -826,7 +830,7 @@ class pyHDB():
                 writer.create_dataset(mode_path + "/Type", data='LINEAR')
             elif (iforce >= 3):
                 writer.create_dataset(mode_path + "/Type", data='ANGULAR')
-                writer.create_dataset(mode_path + "/Point", data=body.point[iforce - 3, :])
+                writer.create_dataset(mode_path + "/Point", data=body.point[iforce-3,:])
 
     def write_mask(self, writer, body, mask_path="/Mask"):
         """This function writes the Force and Motion masks into the *.hdb5 file.
@@ -883,7 +887,8 @@ class pyHDB():
         fk_path = excitation_path + "/FroudeKrylov"
         writer.create_group(fk_path)
 
-        for idir in range(0, self.nb_wave_dir):
+        for idir in range(0,self.nb_wave_dir):
+
             wave_dir_path = fk_path + "/Angle_%u" % idir
             writer.create_group(wave_dir_path)
 
@@ -910,7 +915,8 @@ class pyHDB():
         diffraction_path = excitation_path + "/Diffraction"
         writer.create_group(diffraction_path)
 
-        for idir in range(0, self.nb_wave_dir):
+        for idir in range(0,self.nb_wave_dir):
+
             wave_dir_path = diffraction_path + "/Angle_%u" % idir
             writer.create_group(wave_dir_path)
 
@@ -919,14 +925,14 @@ class pyHDB():
             dset.attrs['Description'] = "Wave direction."
 
             # Real parts.
-            dset = writer.create_dataset(wave_dir_path + "/RealCoeffs", data=body.Diffraction[:, :, idir].real)
+            writer.create_dataset(wave_dir_path + "/RealCoeffs", data=body.Diffraction[:, :, idir].real)
             dset.attrs['Unit'] = ''
             dset.attrs['Description'] = "Real part of the diffraction loads " \
                                         "on body %u for a wave direction of %.1f deg." % \
                                         (body.i_body, np.degrees(self.wave_dir[idir]))
 
             # Imaginary parts.
-            dset = writer.create_dataset(wave_dir_path + "/ImagCoeffs", data=body.Diffraction[:, :, idir].imag)
+            writer.create_dataset(wave_dir_path + "/ImagCoeffs", data=body.Diffraction[:, :, idir].imag)
             dset.attrs['Unit'] = ''
             dset.attrs['Description'] = "Imaginary part of the diffraction loads " \
                                         "on body %u for a wave direction of %.1f deg." % \
@@ -974,15 +980,20 @@ class pyHDB():
 
             irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
             dg = writer.create_group(irf_ku_path)
-            dg.attrs[
-                'Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
-                                 "and generates forces on body %u." % (j, body.i_body)
+            dg.attrs['Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
+                                      "and generates forces on body %u." % (j, body.i_body)
+
+            modal_path = radiation_body_motion_path + "/Modal"
+            dg = writer.create_group(modal_path)
+            dg.attrs['Description'] = "Poles and residues corresponding to the radiation coefficients due to the motion of body %u " \
+                                      "and generating the loads on body %u." % (j, body.i_body)
 
             # Infinite added mass.
-            dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
-                                         data=body.Inf_Added_mass[:, 6 * j:6 * (j + 1)])
-            dset.attrs['Description'] = "Infinite added mass matrix that modifies the apparent mass of body %u from " \
-                                        "acceleration of body %u." % (body.i_body, j)
+            if(body.Inf_Added_mass is not None):
+                dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
+                                             data=body.Inf_Added_mass[:, 6 * j:6 * (j + 1)])
+                dset.attrs['Description'] = "Infinite added mass matrix that modifies the apparent mass of body %u from " \
+                                            "acceleration of body %u." % (body.i_body, j)
 
             # Radiation mask.
             dset = writer.create_dataset(radiation_body_motion_path + "/RadiationMask",
@@ -990,30 +1001,66 @@ class pyHDB():
             dset.attrs['Description'] = "Radiation mask of body %u from " \
                                         "acceleration of body %u." % (body.i_body, j)
 
-            for idof in range(0, 6):
-                #  Added mass.
-                dset = writer.create_dataset(added_mass_path + "/DOF_%u" % idof,
-                                             data=body.Added_mass[:, 6 * j + idof, :])
+            for idof in range(0,6):
+
+                # Added mass.
+                dset = writer.create_dataset(added_mass_path + "/DOF_%u" % idof, data=body.Added_mass[:, 6*j+idof, :])
                 dset.attrs['Unit'] = ""
                 dset.attrs['Description'] = "Added mass coefficients for an acceleration of body %u and force on " \
                                             "body %u." % (j, body.i_body)
 
                 # Damping.
                 dset = writer.create_dataset(radiation_damping_path + "/DOF_%u" % idof,
-                                             data=body.Damping[:, 6 * j + idof, :])
+                                        data=body.Damping[:, 6*j+idof, :])
                 dset.attrs['Unit'] = ""
                 dset.attrs['Description'] = "Wave damping coefficients for an acceleration of body %u and force " \
                                             "on body %u." % (j, body.i_body)
 
                 # Impulse response functions without forward speed.
-                dset = writer.create_dataset(irf_path + "/DOF_%u" % idof,
-                                             data=body.irf[:, 6 * j + idof, :])
-                dset.attrs['Description'] = "Impulse response functions"
+                if(body.irf is not None):
+                    dset = writer.create_dataset(irf_path + "/DOF_%u" % idof,
+                                            data=body.irf[:, 6*j+idof, :])
+                    dset.attrs['Description'] = "Impulse response functions"
 
                 # Impulse response function with forward speed.
-                dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof,
-                                             data=body.irf_ku[:, 6 * j + idof, :])
-                dset.attrs['Description'] = "Impulse response functions Ku"
+                if(body.irf_ku is not None):
+                    dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof,
+                                            data=body.irf_ku[:, 6*j+idof, :])
+                    dset.attrs['Description'] = "Impulse response functions Ku"
+
+                # Poles and residues.
+                if(self.has_VF):
+                    dg = writer.create_group(modal_path + "/DOF_%u" % idof)
+                    for iforce in range(0, 6):
+                        modal_coef_path = modal_path + "/DOF_%u/FORCE_%u" % (idof, iforce)
+                        dg = writer.create_group(modal_coef_path)
+                        PR = body.poles_residues[j * self.nb_bodies + 6 * idof + iforce]
+
+                        # Real poles and residues.
+                        if(PR.nb_real_poles() > 0):
+                            dset = writer.create_dataset(modal_coef_path + "/RealPoles",
+                                                         data=PR.real_poles())
+                            dset = writer.create_dataset(modal_coef_path + "/RealResidues",
+                                                         data=PR.real_residues())
+
+                        # Complex poles and residues.
+                        if(PR.nb_cc_poles() > 0):
+
+                            # Poles.
+                            cc_poles_path = modal_coef_path + "/ComplexPoles"
+                            dg = writer.create_group(cc_poles_path)
+                            dset = writer.create_dataset(cc_poles_path + "/RealCoeff",
+                                                         data=PR.cc_poles().real)
+                            dset = writer.create_dataset(cc_poles_path + "/ImagCoeff",
+                                                         data=PR.cc_poles().imag)
+
+                            # Residues.
+                            cc_residues_path = modal_coef_path + "/ComplexResidues"
+                            dg = writer.create_group(cc_residues_path)
+                            dset = writer.create_dataset(cc_residues_path + "/RealCoeff",
+                                                         data=PR.cc_residues().real)
+                            dset = writer.create_dataset(cc_residues_path + "/ImagCoeff",
+                                                         data=PR.cc_residues().imag)
 
     def write_hydrostatic(self, writer, body, hydrostatic_path="/Hydrostatic"):
 
@@ -1036,7 +1083,7 @@ class pyHDB():
 
     def write_mass_matrix(self, writer, body, inertia_path="/Inertia"):
 
-        """This function writes the mass matrix matrix into the *.hdb5 file.
+        """This function writes the mass matrix into the *.hdb5 file.
 
         Parameters
         ----------
@@ -1052,6 +1099,44 @@ class pyHDB():
 
         dset = dg.create_dataset(inertia_path + "/InertiaMatrix", data=body.inertia.matrix)
         dset.attrs['Description'] = "Mass matrix."
+
+    def write_mooring_matrix(self, writer, body, mooring_path="/Mooring"):
+
+        """This function writes the mooring matrix into the *.hdb5 file.
+
+        Parameters
+        ----------
+        Writer : string
+            *.hdb5 file.
+        body : BodyDB.
+            Body.
+        mooring_path : string
+            Path to mooring matrix.
+        """
+
+        dg = writer.create_group(mooring_path)
+
+        dset = dg.create_dataset(mooring_path + "/MooringMatrix", data=body.mooring)
+        dset.attrs['Description'] = "Mooring matrix."
+
+    def write_extra_linear_damping_matrix(self, writer, body, extra_linear_damping_path ="/LinearDampign"):
+
+        """This function writes the extra linear damping matrix matrix into the *.hdb5 file.
+
+        Parameters
+        ----------
+        Writer : string
+            *.hdb5 file.
+        body : BodyDB.
+            Body.
+        extra_linear_damping_path : string
+            Path to extra linear damping matrix.
+        """
+
+        dg = writer.create_group(extra_linear_damping_path)
+
+        dset = dg.create_dataset(extra_linear_damping_path + "/DampingMatrix", data=body.extra_damping)
+        dset.attrs['Description'] = "Extra linear damping matrix."
 
     def write_RAO(self, writer, body, RAO_path="/RAO"):
 
@@ -1069,7 +1154,8 @@ class pyHDB():
 
         writer.create_group(RAO_path)
 
-        for idir in range(0, self.nb_wave_dir):
+        for idir in range(0,self.nb_wave_dir):
+
             wave_dir_path = RAO_path + "/Angle_%u" % idir
             writer.create_group(wave_dir_path)
 
@@ -1117,17 +1203,12 @@ class pyHDB():
         dset = writer.create_dataset(body_path + "/BodyPosition", data=body.position)
         dset.attrs['Description'] = "Center of gravity of the body in the absolute frame"
 
-        # Force modes.
-        self.write_mode(writer, body, 0, body_path + "/Modes")
-
-        # Motion modes.
-        self.write_mode(writer, body, 1, body_path + "/Modes")
-
         # Masks.
         self.write_mask(writer, body, body_path + "/Mask")
 
         # Mesh file.
-        self.write_mesh(writer, body, body_path + "/Mesh")
+        if(body.mesh is not None):
+            self.write_mesh(writer, body, body_path + "/Mesh")
 
         # Diffraction and Froude-Krylov loads.
         self.write_excitation(writer, body, body_path + "/Excitation")
@@ -1143,9 +1224,31 @@ class pyHDB():
         if body._inertia:
             self.write_mass_matrix(writer, body, body_path + "/Inertia")
 
+        # Mooring matrix.
+        if (body._mooring is not None):
+            self.write_mooring_matrix(writer, body, body_path + "/Mooring")
+
+        # Extra linear damping matrix.
+        if (body._extra_damping is not None):
+            self.write_extra_linear_damping_matrix(writer, body, body_path + "/LinearDamping")
+
         # RAO.
-        if (self.has_RAO):
+        if(self.has_RAO):
             self.write_RAO(writer, body, body_path + "/RAO")
+
+    def write_wave_field(self, writer, wave_field_path="/WaveField"):
+
+        """This function writes the wave field data into the *.hdb5 file.
+
+        Parameters
+        ----------
+        Writer : string
+            *.hdb5 file.
+        wave_field_path : string, optional
+            Path to wave field loads.
+        """
+
+        dg = writer.create_group(wave_field_path)
 
     def write_wave_drift(self, writer, wave_drift_path="/WaveDrift"):
 
@@ -1167,28 +1270,32 @@ class pyHDB():
 
             # Loop over the wave directions.
             for i_angle, angle in enumerate(mode.heading):
-                grp_dir = grp_modes.require_group("heading_%i" % i_angle)
+                grp_dir = grp_modes.require_group("angle_%i" % i_angle)
 
                 # Set heading angle.
-                dset = grp_dir.create_dataset("heading", data=angle)
-                dset.attrs['Unit'] = 'rad'
+                dset = grp_dir.create_dataset("angle", data=angle * 180 / np.pi)
+                dset.attrs['Unit'] = 'deg'
                 dset.attrs['Description'] = "Heading angle"
 
                 # Set data.
                 dset = grp_dir.create_dataset("data", data=np.array(mode.data)[i_angle, :])
-                dset.attrs['Description'] = "Wave Drift force coefficients"
+                dset.attrs['Description'] = "Mean wave drift load coefficients"
 
         # Set frequency.
-        if (self.wave_drift.discrete_frequency is not None):
+        if(self.wave_drift.discrete_frequency is not None):
             dset = dg.create_dataset("freq", data=self.wave_drift.discrete_frequency)
             dset.attrs['Unit'] = "rads"
-            dset.attrs['Description'] = "Time discretization of the data"
+            dset.attrs['Description'] = "Wave discretization of the data"
 
         # Set sym.
         dset = dg.create_dataset("sym_x", data=self.wave_drift.sym_x)
         dset.attrs['Description'] = "Symmetry along x"
         dset = dg.create_dataset('sym_y', data=self.wave_drift.sym_y)
         dset.attrs['Description'] = "Symmetry along y"
+
+        # Kochin function angular step.
+        dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
+        dset.attrs['Description'] = "Kochin function angular step"
 
     def UpdateDriftObject(self):
 
@@ -1210,24 +1317,44 @@ class pyHDB():
 
         # Loop over the wave directions.
         for ibeta in range(0, self.nb_wave_dir):
-            self._wave_drift.add_cn(self.omega, self.Wave_drift_force[2, :, ibeta], self.wave_dir[ibeta])  # Yaw.
-            self._wave_drift.add_cy(self.omega, self.Wave_drift_force[1, :, ibeta], self.wave_dir[ibeta])  # Sway.
-            self._wave_drift.add_cx(self.omega, self.Wave_drift_force[0, :, ibeta], self.wave_dir[ibeta])  # Surge.
+            self._wave_drift.add_cn(self.omega, self.Wave_drift_force[2, :, ibeta], self.wave_dir[ibeta]) # Yaw.
+            self._wave_drift.add_cy(self.omega, self.Wave_drift_force[1, :, ibeta], self.wave_dir[ibeta]) # Sway.
+            self._wave_drift.add_cx(self.omega, self.Wave_drift_force[0, :, ibeta], self.wave_dir[ibeta]) # Surge.
 
         # Deletion of the old structure.
         self.Wave_drift_force = None
 
         self.has_Drift_Kochin = False
 
-    def write_version(self, writer):
-        """This function writes the version of the *.hdb5 file.
+    def write_VF(self, writer, VF_path = "/VectorFitting"):
+        """This function writes the vector fitting parameters into the *.hdb5 file.
 
         Parameter
         ---------
-        Writer : string
+        Writer : string.
             *.hdb5 file.
         """
+        writer.create_group(VF_path)
 
-        # Version.
-        dset = writer.create_dataset('Version', data=self.version)
-        dset.attrs['Description'] = "Version of the hdb5 output file."
+        dset = writer.create_dataset(VF_path + "/MaxOrder", data=self.max_order)
+        dset.attrs['Description'] = "Maximum vector fitting order."
+
+        dset = writer.create_dataset(VF_path + "/Relaxed", data=self.relaxed)
+        dset.attrs['Description'] = "Relaxed vector-fitting (true) or original algorithm (false);"
+
+        dset = writer.create_dataset(VF_path + "/Tolerance", data=self.tolerance)
+        dset.attrs['Description'] = "Least-square tolerance of the vector fitting algorithm."
+
+    def write_version(self, writer):
+            """This function writes the version of the *.hdb5 file.
+
+            Parameter
+            ---------
+            Writer : string
+                *.hdb5 file.
+            """
+
+            # Version.
+            dset = writer.create_dataset('Version', data= 3.0)
+            dset.attrs['Description'] = "Version of the hdb5 output file."
+

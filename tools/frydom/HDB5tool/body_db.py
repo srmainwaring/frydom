@@ -24,7 +24,7 @@ class BodyDB(object):
         Class for writing the body data into the *.hdb5 file.
     """
 
-    def __init__(self, i_body, nb_bodies, nw, nbeta, mesh):
+    def __init__(self, i_body, nb_bodies, nw, nbeta, mesh = None):
 
         """
         Constructor of the class BodyDB.
@@ -52,8 +52,11 @@ class BodyDB(object):
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
 
-        # Infinite added mass matrices.
+        # Infinite-frequency added mass matrices.
         self.Inf_Added_mass = None
+
+        # Zero-frequency added mass matrices.
+        self.Zero_Added_mass = None
 
         # Damping matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Damping = np.zeros((6, 6 * nb_bodies, nw), dtype=np.float)
@@ -69,6 +72,9 @@ class BodyDB(object):
 
         # Mesh.
         self.mesh = mesh
+
+        # Body name (body mesh name until version 2).
+        self.name = None
 
         # Force mask.
         self.Force_mask = np.zeros(6,dtype = np.int)
@@ -100,31 +106,40 @@ class BodyDB(object):
         # Inertia matrix.
         self._inertia = None
 
+        # Mooring matrix.
+        self._mooring = None
+
+        # Linear extra damping matrix.
+        self._extra_damping = None
+
         # RAO.
         self.RAO = None
 
         # Eigenfrequencies.
         self.Eigenfrequencies = None
 
-    @property
-    def name(self):
+        # Poles and residues.
+        self.poles_residues = None
 
-        """This function gives the name of the mesh of a body.
-
-        Returns
-        -------
-        string
-            Name of the mesh of a body.
-        """
-
-        return self.mesh.name
-
-    @name.setter
-    def name(self, value):
-
-        """This function sets the name of the body mesh."""
-
-        self.mesh.name = value
+    # @property
+    # def name(self):
+    #
+    #     """This function gives the name of the mesh of a body.
+    #
+    #     Returns
+    #     -------
+    #     string
+    #         Name of the mesh of a body.
+    #     """
+    #
+    #     return self.name
+    #
+    # @name.setter
+    # def name(self, value):
+    #
+    #     """This function sets the name of the body mesh."""
+    #
+    #     self.name = value
 
     def _compute_nds(self):
         """Computes the term n dS for each force mode of the body."""
@@ -221,6 +236,21 @@ class BodyDB(object):
         else:
             return self.Inf_Added_mass * self._flags
 
+    def zero_added_mass(self):
+
+        """This function gives the zero-frequency added mass coefficients.
+
+        Returns
+        -------
+        Array of floats
+            Zero-frequency added mass coefficients.
+        """
+
+        if self.Zero_Added_mass is None:
+            return
+        else:
+            return self.Zero_Added_mass * self._flags
+
     @property
     def hydrostatic(self):
 
@@ -260,3 +290,69 @@ class BodyDB(object):
 
         if(self._inertia is None):
             self._inertia = Inertia()
+
+    @property
+    def mooring(self):
+
+        """This function gives the mooring data of the body.
+
+        Returns
+        -------
+        Mooring
+            mooring data of the body.
+        """
+
+        return self._mooring
+
+    def activate_mooring(self):
+
+        """This function initializes the mooring matrix."""
+
+        if (self._mooring is None):
+            self._mooring = np.zeros((6, 6))
+
+    @mooring.setter
+    def mooring(self, value):
+
+        """This function sets the mooring data of the body.
+
+        Parameter
+        ---------
+        Mooring
+            mooring data of the body.
+        """
+
+        self._mooring = value
+
+    @property
+    def extra_damping(self):
+
+        """This function gives the extra linear damping data of the body.
+
+        Returns
+        -------
+        Extra linear damping
+            extra linear damping data of the body.
+        """
+
+        return self._extra_damping
+
+    def activate_extra_damping(self):
+
+        """This function initializes the extra linear damping matrix."""
+
+        if (self._extra_damping is None):
+            self._extra_damping = np.zeros((6, 6))
+
+    @extra_damping.setter
+    def extra_damping(self, value):
+
+        """This function sets the extra linear damping data of the body.
+
+        Parameter
+        ---------
+        Extra linear damping
+            extra linear damping data of the body.
+        """
+
+        self._extra_damping = value

@@ -287,6 +287,7 @@ def plot_AB_array(data, w, ibody_force, ibody_motion, pyHDB):
     plt.suptitle(title)
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.subplots_adjust(top=0.88)
 
     # Show the plot.
     plt.show()
