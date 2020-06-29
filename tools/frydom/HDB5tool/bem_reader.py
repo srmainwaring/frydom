@@ -391,7 +391,8 @@ class NemohReader(_BEMReader):
                 mesh.name, _ = os.path.splitext(meshfile)
 
                 # Instantiating BodyDB.
-                body = body_db.BodyDB(ibody, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir , mesh)
+                body = body_db.BodyDB(ibody, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir, mesh)
+                body.name = mesh.name
 
                 # RADIATION.
                 nb_dof = int(f.readline().split()[0])
