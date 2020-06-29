@@ -664,7 +664,7 @@ class pyHDB():
             self.write_discretization(writer)
 
             # Symmetries.
-            if(self.version >= 3.0):
+            if(self.solver == "Helios"):
                 self.write_symmetries(writer)
 
             # Bodies.

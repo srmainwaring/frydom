@@ -54,7 +54,7 @@ class HDB5reader():
                 self.read_discretization_v3(reader, pyHDB)
 
             # Symmetries.
-            if(pyHDB.version >= 3.0):
+            if(pyHDB.solver == "Helios"):
                 self.read_symmetries(reader, pyHDB)
 
             # Vector fitting.
