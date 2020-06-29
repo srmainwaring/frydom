@@ -1294,8 +1294,9 @@ class pyHDB():
         dset.attrs['Description'] = "Symmetry along y"
 
         # Kochin function angular step.
-        dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
-        dset.attrs['Description'] = "Kochin function angular step"
+        if(self.solver is "Helios"):
+            dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
+            dset.attrs['Description'] = "Kochin function angular step"
 
     def UpdateDriftObject(self):
 
