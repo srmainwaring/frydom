@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
   // -- Hydrodynamics
 
   auto DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512.hdb5"});
-  auto hdb = make_hydrodynamic_database(DTMB_hdb);
+  auto hdb = make_new_hydrodynamic_database(DTMB_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body, {0., 0., 0.03}, NWU);
   eqFrame->SetVelocityInWorld({speed, 0., 0.}, NWU);

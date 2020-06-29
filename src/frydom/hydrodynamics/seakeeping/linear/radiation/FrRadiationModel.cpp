@@ -186,7 +186,7 @@ namespace frydom {
 
         for (auto idof : BEMBodyMotion->first->GetMotionMask().GetListDOF()) {
 
-          auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_KU)->at(idof);
+          auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_K)->at(idof);
 //          auto interpK = BEMBody->first->GetIRFInterpolatorK(BEMBodyMotion->first, idof);
 
           std::vector<mathutils::Vector6d<double>> kernel;

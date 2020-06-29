@@ -185,8 +185,8 @@ int main(int argc, char *argv[]) {
 
   // -- Hydrodynamics
 
-  auto sphere_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/sphere_hdb.h5"});
-  auto hdb = make_hydrodynamic_database(sphere_hdb);
+  auto sphere_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/sphere_hdb.hdb5"});
+  auto hdb = make_new_hydrodynamic_database(sphere_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body);
 
