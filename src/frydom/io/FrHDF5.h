@@ -15,12 +15,12 @@
 
 #include <memory>
 #include <vector>
-#include "H5Cpp.h"
+//#include "H5Cpp.h"
 
 #include "MathUtils/Matrix.h"
 
 
-using namespace H5;
+//using namespace H5;
 
 namespace frydom {
 
@@ -43,7 +43,7 @@ namespace frydom {
     HDF5_READ_MODE m_mode = READ;    ///> The file opening mode
 
     std::string m_filename;          ///> The file path name
-    std::unique_ptr<H5File> m_file;  ///> The HDF5 file object
+//    std::unique_ptr<H5File> m_file;  ///> The HDF5 file object
 
    public:
 
@@ -81,7 +81,7 @@ namespace frydom {
     int ReadInt(std::string h5Path);
 
     /// Read a boolean value from HDF5 path
-    hbool_t ReadBool(std::string h5Path);
+//    hbool_t ReadBool(std::string h5Path);
 
     /// Read a string value from HDF5 path
     std::string ReadString(std::string h5Path);

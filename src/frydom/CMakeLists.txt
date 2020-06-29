@@ -64,6 +64,13 @@ target_compile_definitions(FRyDoM_Engine PUBLIC
         RESOURCES_VIZU_PATH="${PROJECT_SOURCE_DIR}/data/"
         )
 
+set_target_properties( FRyDoM_Engine
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/frydom"
+        )
+
 message(STATUS " RESOURCES_VIZU_PATH=${PROJECT_SOURCE_DIR}/data/")
 
 get_target_property(INC FRyDoM_Engine INTERFACE_LINK_LIBRARIES)
