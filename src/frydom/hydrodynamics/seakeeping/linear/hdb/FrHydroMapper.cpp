@@ -11,7 +11,7 @@
 
 
 #include "FrHydroMapper.h"
-#include "FrBEMBody_new.h"
+#include "FrBEMBody.h"
 
 
 namespace frydom {

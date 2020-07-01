@@ -9,7 +9,7 @@
 #include "chrono/solver/ChVariablesBodyOwnMass.h"
 
 #include "MathUtils/Matrix66.h"
-#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody_new.h"
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
 
 namespace frydom {
 

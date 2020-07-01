@@ -19,7 +19,7 @@
 
 #include "frydom/core/common/FrPhysicsItem.h"
 
-#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody_new.h"
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
 
 namespace frydom {
 
