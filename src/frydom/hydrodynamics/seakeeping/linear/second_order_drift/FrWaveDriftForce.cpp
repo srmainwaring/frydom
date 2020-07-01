@@ -55,7 +55,7 @@ namespace frydom {
         auto angle = waveDir[idir];
         for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          force.GetFx() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("surge", angle, freq);
+          force.GetFx() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("surge", freq, angle);
         }
       }
     }
@@ -65,7 +65,7 @@ namespace frydom {
         auto angle = waveDir[idir];
         for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          force.GetFy() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("sway", angle, freq);
+          force.GetFy() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("sway", freq, angle);
         }
       }
     }
@@ -75,7 +75,7 @@ namespace frydom {
         auto angle = waveDir[idir];
         for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          force.GetFz() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("heave", angle, freq);
+          force.GetFz() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("heave", freq, angle);
         }
       }
     }
@@ -85,7 +85,7 @@ namespace frydom {
         auto angle = waveDir[idir];
         for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          torque.GetMx() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("roll", angle, freq);
+          torque.GetMx() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("roll", freq, angle);
         }
       }
     }
@@ -95,7 +95,7 @@ namespace frydom {
         auto angle = waveDir[idir];
         for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          torque.GetMy() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("pitch", angle, freq);
+          torque.GetMy() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("pitch", freq, angle);
         }
       }
     }
@@ -105,7 +105,7 @@ namespace frydom {
         auto angle = waveDir[idir];
         for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          torque.GetMz() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("yaw", angle, freq);
+          torque.GetMz() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("yaw", freq, angle);
         }
       }
     }
