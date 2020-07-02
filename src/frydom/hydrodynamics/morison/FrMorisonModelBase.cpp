@@ -28,7 +28,8 @@ namespace frydom {
     }
 
     void FrMorisonModelBase::Update(double time, bool update_assets) {
-      ChPhysicsItem::Update(time, update_assets);
+      //ChPhysicsItem::Update(time, update_assets);
+      FrPhysicsItemBase::Update(time, update_assets);
 
       mathutils::Matrix66<double> added_mass;
       added_mass << m_frydomMorisonCompositeElement->GetAMInBody().block<6, 3>(0, 0),

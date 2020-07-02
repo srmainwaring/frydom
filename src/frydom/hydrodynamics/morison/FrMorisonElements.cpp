@@ -535,7 +535,7 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
-      m_chronoPhysicsItem->Update(time, false);
+      //m_chronoPhysicsItem->Update(time, false);
     }
   }
 
