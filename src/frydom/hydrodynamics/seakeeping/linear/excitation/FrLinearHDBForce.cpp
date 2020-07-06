@@ -60,7 +60,7 @@ namespace frydom {
     auto nbFreqInterp = waveFrequencies.size();
     auto nbFreqBDD = m_HDB->GetFrequencyDiscretization().size();// GetNbFrequencies();
     auto nbDirInterp = waveDirections.size();
-    auto nbForceMode = BEMBody->GetForceMask().GetNbDOF(); //->GetNbForceMode();
+    auto nbForceMode = GetBodyMask().GetNbDOF(); //->GetNbForceMode();
 
     // Wave direction is expressed between 0 and 2*pi.
     for (auto &dir : waveDirections) dir = mathutils::Normalize_0_2PI(dir);
@@ -111,7 +111,7 @@ namespace frydom {
 
     auto nbWaveDirections = m_HDB->GetWaveDirectionDiscretization().size(); //BEMBody->GetNbWaveDirections();
     auto nbFreq = m_HDB->GetFrequencyDiscretization().size(); //BEMBody->GetNbFrequencies();
-    auto nbForceModes = BEMBody->GetForceMask().GetNbDOF(); //BEMBody->GetNbForceMode();
+    auto nbForceModes = GetBodyMask().GetNbDOF(); //BEMBody->GetNbForceMode();
 
     m_waveDirInterpolators.clear();
     m_waveDirInterpolators.reserve(nbForceModes);
@@ -164,7 +164,7 @@ namespace frydom {
                                                             NWU);
 
     // DOF.
-    auto nbMode = m_HDB->GetBody(body)->GetForceMask().GetNbDOF(); //m_HDB->GetBody(body)->GetNbForceMode();
+    auto nbMode = GetBodyMask().GetNbDOF(); //m_HDB->GetBody(body)->GetNbForceMode();
 
     // Number of wave frequencies.
     auto nbFreq = waveField->GetWaveFrequencies(RADS).size();
@@ -189,7 +189,7 @@ namespace frydom {
     Torque torque;
     torque.SetNull();
 
-    auto dofs = m_HDB->GetBody(body)->GetForceMask().GetDOFs();
+    auto dofs = GetBodyMask().GetDOFs();
 
     for (const auto &dof : dofs) {
       Direction direction = dof.GetDirection();
@@ -223,6 +223,16 @@ namespace frydom {
                                      const std::shared_ptr<FrHydroDB> &HDB) :
       FrForce(name, type_name, body),
       m_HDB(HDB) {}
+
+  FrMask FrLinearHDBForce::GetBodyMask() const {
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
+    DOFMask.SetMask(GetBody()->GetDOFMask()->GetFreeDOFs());
+
+    return DOFMask||BEMBody->GetForceMask();
+  }
 
 
 } // end namespace frydom

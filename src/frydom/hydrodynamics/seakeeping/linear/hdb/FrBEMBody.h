@@ -11,6 +11,8 @@ namespace frydom {
 
   using FrBEMBody = HDB5_io::Body;
 
+  using FrMask = HDB5_io::Mask;
+
 }
 
 #endif //FRYDOM_FRBEMBODY_H

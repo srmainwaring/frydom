@@ -75,6 +75,8 @@ namespace frydom {
     /// This function computes the excitation loads (linear excitation) or the diffraction loads (nonlinear excitation).
     void Compute_F_HDB();
 
+    FrMask GetBodyMask() const;
+
   };
 
 

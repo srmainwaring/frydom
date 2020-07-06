@@ -186,7 +186,7 @@ namespace frydom {
 
         auto vtime = m_recorder[BEMBodyMotion->first].GetTime();
 
-        for (auto idof : BEMBodyMotion->first->GetMotionMask().GetListDOF()) {
+        for (auto idof : BEMBodyMotion->first->GetForceMask().GetListDOF()) {
 
           auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_K)->at(idof);
 //          auto interpK = BEMBody->first->GetIRFInterpolatorK(BEMBodyMotion->first, idof);
@@ -255,11 +255,11 @@ namespace frydom {
       for (unsigned int it = 0; it < vtime.size(); ++it) {
         kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof));
       }
-      radiationForce += TrapzLoc(vtime, kernel) * meanSpeed;
+      radiationForce += TrapzLoc(vtime, kernel) * meanSpeed.norm();
     }
 
     auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z();
-    radiationForce += meanSpeed * damping;
+    radiationForce += meanSpeed.norm() * damping;
 
     return radiationForce;
 
