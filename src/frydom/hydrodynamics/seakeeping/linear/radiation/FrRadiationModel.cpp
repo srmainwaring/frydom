@@ -180,6 +180,8 @@ namespace frydom {
 
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
+        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+
         auto velocity = m_recorder[BEMBodyMotion->first].GetData();
 
         auto vtime = m_recorder[BEMBodyMotion->first].GetTime();
@@ -197,14 +199,9 @@ namespace frydom {
           radiationForce += TrapzLoc(vtime, kernel);
         }
       }
+      radiationForce += ForwardSpeedCorrection(BEMBody->first);
 
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
-      auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
-
-      if (meanSpeed.squaredNorm() > FLT_EPSILON) {
-        radiationForce += ConvolutionKu(meanSpeed.norm());
-      }
-
       auto forceInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetForce(), NWU);
       auto TorqueInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetTorque(), NWU);
 
@@ -233,40 +230,37 @@ namespace frydom {
     dt = Te / double(N - 1);
   }
 
-  GeneralizedForce FrRadiationConvolutionModel::ConvolutionKu(double meanSpeed) const {
+  GeneralizedForce FrRadiationConvolutionModel::ForwardSpeedCorrection(FrBEMBody *BEMBody) const {
 
     auto radiationForce = GeneralizedForce();
     radiationForce.SetNull();
 
-    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); BEMBody++) {
+    auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody);
+    auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
+    if (meanSpeed.squaredNorm() > FLT_EPSILON)
+      return radiationForce;
 
-      auto Ainf = BEMBody->first->GetSelfInfiniteAddedMass();
+    auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU);
 
-      for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); BEMBodyMotion++) {
+    auto Ainf = BEMBody->GetSelfInfiniteAddedMass();
 
-        auto velocity = m_recorder.at(BEMBodyMotion->first).GetData();
-        auto vtime = m_recorder.at(BEMBodyMotion->first).GetTime();
+    auto velocity = m_recorder.at(BEMBody).GetData();
+    auto vtime = m_recorder.at(BEMBody).GetTime();
 
-        for (unsigned int idof = 4; idof < 6; idof++) {
+    for (unsigned int idof = 4; idof < 6; idof++) {
 
-          auto interpKu = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_KU)->at(idof);
-//          auto interpKu = BEMBody->first->GetIRFInterpolatorKu(BEMBodyMotion->first, idof);
+      auto interpKu = BEMBody->GetHDBInterpolator(FrBEMBody::IRF_KU)->at(idof);
 
-          std::vector<mathutils::Vector6d<double>> kernel;
-          for (unsigned int it = 0; it < vtime.size(); ++it) {
-            kernel.push_back(interpKu->Eval(BEMBodyMotion->first->GetName(), vtime[it]) * velocity[it].at(idof));
-          }
-          radiationForce += TrapzLoc(vtime, kernel) * meanSpeed;
-        }
-
-        auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBodyMotion->first);
-        auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU);
-
-        auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z();
-        radiationForce += meanSpeed * damping;
+      std::vector<mathutils::Vector6d<double>> kernel;
+      for (unsigned int it = 0; it < vtime.size(); ++it) {
+        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof));
       }
-
+      radiationForce += TrapzLoc(vtime, kernel) * meanSpeed;
     }
+
+    auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z();
+    radiationForce += meanSpeed * damping;
+
     return radiationForce;
 
   }

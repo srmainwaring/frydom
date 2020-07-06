@@ -175,7 +175,7 @@ namespace frydom {
     /// Compute the the convolution part of the radiation force linked with steady speed
     /// \param meanSpeed Steady speed of the body
     /// \return Generalized force
-    GeneralizedForce ConvolutionKu(double meanSpeed) const;
+    GeneralizedForce ForwardSpeedCorrection(FrBEMBody *BEMBody) const;
   };
 
   std::shared_ptr<FrRadiationConvolutionModel>
