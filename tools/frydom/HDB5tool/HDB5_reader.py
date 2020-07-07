@@ -107,6 +107,10 @@ class HDB5reader():
         except:
             pyHDB.solver = "Nemoh"
 
+        # Fix problem of convertion between bytes and string when using h5py.
+        if(pyHDB.solver[0:2] == "b'" and pyHDB.solver[-1] == "'"):
+            pyHDB.solver = pyHDB.solver[2:-1]
+
     def read_discretization_v2(self, reader, pyHDB):
         """This function reads the discretization parameters of the *.hdb5 file.
 
