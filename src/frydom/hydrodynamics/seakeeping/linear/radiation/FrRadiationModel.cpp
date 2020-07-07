@@ -186,15 +186,21 @@ namespace frydom {
 
         auto vtime = m_recorder[BEMBodyMotion->first].GetTime();
 
-        for (auto idof : BEMBodyMotion->first->GetForceMask().GetListDOF()) {
+        auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
+        for (auto idof : BodyMotionDOFMask.GetListDOF()) {
+
+          //idof applied here to BEMBodyMotion, even if it's not really explicit. The BEMBodyMotion is now called at the
+          // Eval below. So it's equivalent to the next line, previously written for the old container.
           auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_K)->at(idof);
 //          auto interpK = BEMBody->first->GetIRFInterpolatorK(BEMBodyMotion->first, idof);
 
           std::vector<mathutils::Vector6d<double>> kernel;
           kernel.reserve(vtime.size());
           for (unsigned int it = 0; it < vtime.size(); ++it) {
-            kernel.push_back(interpK->Eval(BEMBodyMotion->first->GetName(),vtime[it]) * velocity.at(it).at(idof));
+            auto irf = interpK->Eval(BEMBodyMotion->first->GetName(),vtime[it]) * velocity.at(it).at(idof);
+            // radiation mask applied
+            kernel.push_back(irf.cwiseProduct(radiationMask.col(idof).cast<double>()));
           }
           radiationForce += TrapzLoc(vtime, kernel);
         }

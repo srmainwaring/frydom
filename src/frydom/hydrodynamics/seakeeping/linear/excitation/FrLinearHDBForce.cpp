@@ -225,13 +225,7 @@ namespace frydom {
       m_HDB(HDB) {}
 
   FrMask FrLinearHDBForce::GetBodyMask() const {
-
-    auto BEMBody = m_HDB->GetBody(GetBody());
-
-    auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
-    DOFMask.SetMask(GetBody()->GetDOFMask()->GetFreeDOFs());
-
-    return DOFMask||BEMBody->GetForceMask();
+    return m_HDB->GetBodyDOFMask(m_HDB->GetBody(GetBody()));
   }
 
 

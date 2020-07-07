@@ -70,6 +70,8 @@ namespace frydom {
     FrWaveDriftPolarData * GetWaveDrift() const;
 
 
+    FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
+
    private:
 
     std::shared_ptr<HDB5_io::HydrodynamicDataBase> m_HDB;

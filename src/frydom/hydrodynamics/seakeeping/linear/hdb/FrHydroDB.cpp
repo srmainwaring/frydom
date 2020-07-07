@@ -4,6 +4,7 @@
 
 #include "FrBEMBody.h"
 #include "FrHydroDB.h"
+#include "frydom/core/body/FrBody.h"
 
 namespace frydom {
 
@@ -51,6 +52,14 @@ namespace frydom {
 
   FrWaveDriftPolarData * FrHydroDB::GetWaveDrift() const {
     return m_HDB->GetWaveDrift();
+  }
+
+  FrMask FrHydroDB::GetBodyDOFMask(FrBEMBody *BEMBody) const {
+
+    auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
+    DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
+
+    return DOFMask||BEMBody->GetForceMask();
   };
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file) {
