@@ -338,6 +338,8 @@ class HDB5reader():
             if (pyHDB.version <= 2.0):
                 # Wave frequencies.
                 pyHDB._wave_drift.discrete_frequency = np.array(reader[wave_drift_path + "/freq"])
+            else:
+                pyHDB._wave_drift.discrete_frequency = pyHDB.wave_freq
 
             # Kochin function angular step.
             try:
