@@ -236,13 +236,38 @@ class HDB5(object):
         """This functions plots the added mass and damping coefficients."""
 
         # Data.
-        data = np.zeros((self._pyHDB.nb_wave_freq+1,2), dtype = np.float) # 2 for added mass and damping coefficients, +1 for the infinite added mass.
-        data[0:self._pyHDB.nb_wave_freq, 0] = self._pyHDB.bodies[ibody_force].Added_mass[iforce, 6 * ibody_motion + idof, :]
-        data[self._pyHDB.nb_wave_freq,0] = self._pyHDB.bodies[ibody_force].Inf_Added_mass[iforce, 6 * ibody_motion + idof]
-        data[0:self._pyHDB.nb_wave_freq, 1] = self._pyHDB.bodies[ibody_force].Damping[iforce, 6 * ibody_motion + idof, :]
+        body_force = self._pyHDB.bodies[ibody_force]
+        if (body_force.Zero_Added_mass is not None):
+            data = np.zeros((self._pyHDB.nb_wave_freq + 2, 2), dtype=np.float)  # 2 for added mass and damping coefficients, +2 for both the infinite and zero-frequency added mass.
+
+            # Added mass.
+            data[0, 0] = body_force.Zero_Added_mass[iforce, 6 * ibody_motion + idof]
+            data[1:self._pyHDB.nb_wave_freq+1, 0] = body_force.Added_mass[iforce, 6 * ibody_motion + idof, :]
+            data[self._pyHDB.nb_wave_freq+1, 0] = body_force.Inf_Added_mass[iforce, 6 * ibody_motion + idof]
+
+            # Damping.
+            data[0, 1] = 0.
+            data[1:self._pyHDB.nb_wave_freq+1, 1] = body_force.Damping[iforce, 6 * ibody_motion + idof, :]
+
+            # Wave frequency.
+            w = np.zeros((self._pyHDB.wave_freq.shape[0] + 1))
+            w[0] = 0
+            w[1:] = self._pyHDB.wave_freq
+        else:
+            data = np.zeros((self._pyHDB.nb_wave_freq+1,2), dtype = np.float) # 2 for added mass and damping coefficients, +1 for the infinite-frequency added mass.
+
+            # Added mass.
+            data[0:self._pyHDB.nb_wave_freq, 0] = body_force.Added_mass[iforce, 6 * ibody_motion + idof, :]
+            data[self._pyHDB.nb_wave_freq, 0] = body_force.Inf_Added_mass[iforce, 6 * ibody_motion + idof]
+
+            # Damping.
+            data[0:self._pyHDB.nb_wave_freq, 1] = body_force.Damping[iforce, 6 * ibody_motion + idof, :]
+
+            # Wave frequency.
+            w = self._pyHDB.wave_freq
 
         # Plots.
-        plot_db.plot_AB(data, self._pyHDB.wave_freq, ibody_force, iforce, ibody_motion, idof)
+        plot_db.plot_AB(data, w, ibody_force, iforce, ibody_motion, idof)
 
     def Plot_IRF(self, ibody_force, iforce, ibody_motion, idof):
         """This function plots the impulse response functions without forward speed."""
