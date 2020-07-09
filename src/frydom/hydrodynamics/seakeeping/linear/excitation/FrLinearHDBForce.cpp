@@ -60,7 +60,7 @@ namespace frydom {
     auto nbFreqInterp = waveFrequencies.size();
     auto nbFreqBDD = m_HDB->GetFrequencyDiscretization().size();// GetNbFrequencies();
     auto nbDirInterp = waveDirections.size();
-    auto nbForceMode = GetBodyMask().GetNbDOF(); //->GetNbForceMode();
+    auto nbForceDOFs = GetBodyMask().GetNbDOF(); //->GetNbForceMode();
 
     // Wave direction is expressed between 0 and 2*pi.
     for (auto &dir : waveDirections) dir = mathutils::Normalize_0_2PI(dir);
@@ -80,13 +80,13 @@ namespace frydom {
 
     for (auto direction: waveDirections) {
 
-      auto excitationForceDir = Eigen::MatrixXcd(nbForceMode, nbFreqInterp);
+      auto excitationForceDir = Eigen::MatrixXcd(nbForceDOFs, nbFreqInterp);
 
-      for (unsigned int imode = 0; imode < nbForceMode; ++imode) {
+      for (unsigned int idof = 0; idof < nbForceDOFs; ++idof) {
 
         freqCoeffs->clear();
         for (unsigned int ifreq = 0; ifreq < nbFreqBDD; ++ifreq) {
-          freqCoeffs->push_back(m_waveDirInterpolators[imode][ifreq](direction));
+          freqCoeffs->push_back(m_waveDirInterpolators[idof][ifreq](direction));
         }
 
         auto freqInterpolator = mathutils::Interp1dLinear<double, std::complex<double>>();
@@ -94,7 +94,7 @@ namespace frydom {
 
         auto freqCoeffsInterp = freqInterpolator(waveFrequencies);
         for (unsigned int ifreq = 0; ifreq < nbFreqInterp; ++ifreq) {
-          excitationForceDir(imode, ifreq) = freqCoeffsInterp[ifreq];
+          excitationForceDir(idof, ifreq) = freqCoeffsInterp[ifreq];
         }
       }
       Fexc.push_back(excitationForceDir);
@@ -111,10 +111,10 @@ namespace frydom {
 
     auto nbWaveDirections = m_HDB->GetWaveDirectionDiscretization().size(); //BEMBody->GetNbWaveDirections();
     auto nbFreq = m_HDB->GetFrequencyDiscretization().size(); //BEMBody->GetNbFrequencies();
-    auto nbForceModes = GetBodyMask().GetNbDOF(); //BEMBody->GetNbForceMode();
+    auto nbForceDOFs = GetBodyMask().GetNbDOF(); //BEMBody->GetNbForceMode();
 
     m_waveDirInterpolators.clear();
-    m_waveDirInterpolators.reserve(nbForceModes);
+    m_waveDirInterpolators.reserve(nbForceDOFs);
 
 //    auto angles = std::make_shared<std::vector<double>>(BEMBody->GetWaveDirections(mathutils::RAD, NWU));
 
@@ -125,7 +125,7 @@ namespace frydom {
     auto interpolators = std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>();
     interpolators.reserve(nbFreq);
 
-    for (unsigned int imode = 0; imode < nbForceModes; ++imode) {
+    for (unsigned int idof = 0; idof < nbForceDOFs; ++idof) {
 
       interpolators.clear();
 
@@ -136,7 +136,8 @@ namespace frydom {
 
         for (unsigned int iangle = 0; iangle < nbWaveDirections; ++iangle) {
           auto data = GetHDBData(iangle);
-          coeffs->push_back(data(imode, ifreq));
+//          coeffs->push_back(data(idof, ifreq));
+          coeffs->push_back(data(GetBodyMask().GetDOFs()[idof].GetIndex(), ifreq));
         }
 
         auto interpolator = mathutils::Interp1dLinear<double, std::complex<double>>();
@@ -163,9 +164,6 @@ namespace frydom {
                                                             eqFrame->GetFrame().GetY(NWU),
                                                             NWU);
 
-    // DOF.
-    auto nbMode = GetBodyMask().GetNbDOF(); //m_HDB->GetBody(body)->GetNbForceMode();
-
     // Number of wave frequencies.
     auto nbFreq = waveField->GetWaveFrequencies(RADS).size();
 
@@ -173,15 +171,6 @@ namespace frydom {
     auto nbWaveDir = waveField->GetWaveDirections(RAD, NWU, GOTO).size();
 
     // Fexc(t) = eta*Fexc(Nemoh).
-    Eigen::VectorXd forceMode(nbMode);
-    forceMode.setZero(); // Initialization.
-    for (unsigned int imode = 0; imode < nbMode; ++imode) {
-      for (unsigned int ifreq = 0; ifreq < nbFreq; ++ifreq) {
-        for (unsigned int idir = 0; idir < nbWaveDir; ++idir) {
-          forceMode(imode) += std::imag(complexElevations[idir][ifreq] * m_Fhdb[idir](imode, ifreq));
-        }
-      }
-    }
 
     // From vector to force and torque structures.
     Force force;
@@ -189,19 +178,24 @@ namespace frydom {
     Torque torque;
     torque.SetNull();
 
-    auto dofs = GetBodyMask().GetDOFs();
-
-    for (const auto &dof : dofs) {
+    unsigned int idof = 0;
+    for (auto &dof:GetBodyMask().GetDOFs()) {
+      double tempforce = 0;
+      for (unsigned int ifreq = 0; ifreq < nbFreq; ++ifreq) {
+        for (unsigned int idir = 0; idir < nbWaveDir; ++idir) {
+          tempforce += std::imag(complexElevations[idir][ifreq] * m_Fhdb[idir](idof, ifreq));
+        }
+      }
       Direction direction = dof.GetDirection();
-      auto index = dof.GetIndex();
       switch (dof.GetType()) {
         case HDB5_io::DOF::LINEAR:
-          force += direction * forceMode(index);
+          force += direction * tempforce;
           break;
         case HDB5_io::DOF::ANGULAR:
-          torque += direction * forceMode(index);
+          torque += direction * tempforce;
           break;
       }
+      idof++;
     }
 
     // Projection of the loads in the equilibrium frame.

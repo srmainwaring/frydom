@@ -59,7 +59,7 @@ namespace frydom {
     auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
     DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
 
-    return DOFMask||BEMBody->GetForceMask();
+    return DOFMask&&BEMBody->GetForceMask();
   };
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file) {

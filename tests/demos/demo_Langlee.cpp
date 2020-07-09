@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
   // Hydrodynamic
 
   auto bargeHDB = FrFileSystem::join(
-      {system.config_file().GetDataFolder(), "ce/Langlee/Langlee_draft8_5_filtered_t50.hdb5"});
+      {system.config_file().GetDataFolder(), "ce/Langlee/test.hdb5"});
   auto hdb = make_hydrodynamic_database(bargeHDB);
 
   auto eqFrame0 = make_equilibrium_frame("eqFrame0", barge);
@@ -153,10 +153,10 @@ int main(int argc, char *argv[]) {
   hdb->Map(1, flap2.get(), eqFrame2);
   hdb->Map(2, barge.get(), eqFrame0);
 
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(flap1.get(), 80., 0.01);
-  radiationModel->SetImpulseResponseSize(flap2.get(), 80., 0.01);
-  radiationModel->SetImpulseResponseSize(barge.get(), 80., 0.01);
+//  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+//  radiationModel->SetImpulseResponseSize(flap1.get(), 80., 0.01);
+//  radiationModel->SetImpulseResponseSize(flap2.get(), 80., 0.01);
+//  radiationModel->SetImpulseResponseSize(barge.get(), 80., 0.01);
 
   // Hydrostatic
 

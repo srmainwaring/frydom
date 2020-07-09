@@ -243,7 +243,7 @@ namespace frydom {
 
     auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody);
     auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
-    if (meanSpeed.squaredNorm() > FLT_EPSILON)
+    if (meanSpeed.squaredNorm() < FLT_EPSILON)
       return radiationForce;
 
     auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU);

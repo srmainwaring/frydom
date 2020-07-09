@@ -17,14 +17,19 @@ using namespace frydom;
 void ValidationResults(const std::vector<double> vtime, const std::vector<double> heave, const std::string dbfile,
                        const int iperiod, const int isteepness) {
 
-  FrHDF5Reader db(dbfile);
+//  FrHDF5Reader db(dbfile);
+//
+//  auto path = "T" + std::to_string(iperiod) + "/H" + std::to_string(isteepness);
+//
+//  auto rao_bench = db.ReadDouble(path + "/rao");
+//  auto wave_height = db.ReadDouble(path + "/wave_height");
+//  auto period = db.ReadDouble(path + "/period");
+//  auto steepness = db.ReadDouble(path + "/steepness");
 
-  auto path = "T" + std::to_string(iperiod) + "/H" + std::to_string(isteepness);
-
-  auto rao_bench = db.ReadDouble(path + "/rao");
-  auto wave_height = db.ReadDouble(path + "/wave_height");
-  auto period = db.ReadDouble(path + "/period");
-  auto steepness = db.ReadDouble(path + "/steepness");
+  double period = 3.0;
+  double wave_height = 0.044;
+  double rao_bench = 0.11131242;
+  double steepness = 5.0E-4;
 
   int it = 0;
   while (vtime[it] < 100.) {
@@ -67,12 +72,17 @@ std::vector<double> ReadParam(const std::string dbfile, const int iperiod, const
 
   std::vector<double> param(2);
 
-  FrHDF5Reader db(dbfile);
+//  FrHDF5Reader db(dbfile);
+//
+//  param[0] = db.ReadDouble(path + "/period");
+//  param[1] = db.ReadDouble(path + "/wave_height");
 
-  param[0] = db.ReadDouble(path + "/period");
-  param[1] = db.ReadDouble(path + "/wave_height");
+//  auto steepness = db.ReadDouble(path + "/steepness");
 
-  auto steepness = db.ReadDouble(path + "/steepness");
+  param[0] = 3.0;
+  param[1] = 0.044;
+
+  double steepness = 5.0E-4;
 
   std::cout << "Regular wave T = " << param[0] << " s, Wave Height = "
             << param[1] << " m " << "steepness = " << steepness << std::endl;
@@ -146,7 +156,7 @@ int main(int argc, char *argv[]) {
   body->SetInertiaTensor(InertiaTensor);
 
   // -- Hydrodynamics
-  auto sphere_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/sphere_hdb.h5"});
+  auto sphere_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/sphere_hdb.hdb5"});
   auto hdb = make_hydrodynamic_database(sphere_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body);
