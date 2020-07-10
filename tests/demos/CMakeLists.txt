@@ -31,6 +31,7 @@ set(BENCH
         BoxDecayTests
         StabilityAnalysis
         HS_equilibrium
+        FixedJacketStructure
         )
 
 # Compile target
