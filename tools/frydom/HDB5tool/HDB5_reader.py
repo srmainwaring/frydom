@@ -768,6 +768,10 @@ class HDB5reader_v2(HDB5reader):
             # Body name (body mesh name until version 2).
             body.name = str(np.array(reader[body_path + "/BodyName"]))
 
+            # Fix problem of convertion between bytes and string when using h5py.
+            if (body.name[0:2] == "b'" and body.name[-1] == "'"):
+                body.name = body.name[2:-1]
+
             # Position of the body.
             try:
                 body.position = np.array(reader[body_path + "/BodyPosition"])
@@ -1051,6 +1055,11 @@ class HDB5reader_v1(HDB5reader):
             # Body name.
             try:
                 body.name = str(np.array(reader[body_path + "/BodyName"]))
+
+                # Fix problem of convertion between bytes and string when using h5py.
+                if (body.name[0:2] == "b'" and body.name[-1] == "'"):
+                    body.name = body.name[2:-1]
+
             except:
                 pass
 
