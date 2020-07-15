@@ -1085,7 +1085,8 @@ class HDB5reader_v1(HDB5reader):
             pyHDB.append(body)
 
         for body in pyHDB.bodies:
-
+            body_path = '/Bodies/Body_%u' % body.i_body
+            
             # Diffraction and Froude-Krylov loads.
             self.read_excitation(reader, pyHDB, body, body_path + "/Excitation")
 
