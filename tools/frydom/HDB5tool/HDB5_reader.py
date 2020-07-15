@@ -22,6 +22,7 @@ from meshmagick.mesh import Mesh
 import frydom.HDB5tool.body_db as body_db
 import frydom.HDB5tool.wave_drift_db as wave_drift_db
 import frydom.HDB5tool.PoleResidue as PoleResidue
+from frydom.HDB5tool.pyHDB import inf
 
 class HDB5reader():
     """
@@ -97,6 +98,8 @@ class HDB5reader():
 
         # Water depth.
         pyHDB.depth = np.array(reader['WaterDepth'])
+        if pyHDB.depth == 0.:  # Infinite water depth.
+            pyHDB.depth = inf
 
         # Number of bodies.
         pyHDB.nb_bodies = np.array(reader['NbBody'])
