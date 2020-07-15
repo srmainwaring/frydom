@@ -22,7 +22,6 @@ import meshmagick.MMviewer
 Dof_notation = [r'x', r'y', r'z', r'\phi', r'\theta', r'\psi']
 Dof_name = ["surge", "sway", "heave", "roll", "pitch", "yaw"]
 
-
 def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, show=True, save=False, filename="Loads.png"):
     """Plots the diffraction or Froude-Krylov or excitation response function of a given modes set.
 
