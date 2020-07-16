@@ -88,6 +88,9 @@ int main(int argc, char *argv[]) {
   auto flap1Mesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/Langlee/FullFlap1.obj"});
   flap1->AddMeshAsset(flap1Mesh);
   flap1->SetPosition(Position(-12.5, 0., -8.5), NWU);
+//  FrRotation flapRotation;
+//  flapRotation.RotY_DEGREES(30, NWU);
+//  flap1->RotateAroundPointInBody(flapRotation, Position(0, 0., 0), NWU);
 
   // -- Inertia
   double mass_f1 = 1.7925e5; //;2.8874e5
@@ -153,10 +156,10 @@ int main(int argc, char *argv[]) {
   hdb->Map(1, flap2.get(), eqFrame2);
   hdb->Map(2, barge.get(), eqFrame0);
 
-//  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-//  radiationModel->SetImpulseResponseSize(flap1.get(), 80., 0.01);
-//  radiationModel->SetImpulseResponseSize(flap2.get(), 80., 0.01);
-//  radiationModel->SetImpulseResponseSize(barge.get(), 80., 0.01);
+  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+  radiationModel->SetImpulseResponseSize(flap1.get(), 80., 0.01);
+  radiationModel->SetImpulseResponseSize(flap2.get(), 80., 0.01);
+  radiationModel->SetImpulseResponseSize(barge.get(), 80., 0.01);
 
   // Hydrostatic
 
@@ -197,13 +200,13 @@ int main(int argc, char *argv[]) {
 
 //  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(100, 50, false);
   } else {
     auto time = 0.;
-    while (time < 10.) {
+    while (time < 100.) {
       time += dt;
       system.AdvanceTo(time);
       std::cout << "Time : " << time << " s" << std::endl;
