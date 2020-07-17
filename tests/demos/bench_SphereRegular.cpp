@@ -11,25 +11,22 @@
 
 #include "frydom/frydom.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 
 void ValidationResults(const std::vector<double> vtime, const std::vector<double> heave, const std::string dbfile,
                        const int iperiod, const int isteepness) {
+  
+  auto path = "T" + std::to_string(iperiod) + "/H" + std::to_string(isteepness);
 
-//  FrHDF5Reader db(dbfile);
-//
-//  auto path = "T" + std::to_string(iperiod) + "/H" + std::to_string(isteepness);
-//
-//  auto rao_bench = db.ReadDouble(path + "/rao");
-//  auto wave_height = db.ReadDouble(path + "/wave_height");
-//  auto period = db.ReadDouble(path + "/period");
-//  auto steepness = db.ReadDouble(path + "/steepness");
-
-  double period = 3.0;
-  double wave_height = 0.044;
-  double rao_bench = 0.11131242;
-  double steepness = 5.0E-4;
+  HighFive::File file(dbfile, HighFive::File::ReadOnly);
+  auto rao_bench = H5Easy::load<double>(file, path + "/rao");
+  auto wave_height = H5Easy::load<double>(file, path + "/wave_height");
+  auto period = H5Easy::load<double>(file, path + "/period");
+  auto steepness = H5Easy::load<double>(file, path + "/steepness");
 
   int it = 0;
   while (vtime[it] < 100.) {

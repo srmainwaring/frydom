@@ -289,7 +289,7 @@ int main(int argc, char *argv[]) {
   system.Initialize();
   system.DoAssembly();
 
-  bool is_irrlicht = false;
+  bool is_irrlicht = true;
 
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false);

@@ -15,7 +15,7 @@ void DemoModel(FrOffshoreSystem &system, bool flap1_fixed, bool flap2_fixed, dou
   // System
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-1, 1, 2, -1, 1, 2);
 
-  // PLatform
+  // Platform
 
   auto platform = system.NewBody("platform");
   auto platformMesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/FOSWEC/FullPlatform.obj"});
@@ -52,6 +52,10 @@ void DemoModel(FrOffshoreSystem &system, bool flap1_fixed, bool flap2_fixed, dou
     auto rev1 = make_fixed_link("fixed1", &system, node_1f, node_1b);
   } else {
     auto rev1 = make_revolute_link("rev1", &system, node_1f, node_1b);
+    auto motor1 = rev1->Motorize("flap1_actuator", POSITION);
+    FrCosRampFunction function;
+    function.SetByTwoPoints(0., 0., 10., 90 * DEG2RAD);
+    motor1->SetMotorFunction(function);
   }
 
   if (std::abs(initial_angle) > DBL_EPSILON) {
@@ -75,11 +79,15 @@ void DemoModel(FrOffshoreSystem &system, bool flap1_fixed, bool flap2_fixed, dou
     auto rev2 = make_fixed_link("fixed2", &system, node_2f, node_2b);
   } else {
     auto rev2 = make_revolute_link("rev2", &system, node_2f, node_2b);
+    auto motor2 = rev2->Motorize("flap2_actuator", POSITION);
+    FrCosRampFunction function;
+    function.SetByTwoPoints(0., 0., 10., 90 * DEG2RAD);
+    motor2->SetMotorFunction(function);
   }
 
   // Hydrodynamic and radiation model
 
-  auto FOSWEC_HDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/FOSWEC/FOSWEC_phase2_filtered.hdb5"});
+  auto FOSWEC_HDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/FOSWEC/test.hdb5"});
   auto hdb = make_hydrodynamic_database(FOSWEC_HDB);
 
   auto eqFrame0 = make_equilibrium_frame("eqFrame0", platform);
@@ -102,15 +110,16 @@ void DemoModel(FrOffshoreSystem &system, bool flap1_fixed, bool flap2_fixed, dou
   auto forceHst2 = make_linear_hydrostatic_force("linear_hydrostatic_flap2", flap2, hdb);
 
   //--> Nonlinear
-  //auto frameOffset1 = FrFrame(Position(0., 0., 0.), FrRotation(), NWU);
-  //auto flapMesh1 = make_hydro_mesh(flap1, resources_path + "FullFlap1_fine.obj", frameOffset1,
-  //                                 FrHydroMesh::ClippingSupport::PLANESURFACE);
-  //auto forceHst1 = make_nonlinear_hydrostatic_force(flap1, flapMesh1);
-
-  //auto frameOffset2 = FrFrame(Position(0., 0., 0.), FrRotation(), NWU);
-  //auto flapMesh2 = make_hydro_mesh(flap2, resources_path + "FullFlap1_fine.obj", frameOffset2,
-  //                                 FrHydroMesh::ClippingSupport::PLANESURFACE);
-  //auto forceHst2 = make_nonlinear_hydrostatic_force(flap2, flapMesh2);
+//  auto frameOffset1 = FrFrame(Position(0., 0., 0.), FrRotation(), NWU);
+//  auto flapMeshFile = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/FOSWEC/FullFlap1_fine.obj"});
+//  auto flapMesh1 = make_hydro_mesh("flapMesh1", flap1, flapMeshFile, frameOffset1,
+//                                   FrHydroMesh::ClippingSupport::PLANESURFACE);
+//  auto forceHst1 = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic_flap1", flap1, flapMesh1);
+//
+//  auto frameOffset2 = FrFrame(Position(0., 0., 0.), FrRotation(), NWU);
+//  auto flapMesh2 = make_hydro_mesh("flapMesh2", flap2, flapMeshFile, frameOffset2,
+//                                   FrHydroMesh::ClippingSupport::PLANESURFACE);
+//  auto forceHst2 = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic_flap2", flap2, flapMesh2);
 
   // Excitation force
 
@@ -156,7 +165,7 @@ void Run(FrOffshoreSystem &system) {
   system.SetTimeStep(dt);
   system.Initialize();
 
-  bool use_irrlicht = true;
+  bool use_irrlicht = false;
 
   if (use_irrlicht) {
 
@@ -236,7 +245,7 @@ void DemoFlapDecay() {
   // Environment
   SetEnvironment(system, 10., 0.);
   // Configuration
-  DemoModel(system, false, false, 10.);
+  DemoModel(system, false, false, 0.);
   // Run
   Run(system);
 }
