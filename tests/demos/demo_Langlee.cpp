@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
   auto ocean = system.GetEnvironment()->GetOcean();
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
-  waveField->SetWaveHeight(0.2);
+  waveField->SetWaveHeight(0*0.2);
   waveField->SetWavePeriod(10.);
   waveField->SetDirection(0., DEG, NWU, GOTO);
 
@@ -88,9 +88,6 @@ int main(int argc, char *argv[]) {
   auto flap1Mesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/Langlee/FullFlap1.obj"});
   flap1->AddMeshAsset(flap1Mesh);
   flap1->SetPosition(Position(-12.5, 0., -8.5), NWU);
-//  FrRotation flapRotation;
-//  flapRotation.RotY_DEGREES(30, NWU);
-//  flap1->RotateAroundPointInBody(flapRotation, Position(0, 0., 0), NWU);
 
   // -- Inertia
   double mass_f1 = 1.7925e5; //;2.8874e5
@@ -145,7 +142,7 @@ int main(int argc, char *argv[]) {
   // Hydrodynamic
 
   auto bargeHDB = FrFileSystem::join(
-      {system.config_file().GetDataFolder(), "ce/Langlee/test.hdb5"});
+      {system.config_file().GetDataFolder(), "ce/Langlee/Langlee_draft8_5_filtered_t50.hdb5"});
   auto hdb = make_hydrodynamic_database(bargeHDB);
 
   auto eqFrame0 = make_equilibrium_frame("eqFrame0", barge);
@@ -198,7 +195,7 @@ int main(int argc, char *argv[]) {
 
   system.Initialize();
 
-//  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
+  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
   bool is_irrlicht = false;
 
@@ -206,7 +203,7 @@ int main(int argc, char *argv[]) {
     system.RunInViewer(100, 50, false);
   } else {
     auto time = 0.;
-    while (time < 100.) {
+    while (time < 300.) {
       time += dt;
       system.AdvanceTo(time);
       std::cout << "Time : " << time << " s" << std::endl;
