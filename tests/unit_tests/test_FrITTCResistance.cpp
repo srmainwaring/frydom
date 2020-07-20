@@ -12,6 +12,9 @@
 #include "frydom/frydom.h"
 #include "gtest/gtest.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 class TestITTCResistance : public ::testing::Test {
@@ -61,31 +64,30 @@ void TestITTCResistance::SetUp() {
 }
 
 void TestITTCResistance::LoadData(std::string filename) {
-
-  FrHDF5Reader reader;
+  
   std::string group = "/ittc/";
+  
+  HighFive::File file(filename, HighFive::File::ReadOnly);
 
-  reader.SetFilename(filename);
+  LengthBetweenPerpendicular = H5Easy::load<double>(file, group + "LengthBetweenPerpendicular");
+  hullFormFactor = H5Easy::load<double>(file, group + "HullFormParameter");
+  hullWetSurface = H5Easy::load<double>(file, group + "WettedSurfaceArea");
+  frontalArea = H5Easy::load<double>(file, group + "FrontalArea");
+  lengthAtWaterLine = H5Easy::load<double>(file, group + "LengthAtTheWaterLine");
+  reynoldsNumber = H5Easy::load<double>(file, group + "ReynoldsNumber");
 
-  LengthBetweenPerpendicular = reader.ReadDouble(group + "LengthBetweenPerpendicular");
-  hullFormFactor = reader.ReadDouble(group + "HullFormParameter");
-  hullWetSurface = reader.ReadDouble(group + "WettedSurfaceArea");
-  frontalArea = reader.ReadDouble(group + "FrontalArea");
-  lengthAtWaterLine = reader.ReadDouble(group + "LengthAtTheWaterLine");
-  reynoldsNumber = reader.ReadDouble(group + "ReynoldsNumber");
+  speed = H5Easy::load<double>(file, group + "Speed");
 
-  speed = reader.ReadDouble(group + "Speed");
+  m_ct = H5Easy::load<double>(file, group + "CT");
+  m_cr = H5Easy::load<double>(file, group + "CR");
+  m_cf = H5Easy::load<double>(file, group + "CF");
+  m_ca = H5Easy::load<double>(file, group + "CA");
+  m_caa = H5Easy::load<double>(file, group + "CAA");
+  m_capp = H5Easy::load<double>(file, group + "CAPP");
 
-  m_ct = reader.ReadDouble(group + "CT");
-  m_cr = reader.ReadDouble(group + "CR");
-  m_cf = reader.ReadDouble(group + "CF");
-  m_ca = reader.ReadDouble(group + "CA");
-  m_caa = reader.ReadDouble(group + "CAA");
-  m_capp = reader.ReadDouble(group + "CAPP");
-
-  m_waterDensity = reader.ReadDouble(group + "waterDensity");
+  m_waterDensity = H5Easy::load<double>(file, group + "waterDensity");
   system.GetEnvironment()->GetOcean()->SetDensity(m_waterDensity);
-  auto kinematicViscosity = reader.ReadDouble(group + "KinematicViscosity");
+  auto kinematicViscosity = H5Easy::load<double>(file, group + "KinematicViscosity");
   system.GetEnvironment()->GetOcean()->SetKinematicViscosity(kinematicViscosity);
 }
 

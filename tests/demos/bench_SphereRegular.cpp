@@ -69,17 +69,10 @@ std::vector<double> ReadParam(const std::string dbfile, const int iperiod, const
 
   std::vector<double> param(2);
 
-//  FrHDF5Reader db(dbfile);
-//
-//  param[0] = db.ReadDouble(path + "/period");
-//  param[1] = db.ReadDouble(path + "/wave_height");
-
-//  auto steepness = db.ReadDouble(path + "/steepness");
-
-  param[0] = 3.0;
-  param[1] = 0.044;
-
-  double steepness = 5.0E-4;
+  HighFive::File file(dbfile, HighFive::File::ReadOnly);
+  param[0] = H5Easy::load<double>(file, path + "/period");
+  param[1] = H5Easy::load<double>(file, path + "/wave_height");
+  double steepness = H5Easy::load<double>(file, path + "/steepness");
 
   std::cout << "Regular wave T = " << param[0] << " s, Wave Height = "
             << param[1] << " m " << "steepness = " << steepness << std::endl;
