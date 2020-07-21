@@ -15,14 +15,13 @@
 
 #include <unordered_map>
 #include <memory>
-
+#include "hdb5_io/containers/Body.h"
+#include "FrBEMBody.h"
 
 namespace frydom {
 
   // Forward declaration
   class FrEquilibriumFrame;
-
-  class FrBEMBody;
 
   class FrBody;
 

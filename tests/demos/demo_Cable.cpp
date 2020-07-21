@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   };
 
   // Chose the one you want to run
-  cableCase Case = FixedLine;
+  cableCase Case = Newton_Pendulum;
 
   // Line properties :
   bool elastic = true;                      //  non elastic catenary lines are only available for non strained lines
@@ -82,9 +82,7 @@ int main(int argc, char *argv[]) {
       auto CatenaryLine = make_catenary_line("CatenaryLine", Node1, Node2, cableProp, elastic,
                                              unstrainedLength, WATER);
 
-      auto DynamicCable = make_dynamic_cable("DynamicCable", Node1, Node2, cableProp, unstrainedLength,
-                                             RayleighDamping,
-                                             nbElement);
+      auto DynamicCable = make_fea_cable("DynamicCable", Node1, Node2, cableProp, unstrainedLength, nbElement);
 
       break;
     }
@@ -133,9 +131,7 @@ int main(int argc, char *argv[]) {
       // Dynamic cable properties :
       unstrainedLength -= 1.;
 
-      auto DynamicCable = make_dynamic_cable("DynamicCable", sphereNode2, worldNode2, cableProp,
-                                             unstrainedLength,
-                                             RayleighDamping, nbElement);
+      auto DynamicCable = make_fea_cable("DynamicCable", sphereNode2, worldNode2, cableProp, unstrainedLength, nbElement);
 
 
       break;
@@ -238,12 +234,10 @@ int main(int argc, char *argv[]) {
         worldNode2->SetPositionInBody(Position(-20., diameter * ib, 50.), NWU);
 
         // Create the catenary lines, using the nodes and line properties previously defined
-        auto DynamicCable1 = make_dynamic_cable("DynamicCable1" + std::to_string(ib), worldNode1, sphereNode,
-                                                cableProp, unstrainedLength,
-                                                RayleighDamping, nbElements);
-        auto DynamicCable2 = make_dynamic_cable("DynamicCable2" + std::to_string(ib), worldNode2, sphereNode,
-                                                cableProp, unstrainedLength,
-                                                RayleighDamping, nbElements);
+        auto DynamicCable1 = make_fea_cable("DynamicCable1" + std::to_string(ib), worldNode1, sphereNode,
+                                                cableProp, unstrainedLength, nbElements);
+        auto DynamicCable2 = make_fea_cable("DynamicCable2" + std::to_string(ib), worldNode2, sphereNode,
+                                                cableProp, unstrainedLength, nbElements);
       }
 
 

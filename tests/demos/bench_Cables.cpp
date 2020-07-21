@@ -86,13 +86,10 @@ int main(int argc, char *argv[]) {
 
   // Slack lines
   // ANCF cable
-  auto DynamicCable = make_dynamic_cable("DynamicCable_slack", Node1, Node2, cableProp, unstrainedLength,
-                                         rayleighDamping, nbElements);
+  auto DynamicCable = make_fea_cable("DynamicCable_slack", Node1, Node2, cableProp, unstrainedLength, nbElements);
 
   // Catenary line
-
-  auto CatenaryLine = make_catenary_line("CatenaryLine_slack", Node1, Node2, cableProp, elastic,
-                                         unstrainedLength, AIR);
+  auto CatenaryLine = make_catenary_line("CatenaryLine_slack", Node1, Node2, cableProp, elastic, unstrainedLength, AIR);
 
 
 //    system.Visualize(20.,false);
@@ -110,7 +107,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Solve statics for slack case" << std::endl;
   system.SolveStaticWithRelaxation();
-//    system.Visualize(20.,false);
+  system.Visualize(20.,false);
 
   //Analyse results
   auto slack_valid = ValidationResults(CatenaryLine, DynamicCable, unstrainedLength, nbElements, 1.e-2, 4.25);
@@ -123,8 +120,7 @@ int main(int argc, char *argv[]) {
   unstrainedLength = distanceBetweenNodes * 0.85;
 
   // ANCF cable
-  auto DynamicCable2 = make_dynamic_cable("CatenaryLine_taut", Node1, Node2, cableProp, unstrainedLength,
-                                          rayleighDamping, nbElements);
+  auto DynamicCable2 = make_fea_cable("DynamicCable_taut", Node1, Node2, cableProp, unstrainedLength, nbElements);
 
   // Catenary line
 
@@ -133,9 +129,10 @@ int main(int argc, char *argv[]) {
 
 
   std::cout << "Solve statics for taut case" << std::endl;
-//    system.GetStaticAnalysis()->SetNbIteration(50);
-  system.SolveStaticWithRelaxation();
-//    system.Visualize(20.,false);
+//  system.GetStaticAnalysis()->SetNbIteration(50);
+//  system.SolveStaticWithRelaxation();
+//  system.Visualize(20., false);
+  system.RunInViewer(20., 20.);
 
   //Analyse results
   auto taut_valid = ValidationResults(CatenaryLine2, DynamicCable2, unstrainedLength, nbElements, 1.e-2, 0.25);

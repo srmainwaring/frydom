@@ -13,6 +13,9 @@
 #include "frydom/frydom.h"
 #include "gtest/gtest.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 
@@ -100,18 +103,15 @@ void TestFrFlowForce::SetUp() {
 
 void TestFrFlowForce::LoadData(std::string filename, std::string group) {
 
-  FrHDF5Reader reader;
+  HighFive::File file(filename, HighFive::File::ReadOnly);
 
-  reader.SetFilename(filename);
-
-  speed = reader.ReadDoubleArray(group + "speed/");
-  dir = reader.ReadDoubleArray(group + "direction/");
-  forceREF = reader.ReadDoubleArray(group + "force/");
-
-  angleUnit = STRING2ANGLE(reader.ReadString(group + "angle_unit/"));
-  speedUnit = SpeedUnit[reader.ReadString(group + "speed_unit/")];
-  convention = DirConvention[reader.ReadString(group + "convention/")];
-  frame = FrameConv[reader.ReadString(group + "frame/")];
+  speed       = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "speed");
+  dir         = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "direction");
+  forceREF    = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "force");
+  angleUnit   = STRING2ANGLE(H5Easy::load<std::string>(file, group + "angle_unit"));
+  speedUnit   = SpeedUnit[H5Easy::load<std::string>(file, group + "speed_unit")];
+  convention  = DirConvention[H5Easy::load<std::string>(file, group + "convention")];
+  frame       = FrameConv[H5Easy::load<std::string>(file, group + "frame")];
 }
 
 void TestFrFlowForce::MakeForce(FLUID_TYPE type, std::string filename) {

@@ -149,6 +149,12 @@ int main(int argc, char *argv[]) {
     case FromFile: {
       auto body = system.NewBody("body");
 
+      auto platformMesh = FrFileSystem::join(
+          {system.config_file().GetDataFolder(), "ce/platform/Platform_GVA7500.obj"});
+      body->AddMeshAsset(platformMesh);
+
+      body->SetFixedInWorld(true);
+
       auto MorisonFile = FrFileSystem::join(
           {system.config_file().GetDataFolder(), "ce/platform/Platform_GVA7500_Morison.json"});
 

@@ -14,6 +14,9 @@
 
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 class TestFrEquilibriumFrame : public testing::Test {
@@ -45,10 +48,6 @@ class TestFrEquilibriumFrame : public testing::Test {
   /// Load reference results from GDF5 file
   void LoadData(std::string filename, std::string group);
 
-  /// Vector reader
-  template<class Vector>
-  Vector ReadVector(FrHDF5Reader &reader, std::string field) const;
-
   void CheckVelocity();
 
  public:
@@ -73,12 +72,6 @@ class TestFrEquilibriumFrame : public testing::Test {
 //  void TestSetVelocityToBodyVelocity();
 };
 
-template<class Vector>
-Vector TestFrEquilibriumFrame::ReadVector(FrHDF5Reader &reader, std::string field) const {
-  auto value = reader.ReadDoubleArray(field);
-  return Vector(value(0), value(1), value(2));
-}
-
 void TestFrEquilibriumFrame::SetUp() {
   auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
   LoadData(database, "/equilibrium_frame/");
@@ -102,17 +95,15 @@ void TestFrEquilibriumFrame::CheckVelocity() {
 
 void TestFrEquilibriumFrame::LoadData(std::string filename, std::string group) {
 
-  FrHDF5Reader reader;
+  HighFive::File file(filename, HighFive::File::ReadOnly);
 
-  reader.SetFilename(filename);
+  m_PositionInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointInWorld");
+  m_VelocityInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "VelocityInWorld");
+  m_VelocityInFrame = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "VelocityInFrame");
 
-  m_PositionInWorld = ReadVector<Position>(reader, group + "PointInWorld");
-  m_VelocityInWorld = ReadVector<Velocity>(reader, group + "VelocityInWorld");
-  m_VelocityInFrame = ReadVector<Velocity>(reader, group + "VelocityInFrame");
-
-  auto direction = ReadVector<Direction>(reader, group + "RotationDirection");
+  auto direction = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "RotationDirection");
   direction.normalize();
-  auto angle = reader.ReadDouble(group + "RotationAngle");
+  auto angle = H5Easy::load<double>(file, group + "RotationAngle");
   m_quat = FrUnitQuaternion(direction, angle, fc);
   m_frame = FrFrame(m_PositionInWorld, m_quat, fc);
 }

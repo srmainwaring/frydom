@@ -22,6 +22,8 @@
 #include "frydom/mesh/FrHydroMesh.h"
 #include "frydom/logging/FrTypeNames.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+
 namespace frydom {
 
   FrLinearHydrostaticForce::FrLinearHydrostaticForce(const std::string &name,
@@ -122,7 +124,7 @@ namespace frydom {
                                                   body,
                                                   HDB->GetMapper()->GetSharedEquilibriumFrame(body.get()));
 
-    forceHst->SetStiffnessMatrix(HDB->GetBody(body)->GetHydrostaticStiffnessMatrix());
+    forceHst->SetStiffnessMatrix(HDB->GetBody(body.get())->GetHydrostaticStiffnessMatrix());
 
     return forceHst;
   }

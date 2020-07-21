@@ -105,6 +105,14 @@ namespace frydom {
     /// Returns the number of constrained DOF of the body WRT the world
     unsigned int GetNbFreeDOF() const;
 
+    mathutils::Vector6d<bool> GetLockedDOFs() const {
+      return {m_xLocked,m_yLocked,m_zLocked,m_RxLocked,m_RyLocked,m_RzLocked};
+    }
+
+    mathutils::Vector6d<bool> GetFreeDOFs() const {
+      return {!m_xLocked,!m_yLocked,!m_zLocked,!m_RxLocked,!m_RyLocked,!m_RzLocked};
+    }
+
     void SetLinkType(LINK_TYPE linkType);
 
     LINK_TYPE GetLinkType() const;

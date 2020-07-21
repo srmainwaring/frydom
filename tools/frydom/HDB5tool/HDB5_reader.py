@@ -22,6 +22,7 @@ from meshmagick.mesh import Mesh
 import frydom.HDB5tool.body_db as body_db
 import frydom.HDB5tool.wave_drift_db as wave_drift_db
 import frydom.HDB5tool.PoleResidue as PoleResidue
+from frydom.HDB5tool.pyHDB import inf
 
 class HDB5reader():
     """
@@ -97,6 +98,8 @@ class HDB5reader():
 
         # Water depth.
         pyHDB.depth = np.array(reader['WaterDepth'])
+        if pyHDB.depth == 0.:  # Infinite water depth.
+            pyHDB.depth = inf
 
         # Number of bodies.
         pyHDB.nb_bodies = np.array(reader['NbBody'])
@@ -768,6 +771,10 @@ class HDB5reader_v2(HDB5reader):
             # Body name (body mesh name until version 2).
             body.name = str(np.array(reader[body_path + "/BodyName"]))
 
+            # Fix problem of convertion between bytes and string when using h5py.
+            if (body.name[0:2] == "b'" and body.name[-1] == "'"):
+                body.name = body.name[2:-1]
+
             # Position of the body.
             try:
                 body.position = np.array(reader[body_path + "/BodyPosition"])
@@ -1051,6 +1058,11 @@ class HDB5reader_v1(HDB5reader):
             # Body name.
             try:
                 body.name = str(np.array(reader[body_path + "/BodyName"]))
+
+                # Fix problem of convertion between bytes and string when using h5py.
+                if (body.name[0:2] == "b'" and body.name[-1] == "'"):
+                    body.name = body.name[2:-1]
+
             except:
                 pass
 
@@ -1073,7 +1085,8 @@ class HDB5reader_v1(HDB5reader):
             pyHDB.append(body)
 
         for body in pyHDB.bodies:
-
+            body_path = '/Bodies/Body_%u' % body.i_body
+            
             # Diffraction and Froude-Krylov loads.
             self.read_excitation(reader, pyHDB, body, body_path + "/Excitation")
 

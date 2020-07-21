@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
   auto ocean = system.GetEnvironment()->GetOcean();
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
-  waveField->SetWaveHeight(0.2);
+  waveField->SetWaveHeight(0*0.2);
   waveField->SetWavePeriod(10.);
   waveField->SetDirection(0., DEG, NWU, GOTO);
 
@@ -195,15 +195,15 @@ int main(int argc, char *argv[]) {
 
   system.Initialize();
 
-//  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
+  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(100, 50, false);
   } else {
     auto time = 0.;
-    while (time < 10.) {
+    while (time < 300.) {
       time += dt;
       system.AdvanceTo(time);
       std::cout << "Time : " << time << " s" << std::endl;

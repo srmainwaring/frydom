@@ -17,6 +17,8 @@
 #include "MathUtils/Interp1d.h"
 #include "frydom/core/force/FrForce.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+
 namespace frydom {
 
   // Forward declarations.
@@ -72,6 +74,8 @@ namespace frydom {
 
     /// This function computes the excitation loads (linear excitation) or the diffraction loads (nonlinear excitation).
     void Compute_F_HDB();
+
+    FrMask GetBodyMask() const;
 
   };
 

@@ -12,6 +12,9 @@
 #include "frydom/frydom.h"
 #include "gtest/gtest.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 //
@@ -144,14 +147,6 @@ class TestFrForce : public FrForce {
   /// Methods
   void LoadData(std::string filename);
 
-  Position ReadPosition(FrHDF5Reader &reader, std::string field);
-
-  Force ReadForce(FrHDF5Reader &reader, std::string field);
-
-  Torque ReadTorque(FrHDF5Reader &reader, std::string field);
-
-  Direction ReadDirection(FrHDF5Reader &reader, std::string field);
-
   void CheckForceInWorldAtCOG();
 
   void CheckTorqueInBodyAtCOG();
@@ -167,53 +162,32 @@ class TestFrForce : public FrForce {
   void Initialize() override {};
 };
 
-Position TestFrForce::ReadPosition(FrHDF5Reader &reader, std::string field) {
-  auto value = reader.ReadDoubleArray(field);
-  return Position(value(0), value(1), value(2));
-}
-
-Force TestFrForce::ReadForce(FrHDF5Reader &reader, std::string field) {
-  auto value = reader.ReadDoubleArray(field);
-  return Force(value(0), value(1), value(2));
-}
-
-Torque TestFrForce::ReadTorque(FrHDF5Reader &reader, std::string field) {
-  auto value = reader.ReadDoubleArray(field);
-  return Torque(value(0), value(1), value(2));
-}
-
-Direction TestFrForce::ReadDirection(FrHDF5Reader &reader, std::string field) {
-  auto value = reader.ReadDoubleArray(field);
-  return Torque(value(0), value(1), value(2));
-}
-
 void TestFrForce::LoadData(std::string filename) {
 
-  FrHDF5Reader reader;
 
-  reader.SetFilename(filename);
+  HighFive::File file(filename, HighFive::File::ReadOnly);
   std::string group = "/force_general/";
 
-  m_PointREFInWorld = ReadPosition(reader, group + "PointREFInWorld/");
-  m_PointCOGInBody = ReadPosition(reader, group + "PointCOGInBody/");
-  m_PointInBody = ReadPosition(reader, group + "PointInBody/");
-  m_PointCOGInWorld = ReadPosition(reader, group + "PointCOGInWorld/");
-  m_PointInWorld = ReadPosition(reader, group + "PointInWorld/");
+  m_PointREFInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointREFInWorld");
+  m_PointCOGInBody  = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointCOGInBody");
+  m_PointInBody     = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointInBody");
+  m_PointCOGInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointCOGInWorld");
+  m_PointInWorld    = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointInWorld");
 
-  auto direction = ReadDirection(reader, group + "RotationDirection/");
+  auto direction = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "RotationDirection");
   direction.normalize();
-  auto angle = reader.ReadDouble(group + "RotationAngle/");
+  auto angle = H5Easy::load<double>(file, group + "RotationAngle");
   m_quatREF = FrUnitQuaternion(direction, angle, NWU);
   m_frameREF = FrFrame(m_PointREFInWorld, m_quatREF, NWU);
 
-  m_forceInWorldAtPoint = ReadForce(reader, group + "ForceInWorldAtPoint/");
-  m_forceInBodyAtPoint = ReadForce(reader, group + "ForceInBodyAtPoint/");
-  m_forceInWorldAtCOG = ReadForce(reader, group + "ForceInWorldAtCOG/");
-  m_forceInBodyAtCOG = ReadForce(reader, group + "ForceInBodyAtCOG/");
-  m_torqueInWorldAtPoint = ReadTorque(reader, group + "TorqueInWorldAtPoint/");
-  m_torqueInBodyAtPoint = ReadTorque(reader, group + "TorqueInBodyAtPoint/");
-  m_torqueInWorldAtCOG = ReadTorque(reader, group + "TorqueInWorldAtCOG/");
-  m_torqueInBodyAtCOG = ReadTorque(reader, group + "TorqueInBodyAtCOG/");
+  m_forceInWorldAtPoint = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "ForceInWorldAtPoint");
+  m_forceInBodyAtPoint  = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "ForceInBodyAtPoint");
+  m_forceInWorldAtCOG   = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "ForceInWorldAtCOG");
+  m_forceInBodyAtCOG    = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "ForceInBodyAtCOG");
+  m_torqueInWorldAtPoint= H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "TorqueInWorldAtPoint");
+  m_torqueInBodyAtPoint = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "TorqueInBodyAtPoint");
+  m_torqueInWorldAtCOG  = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "TorqueInWorldAtCOG");
+  m_torqueInBodyAtCOG   = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "TorqueInBodyAtCOG");
 
   // Create vector in NED convention
   m_PointInBody_NED = m_PointInBody;
@@ -237,10 +211,10 @@ void TestFrForce::LoadData(std::string filename) {
   internal::SwapFrameConvention(m_torqueInWorldAtCOG_NED);
   internal::SwapFrameConvention(m_torqueInBodyAtCOG_NED);
 
-  m_forceLimitUser = reader.ReadDouble(group + "ForceLimit/");
-  m_torqueLimitUser = reader.ReadDouble(group + "TorqueLimit/");
-  m_forceInWorldAtCOG_limited = ReadForce(reader, group + "ForceInWorldAtCOG_limited/");
-  m_torqueInBodyAtCOG_limited = ReadTorque(reader, group + "TorqueInBodyAtCOG_limited/");
+  m_forceLimitUser = H5Easy::load<double>(file, group + "ForceLimit");
+  m_torqueLimitUser = H5Easy::load<double>(file, group + "TorqueLimit");
+  m_forceInWorldAtCOG_limited = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "ForceInWorldAtCOG_limited");
+  m_torqueInBodyAtCOG_limited = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "TorqueInBodyAtCOG_limited");
 }
 
 void TestFrForce::CheckForceInWorldAtCOG() {

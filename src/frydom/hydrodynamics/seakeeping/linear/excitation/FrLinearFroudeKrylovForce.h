@@ -20,6 +20,8 @@
 #include "frydom/core/force/FrForce.h"
 #include "FrLinearHDBForce.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+
 namespace frydom {
 
   // Forward declaration

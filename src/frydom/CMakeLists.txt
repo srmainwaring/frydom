@@ -44,7 +44,8 @@ target_link_libraries(FRyDoM_Engine
         ChronoEngine
         ChronoEngine_irrlicht
         MathUtils::MathUtils
-        HDF5
+        hdb5io
+#        HDF5
         GeographicLib
         fmt
         cppfs
@@ -61,6 +62,13 @@ target_include_directories(FRyDoM_Engine PUBLIC
 
 target_compile_definitions(FRyDoM_Engine PUBLIC
         RESOURCES_VIZU_PATH="${PROJECT_SOURCE_DIR}/data/"
+        )
+
+set_target_properties( FRyDoM_Engine
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/frydom"
         )
 
 message(STATUS " RESOURCES_VIZU_PATH=${PROJECT_SOURCE_DIR}/data/")
