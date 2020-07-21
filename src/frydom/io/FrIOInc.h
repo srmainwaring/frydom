@@ -17,8 +17,6 @@
 
 using json = nlohmann::json; // for convenience
 
-#include "FrHDF5.h"
 #include "FrLoader.h"
-//#include "FrPathManager.h"
 
 #endif //FRYDOM_IO_H

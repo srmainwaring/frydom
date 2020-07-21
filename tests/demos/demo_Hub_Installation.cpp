@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
 
   auto SeabedGridAsset = system.GetEnvironment()->GetOcean()->GetSeabed()->GetSeabedGridAsset();
   SeabedGridAsset->SetGrid(-150., 150., 3., -150., 150., 3.);
+  system.GetEnvironment()->GetOcean()->GetSeabed()->Show(true);
 
   auto seabedCollision = std::make_shared<FrCollisionModel>();
   seabedCollision->AddBox(150, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
@@ -106,7 +107,7 @@ int main(int argc, char *argv[]) {
 
   // -- Hydrodynamics
 
-  auto bargeHDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/barge/Barge_HDB.h5"});
+  auto bargeHDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/barge/barge.hdb5"});
   auto hdb = make_hydrodynamic_database(bargeHDB);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", barge);
@@ -227,12 +228,12 @@ int main(int argc, char *argv[]) {
   cableProp->SetLinearDensity(600);
 
 //    auto CatenaryLine = make_catenary_line("HubLine", &system, crane_node, hub_node, cableProp, elastic, unstretchedLength, FLUID_TYPE::AIR);
-  auto dynamicLine = make_dynamic_cable("HubLine", crane_node, hub_node, cableProp, unstretchedLength, 0., 10);
+  auto dynamicLine = make_fea_cable("HubLine", crane_node, hub_node, cableProp, unstretchedLength, 10);
 
   // --------------------------------------------------
   // Mooring Lines
   // --------------------------------------------------
-  double buoyRadius = 1.5;
+  double buoyRadius = 2.5;
   double buoyMass = 100;
   double buoyDamping = 1000;
 

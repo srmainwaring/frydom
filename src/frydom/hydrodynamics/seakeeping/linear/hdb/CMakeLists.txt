@@ -1,7 +1,6 @@
 message(STATUS "    ...hdb")
 
 set(SRC_FILES
-        FrBEMBody.cpp
         FrHydroDB.cpp
         FrHydroMapper.cpp
         )

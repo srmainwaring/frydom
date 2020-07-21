@@ -14,6 +14,9 @@
 
 #include "frydom/environment/flow/FrFlowBase.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 // --------------------------------------------------------------------
@@ -44,10 +47,6 @@ class TestFrFlowBase : public ::testing::Test {
   /// Load reference results from HDF5 file
   void LoadData(std::string filename);
 
-  /// Vector reader
-  template<class Vector>
-  Vector ReadVector(FrHDF5Reader &reader, std::string field) const;
-
  public:
   void TestGetFluxVelocityInWorld();
 
@@ -57,12 +56,6 @@ class TestFrFlowBase : public ::testing::Test {
   // GetField()
 
 };
-
-template<class Vector>
-Vector TestFrFlowBase::ReadVector(FrHDF5Reader &reader, std::string field) const {
-  auto value = reader.ReadDoubleArray(field);
-  return Vector(value(0), value(1), value(2));
-}
 
 void TestFrFlowBase::SetUp() {
 
@@ -76,21 +69,19 @@ void TestFrFlowBase::SetUp() {
 
 void TestFrFlowBase::LoadData(std::string filename) {
 
-  FrHDF5Reader reader;
-
-  reader.SetFilename(filename);
+  HighFive::File file(filename, HighFive::File::ReadOnly);
   std::string group = "/flow_base/uniform/";
 
-  m_PointInWorld = ReadVector<Position>(reader, group + "PointInWorld");
-  auto direction = ReadVector<Direction>(reader, group + "RotationDirection");
+  m_PointInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointInWorld");
+  auto direction = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "RotationDirection");
   direction.normalize();
-  auto angle = reader.ReadDouble(group + "RotationAngle");
+  auto angle = H5Easy::load<double>(file, group + "RotationAngle");
   m_quat = FrUnitQuaternion(direction, angle, NWU);
   m_frame = FrFrame(m_PointInWorld, m_quat, NWU);
 
-  m_FrameVelocityInWorld = ReadVector<Velocity>(reader, group + "FrameVelocityInWorld");
-  m_VelocityInWorld = ReadVector<Velocity>(reader, group + "VelocityInWorld");
-  m_RelativeVelocityInFrame = ReadVector<Velocity>(reader, group + "RelativeVelocityInFrame");
+  m_FrameVelocityInWorld    = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "FrameVelocityInWorld");
+  m_VelocityInWorld         = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "VelocityInWorld");
+  m_RelativeVelocityInFrame = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "RelativeVelocityInFrame");
 
 }
 

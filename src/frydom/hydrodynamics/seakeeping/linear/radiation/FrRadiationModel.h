@@ -20,13 +20,14 @@
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrPhysicsItem.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 
 namespace frydom {
 
   // Forward declarations
   class FrHydroDB;
 
-  class FrBEMBody;
+//  class FrBEMBody;
 
   class FrHydroMapper;
 
@@ -174,7 +175,7 @@ namespace frydom {
     /// Compute the the convolution part of the radiation force linked with steady speed
     /// \param meanSpeed Steady speed of the body
     /// \return Generalized force
-    GeneralizedForce ConvolutionKu(double meanSpeed) const;
+    GeneralizedForce ForwardSpeedCorrection(FrBEMBody *BEMBody) const;
   };
 
   std::shared_ptr<FrRadiationConvolutionModel>

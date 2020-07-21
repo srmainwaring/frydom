@@ -6,7 +6,7 @@
 #define FRYDOM_FRLINEARHDBINC_H
 
 #include "FrHydroMapper.h"
-#include "FrBEMBody.h"
 #include "FrHydroDB.h"
+#include "FrBEMBody.h"
 
 #endif //FRYDOM_FRLINEARHDBINC_H

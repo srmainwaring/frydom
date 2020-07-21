@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 
 //     Create a hydrodynamic database (hdb), load data from the input file and creates and initialize the BEMBodies.
   auto hdb_file = FrFileSystem::join(
-      {system.config_file().GetDataFolder(), "ce/platform/Platform_HDB_Without_drift.hdb5"});
+      {system.config_file().GetDataFolder(), "ce/platform/Platform_GVA7500.hdb5"});
   auto hdb = make_hydrodynamic_database(hdb_file);
 
   // Create an equilibrium frame for the platform and add it to the system at the position of the body CoG.
