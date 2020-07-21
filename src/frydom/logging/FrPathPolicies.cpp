@@ -69,4 +69,7 @@ namespace frydom {
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrHydroMesh, "")
 
+  class FrMorisonCompositeElement;
+  TYPE_TO_NORMALIZED_PATH_PREFIX(FrMorisonCompositeElement, "");
+
 }  // end namespace frydom

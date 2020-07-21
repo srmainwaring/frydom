@@ -51,6 +51,9 @@
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/logging/FrSerializerFactory.h"
 
+#include "frydom/hydrodynamics/morison/FrMorisonElements.h"
+
+
 
 namespace frydom {
 
@@ -431,6 +434,11 @@ namespace frydom {
     return m_physicsItemsList;
   }
 
+  void FrOffshoreSystem::AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(morison_elements));
+    m_physicsItemsList.push_back(morison_elements);
+    event_logger::info(GetTypeName(), GetName(), "Morison elements have been ADDED to the system");
+  }
 
 // ***** FEAMesh *****
 
@@ -1406,7 +1414,10 @@ namespace frydom {
 //      AddPhysicsItem(equilibrium_frame);
 //      m_pathManager->RegisterTreeNode(equilibrium_frame.get());
 
-
+      // MORISON MODEL
+    } else if (auto morison = std::dynamic_pointer_cast<FrMorisonCompositeElement>(item)) {
+      AddMorisonElements(morison);
+      m_pathManager->RegisterTreeNode(morison.get());
 
       // RADIATION MODEL
     } else if (auto model = std::dynamic_pointer_cast<FrRadiationModel>(item)) {

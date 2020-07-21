@@ -124,6 +124,8 @@ namespace frydom {
 
   class FrHydroMesh;
 
+  class FrMorisonCompositeElement;
+
   namespace internal {
     class FrLMNode;
 
@@ -779,6 +781,7 @@ namespace frydom {
 
     void RemoveHydroMesh(std::shared_ptr<FrHydroMesh> hydro_mesh);
 
+    void AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements);
 
 //    /// Add other physics item to the offshore system (physics item that need to be updated before normal items)
 //    /// \param otherPhysics other physic item to be added

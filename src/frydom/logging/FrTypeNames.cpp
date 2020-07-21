@@ -201,6 +201,9 @@ namespace frydom {
 
   TYPE_TO_STRING(FrLumpedMassCable, "LumpedMassCable")
 
+  // MORISON ELEMENTS
+  class FrMorisonCompositeElement;
+  TYPE_TO_STRING(FrMorisonCompositeElement, "MorisonElements");
 
 }
 
