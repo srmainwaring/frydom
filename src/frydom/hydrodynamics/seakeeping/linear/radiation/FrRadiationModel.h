@@ -90,6 +90,11 @@ namespace frydom {
     /// \return Radiation torque
     Torque GetRadiationTorque(FrBody *body) const;
 
+    /// Return the generalized force part relative to the added mass term
+    /// \param body Body for which the motion is considered
+    /// \return Part the the radiation force linked with the acceleration of the body
+    GeneralizedForce GetRadiationInertiaPart(FrBody *body) const;
+
     /// Method to initialize the radiation model
     void Initialize() override;
 
@@ -109,7 +114,36 @@ namespace frydom {
 
 
   // -------------------------------------------------------------------------
-  // Radiation model with convolution
+  // Radiation model with classic convolution
+  // -------------------------------------------------------------------------
+
+  /**
+   * \class FrRadiationConvolutionModel
+   * \brief Class for computing the convolution integrals.
+   */
+  class FrRadiationRecursiveConvolutionModel : public FrRadiationModel {
+
+   public:
+    /// Default constructor
+    FrRadiationRecursiveConvolutionModel(const std::string &name,
+        FrOffshoreSystem *system,
+        std::shared_ptr<FrHydroDB> HDB);
+
+   private:
+
+    GeneralizedVelocity c_previousVelocity;
+    GeneralizedForce    c_previousForce;
+
+    /// Compute the radiation convolution.
+    /// \param time Current time of the simulation from beginning, in seconds
+    void Compute(double time) override;
+
+
+  };
+
+
+  // -------------------------------------------------------------------------
+  // Radiation model with classic convolution
   // -------------------------------------------------------------------------
 
   /**
@@ -164,11 +198,6 @@ namespace frydom {
     /// \param Te Time length
     /// \param dt Time step
     void GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const;
-
-    /// Return the generalized force part relative to the added mass term
-    /// \param body Body for which the motion is considered
-    /// \return Part the the radiation force linked with the acceleration of the body
-    GeneralizedForce GetRadiationInertiaPart(FrBody *body) const;
 
    private:
 

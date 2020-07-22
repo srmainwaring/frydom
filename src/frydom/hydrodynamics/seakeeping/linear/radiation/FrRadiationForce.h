@@ -68,7 +68,7 @@ namespace frydom {
     /// \param radiationModel Radiation model where the radiation force is applied
     FrRadiationConvolutionForce(const std::string &name,
                                 FrBody *body,
-                                FrRadiationConvolutionModel *radiationModel);
+                                FrRadiationModel *radiationModel);
 
 //        void AddFields() override;
 

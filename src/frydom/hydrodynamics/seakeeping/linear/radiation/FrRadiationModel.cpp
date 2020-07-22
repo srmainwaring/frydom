@@ -101,7 +101,45 @@ namespace frydom {
     return m_radiationForce.at(BEMBody).GetTorque();
   }
 
+  GeneralizedForce FrRadiationModel::GetRadiationInertiaPart(FrBody *body) const {
+
+    auto HDB = GetHydroDB();
+    auto BEMBody = HDB->GetBody(body);
+
+    auto force = GeneralizedForce();
+
+    for (auto BEMBodyMotion = HDB->begin(); BEMBodyMotion != HDB->end(); BEMBodyMotion++) {
+
+      auto infiniteAddedMass = BEMBody->GetInfiniteAddedMass(BEMBodyMotion->first);
+      auto acc = GeneralizedAcceleration(BEMBodyMotion->second->GetCOGAccelerationInBody(NWU),
+                                         BEMBodyMotion->second->GetAngularAccelerationInBody(NWU));
+      force += -infiniteAddedMass * acc;
+    }
+
+    return force;
+  }
+
   void FrRadiationModel::Compute(double time) {
+
+  }
+
+  // ----------------------------------------------------------------
+  // Radiation model with recursive convolution
+  // ----------------------------------------------------------------
+
+  FrRadiationRecursiveConvolutionModel::FrRadiationRecursiveConvolutionModel(const std::string &name,
+                                                           FrOffshoreSystem *system,
+                                                           std::shared_ptr<FrHydroDB> HDB) :
+      FrRadiationModel(name, system, HDB) {
+
+    // Loop over every body subject to hydrodynamic loads.
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+      auto body = m_HDB->GetBody(BEMBody->first);
+      body->AddExternalForce(std::make_shared<FrRadiationConvolutionForce>("radiation_force", body, this));
+    }
+  }
+
+  void FrRadiationRecursiveConvolutionModel::Compute(double time) {
 
   }
 
@@ -135,24 +173,6 @@ namespace frydom {
       }
       m_recorder[BEMBody->first].Initialize();
     }
-  }
-
-  GeneralizedForce FrRadiationConvolutionModel::GetRadiationInertiaPart(FrBody *body) const {
-
-    auto HDB = GetHydroDB();
-    auto BEMBody = HDB->GetBody(body);
-
-    auto force = GeneralizedForce();
-
-    for (auto BEMBodyMotion = HDB->begin(); BEMBodyMotion != HDB->end(); BEMBodyMotion++) {
-
-      auto infiniteAddedMass = BEMBody->GetInfiniteAddedMass(BEMBodyMotion->first);
-      auto acc = GeneralizedAcceleration(BEMBodyMotion->second->GetCOGAccelerationInBody(NWU),
-                                         BEMBodyMotion->second->GetAngularAccelerationInBody(NWU));
-      force += -infiniteAddedMass * acc;
-    }
-
-    return force;
   }
 
   void FrRadiationConvolutionModel::Clear() {

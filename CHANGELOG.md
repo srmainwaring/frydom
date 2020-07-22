@@ -11,6 +11,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Fixed
 - Excitation force computation for hdb with a forceMask
+- Forward speed correction for the radiation force
 
 ## [3.1] - 2020-02-06
 

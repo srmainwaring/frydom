@@ -39,7 +39,7 @@ namespace frydom {
 
   FrRadiationConvolutionForce::FrRadiationConvolutionForce(const std::string &name,
                                                            FrBody *body,
-                                                           FrRadiationConvolutionModel *radiationModel)
+                                                           FrRadiationModel *radiationModel)
       : FrRadiationForce(name, body, radiationModel) {}
 
 //    void FrRadiationConvolutionForce::AddFields() {
