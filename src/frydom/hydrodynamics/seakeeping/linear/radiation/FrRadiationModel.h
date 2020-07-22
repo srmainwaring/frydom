@@ -120,8 +120,6 @@ namespace frydom {
 
    private:
     std::unordered_map<FrBEMBody *, FrTimeRecorder<GeneralizedVelocity> > m_recorder;    ///< Recorder of the perturbation velocity of the body at COG
-    double m_Te = -9.;      ///< Persistence time of the recorder
-    double m_dt = -9.;      ///< Time step of the recorder
 
    public:
     /// Default constructor
@@ -155,6 +153,18 @@ namespace frydom {
     /// \param dt Time step
     void SetImpulseResponseSize(double Te, double dt);
 
+    /// Return the impulse response function size
+    /// \param BEMBody BEM body database corresponding to the body to which the radiation force is applied
+    /// \param Te Time length
+    /// \param dt Time step
+    void GetImpulseResponseSize(FrBEMBody *body, double &Te, double &dt) const;
+
+    /// Return the impulse response function size
+    /// \param body Body to which the radiation force is applied
+    /// \param Te Time length
+    /// \param dt Time step
+    void GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const;
+
     /// Return the generalized force part relative to the added mass term
     /// \param body Body for which the motion is considered
     /// \return Part the the radiation force linked with the acceleration of the body
@@ -165,12 +175,6 @@ namespace frydom {
     /// Compute the radiation convolution.
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
-
-    /// Return the impulse response function size
-    /// \param Te Time length
-    /// \param dt Time step
-    /// \param N Number of time step
-    void GetImpulseResponseSize(double &Te, double &dt, unsigned int &N) const;
 
     /// Compute the the convolution part of the radiation force linked with steady speed
     /// \param meanSpeed Steady speed of the body

@@ -72,6 +72,8 @@ namespace frydom {
 
     FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
 
+    void GetImpulseResponseSize(double timeStep, double &Te, double &dt) const;
+
    private:
 
     std::shared_ptr<HDB5_io::HydrodynamicDataBase> m_HDB;

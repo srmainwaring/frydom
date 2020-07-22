@@ -125,13 +125,13 @@ namespace frydom {
 
     FrRadiationModel::Initialize();
 
-    unsigned int N;
-    if (m_Te < DBL_EPSILON or m_dt < DBL_EPSILON) GetImpulseResponseSize(m_Te, m_dt, N);
+    double Te, dt;
+    m_HDB->GetImpulseResponseSize(GetParent()->GetTimeStep(), Te, dt);
 
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
       if (m_recorder.find(BEMBody->first) == m_recorder.end()) {
-        m_recorder[BEMBody->first] = FrTimeRecorder<GeneralizedVelocity>(m_Te, m_dt);
+        m_recorder[BEMBody->first] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
       }
       m_recorder[BEMBody->first].Initialize();
     }
@@ -220,22 +220,6 @@ namespace frydom {
 //        FrObject::SendLog();
   }
 
-  void FrRadiationConvolutionModel::GetImpulseResponseSize(double &Te, double &dt, unsigned int &N) const {
-
-    auto timeStep = GetParent()->GetTimeStep();
-
-//    auto freqStep = m_HDB->GetStepFrequency();
-    // FIXME : check this
-    auto frequencies = m_HDB->GetFrequencyDiscretization();
-    auto freqStep = frequencies[1] - frequencies[0];
-
-    Te = 0.5 * MU_2PI / freqStep;
-
-    N = (unsigned int) floor(Te / timeStep);
-
-    dt = Te / double(N - 1);
-  }
-
   GeneralizedForce FrRadiationConvolutionModel::ForwardSpeedCorrection(FrBEMBody *BEMBody) const {
 
     auto radiationForce = GeneralizedForce();
@@ -272,19 +256,29 @@ namespace frydom {
   }
 
   void FrRadiationConvolutionModel::SetImpulseResponseSize(FrBEMBody *BEMBody, double Te, double dt) {
+    //TODO : check it is not already instanciated
     m_recorder[BEMBody] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
   }
 
   void FrRadiationConvolutionModel::SetImpulseResponseSize(FrBody *body, double Te, double dt) {
-    auto BEMBody = m_HDB->GetBody(body);
-    this->SetImpulseResponseSize(BEMBody, Te, dt);
+    this->SetImpulseResponseSize(m_HDB->GetBody(body), Te, dt);
   }
 
   void FrRadiationConvolutionModel::SetImpulseResponseSize(double Te, double dt) {
     assert(Te > DBL_EPSILON);
     assert(dt > DBL_EPSILON);
-    m_Te = Te;
-    m_dt = dt;
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+      this->SetImpulseResponseSize(BEMBody->first, Te, dt);
+    }
+  }
+
+  void FrRadiationConvolutionModel::GetImpulseResponseSize(FrBEMBody *body, double &Te, double &dt) const {
+    Te = m_recorder.at(body).GetTimePersistence();
+    dt = m_recorder.at(body).GetTimeStep();
+  }
+
+  void FrRadiationConvolutionModel::GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const {
+    GetImpulseResponseSize(m_HDB->GetBody(body), Te, dt);
   }
 
   std::shared_ptr<FrRadiationConvolutionModel>
