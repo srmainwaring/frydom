@@ -59,9 +59,9 @@ namespace frydom {
                               std::shared_ptr<FrHydroDB> HDB);
 
     /// \return Pointer to the offshore system
-    inline FrOffshoreSystem *GetSystem() const {
-      return GetParent();
-    }
+//    inline FrOffshoreSystem *GetSystem() const {
+//      return GetParent();
+//    }
 
     /// Return true if the radiation model is included in the static analysis
     bool IncludedInStaticAnalysis() const override { return false; }
@@ -117,6 +117,9 @@ namespace frydom {
   // Radiation model with classic convolution
   // -------------------------------------------------------------------------
 
+  using RealPoleResiduePair = HDB5_io::PoleResiduePair<double>;
+  using CCPoleResiduePair = HDB5_io::PoleResiduePair<std::complex<double>>;
+
   /**
    * \class FrRadiationConvolutionModel
    * \brief Class for computing the convolution integrals.
@@ -126,17 +129,27 @@ namespace frydom {
    public:
     /// Default constructor
     FrRadiationRecursiveConvolutionModel(const std::string &name,
-        FrOffshoreSystem *system,
-        std::shared_ptr<FrHydroDB> HDB);
+                                         FrOffshoreSystem *system,
+                                         std::shared_ptr<FrHydroDB> HDB);
 
    private:
 
-    GeneralizedVelocity c_previousVelocity;
-    GeneralizedForce    c_previousForce;
+    std::unordered_map<FrBEMBody, GeneralizedVelocity> c_previousVelocity;
+    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
+    std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
+
 
     /// Compute the radiation convolution.
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
+
+    template<typename T>
+    T TrapezoidaleIntegration(T previousState, double velocity, double previousVelocity,
+                              HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
+
+    template<typename T>
+    T PiecewiseLinearIntegration(T previousState, double velocity, double previousVelocity,
+                              HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
 
 
   };

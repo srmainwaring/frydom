@@ -77,7 +77,7 @@ approximation or piecewise linear approximation. The discrete-time estimates den
 approximations can however be summed up as
 
 .. math::
-     \hat{u}(t_k) = \alpha \hat{u}(t_{k-1}) + \beta_0 \hat{\dot{x}}_{k-1} + \beta_1 \hat{\dot{x}}_k
+     \hat{u}_k = \alpha \hat{u}_{k-1} + \beta_0 \hat{\dot{x}}_{k-1} + \beta_1 \hat{\dot{x}}_k
 
 where :math:`\alpha = e^{q \Delta t}`
 
