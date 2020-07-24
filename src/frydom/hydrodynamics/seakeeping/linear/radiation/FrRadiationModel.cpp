@@ -163,30 +163,35 @@ namespace frydom {
 
           for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
 
+            // TODO : stockés les états auxiliaires dans le modèle de radiation et pas dans la HDB !
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
 
-            for (auto &pr : poleResidue.GetRealPairs()) {
+            auto auxiliaryStates = PiecewiseLinearIntegration(poleResidue.GetStates(), currentVelocity,
+                                                              c_previousVelocity[BEMBodyMotion->first],
+                                                              poleResidue.GetPoles(), DeltaT);
 
-              auto auxiliaryState = PiecewiseLinearIntegration(c_previousRealStates[pr]->second, currentVelocity,
-                                                               c_previousVelocity[BEMBodyMotion->first].second, pr,
-                                                               DeltaT);
-
-              radiationForce.at(idof) += pr.second * auxiliaryState;
-
-              c_previousRealStates[pr] = auxiliaryState;
-
-            }
-
-            for (auto &pr : poleResidue.GetComplexPairs()) {
-
-              auto auxiliaryState = PiecewiseLinearIntegration(c_previousCCStates[pr]->second, currentVelocity,
-                                                               c_previousVelocity[BEMBodyMotion->first]->second, pr,
-                                                               DeltaT);
-              radiationForce.at(idof) += 2 * (pr.second * auxiliaryState).real();
-
-              c_previousCCStates[pr] = auxiliaryState;
-
-            }
+//            for (auto &pr : poleResidue.GetRealPairs()) {
+//
+//              auto auxiliaryState = PiecewiseLinearIntegration(c_previousRealStates[pr]->second, currentVelocity,
+//                                                               c_previousVelocity[BEMBodyMotion->first].second, pr,
+//                                                               DeltaT);
+//
+//              radiationForce.at(idof) += pr.second * auxiliaryState;
+//
+//              c_previousRealStates[pr] = auxiliaryState;
+//
+//            }
+//
+//            for (auto &pr : poleResidue.GetComplexPairs()) {
+//
+//              auto auxiliaryState = PiecewiseLinearIntegration(c_previousCCStates[pr]->second, currentVelocity,
+//                                                               c_previousVelocity[BEMBodyMotion->first]->second, pr,
+//                                                               DeltaT);
+//              radiationForce.at(idof) += 2 * (pr.second * auxiliaryState).real();
+//
+//              c_previousCCStates[pr] = auxiliaryState;
+//
+//            }
 
           }
 
@@ -195,7 +200,7 @@ namespace frydom {
       }
 
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
-      c_previousVelocity.find(BEMBody->first) = eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU);
+      c_previousVelocity[BEMBody->first] = eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU);
 
     }
 
@@ -221,7 +226,20 @@ namespace frydom {
     auto inverseNumerator = 1. / (pole * pole * DeltaT);
     auto beta0 = (1 + (pole * DeltaT - 1) * alpha) * inverseNumerator;
     auto beta1 = (-1 - pole * DeltaT + alpha) * inverseNumerator;
-    return alpha * previousState + beta0 * previousVelocity + beta1 * velocity;;
+    return alpha * previousState + beta0 * previousVelocity + beta1 * velocity;
+  }
+
+  template<typename T>
+  Vector3d<T>
+  FrRadiationRecursiveConvolutionModel::PiecewiseLinearIntegration(Vector3d<T> previousStates, double velocity,
+                                                                   double previousVelocity, Vector3d<T> poles,
+                                                                   double DeltaT) {
+    //TODO:: check this !
+    auto alpha = exp(DeltaT * poles);
+    auto inverseNumerator = 1. / (poles * poles * DeltaT);
+    auto beta0 = (1 + (poles * DeltaT - 1) * alpha) * inverseNumerator;
+    auto beta1 = (-1 - poles * DeltaT + alpha) * inverseNumerator;
+    return alpha * previousStates + beta0 * previousVelocity + beta1 * velocity;
   }
 
   // ----------------------------------------------------------------

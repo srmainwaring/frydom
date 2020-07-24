@@ -128,9 +128,9 @@ namespace frydom {
 
    private:
 
-    std::unordered_map<FrBEMBody*, GeneralizedVelocity> c_previousVelocity;
-    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
-    std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
+    std::unordered_map<FrBEMBody *, GeneralizedVelocity> c_previousVelocity;
+//    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
+//    std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
 
 
     /// Compute the radiation convolution.
@@ -143,8 +143,13 @@ namespace frydom {
 
     template<typename T>
     T PiecewiseLinearIntegration(T previousState, double velocity, double previousVelocity,
-                              HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
+                                 HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
 
+
+    template<typename T>
+    mathutils::Vector3d<T> PiecewiseLinearIntegration(mathutils::Vector3d<T> previousStates, double velocity,
+                                                      double previousVelocity, mathutils::Vector3d<T> poles,
+                                                      double DeltaT);
 
   };
 
