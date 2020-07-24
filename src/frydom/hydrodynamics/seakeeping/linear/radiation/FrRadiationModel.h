@@ -19,6 +19,7 @@
 #include "frydom/utils/FrRecorder.h"
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrPhysicsItem.h"
+#include "frydom/core/common/FrTreeNode.h"
 
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 
@@ -57,11 +58,6 @@ namespace frydom {
     explicit FrRadiationModel(const std::string &name,
                               FrOffshoreSystem *system,
                               std::shared_ptr<FrHydroDB> HDB);
-
-    /// \return Pointer to the offshore system
-//    inline FrOffshoreSystem *GetSystem() const {
-//      return GetParent();
-//    }
 
     /// Return true if the radiation model is included in the static analysis
     bool IncludedInStaticAnalysis() const override { return false; }
@@ -102,8 +98,6 @@ namespace frydom {
     /// \return Mapper
     FrHydroMapper *GetMapper() const;
 
-//    FrOffshoreSystem *GetSystem() const;
-
    private:
 
     /// Compute the internal states of the Radiation model
@@ -117,8 +111,8 @@ namespace frydom {
   // Radiation model with classic convolution
   // -------------------------------------------------------------------------
 
-  using RealPoleResiduePair = HDB5_io::PoleResiduePair<double>;
-  using CCPoleResiduePair = HDB5_io::PoleResiduePair<std::complex<double>>;
+  using RealPoleResiduePair = HDB5_io::RealPoleResiduePair;
+  using CCPoleResiduePair = HDB5_io::CCPoleResiduePair;
 
   /**
    * \class FrRadiationConvolutionModel
@@ -134,7 +128,7 @@ namespace frydom {
 
    private:
 
-    std::unordered_map<FrBEMBody, GeneralizedVelocity> c_previousVelocity;
+    std::unordered_map<FrBEMBody*, GeneralizedVelocity> c_previousVelocity;
     std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
     std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
 

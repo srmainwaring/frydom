@@ -36,7 +36,7 @@ set(mathutils_TAG v1.3)
 
 # HDB5_IO
 set(hdb5io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5io_TAG feature/LL_integration_in_FRyDoM)
+set(hdb5io_TAG feature/recursive_convolution)
 
 
 # TimeZone

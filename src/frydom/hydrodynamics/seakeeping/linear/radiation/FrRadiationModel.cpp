@@ -78,10 +78,6 @@ namespace frydom {
     return m_HDB->GetMapper();
   }
 
-//  FrOffshoreSystem *FrRadiationModel::GetSystem() const {
-//    return GetParent();
-//  }
-
   Force FrRadiationModel::GetRadiationForce(FrBEMBody *BEMBody) const {
     return m_radiationForce.at(BEMBody).GetForce();
   }
@@ -171,32 +167,24 @@ namespace frydom {
 
             for (auto &pr : poleResidue.GetRealPairs()) {
 
-              auto auxiliaryState = PiecewiseLinearIntegration(c_previousRealStates.find(pr), currentVelocity,
-                                                      c_previousVelocity.find(BEMBodyMotion->first), pr, DeltaT);
+              auto auxiliaryState = PiecewiseLinearIntegration(c_previousRealStates[pr]->second, currentVelocity,
+                                                               c_previousVelocity[BEMBodyMotion->first].second, pr,
+                                                               DeltaT);
 
-              radiationForce.at(idof) += pr.residue() * auxiliaryState;
+              radiationForce.at(idof) += pr.second * auxiliaryState;
 
-//              c_previousRealStates.find(pr) = auxiliaryState;
-              if (c_previousRealStates.count(pr)>0) {
-                c_previousRealStates.find(pr) = auxiliaryState;
-              } else {
-                c_previousRealStates[pr] = auxiliaryState;
-              }
+              c_previousRealStates[pr] = auxiliaryState;
 
             }
 
             for (auto &pr : poleResidue.GetComplexPairs()) {
 
-              auto auxiliaryState = PiecewiseLinearIntegration(c_previousCCStates.find(pr), currentVelocity,
-                                                              c_previousVelocity.find(BEMBodyMotion->first), pr, DeltaT);
-              radiationForce.at(idof) += 2 * (pr.residue() * auxiliaryState).real();
+              auto auxiliaryState = PiecewiseLinearIntegration(c_previousCCStates[pr]->second, currentVelocity,
+                                                               c_previousVelocity[BEMBodyMotion->first]->second, pr,
+                                                               DeltaT);
+              radiationForce.at(idof) += 2 * (pr.second * auxiliaryState).real();
 
-//              c_previousRealStates.find(pr) = auxiliaryState;
-              if (c_previousRealStates.count(pr)>0) {
-                c_previousRealStates.find(pr) = auxiliaryState;
-              } else {
-                c_previousRealStates[pr] = auxiliaryState;
-              }
+              c_previousCCStates[pr] = auxiliaryState;
 
             }
 
