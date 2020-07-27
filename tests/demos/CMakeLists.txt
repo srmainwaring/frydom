@@ -32,6 +32,8 @@ set(BENCH
         StabilityAnalysis
         HS_equilibrium
         FixedJacketStructure
+        MorisonSingleImmersedElement
+        MorisonCrossingElement
         )
 
 # Compile target

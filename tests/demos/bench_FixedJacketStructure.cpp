@@ -3,6 +3,8 @@
 //
 
 #include "frydom/frydom.h"
+#include "frydom/hydrodynamics/buoyancy/FrBarElement.h"
+#include "frydom/hydrodynamics/buoyancy/FrBuoyancyBarElements.h"
 
 using namespace frydom;
 
@@ -21,13 +23,16 @@ int main(int argc, char *argv[]) {
   auto ocean = system.GetEnvironment()->GetOcean();
   ocean->SetDensity(1025.);
 
-  double waveHeight = 1.;
+  double waveHeight = 0.1;
   double wavePeriod = 8.;
 
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
   waveField->SetWaveHeight(waveHeight);
   waveField->SetWavePeriod(wavePeriod);
-  waveField->SetDirection(NORTH(NWU), NWU, GOTO);
+  waveField->SetStretching(WHEELER);
+
+  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., wavePeriod, 1.);
+  system.GetEnvironment()->GetTimeRamp()->SetActive(true);
 
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-50., 50., 5, -50., 50., 5);
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetUpdateStep(5);
@@ -46,6 +51,8 @@ int main(int argc, char *argv[]) {
       {system.config_file().GetDataFolder(), "ce/JacketStructure/jacket.obj"});
   jacket->AddMeshAsset(jacketAsset);
 
+  // Morison
+
   auto morisonFile = FrFileSystem::join(
       {system.config_file().GetDataFolder(), "ce/JacketStructure/jacket.json"});
 
@@ -53,10 +60,15 @@ int main(int argc, char *argv[]) {
 
   auto morisonForce = make_morison_force("morisonForce", jacket, morison);
 
+  // Buoyancy
+
+  auto barModel = make_bar_element(jacket, morisonFile);
+  auto barForce = make_buoyancy_bar_elements("buoyancy", jacket, barModel);
+
   // Simulation
 
   double dt = 0.01;
-  double t_end = 5.* wavePeriod;
+  double t_end = 10* wavePeriod;
   double time = 0.;
 
   system.SetTimeStep(dt);
