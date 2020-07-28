@@ -618,8 +618,13 @@ namespace frydom {
       return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetTotalIterations();
     });
 
-    if (dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
+    msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); }); 
 
+    msg->AddField<double>("residual_log", "", "residual of the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetResidualLog(); }); 
+
+    msg->AddField<double>("max_delta_unknowns", "", "", [this]() { return m_chronoSystem->GetSolver()->GetMaxDeltaUnknowns(); });
+
+    if (dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
       msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
         return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
       });
