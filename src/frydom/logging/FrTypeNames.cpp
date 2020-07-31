@@ -159,6 +159,11 @@ namespace frydom {
 
   TYPE_TO_STRING(FrPrismaticRevoluteLink, "PrismaticRevoluteLink")
 
+  namespace internal {
+    class FrFEALinkBase;
+  }
+  TYPE_TO_STRING(internal::FrFEALinkBase, "FEALinkBase")
+
 
   // CONSTRAINTS
 

@@ -740,6 +740,9 @@ namespace frydom {
       case MINRES:
         m_chronoSystem->SetSolverType(SOLVERS::MINRES);
         break;
+      case PMINRES:
+        m_chronoSystem->SetSolverType(SOLVERS::PMINRES);
+        break;
       case SOLVER_SMC:
         m_chronoSystem->SetSolverType(SOLVERS::SOLVER_SMC);
         break;
@@ -1459,6 +1462,22 @@ namespace frydom {
     } else if (auto fea_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
       AddFEACable(fea_cable);
       m_pathManager->RegisterTreeNode(fea_cable.get());
+      //##CC
+      std::cout << "debug : FrOffshoreSystem : add fea cable" << std::endl;
+      auto fea_mesh = internal::GetChronoFEAMesh(fea_cable);
+      auto start_link = fea_mesh->GetStartLink();
+      auto end_link = fea_mesh->GetEndLink();
+      m_pathManager->RegisterTreeNode(start_link.get());
+      m_pathManager->RegisterTreeNode(end_link.get());
+      std::cout << "debug : FrOffshoreSystem : ad fea link" << std::endl;
+
+      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(start_link)) {
+        m_logManager->Add(loggable);
+      }
+      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(end_link)) {
+        m_logManager->Add(loggable);
+      }
+      //##
 
     } else if (auto clump_weight = std::dynamic_pointer_cast<FrClumpWeight>(item)) {
       AddClumpWeight(clump_weight);

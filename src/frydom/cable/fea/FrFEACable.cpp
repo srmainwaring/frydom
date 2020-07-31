@@ -21,6 +21,7 @@
 #include "FrFEACableBuilder.h"
 #include "FrFEALink.h"
 #include "FrFEACableSection.h"
+#include "frydom/core/FrOffshoreSystem.h"
 
 namespace frydom {
 
@@ -38,7 +39,7 @@ namespace frydom {
       FrFEAMesh(name,
                 TypeToString(this),
                 startingNode->GetBody()->GetSystem(),
-                std::make_shared<internal::FrFEACableBase>(this)) {}
+                std::make_shared<internal::FrFEACableBase>(name, this, startingNode->GetBody()->GetSystem())) {}
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
     // TODO
@@ -251,17 +252,19 @@ namespace frydom {
                                               nb_elements);
 
     startingNode->GetBody()->GetSystem()->Add(cable);
+
     return cable;
   }
 
 
   namespace internal {
 
-    FrFEACableBase::FrFEACableBase(FrFEACable *cable) :
+    FrFEACableBase::FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system) :
         m_bspline_order(2),
-        m_start_link(std::make_shared<FrFEALinkBase>()),
-        m_end_link(std::make_shared<FrFEALinkBase>()),
-        FrFEAMeshBase(cable) {}
+        m_start_link(std::make_shared<FrFEALinkBase>(name+"_start_link", system)),
+        m_end_link(std::make_shared<FrFEALinkBase>(name+"_end_link", system)),
+        FrFEAMeshBase(cable) {
+    }
 
     std::shared_ptr<FrFEALinkBase> FrFEACableBase::GetStartLink() {
       return m_start_link;

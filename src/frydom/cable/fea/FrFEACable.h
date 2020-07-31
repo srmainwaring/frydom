@@ -136,6 +136,8 @@ namespace frydom {
                  double unstretched_length,
                  unsigned int nb_elements);
 
+  // forward declatation
+  class FrOffshoreSystem;
 
   namespace internal {
 
@@ -146,7 +148,7 @@ namespace frydom {
     class FrFEACableBase : public FrFEAMeshBase {
 
      public:
-      explicit FrFEACableBase(FrFEACable *cable);
+      explicit FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system);
 
       std::shared_ptr<FrFEALinkBase> GetStartLink();
 
