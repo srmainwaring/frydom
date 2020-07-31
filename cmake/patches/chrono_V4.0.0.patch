@@ -323,6 +323,32 @@ index 4e7a3ff62..23c137d6c 100644
 -#endif
 \ No newline at end of file
 +#endif
+diff --git a/src/chrono/solver/ChSolverMINRES.cpp b/src/chrono/solver/ChSolverMINRES.cpp
+index 9944fcc8b..d5ee9d386 100644
+--- a/src/chrono/solver/ChSolverMINRES.cpp
++++ b/src/chrono/solver/ChSolverMINRES.cpp
+@@ -21,7 +21,7 @@ namespace chrono {
+ CH_FACTORY_REGISTER(ChSolverMINRES)
+ 
+ double ChSolverMINRES::Solve(ChSystemDescriptor& sysd  ///< system description with constraints and variables
+-) {
++    ) {
+     std::vector<ChConstraint*>& mconstraints = sysd.GetConstraintsList();
+     std::vector<ChVariables*>& mvariables = sysd.GetVariablesList();
+ 
+@@ -510,6 +510,12 @@ double ChSolverMINRES::Solve_SupportingStiffness(
+         // For recording into correction/residuals/violation history, if debugging
+         if (this->record_violation_history)
+             AtIterationEnd(r_proj_resid, maxdeltaunknowns, iter);
++
++        //##CC
++        m_iter_log = iter;
++        m_maxdeltaunknowns_log = maxdeltaunknowns;
++        m_residual_log = r_proj_resid;
++        //##
+     }
+ 
+     // After having solved for unknowns x={q;-l}, now copy those values from x vector to
 diff --git a/src/chrono/solver/ChVariables.cpp b/src/chrono/solver/ChVariables.cpp
 index a1e71ab59..89c9e1397 100644
 --- a/src/chrono/solver/ChVariables.cpp
