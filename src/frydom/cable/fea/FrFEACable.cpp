@@ -367,7 +367,7 @@ namespace frydom {
 
       // Starting hinge
       auto starting_body = internal::GetChronoBody(fea_cable->GetStartingNode()->GetBody());
-      auto start_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetStartingNode()->GetFrameInBody());
+      auto start_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetStartingNode()->GetFrameWRT_COG_InBody());
 
       m_start_link->Initialize(GetStartNodeFEA(),
                                starting_body,
@@ -377,7 +377,7 @@ namespace frydom {
 
       // Ending hinge
       auto ending_body = internal::GetChronoBody(fea_cable->GetEndingNode()->GetBody());
-      auto end_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetEndingNode()->GetFrameInBody());
+      auto end_ch_frame = internal::FrFrame2ChFrame(fea_cable->GetEndingNode()->GetFrameWRT_COG_InBody());
       FrFrame feaFrame;
       feaFrame.RotZ_RADIANS(MU_PI, NWU, false); // ending_node_fea comes from the opposite direction
 

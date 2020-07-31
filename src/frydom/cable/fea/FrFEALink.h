@@ -42,17 +42,11 @@ namespace frydom {
 
       const std::string &GetName() const { return FrLoggable<FrOffshoreSystem>::GetName(); }
 
-      const Position GetNode2PositionWRTNode1(FRAME_CONVENTION fc) const;
+      const Position GetNode1PositionInWorld(FRAME_CONVENTION fc) const;
 
-      const FrRotation GetNode2OrientationWRTNode1() const;
+      const Position GetNode2PositionInWorld(FRAME_CONVENTION fc) const;
 
-      const Force GetLinkReactionForceOnNode1(FRAME_CONVENTION fc) const;
-
-      const Force GetLinkReactionForceOnNode2(FRAME_CONVENTION fc) const;
-
-      const Torque GetLinkReactionTorqueOnNode1(FRAME_CONVENTION fc) const;
-
-      const Torque GetLinkReactionTorqueOnNode2(FRAME_CONVENTION fc) const;
+      const Position GetNodePosition1WRT2(FRAME_CONVENTION fc) const;
 
       void UpdateCache();
 
@@ -62,11 +56,8 @@ namespace frydom {
 
      private:
 
-      FrFrame c_frame1WRT2;
-      FrFrame c_frame2WRT1;
-
-      GeneralizedForce c_generalizedForceOnNode2;
-      GeneralizedForce c_generalizedForceOnNode1;
+      FrFrame c_frame1Abs;
+      FrFrame c_frame2Abs;
 
     };
 
