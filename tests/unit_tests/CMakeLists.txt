@@ -38,6 +38,7 @@ set(UNIT_TESTS
         test_FrLink
         test_Torsor
         #test_FrLinearHydrostaticForce
+        test_FrHeightVaryingField
         )
 
 foreach (test ${UNIT_TESTS})
