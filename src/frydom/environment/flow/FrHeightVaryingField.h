@@ -32,8 +32,26 @@ namespace frydom {
     /// \param time Current time of the simulation
     void Update(double time) override {};
 
+    /// Definition of the height varying field from direction and magnitudes
+    /// \param heights heights for the definitions of the velocity profile
+    /// \param velocities Velocities of the flow at corresponding heights
+    /// \param speed_unit Speed unit (MS/KMH/KNOT)
+    /// \param direction Direction of the flow
+    /// \param fc Frame convention (NED/NWU)
+    /// \param dc Direction convention (GOTO/COMEFROM)
     void Set(std::vector<double> heights, std::vector<double> velocities, SPEED_UNIT speedUnit,
              Direction direction, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
+
+    /// Definition of the height varying field from angle and magnitudes
+    /// \param heights heights for the definitions of the velocity profile
+    /// \param velocities Velocities of the flow at corresponding heights
+    /// \param speedUnit Speed unit (MS/KMH/KNOT)
+    /// \param angle Direction angle of the flow
+    /// \param angleUnit Angle unit (RAD/DEG)
+    /// \param fc Frame convention (NED/NWU)
+    /// \param dc Direction convention (GOTO/COMEFROM)
+    void Set(std::vector<double> heights, std::vector<double> velocities, SPEED_UNIT speedUnit,
+        double angle, ANGLE_UNIT angleUnit,  FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
 
    private:
 
