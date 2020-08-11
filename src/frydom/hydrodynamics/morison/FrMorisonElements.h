@@ -360,6 +360,14 @@ namespace frydom {
                     MorisonCoeff ca, MorisonCoeff cd, double cf, unsigned int n = 1,
                     Direction perpendicular = Direction(0., 0., 1.));
 
+
+    /// Include current flow in the morison model
+    /// \param includeCurrent Boolean, if true the current is included in morison model
+    void SetIncludeCurrent(bool includeCurrent) override {
+      FrMorisonElement::SetIncludeCurrent(includeCurrent);
+      for (auto& element:m_morison) element->SetIncludeCurrent(includeCurrent);
+    }
+
     //
     // UPDATE
     //
