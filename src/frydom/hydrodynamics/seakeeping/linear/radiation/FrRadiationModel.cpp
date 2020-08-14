@@ -136,11 +136,18 @@ namespace frydom {
 
   void FrRadiationRecursiveConvolutionModel::Compute(double time) {
 
-    auto DeltaT = GetSystem()->GetTimeStep();
+//    auto DeltaT = GetSystem()->GetTimeStep();
+    auto deltaT = time - c_time;
 
     if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
         time > FLT_EPSILON)
       return;
+
+    Eigen::ArrayXd velocities;
+    Eigen::ArrayXcd poles;
+    Eigen::VectorXcd residues;
+
+    int indice = 0;
 
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
@@ -163,35 +170,13 @@ namespace frydom {
 
           for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
 
-            // TODO : stockés les états auxiliaires dans le modèle de radiation et pas dans la HDB !
+            // TODO : virer les états auxiliaires de la HDB !
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
-
-            auto auxiliaryStates = PiecewiseLinearIntegration(poleResidue.GetStates(), currentVelocity,
-                                                              c_previousVelocity[BEMBodyMotion->first],
-                                                              poleResidue.GetPoles(), DeltaT);
-
-//            for (auto &pr : poleResidue.GetRealPairs()) {
-//
-//              auto auxiliaryState = PiecewiseLinearIntegration(c_previousRealStates[pr]->second, currentVelocity,
-//                                                               c_previousVelocity[BEMBodyMotion->first].second, pr,
-//                                                               DeltaT);
-//
-//              radiationForce.at(idof) += pr.second * auxiliaryState;
-//
-//              c_previousRealStates[pr] = auxiliaryState;
-//
-//            }
-//
-//            for (auto &pr : poleResidue.GetComplexPairs()) {
-//
-//              auto auxiliaryState = PiecewiseLinearIntegration(c_previousCCStates[pr]->second, currentVelocity,
-//                                                               c_previousVelocity[BEMBodyMotion->first]->second, pr,
-//                                                               DeltaT);
-//              radiationForce.at(idof) += 2 * (pr.second * auxiliaryState).real();
-//
-//              c_previousCCStates[pr] = auxiliaryState;
-//
-//            }
+            auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+            velocities.segment(indice, n_poles) = currentVelocity[idof];
+            poles.segment(indice, n_poles) = poleResidue.GetPoles();
+            residues.segment(indice, n_poles) = poleResidue.GetResidues();
+            indice += n_poles;
 
           }
 
@@ -199,9 +184,55 @@ namespace frydom {
 
       }
 
-      auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
-      c_previousVelocity[BEMBody->first] = eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU);
+    }
 
+    if (abs(deltaT - c_deltaT) > 1E-6) {
+      Eigen::ArrayXcd q2Dt = poles.cwiseProduct(poles) * deltaT;
+      c_alpha = Eigen::exp(poles * deltaT);
+      c_beta0 = 1 + (poles * deltaT - 1) * c_alpha / q2Dt;
+      c_beta1 = -1 - poles * deltaT * c_alpha / q2Dt;
+      c_deltaT = deltaT;
+    }
+
+    auto newStates = c_alpha * c_states + c_beta0 * c_velocities + c_beta1 * velocities;
+
+    c_velocities = velocities;
+    c_states = newStates;
+
+
+    indice = 0;
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+
+      auto radiationForce = GeneralizedForce();
+      radiationForce.SetNull();
+
+      for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
+
+        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+
+        auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
+
+        for (auto idof : BodyMotionDOFMask.GetListDOF()) {FrMask radiationMaskForIDOF;
+          radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+
+          for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
+            auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
+            auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+            Eigen::VectorXcd v1(c_states.segment(indice, n_poles));
+            std::complex<double> truc = residues.segment(indice,n_poles).transpose() * v1;
+            radiationForce[iforce] += truc.real();
+//            radiationForce[iforce] += residues.segment(indice,n_poles).transpose() * newStates.segment(indice, n_poles).matrix();
+
+            indice += n_poles;
+          }
+        }
+      }
+
+      auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
+      auto forceInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetForce(), NWU);
+      auto TorqueInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetTorque(), NWU);
+
+      m_radiationForce[BEMBody->first] = -GeneralizedForce(forceInWorld, TorqueInWorld);
     }
 
   }

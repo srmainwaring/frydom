@@ -108,7 +108,7 @@ namespace frydom {
 
 
   // -------------------------------------------------------------------------
-  // Radiation model with classic convolution
+  // Radiation model with recursive convolution
   // -------------------------------------------------------------------------
 
   using RealPoleResiduePair = HDB5_io::RealPoleResiduePair;
@@ -127,6 +127,19 @@ namespace frydom {
                                          std::shared_ptr<FrHydroDB> HDB);
 
    private:
+
+//    mathutils::VectorN<double>               c_velocities;
+//    mathutils::VectorN<std::complex<double>> c_states;
+//    mathutils::VectorN<std::complex<double>> c_alpha;
+//    mathutils::VectorN<std::complex<double>> c_beta0;
+//    mathutils::VectorN<std::complex<double>> c_beta1;
+    Eigen::ArrayXd   c_velocities;
+    Eigen::ArrayXcd c_states;
+    Eigen::ArrayXcd c_alpha;
+    Eigen::ArrayXcd c_beta0;
+    Eigen::ArrayXcd c_beta1;
+    double                                   c_deltaT;
+    double                                   c_time;
 
     std::unordered_map<FrBEMBody *, GeneralizedVelocity> c_previousVelocity;
 //    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
