@@ -74,6 +74,9 @@ class pyHDB():
         self.version = 2.0
 
         # Froude-Krylov loads.
+        self._has_infinite_added_mass = False
+
+        # Froude-Krylov loads.
         self._has_froude_krylov = False
 
         # Wave drift coeffcients (given in input of Nemoh2HDB).
@@ -362,34 +365,36 @@ class pyHDB():
          It uses the Ogilvie formula to get the coefficients from the impulse response functions.
         """
 
-        # Wave frequency range.
-        if full:
-            w = self.get_full_omega()
-        else:
-            w = self.omega
+        if not self._has_infinite_added_mass:
 
-        # Computation.
-        wt = np.einsum('i, j -> ij', w, self.time)  # w*t.
-        sin_wt = np.sin(wt) # sin(w*t).
-
-        for body in self.bodies:
-
-            # Initialization.
-            body.Inf_Added_mass = np.zeros((6, 6*self.nb_bodies), dtype = np.float)
-
-            # IRF.
-            irf = body.irf
-
-            # Added mass.
+            # Wave frequency range.
             if full:
-                cm = body.Added_mass
+                w = self.get_full_omega()
             else:
-                cm = body.radiation_added_mass(self._iwcut)
+                w = self.omega
 
-            kernel = np.einsum('ijk, lk -> ijlk', irf, sin_wt)  # irf*sin(w*t).
-            integral = np.einsum('ijk, k -> ijk', np.trapz(kernel, x=self.time, axis=3), 1. / w)  # 1/w * int(irf*sin(w*t),dt).
+            # Computation.
+            wt = np.einsum('i, j -> ij', w, self.time)  # w*t.
+            sin_wt = np.sin(wt) # sin(w*t).
 
-            body.Inf_Added_mass = (cm + integral).mean(axis=2)  # mean( A(w) + 1/w * int(irf*sin(w*t),dt) ) wrt w.
+            for body in self.bodies:
+
+                # Initialization.
+                body.Inf_Added_mass = np.zeros((6, 6*self.nb_bodies), dtype = np.float)
+
+                # IRF.
+                irf = body.irf
+
+                # Added mass.
+                if full:
+                    cm = body.Added_mass
+                else:
+                    cm = body.radiation_added_mass(self._iwcut)
+
+                kernel = np.einsum('ijk, lk -> ijlk', irf, sin_wt)  # irf*sin(w*t).
+                integral = np.einsum('ijk, k -> ijk', np.trapz(kernel, x=self.time, axis=3), 1. / w)  # 1/w * int(irf*sin(w*t),dt).
+
+                body.Inf_Added_mass = (cm + integral).mean(axis=2)  # mean( A(w) + 1/w * int(irf*sin(w*t),dt) ) wrt w.
 
     def eval_impulse_response_function_Ku(self, full=True):
         """Computes the impulse response functions relative to the ship advance speed
@@ -988,11 +993,18 @@ class pyHDB():
             dg.attrs['Description'] = "Poles and residues corresponding to the radiation coefficients due to the motion of body %u " \
                                       "and generating the loads on body %u." % (j, body.i_body)
 
-            # Infinite added mass.
+            # Zero-frequency added mass.
+            if (body.Zero_Added_mass is not None):
+                dset = writer.create_dataset(radiation_body_motion_path + "/ZeroFreqAddedMass",
+                                             data=body.Zero_Added_mass[:, 6 * j:6 * (j + 1)])
+                dset.attrs['Description'] = "Zero-frequency added mass matrix that modifies the apparent mass of body %u from " \
+                                            "acceleration of body %u." % (body.i_body, j)
+
+            # Infinite-frequency added mass.
             if(body.Inf_Added_mass is not None):
                 dset = writer.create_dataset(radiation_body_motion_path + "/InfiniteAddedMass",
                                              data=body.Inf_Added_mass[:, 6 * j:6 * (j + 1)])
-                dset.attrs['Description'] = "Infinite added mass matrix that modifies the apparent mass of body %u from " \
+                dset.attrs['Description'] = "Infinite-frequency added mass matrix that modifies the apparent mass of body %u from " \
                                             "acceleration of body %u." % (body.i_body, j)
 
             # Radiation mask.
@@ -1003,7 +1015,7 @@ class pyHDB():
 
             for idof in range(0,6):
 
-                # Added mass.
+                # Added mass.
                 dset = writer.create_dataset(added_mass_path + "/DOF_%u" % idof, data=body.Added_mass[:, 6*j+idof, :])
                 dset.attrs['Unit'] = ""
                 dset.attrs['Description'] = "Added mass coefficients for an acceleration of body %u and force on " \
