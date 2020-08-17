@@ -3,6 +3,15 @@
 This is the Changelog of the FRyDom framework.
 This file should be kept up to date following [these guidelines](https://keepachangelog.com/en/1.0.0/)
 
+## [Unreleased]
+
+### Changed
+- Hydrodynamic databases read using HDB5_IO
+- new HDB format version 3.0
+
+### Fixed
+- Excitation force computation for hdb with a forceMask
+
 ## [3.1] - 2020-02-06
 
 ### Changed

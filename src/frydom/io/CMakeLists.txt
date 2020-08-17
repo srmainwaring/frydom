@@ -1,7 +1,6 @@
 message(STATUS "    ...IO")
 
 set(SRC_FILES
-        FrHDF5.cpp
         FrLoader.cpp
         )
 

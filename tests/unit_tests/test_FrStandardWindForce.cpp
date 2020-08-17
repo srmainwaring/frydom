@@ -12,6 +12,9 @@
 #include "frydom/frydom.h"
 #include "gtest/gtest.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 class TestFrStandardWindForce : public ::testing::Test {
@@ -46,19 +49,17 @@ class TestFrStandardWindForce : public ::testing::Test {
 
 void TestFrStandardWindForce::LoadData(std::string filename) {
 
-  FrHDF5Reader reader;
-
-  reader.SetFilename(filename);
   std::string group = "/standardDNV/wind/";
 
-  m_frontalArea = reader.ReadDouble(group + "FrontalArea");
-  m_lateralArea = reader.ReadDouble(group + "LateralArea");
-  m_lengthBetweenPerpendicular = reader.ReadDouble(group + "LengthBetweenPerpendicular");
-  m_lengthOverAll = reader.ReadDouble(group + "LengthOverAll");
-  m_Xcenter = reader.ReadDouble(group + "Xcenter");
-  m_windSpeed = reader.ReadDouble(group + "WindSpeed");
-  m_direction = reader.ReadDoubleArray(group + "WindDirection");
-  m_dragCoefficient = reader.ReadDoubleArray(group + "DragCoefficient");
+  HighFive::File file(filename, HighFive::File::ReadOnly);
+  m_frontalArea = H5Easy::load<double>(file, group + "FrontalArea");
+  m_lateralArea = H5Easy::load<double>(file, group + "LateralArea");
+  m_lengthBetweenPerpendicular = H5Easy::load<double>(file, group + "LengthBetweenPerpendicular");
+  m_lengthOverAll = H5Easy::load<double>(file, group + "LengthOverAll");
+  m_Xcenter = H5Easy::load<double>(file, group + "Xcenter");
+  m_windSpeed = H5Easy::load<double>(file, group + "WindSpeed");
+  m_direction = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "WindDirection");
+  m_dragCoefficient = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "DragCoefficient");
 
 }
 

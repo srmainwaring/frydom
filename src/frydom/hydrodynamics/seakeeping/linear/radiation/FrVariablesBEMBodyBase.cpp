@@ -5,8 +5,8 @@
 #include "FrVariablesBEMBodyBase.h"
 
 #include "frydom/core/body/FrBody.h"
-#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrHydroDB.h"
-#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+//#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
 #include "FrRadiationModelBase.h"
 

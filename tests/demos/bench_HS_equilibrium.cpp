@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
       body->SetInertiaTensor(
           FrInertiaTensor(5.4e7, 2.4e11, 2.3e11, 2e12, 0., 0., 0., Position(10., 10., 2.92), NWU));
       meshFilename = FrFileSystem::join(
-          {system.config_file().GetDataFolder(), "ce/platform/mesh_Platform_GVA7500_Sym.obj"});
+          {system.config_file().GetDataFolder(), "ce/platform/Platform_GVA7500_Mesh_Sym.obj"});
 //      body->TranslateInWorld(0, 0, 10, NWU);
       break;
     }

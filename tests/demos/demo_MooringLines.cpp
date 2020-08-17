@@ -65,8 +65,7 @@ int main(int argc, char *argv[]) {
   unsigned int nbElements = 50;                           //  number of elements
 
   // Dynamic cable
-  auto DynamicCable = make_dynamic_cable("dynamic_cable", Node1, Node2, cableProp, unstretchedLength,
-                                         rayleighDamping, nbElements);
+  auto DynamicCable = make_fea_cable("dynamic_cable", Node1, Node2, cableProp, unstretchedLength, nbElements);
 
   // To test with constrained hinges, uncomment the following lines.
 //  DynamicCable->SetStartingHingeType(FrFEACable::CONSTRAINED);

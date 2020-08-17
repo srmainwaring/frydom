@@ -12,6 +12,9 @@
 #include "frydom/frydom.h"
 #include "gtest/gtest.h"
 
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
+
 using namespace frydom;
 
 
@@ -43,38 +46,27 @@ class TestInertia : public ::testing::Test {
 
   void LoadData(std::string filename);
 
-  template<class Vector>
-  Vector ReadVector(FrHDF5Reader &reader, std::string field) const;
-
   void CheckInertiaAtCOG() const;
 
   void CheckInertiaAtPoint() const;
 
 };
 
-template<class Vector>
-Vector TestInertia::ReadVector(FrHDF5Reader &reader, std::string field) const {
-  auto value = reader.ReadDoubleArray(field);
-  return Vector(value(0), value(1), value(2));
-}
-
 void TestInertia::LoadData(std::string filename) {
 
-  FrHDF5Reader reader;
-
-  reader.SetFilename(filename);
+  HighFive::File file(filename, HighFive::File::ReadOnly);
   std::string group = "/inertia/";
 
-  m_BodyPositionInWorld = ReadVector<Position>(reader, group + "BodyPositionInWorld");
-  m_BodyRotationDirection = ReadVector<Direction>(reader, group + "BodyRotationDirection");
-  m_BodyRotationAngle = reader.ReadDouble(group + "BodyRotationAngle");
-  m_COG = ReadVector<Position>(reader, group + "COG");
-  m_PointInBody = ReadVector<Position>(reader, group + "PointInBody");
-  m_FrameRotationDirection = ReadVector<Direction>(reader, group + "FrameRotationDirection");
-  m_FrameRotationAngle = reader.ReadDouble(group + "FrameRotationAngle");
-  m_BodyMass = reader.ReadDouble(group + "BodyMass");
-  m_InertialInBodyAtCOG = reader.ReadDoubleArray(group + "InertiaInBodyAtCOG");
-  m_InertialInFrameAtPoint = reader.ReadDoubleArray(group + "InertiaInFrameAtPoint");
+  m_BodyPositionInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "BodyPositionInWorld");
+  m_BodyRotationDirection = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "BodyRotationDirection");
+  m_BodyRotationAngle = H5Easy::load<double>(file, group + "BodyRotationAngle");
+  m_COG = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "COG");
+  m_PointInBody = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointInBody");
+  m_FrameRotationDirection = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "FrameRotationDirection");
+  m_FrameRotationAngle = H5Easy::load<double>(file, group + "FrameRotationAngle");
+  m_BodyMass = H5Easy::load<double>(file, group + "BodyMass");
+  m_InertialInBodyAtCOG = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "InertiaInBodyAtCOG");
+  m_InertialInFrameAtPoint = H5Easy::load<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>>(file, group + "InertiaInFrameAtPoint");
 
 }
 

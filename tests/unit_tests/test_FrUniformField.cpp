@@ -12,7 +12,9 @@
 #include "boost/assign/list_of.hpp"
 #include "frydom/frydom.h"
 #include "gtest/gtest.h"
-//#include "frydom/core/FrVector.h"
+
+#include <highfive/H5File.hpp>
+#include <highfive/H5Easy.hpp>
 
 using namespace frydom;
 
@@ -70,9 +72,6 @@ class TestFrUniformField : public ::testing::Test {
 
   void LoadData(std::string filename);
 
-  template<class Vector>
-  Vector ReadVector(FrHDF5Reader &reader, std::string field) const;
-
  public:
   void TestSetVelocityFrameDir();
 
@@ -126,12 +125,6 @@ void TestFrUniformField::CheckField(Velocity vect) {
 }
 
 template<class Vector>
-Vector TestFrUniformField::ReadVector(FrHDF5Reader &reader, std::string field) const {
-  auto value = reader.ReadDoubleArray(field);
-  return Vector(value(0), value(1), value(2));
-}
-
-template<class Vector>
 Vector TestFrUniformField::SwapDirectionConvention(Vector vect) {
   Vector result;
   result[0] = -vect[0];
@@ -165,26 +158,24 @@ double TestFrUniformField::GetSpeedRef(SPEED_UNIT unit) const {
 
 void TestFrUniformField::LoadData(std::string filename) {
 
-  FrHDF5Reader reader;
-
-  reader.SetFilename(filename);
+  HighFive::File file(filename, HighFive::File::ReadOnly);
   std::string group = "field/uniform/";
 
-  m_angle_RAD_NWU_GOTO = reader.ReadDouble(group + "angle_RAD_NWU_goto");
-  m_angle_DEG_NWU_GOTO = reader.ReadDouble(group + "angle_DEG_NWU_goto");
-  m_angle_RAD_NWU_COMEFROM = reader.ReadDouble(group + "angle_RAD_NWU_comefrom");
-  m_angle_DEG_NWU_COMEFROM = reader.ReadDouble(group + "angle_DEG_NWU_comefrom");
-  m_angle_RAD_NED_GOTO = reader.ReadDouble(group + "angle_RAD_NED_goto");
-  m_angle_DEG_NED_GOTO = reader.ReadDouble(group + "angle_DEG_NED_goto");
-  m_angle_RAD_NED_COMEFROM = reader.ReadDouble(group + "angle_RAD_NED_comefrom");
-  m_angle_DEG_NED_COMEFROM = reader.ReadDouble(group + "angle_DEG_NED_comefrom");
+  m_angle_RAD_NWU_GOTO = H5Easy::load<double>(file, group + "angle_RAD_NWU_goto");
+  m_angle_DEG_NWU_GOTO = H5Easy::load<double>(file, group + "angle_DEG_NWU_goto");
+  m_angle_RAD_NWU_COMEFROM = H5Easy::load<double>(file, group + "angle_RAD_NWU_comefrom");
+  m_angle_DEG_NWU_COMEFROM = H5Easy::load<double>(file, group + "angle_DEG_NWU_comefrom");
+  m_angle_RAD_NED_GOTO = H5Easy::load<double>(file, group + "angle_RAD_NED_goto");
+  m_angle_DEG_NED_GOTO = H5Easy::load<double>(file, group + "angle_DEG_NED_goto");
+  m_angle_RAD_NED_COMEFROM = H5Easy::load<double>(file, group + "angle_RAD_NED_comefrom");
+  m_angle_DEG_NED_COMEFROM = H5Easy::load<double>(file, group + "angle_DEG_NED_comefrom");
 
-  m_speed_MS = reader.ReadDouble(group + "speed_MS");
-  m_speed_KMH = reader.ReadDouble(group + "speed_KMH");
-  m_speed_KNOT = reader.ReadDouble(group + "speed_KNOT");
+  m_speed_MS = H5Easy::load<double>(file, group + "speed_MS");
+  m_speed_KMH = H5Easy::load<double>(file, group + "speed_KMH");
+  m_speed_KNOT = H5Easy::load<double>(file, group + "speed_KNOT");
 
-  m_PointInWorld = ReadVector<Position>(reader, group + "PointInWorld/");
-  m_VelocityInWorld = ReadVector<Velocity>(reader, group + "VelocityInWorld/");
+  m_PointInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "PointInWorld");
+  m_VelocityInWorld = H5Easy::load<Eigen::Matrix<double, 3, 1>>(file, group + "VelocityInWorld");
 }
 
 void TestFrUniformField::SetUp() {
