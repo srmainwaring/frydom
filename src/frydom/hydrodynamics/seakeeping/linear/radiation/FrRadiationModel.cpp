@@ -173,7 +173,7 @@ namespace frydom {
             // TODO : virer les états auxiliaires de la HDB !
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
             auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
-            velocities.segment(indice, n_poles) = currentVelocity[idof];
+            velocities.segment(indice, n_poles) = currentVelocity[idof]*Eigen::ArrayXd::Ones(n_poles);
             poles.segment(indice, n_poles) = poleResidue.GetPoles();
             residues.segment(indice, n_poles) = poleResidue.GetResidues();
             indice += n_poles;
@@ -271,6 +271,22 @@ namespace frydom {
     auto beta0 = (1 + (poles * DeltaT - 1) * alpha) * inverseNumerator;
     auto beta1 = (-1 - poles * DeltaT + alpha) * inverseNumerator;
     return alpha * previousStates + beta0 * previousVelocity + beta1 * velocity;
+  }
+
+  std::shared_ptr<FrRadiationRecursiveConvolutionModel>
+  make_recursive_convolution_model(const std::string &name,
+                                   FrOffshoreSystem *system,
+                                   std::shared_ptr<FrHydroDB> HDB) {
+
+    // This subroutine creates and adds the radiation recursive convolution model to the offshore system from the HDB.
+
+    // Construction and initialization of the classes dealing with radiation models.
+    auto radiationModel = std::make_shared<FrRadiationRecursiveConvolutionModel>(name, system, HDB);
+
+    // Addition to the system.
+    system->Add(radiationModel);
+
+    return radiationModel;
   }
 
   // ----------------------------------------------------------------
@@ -436,7 +452,7 @@ namespace frydom {
                                    FrOffshoreSystem *system,
                                    std::shared_ptr<FrHydroDB> HDB) {
 
-    // This subroutine creates and adds the radiation convulation model to the offshore system from the HDB.
+    // This subroutine creates and adds the radiation convolution model to the offshore system from the HDB.
 
     // Construction and initialization of the classes dealing with radiation models.
     auto radiationModel = std::make_shared<FrRadiationConvolutionModel>(name, system, HDB);

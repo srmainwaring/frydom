@@ -167,6 +167,10 @@ namespace frydom {
   };
 
 
+  std::shared_ptr<FrRadiationRecursiveConvolutionModel>
+  make_recursive_convolution_model(const std::string &name,
+                                   FrOffshoreSystem *system,
+                                   std::shared_ptr<FrHydroDB> HDB);
   // -------------------------------------------------------------------------
   // Radiation model with classic convolution
   // -------------------------------------------------------------------------
