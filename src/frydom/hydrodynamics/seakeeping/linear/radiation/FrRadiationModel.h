@@ -133,14 +133,17 @@ namespace frydom {
 //    mathutils::VectorN<std::complex<double>> c_alpha;
 //    mathutils::VectorN<std::complex<double>> c_beta0;
 //    mathutils::VectorN<std::complex<double>> c_beta1;
+
+    Eigen::VectorXcd c_poles;
+    Eigen::VectorXcd c_residues;
     Eigen::ArrayXd   c_velocities;
-    Eigen::ArrayXcd c_states;
-    Eigen::ArrayXcd c_alpha;
-    Eigen::ArrayXcd c_beta0;
-    Eigen::ArrayXcd c_beta1;
-    double                                   c_deltaT;
-    double                                   c_time;
-    unsigned int                             c_N_poles;
+    Eigen::ArrayXcd  c_states;
+    Eigen::ArrayXcd  c_alpha;
+    Eigen::ArrayXcd  c_beta0;
+    Eigen::ArrayXcd  c_beta1;
+    double           c_deltaT;
+    double           c_time;
+    unsigned int     c_N_poles;
 
     std::unordered_map<FrBEMBody *, GeneralizedVelocity> c_previousVelocity;
 //    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
@@ -167,6 +170,13 @@ namespace frydom {
     mathutils::Vector3d<T> PiecewiseLinearIntegration(mathutils::Vector3d<T> previousStates, double velocity,
                                                       double previousVelocity, mathutils::Vector3d<T> poles,
                                                       double DeltaT);
+
+    void Compute_PieceWiseLinearCoefficients(const Eigen::ArrayXcd& poles, double dt);
+
+    Eigen::ArrayXd GetVelocities() const;
+
+    // TODO:: Add const to FrBEMBody
+    GeneralizedForce Compute_RadiationForce(FrBEMBody* body, int &indice) const;
 
   };
 

@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   // -- Hydrodynamics
 
   //auto hdb = make_hydrodynamic_database(resources_path.resolve("sphere_hdb.h5").path());
-  auto sphere_HDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/hemisphere/test.hdb5"});
+  auto sphere_HDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/hemisphere/test2.hdb5"});
   auto hdb = make_hydrodynamic_database(sphere_HDB);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body);
@@ -85,6 +85,18 @@ int main(int argc, char *argv[]) {
     auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
 //    radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
   }
+
+  // motor
+//  auto sphereNode = body->NewNode("sphere_node");
+//  sphereNode->RotateAroundYInBody(90*DEG2RAD, NWU);
+//  auto WBNode = system.GetWorldBody()->NewNode("WB_node");
+//  WBNode->RotateAroundYInBody(90*DEG2RAD, NWU);
+//
+//  auto link = make_prismatic_link("link", &system, WBNode, sphereNode);
+//  auto motor = link->Motorize("motor", ACTUATOR_CONTROL::POSITION);
+//  auto x = new_var("x");
+//  motor->SetMotorFunction(sin(2*MU_PI/10 * x));
+
   // -- Simulation
 
   auto dt = 0.01;
