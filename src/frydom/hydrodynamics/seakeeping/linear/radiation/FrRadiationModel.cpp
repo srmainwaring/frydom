@@ -139,13 +139,16 @@ namespace frydom {
 //    auto DeltaT = GetSystem()->GetTimeStep();
     auto deltaT = time - c_time;
 
-    if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
-        time > FLT_EPSILON)
+//    if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
+//        time > FLT_EPSILON)
+//      return;
+
+    if (deltaT < FLT_EPSILON)
       return;
 
-    Eigen::ArrayXd velocities;
-    Eigen::ArrayXcd poles;
-    Eigen::VectorXcd residues;
+    Eigen::ArrayXd velocities(c_N_poles);
+    Eigen::ArrayXcd poles(c_N_poles);
+    Eigen::VectorXcd residues(c_N_poles);
 
     int indice = 0;
 
@@ -173,7 +176,7 @@ namespace frydom {
             // TODO : virer les états auxiliaires de la HDB !
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
             auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
-            velocities.segment(indice, n_poles) = currentVelocity[idof]*Eigen::ArrayXd::Ones(n_poles);
+            velocities.segment(indice, n_poles) = Eigen::ArrayXd::Constant(n_poles, currentVelocity[idof]);
             poles.segment(indice, n_poles) = poleResidue.GetPoles();
             residues.segment(indice, n_poles) = poleResidue.GetResidues();
             indice += n_poles;
@@ -186,19 +189,28 @@ namespace frydom {
 
     }
 
-    if (abs(deltaT - c_deltaT) > 1E-6) {
-      Eigen::ArrayXcd q2Dt = poles.cwiseProduct(poles) * deltaT;
-      c_alpha = Eigen::exp(poles * deltaT);
-      c_beta0 = 1 + (poles * deltaT - 1) * c_alpha / q2Dt;
-      c_beta1 = -1 - poles * deltaT * c_alpha / q2Dt;
-      c_deltaT = deltaT;
+    if (abs(deltaT - c_deltaT) > 1E-6 or c_deltaT == 1.0) {
+      if (deltaT > FLT_EPSILON) c_deltaT = deltaT;
+      auto q2Dt = poles * poles * c_deltaT;
+      c_alpha = Eigen::exp(poles * c_deltaT);
+      c_beta0 = (1 + (poles * c_deltaT - 1) * c_alpha) / q2Dt.array();
+      c_beta1 = (-1 - poles * c_deltaT + c_alpha) / q2Dt.array();
+      std::cout<<"alpha :"<<std::endl<<c_alpha<<std::endl;
+      std::cout<<"c_beta0 :"<<std::endl<<c_beta0<<std::endl;
+      std::cout<<"c_beta1 :"<<std::endl<<c_beta1<<std::endl;
     }
 
-    auto newStates = c_alpha * c_states + c_beta0 * c_velocities + c_beta1 * velocities;
+    std::cout<<"c_alpha * c_states :"<<std::endl<<c_alpha * c_states<<std::endl;
+    std::cout<<"c_beta0 * c_velocities :"<<std::endl<<c_beta0 * c_velocities<<std::endl;
+    std::cout<<"c_beta1 * velocities :"<<std::endl<<c_beta1 * velocities<<std::endl;
 
+    c_states = c_alpha * c_states + c_beta0 * c_velocities + c_beta1 * velocities;
+
+    std::cout<<"c_states :"<<std::endl<<c_states<<std::endl;
     c_velocities = velocities;
-    c_states = newStates;
+    c_time = time;
 
+//    if (time<FLT_EPSILON) c_states.setZero();
 
     indice = 0;
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
@@ -219,8 +231,11 @@ namespace frydom {
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
             auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
             Eigen::VectorXcd v1(c_states.segment(indice, n_poles));
-            std::complex<double> truc = residues.segment(indice,n_poles).transpose() * v1;
+            std::cout<<"residues.segment(indice,n_poles).transpose() :"<<std::endl<<residues.segment(indice,n_poles).transpose()<<std::endl;
+            std::cout<<"truc :"<<std::endl<<residues.segment(indice,n_poles).transpose() * c_states.matrix().segment(indice, n_poles)<<std::endl;
+            std::complex<double> truc = residues.segment(indice,n_poles).transpose() * c_states.matrix().segment(indice, n_poles);
             radiationForce[iforce] += truc.real();
+//            radiationForce[iforce] += (residues.segment(indice,n_poles).transpose() * c_states.matrix().segment(indice, n_poles)).real();
 //            radiationForce[iforce] += residues.segment(indice,n_poles).transpose() * newStates.segment(indice, n_poles).matrix();
 
             indice += n_poles;
@@ -271,6 +286,49 @@ namespace frydom {
     auto beta0 = (1 + (poles * DeltaT - 1) * alpha) * inverseNumerator;
     auto beta1 = (-1 - poles * DeltaT + alpha) * inverseNumerator;
     return alpha * previousStates + beta0 * previousVelocity + beta1 * velocity;
+  }
+
+  void FrRadiationRecursiveConvolutionModel::Initialize() {
+    FrRadiationModel::Initialize();
+
+    c_time = -1.0;
+    c_deltaT = 1.0;
+
+    c_N_poles = 0;
+
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+
+      for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
+
+        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+        auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
+
+        for (auto idof : BodyMotionDOFMask.GetListDOF()) {
+
+          FrMask radiationMaskForIDOF;
+          radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+
+          for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
+
+            // TODO : virer les états auxiliaires de la HDB !
+            auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
+            auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+            c_N_poles += n_poles;
+
+          }
+
+        }
+
+      }
+
+    }
+
+    c_states.setZero(c_N_poles);
+    c_velocities.setZero(c_N_poles);
+    c_alpha.setZero(c_N_poles);
+    c_beta0.setZero(c_N_poles);
+    c_beta1.setZero(c_N_poles);
+
   }
 
   std::shared_ptr<FrRadiationRecursiveConvolutionModel>

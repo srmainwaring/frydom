@@ -21,7 +21,17 @@ int main(int argc, char *argv[]) {
 
   // -- System
 
-  FrOffshoreSystem system("Recursive_convolution");
+  bool recursive_radiation = true;
+
+  std::string simulation_name;
+
+  if (recursive_radiation) {
+    simulation_name = "Recursive_convolution";
+  } else {
+    simulation_name = "Classic_convolution";
+  }
+
+  FrOffshoreSystem system(simulation_name);
 
   auto Ocean = system.GetEnvironment()->GetOcean();
   Ocean->SetDensity(1000);
@@ -67,21 +77,7 @@ int main(int argc, char *argv[]) {
 
   auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
 
-  //auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame);
-  //auto matrixHst = forceHst->GetStiffnessMatrix();
-  //matrixHst.SetNonDiagonal(0., 0. ,0.);
-  //matrixHst.SetDiagonal(7.6947e5, 5.1263e6, 5.1263e6);
-  //forceHst->SetStiffnessMatrix(matrixHst);
-
-  // Nonlinear hydrostatics
-  //auto bodyMesh = make_hydro_mesh(body,"Sphere_10000_faces.obj",FrFrame(),FrHydroMesh::ClippingSupport::WAVESURFACE);
-  //bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
-
-  //auto forceHst = make_nonlinear_hydrostatic_force(body,bodyMesh);
-
   // -- Radiation
-
-  bool recursive_radiation = false;
 
   if (recursive_radiation) {
     auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
@@ -103,7 +99,7 @@ int main(int argc, char *argv[]) {
 
   clock_t begin = clock();
 
-  while (time < 20.) {
+  while (time < 100.) {
     time += dt;
     system.AdvanceTo(time);
     std::cout << "time : " << time << std::endl;

@@ -140,10 +140,14 @@ namespace frydom {
     Eigen::ArrayXcd c_beta1;
     double                                   c_deltaT;
     double                                   c_time;
+    unsigned int                             c_N_poles;
 
     std::unordered_map<FrBEMBody *, GeneralizedVelocity> c_previousVelocity;
 //    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
 //    std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
+
+    /// Method to initialize the radiation model
+    void Initialize() override;
 
 
     /// Compute the radiation convolution.

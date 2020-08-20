@@ -127,8 +127,7 @@ namespace frydom {
 
   void FrRadiationConvolutionForce::UpdateForceInertiaPart() {
 
-    auto radiationModel = dynamic_cast<FrRadiationConvolutionModel *>(m_radiationModel);
-    auto forceInertiaPart = radiationModel->GetRadiationInertiaPart(GetBody());
+    auto forceInertiaPart = m_radiationModel->GetRadiationInertiaPart(GetBody());
     c_forceInertiaPart = forceInertiaPart.GetForce();
     c_torqueInertiaPart = forceInertiaPart.GetTorque();
   }
