@@ -1293,11 +1293,11 @@ class pyHDB():
                 dset = grp_dir.create_dataset("data", data=np.array(mode.data)[i_angle, :])
                 dset.attrs['Description'] = "Mean wave drift load coefficients"
 
-        # Set frequency.
-        if(self.wave_drift.discrete_frequency is not None):
-            dset = dg.create_dataset("freq", data=self.wave_drift.discrete_frequency)
-            dset.attrs['Unit'] = "rads"
-            dset.attrs['Description'] = "Wave discretization of the data"
+        # # Set frequency.
+        # if(self.wave_drift.discrete_frequency is not None):
+        #     dset = dg.create_dataset("freq", data=self.wave_drift.discrete_frequency)
+        #     dset.attrs['Unit'] = "rads"
+        #     dset.attrs['Description'] = "Wave discretization of the data"
 
         # Set sym.
         dset = dg.create_dataset("sym_x", data=self.wave_drift.sym_x)
@@ -1306,7 +1306,7 @@ class pyHDB():
         dset.attrs['Description'] = "Symmetry along y"
 
         # Kochin function angular step.
-        if(self.solver is "Helios"):
+        if(self.solver == "Helios"):
             dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
 
