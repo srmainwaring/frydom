@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     body->GetDOFMask()->SetLock_Rx(true);
     body->GetDOFMask()->SetLock_Ry(true);
     body->GetDOFMask()->SetLock_Rz(true);
-    HDB_file = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/hemisphere/Hemisphere_wo_RM.hdb5"});
+    HDB_file = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/hemisphere/Hemisphere.hdb5"});
   } else if (body_type == "barge") {
     body->SetInertiaTensor(FrInertiaTensor(5.125E7, 2.05E10, 2.05E10, 2.05E10, 0., 0., 0., COGPosition, NWU));
     HDB_file = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/boxbarge/BoxBarge.hdb5"});
