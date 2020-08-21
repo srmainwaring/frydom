@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
   // -- System
 
   bool recursive_radiation = true;
+  std::string body_type = "barge";
 
   std::string simulation_name;
 
@@ -30,6 +31,7 @@ int main(int argc, char *argv[]) {
   } else {
     simulation_name = "Classic_convolution";
   }
+  simulation_name += body_type;
 
   FrOffshoreSystem system(simulation_name);
 
@@ -38,38 +40,30 @@ int main(int argc, char *argv[]) {
 
   // -- Body
 
-  auto body = system.NewBody("sphere");
+  auto body = system.NewBody(body_type);
 
   Position COGPosition(0., 0., 0.);
 
-  body->SetPosition(Position(0., 0., 0.), NWU);
-
   // -- Inertia
 
-  double mass = 2094.;
-
-  double Ixx = 837;
-  double Iyy = 837;
-  double Izz = 837;
-
-  FrInertiaTensor InertiaTensor(mass, Ixx, Iyy, Izz, 0., 0., 0., COGPosition, NWU);
-
-  body->SetInertiaTensor(InertiaTensor);
-
-  body->GetDOFMask()->SetLock_X(true);
-  body->GetDOFMask()->SetLock_Y(true);
-  body->GetDOFMask()->SetLock_Rx(true);
-  body->GetDOFMask()->SetLock_Ry(true);
-  body->GetDOFMask()->SetLock_Rz(true);
+  std::string HDB_file;
+  if (body_type == "sphere") {
+    body->SetInertiaTensor(FrInertiaTensor(2094., 837, 837, 837, 0., 0., 0., COGPosition, NWU));
+    body->GetDOFMask()->SetLock_X(true);
+    body->GetDOFMask()->SetLock_Y(true);
+    body->GetDOFMask()->SetLock_Rx(true);
+    body->GetDOFMask()->SetLock_Ry(true);
+    body->GetDOFMask()->SetLock_Rz(true);
+    HDB_file = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/hemisphere/Hemisphere_wo_RM.hdb5"});
+  } else if (body_type == "barge") {
+    body->SetInertiaTensor(FrInertiaTensor(5.125E7, 2.05E10, 2.05E10, 2.05E10, 0., 0., 0., COGPosition, NWU));
+    HDB_file = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/boxbarge/BoxBarge.hdb5"});
+  }
 
   // -- Hydrodynamics
-
-  //auto hdb = make_hydrodynamic_database(resources_path.resolve("sphere_hdb.h5").path());
-  auto sphere_HDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/hemisphere/test2.hdb5"});
-  auto hdb = make_hydrodynamic_database(sphere_HDB);
+  auto hdb = make_hydrodynamic_database(HDB_file);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body);
-
 
   hdb->Map(0, body.get(), eqFrame);
 
@@ -106,6 +100,9 @@ int main(int argc, char *argv[]) {
 
   // Decay test initial position.
   body->SetPosition(Position(0., 0., 1.), NWU);
+  if (body_type == "barge") {
+    body->RotateAroundCOG(FrRotation(Direction(0., 1., 0.0), 2 * DEG2RAD, NWU), NWU);
+  }
 
   auto time = 0.;
 

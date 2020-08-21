@@ -31,6 +31,7 @@ set(BENCH
         BoxDecayTests
         StabilityAnalysis
         HS_equilibrium
+        Recursive_convolution
         )
 
 # Compile target
