@@ -37,7 +37,7 @@ namespace frydom {
                          properties,
                          elastic,
                          unstretchedLength),
-      c_qL(0.) {
+      c_qL(0.), c_fluid(fluid_type) {
     m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
   }
 
@@ -68,8 +68,11 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
-    m_q = m_properties->GetLinearDensity() *
-          GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
+    m_q = m_properties->GetLinearDensity() -
+          m_properties->GetSectionArea() * GetSystem()->GetEnvironment()->GetFluidDensity(c_fluid);
+    m_q *= GetSystem()->GetGravityAcceleration();
+//    m_q = m_properties->GetLinearDensity() *
+//          GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
     m_pi = {0., 0., -1.}; // FIXME: en dur pour le moment... (voir aussi dans FrCatenaryLineSeabed::Initialize())
 
 
@@ -471,6 +474,22 @@ namespace frydom {
 
   void FrCatenaryLine::DefineLogMessages() {
     // TODO
+
+    auto msg = NewMessage("State", "State messages");
+
+    msg->AddField<double>("time", "s", "Current time of the simulation",
+                          [this]() { return GetSystem()->GetTime(); });
+
+    msg->AddField<double>("StrainedLength", "m", "Strained length of the catenary line",
+                          [this]() { return GetStrainedLength(); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("StartingNodeTension", "N", fmt::format("Starting node tension in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTension(0., GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("EndingNodeTension", "N", fmt::format("Ending node tension in world reference frame in {}", GetLogFC()),
+         [this]() { return -GetTension(GetUnstretchedLength(), GetLogFC()); });
   }
 
   void FrCatenaryLine::BuildCache() {

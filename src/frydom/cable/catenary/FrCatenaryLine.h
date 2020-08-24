@@ -170,6 +170,7 @@ namespace frydom {
     std::vector<internal::PointForce> m_point_forces;
 
     // Cache
+    FLUID_TYPE c_fluid;                 ///< cached value of the fluid type in which the catenary line is mostly in.
     std::vector<Force> c_Fi;
     std::vector<Force> c_sum_fs;
     mathutils::Matrix33<double> c_U; // This is (I - pi.pi^t)
