@@ -80,6 +80,9 @@ namespace frydom {
     double m_tolerance = 1e-6;
     unsigned int m_itermax = 100;
     double m_relax = 0.1;
+
+    unsigned int c_iter;
+    double c_err;
     //--------------------------------------------------------------------------------------------------------------
 
     //--------------------------------------------------------------------------------------------------------------
@@ -233,6 +236,9 @@ namespace frydom {
     internal::FrPhysicsItemBase *GetChronoItem_ptr() const;
 
     void DefineLogMessages() override;
+
+    double GetErr() const { return c_err;}
+    unsigned int GetIter() const { return c_iter;}
 
    private :
 

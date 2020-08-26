@@ -49,6 +49,12 @@ namespace frydom {
     msg->AddField<double>("StrainedLength", "m", "Strained length of the catenary line",
                           [this]() { return GetStrainedLength(); });
 
+    msg->AddField<int>("iter", "", "",
+                            [this]() { return GetIter(); });
+
+    msg->AddField<double>("err", "", "",
+                            [this]() { return GetErr(); });
+
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("StartingNodeTension", "N", fmt::format("Starting node tension in world reference frame in {}", GetLogFC()),
          [this]() { return GetStartingNodeTension(GetLogFC()); });
@@ -257,6 +263,9 @@ namespace frydom {
       err = res.infNorm();
     }  // end while
 
+    c_err = err;
+    c_iter = iter;
+
   }
 
   void FrCatenaryLine_ee444::Initialize() {
@@ -296,7 +305,7 @@ namespace frydom {
       m_endingForce->LogThis(this->IsLogged());
     }
 
-    //FrCatenaryAssetOwner::Initialize();
+    FrCatenaryAssetOwner::Initialize();
 
     FrCable_ee444::Initialize();
   }
@@ -314,7 +323,7 @@ namespace frydom {
   }
 
   void FrCatenaryLine_ee444::StepFinalize() {
-    //FrAssetOwner::UpdateAsset();
+    FrAssetOwner::UpdateAsset();
     FrPhysicsItem::StepFinalize();
     FrObject::StepFinalize();
   }
