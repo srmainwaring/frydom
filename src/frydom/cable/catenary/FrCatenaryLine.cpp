@@ -153,6 +153,10 @@ namespace frydom {
 
     }
 
+    c_iter = iter;
+    c_pos_error = pos_error;
+    c_criterion = tension_criterion;
+
     if (iter == m_maxiter) {
       event_logger::warn(GetTypeName(), GetName(),
                          "No convergence of the solver after {} max iterations. Position error is {} m.",
@@ -468,10 +472,13 @@ namespace frydom {
 
   void FrCatenaryLine::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
+    if (c_iter == m_maxiter) {
+      FirstGuess();
+      solve();
+    }
   }
 
   void FrCatenaryLine::DefineLogMessages() {
-    // TODO
 
     auto msg = NewMessage("State", "State messages");
 
@@ -480,6 +487,15 @@ namespace frydom {
 
     msg->AddField<double>("StrainedLength", "m", "Strained length of the catenary line",
                           [this]() { return GetStrainedLength(); });
+
+    msg->AddField<int>("iter", "", "Newton-Raphson solver iterations",
+                          [this]() { return GetIter(); });
+
+    msg->AddField<double>("pos_error", "", "Error on the position",
+                          [this]() { return GetErr(); });
+
+    msg->AddField<double>("criterion", "", "Convergence criteria on the tension",
+                          [this]() { return GetCriterion(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("StartingNodeTension", "N", fmt::format("Starting node tension in world reference frame in {}", GetLogFC()),
