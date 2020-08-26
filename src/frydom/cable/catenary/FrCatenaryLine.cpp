@@ -86,10 +86,7 @@ namespace frydom {
 
     FrCatenaryLineBase::Initialize();
   }
-
-  void FrCatenaryLine::StepFinalize() {
-    FrAssetOwner::UpdateAsset();
-  }
+//  void FrCatenaryLine::StepFinalize() {}
 
   Force FrCatenaryLine::GetTension(const double &s, FRAME_CONVENTION fc) const {
     Tension tension = t(s / m_unstretchedLength) * c_qL;
