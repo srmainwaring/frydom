@@ -154,6 +154,10 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
+    unsigned int GetIter() const { return c_iter;}
+    double GetCriterion() const { return c_criterion;}
+    double GetErr() const { return c_pos_error;}
+
     void BuildCache() override;
 
 
@@ -175,6 +179,10 @@ namespace frydom {
     std::vector<Force> c_sum_fs;
     mathutils::Matrix33<double> c_U; // This is (I - pi.pi^t)
     double c_qL;  // Used for adimensionalization of forces and tensions
+
+    unsigned int c_iter;
+    double c_pos_error;
+    double c_criterion;
 
   };
 
