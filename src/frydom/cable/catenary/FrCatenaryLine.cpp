@@ -139,13 +139,25 @@ namespace frydom {
 
     unsigned int iter = 1;
 
-    while (tension_criterion > 1e-4 && iter < m_maxiter) {
+    while (tension_criterion > m_tolerance && iter < m_maxiter) {
       iter++;
       residue = GetResidue();
       linear_solver.compute(GetJacobian());
-      dt0 = linear_solver.solve(-residue);
+//      dt0 = linear_solver.solve(-residue);
+      Tension dt0_tmp = linear_solver.solve(-residue);
+
+      while (dt0.infNorm() < m_relax * dt0_tmp.infNorm()) {
+        m_relax *= 0.5;
+        if (m_relax < 1e-10) {
+          std::cout << "DAMPING TOO STRONG. NO CATENARY CONVERGENCE." << std::endl;
+        }
+      }
+      dt0 = dt0_tmp;
+
       t0_prec = m_t0;
-      m_t0 += dt0;
+      m_t0 += m_relax * dt0;
+
+      m_relax = std::min(1., m_relax * 2.);
 
       pos_error = residue.array().abs().maxCoeff();
       tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /
