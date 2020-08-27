@@ -39,7 +39,7 @@ namespace frydom {
 
   FrRadiationConvolutionForce::FrRadiationConvolutionForce(const std::string &name,
                                                            FrBody *body,
-                                                           FrRadiationConvolutionModel *radiationModel)
+                                                           FrRadiationModel *radiationModel)
       : FrRadiationForce(name, body, radiationModel) {}
 
 //    void FrRadiationConvolutionForce::AddFields() {
@@ -127,8 +127,7 @@ namespace frydom {
 
   void FrRadiationConvolutionForce::UpdateForceInertiaPart() {
 
-    auto radiationModel = dynamic_cast<FrRadiationConvolutionModel *>(m_radiationModel);
-    auto forceInertiaPart = radiationModel->GetRadiationInertiaPart(GetBody());
+    auto forceInertiaPart = m_radiationModel->GetRadiationInertiaPart(GetBody());
     c_forceInertiaPart = forceInertiaPart.GetForce();
     c_torqueInertiaPart = forceInertiaPart.GetTorque();
   }

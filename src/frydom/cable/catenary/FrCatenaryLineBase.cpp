@@ -46,7 +46,7 @@ namespace frydom {
     }
 
     // Set the tension in the world reference frame and NWU frame convention
-    SetForceTorqueInWorldAtPointInBody(force_in_world, Torque(), relative_position, NWU);
+    SetForceTorqueInWorldAtPointInWorld(force_in_world, Torque(), relative_position, NWU);
 
   }
 
@@ -74,7 +74,9 @@ namespace frydom {
     FrCableBase::Initialize();
   }
 
-  void FrCatenaryLineBase::StepFinalize() {}
+  void FrCatenaryLineBase::StepFinalize() {
+    UpdateAsset();
+  }
 
   FrCatenaryLineBase::FrCatenaryLineBase(const std::string &name, const std::string &type,
                                          const std::shared_ptr<FrNode> &startingNode,

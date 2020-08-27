@@ -35,6 +35,7 @@ set(BENCH
         MorisonSingleImmersedElement
         MorisonCrossingElement
         SpreadMooredFPSO
+        Recursive_convolution
         )
 
 # Compile target

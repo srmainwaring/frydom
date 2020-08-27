@@ -73,6 +73,10 @@ class HDB5reader():
             # Wave drift coefficients.
             self.read_wave_drift(reader, pyHDB, "/WaveDrift")
 
+            # pyHDB parameters.
+            pyHDB._has_infinite_added_mass = True
+            pyHDB._has_froude_krylov = True
+
     def read_environment(self, reader, pyHDB):
         """This function reads the environmental data of the *.hdb5 file.
 
@@ -558,7 +562,6 @@ class HDB5reader_v2(HDB5reader):
 
         if(pyHDB.has_VF):
             body.poles_residues = []
-
 
         for j in range(pyHDB.nb_bodies):
 
@@ -1086,7 +1089,7 @@ class HDB5reader_v1(HDB5reader):
 
         for body in pyHDB.bodies:
             body_path = '/Bodies/Body_%u' % body.i_body
-            
+
             # Diffraction and Froude-Krylov loads.
             self.read_excitation(reader, pyHDB, body, body_path + "/Excitation")
 

@@ -5,12 +5,17 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ## [Unreleased]
 
+### Added
+- New recursive convolution for the radiation model, based on modal coefficients
+
 ### Changed
 - Hydrodynamic databases read using HDB5_IO
-- new HDB format version 3.0
+- New HDB format version 3.0
+- HDB5Tool updated to new HDB format
 
 ### Fixed
 - Excitation force computation for hdb with a forceMask
+- Forward speed correction for the radiation force
 
 ## [3.1] - 2020-02-06
 

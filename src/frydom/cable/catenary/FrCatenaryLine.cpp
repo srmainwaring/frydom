@@ -37,7 +37,7 @@ namespace frydom {
                          properties,
                          elastic,
                          unstretchedLength),
-      c_qL(0.) {
+      c_qL(0.), c_fluid(fluid_type) {
     m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
   }
 
@@ -68,8 +68,13 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
-    m_q = m_properties->GetLinearDensity() *
-          GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
+    // TODO : check avec Francois pour l'hydrostatique
+    // TODO : ajouter un assert sur la grandeur de q
+    m_q = m_properties->GetLinearDensity() -
+          m_properties->GetSectionArea() * GetSystem()->GetEnvironment()->GetFluidDensity(c_fluid);
+    m_q *= GetSystem()->GetGravityAcceleration();
+//    m_q = m_properties->GetLinearDensity() *
+//          GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
     m_pi = {0., 0., -1.}; // FIXME: en dur pour le moment... (voir aussi dans FrCatenaryLineSeabed::Initialize())
 
 
@@ -83,16 +88,21 @@ namespace frydom {
 
     FrCatenaryLineBase::Initialize();
   }
-
-  void FrCatenaryLine::StepFinalize() {
-    FrAssetOwner::UpdateAsset();
-  }
+//  void FrCatenaryLine::StepFinalize() {}
 
   Force FrCatenaryLine::GetTension(const double &s, FRAME_CONVENTION fc) const {
     Tension tension = t(s / m_unstretchedLength) * c_qL;
     if (IsNED(fc))
       internal::SwapFrameConvention(tension);
     return tension;
+  }
+
+  Force FrCatenaryLine::GetStartingNodeTension(FRAME_CONVENTION fc) const {
+    return GetTension(0, NWU);
+  }
+
+  Force FrCatenaryLine::GetEndingNodeTension(FRAME_CONVENTION fc) const {
+    return -GetTension(GetUnstretchedLength(), NWU);
   }
 
   Direction FrCatenaryLine::GetTangent(const double s, FRAME_CONVENTION fc) const {
@@ -119,6 +129,9 @@ namespace frydom {
 
   void FrCatenaryLine::solve() {
 
+    //TODO : keep the relaxation mecanism?
+    m_relax = 0.1;
+
     // Defining the linear solver
     Eigen::FullPivLU<Eigen::Matrix3d> linear_solver;
 
@@ -138,19 +151,35 @@ namespace frydom {
 
     unsigned int iter = 1;
 
-    while (tension_criterion > 1e-4 && iter < m_maxiter) {
+    while (tension_criterion > m_tolerance && iter < m_maxiter) {
       iter++;
       residue = GetResidue();
       linear_solver.compute(GetJacobian());
-      dt0 = linear_solver.solve(-residue);
+//      dt0 = linear_solver.solve(-residue);
+      Tension dt0_tmp = linear_solver.solve(-residue);
+
+      while (dt0.infNorm() < m_relax * dt0_tmp.infNorm()) {
+        m_relax *= 0.5;
+        if (m_relax < 1e-10) {
+          std::cout << "DAMPING TOO STRONG. NO CATENARY CONVERGENCE." << std::endl;
+        }
+      }
+      dt0 = dt0_tmp;
+
       t0_prec = m_t0;
-      m_t0 += dt0;
+      m_t0 += m_relax * dt0;
+
+      m_relax = std::min(1., m_relax * 2.);
 
       pos_error = residue.array().abs().maxCoeff();
       tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /
                            (1. + m_t0.array().abs().min(t0_prec.array().abs()))).maxCoeff();
 
     }
+
+    c_iter = iter;
+    c_pos_error = pos_error;
+    c_criterion = tension_criterion;
 
     if (iter == m_maxiter) {
       event_logger::warn(GetTypeName(), GetName(),
@@ -467,10 +496,38 @@ namespace frydom {
 
   void FrCatenaryLine::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
+    if (c_iter == m_maxiter) {
+      FirstGuess();
+      solve();
+    }
   }
 
   void FrCatenaryLine::DefineLogMessages() {
-    // TODO
+
+    auto msg = NewMessage("State", "State messages");
+
+    msg->AddField<double>("time", "s", "Current time of the simulation",
+                          [this]() { return GetSystem()->GetTime(); });
+
+    msg->AddField<double>("StrainedLength", "m", "Strained length of the catenary line",
+                          [this]() { return GetStrainedLength(); });
+
+    msg->AddField<int>("iter", "", "Newton-Raphson solver iterations",
+                          [this]() { return GetIter(); });
+
+    msg->AddField<double>("pos_error", "", "Error on the position",
+                          [this]() { return GetErr(); });
+
+    msg->AddField<double>("criterion", "", "Convergence criteria on the tension",
+                          [this]() { return GetCriterion(); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("StartingNodeTension", "N", fmt::format("Starting node tension in world reference frame in {}", GetLogFC()),
+         [this]() { return GetStartingNodeTension(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("EndingNodeTension", "N", fmt::format("Ending node tension in world reference frame in {}", GetLogFC()),
+         [this]() { return GetEndingNodeTension(GetLogFC()); });
   }
 
   void FrCatenaryLine::BuildCache() {

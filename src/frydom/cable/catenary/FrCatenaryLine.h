@@ -68,9 +68,21 @@ namespace frydom {
 
     void Initialize() override;
 
-    void StepFinalize() override;
+//    void StepFinalize() override;
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
+
+    /// Returns the cartesian tension at the start of the line.
+    /// This tension is applied by the line on its node
+    /// \param fc frame convention (NED/NWU)
+    /// \return tension applied by the line on the starting node
+    Force GetStartingNodeTension(FRAME_CONVENTION fc) const;
+
+    /// Returns the cartesian tension at the end of the line.
+    /// This tension is applied by the line on its node
+    /// \param fc frame convention (NED/NWU)
+    /// \return tension applied by the line on the ending node
+    Force GetEndingNodeTension(FRAME_CONVENTION fc) const;
 
     Direction GetTangent(const double s, FRAME_CONVENTION fc) const override;
 
@@ -154,6 +166,10 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
+    unsigned int GetIter() const { return c_iter;}
+    double GetCriterion() const { return c_criterion;}
+    double GetErr() const { return c_pos_error;}
+
     void BuildCache() override;
 
 
@@ -168,12 +184,18 @@ namespace frydom {
    private:
     Tension m_t0;
     std::vector<internal::PointForce> m_point_forces;
+    double m_relax;
 
     // Cache
+    FLUID_TYPE c_fluid;                 ///< cached value of the fluid type in which the catenary line is mostly in.
     std::vector<Force> c_Fi;
     std::vector<Force> c_sum_fs;
     mathutils::Matrix33<double> c_U; // This is (I - pi.pi^t)
     double c_qL;  // Used for adimensionalization of forces and tensions
+
+    unsigned int c_iter;
+    double c_pos_error;
+    double c_criterion;
 
   };
 
