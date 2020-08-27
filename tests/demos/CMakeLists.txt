@@ -34,6 +34,7 @@ set(BENCH
         FixedJacketStructure
         MorisonSingleImmersedElement
         MorisonCrossingElement
+        SpreadMooredFPSO
         )
 
 # Compile target

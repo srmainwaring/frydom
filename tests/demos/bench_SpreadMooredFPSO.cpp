@@ -61,7 +61,7 @@ int main(int agrc, char* argv[]) {
   Position refPos = {0., 0., 0.};
   auto anchor_P1 = seabed->NewAnchor("anchor_P1", refPos, 141.702, 1772.629, DEG, NWU);
   auto anchor_P2 = seabed->NewAnchor("anchor_P2" ,refPos, 136.892, 1763.576, DEG, NWU);
-  auto anchor_P3 = seabed->NewAnchor("anchor_P3", redPos, 132.130, 1748.153, DEG, NWU);
+  auto anchor_P3 = seabed->NewAnchor("anchor_P3", refPos, 132.130, 1748.153, DEG, NWU);
   auto anchor_P4 = seabed->NewAnchor("anchor_P4", refPos, 47.947, 1703.139, DEG, NWU);
   auto anchor_P5 = seabed->NewAnchor("anchor_P5", refPos, 43.112, 1714.879, DEG, NWU);
   auto anchor_P6 = seabed->NewAnchor("anchor_P6", refPos, 38.258, 1717.236, DEG, NWU);
@@ -100,7 +100,6 @@ int main(int agrc, char* argv[]) {
 
   // Mooring lines
 
-  double unstretchedLength = ;
   auto cableProp = make_cable_properties();
   cableProp->SetDiameter(0.1);
   cableProp->SetEA(9.18e8);
@@ -110,48 +109,48 @@ int main(int agrc, char* argv[]) {
   unsigned int nbElements = 50;
 
   auto line_P1 = make_catenary_line("line_P1", anchor_P1, fairlead_P1, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 2141.460, WATER);
 
   auto line_P2 = make_catenary_line("line_P2", anchor_P2, fairlead_P2, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 2138.360, WATER);
 
   auto line_P3 = make_catenary_line("line_P3", anchor_P3, fairlead_P3, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 2141.160, WATER);
 
   auto line_P4 = make_catenary_line("line_P4", anchor_P4, fairlead_P4, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 2068.100, WATER);
 
   auto line_P5 = make_catenary_line("line_P5", anchor_P5, fairlead_P5, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 2068.000, WATER);
 
   auto line_P6 = make_catenary_line("line_P6", anchor_P6, fairlead_P6, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 2068.800, WATER);
 
   auto line_S1 = make_catenary_line("line_S1", anchor_S1, fairlead_S1, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 1965.470, WATER);
 
   auto line_S2 = make_catenary_line("line_S2", anchor_S2, fairlead_S2, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 1964.870, WATER);
 
   auto line_S3 = make_catenary_line("line_S3", anchor_S3, fairlead_S3, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 1965.670, WATER);
 
   auto line_S4 = make_catenary_line("line_S4", anchor_S4, fairlead_S4, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 1907.300, WATER);
 
   auto line_S5 = make_catenary_line("line_S5", anchor_S5, fairlead_S5, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 1907.400, WATER);
 
   auto line_S6 = make_catenary_line("line_S6", anchor_S6, fairlead_S6, cableProp,
-                                    true, unstretchedLength, AIR);
+                                    true, 1907.500, WATER);
 
   // Simulation
 
   double dt = 0.01;
-  double t_max = 20.
+  double t_max = 20.;
 
   system.SetTimeStep(dt);
-  system.Initialize()
+  system.Initialize();
 
   bool is_irrlicht = true;
 
