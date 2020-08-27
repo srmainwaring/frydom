@@ -68,6 +68,8 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
+    // TODO : check avec Francois pour l'hydrostatique
+    // TODO : ajouter un assert sur la grandeur de q
     m_q = m_properties->GetLinearDensity() -
           m_properties->GetSectionArea() * GetSystem()->GetEnvironment()->GetFluidDensity(c_fluid);
     m_q *= GetSystem()->GetGravityAcceleration();
@@ -126,6 +128,9 @@ namespace frydom {
   }
 
   void FrCatenaryLine::solve() {
+
+    //TODO : keep the relaxation mecanism?
+    m_relax = 0.1;
 
     // Defining the linear solver
     Eigen::FullPivLU<Eigen::Matrix3d> linear_solver;
