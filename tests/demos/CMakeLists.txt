@@ -10,30 +10,18 @@ set(DEMOS
         Body
         Rotation_and_Frame
         Hydrodynamic
-#        Morison
-#        Cable
-#        Hub_Installation
+        Morison
+        Cable
+        Hub_Installation
         Langlee
-#        FOSWEC
-#        MooringLines
+        FOSWEC
+        MooringLines
         NonLinearHydrostatics
         Constraints
         Links
         Tensegrity
-#        HexagonalArticulatedBuoy
+        HexagonalArticulatedBuoy
         )
-
-#set(BENCH
-#        SphereDecay
-#        SphereRegular
-#        SphereIrregular
-#        DTMB5512
-##        Cables
-#        BoxDecayTests
-#        StabilityAnalysis
-#        HS_equilibrium
-#        FEACable_Orcaflex
-#        )
 
 # Compile target
 foreach (test ${DEMOS})

@@ -19,14 +19,16 @@
 #include "frydom/utils/FrRecorder.h"
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrPhysicsItem.h"
+#include "frydom/core/common/FrTreeNode.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 
 namespace frydom {
 
   // Forward declarations
   class FrHydroDB;
 
-  class FrBEMBody;
+//  class FrBEMBody;
 
   class FrHydroMapper;
 
@@ -57,11 +59,6 @@ namespace frydom {
                               FrOffshoreSystem *system,
                               std::shared_ptr<FrHydroDB> HDB);
 
-    /// \return Pointer to the offshore system
-    inline FrOffshoreSystem *GetSystem() const {
-      return GetParent();
-    }
-
     /// Return true if the radiation model is included in the static analysis
     bool IncludedInStaticAnalysis() const override { return false; }
 
@@ -89,14 +86,17 @@ namespace frydom {
     /// \return Radiation torque
     Torque GetRadiationTorque(FrBody *body) const;
 
+    /// Return the generalized force part relative to the added mass term
+    /// \param body Body for which the motion is considered
+    /// \return Part the the radiation force linked with the acceleration of the body
+    GeneralizedForce GetRadiationInertiaPart(FrBody *body) const;
+
     /// Method to initialize the radiation model
     void Initialize() override;
 
     /// Return the mapper between body and BEM body database
     /// \return Mapper
     FrHydroMapper *GetMapper() const;
-
-//    FrOffshoreSystem *GetSystem() const;
 
    private:
 
@@ -108,7 +108,85 @@ namespace frydom {
 
 
   // -------------------------------------------------------------------------
-  // Radiation model with convolution
+  // Radiation model with recursive convolution
+  // -------------------------------------------------------------------------
+
+  using RealPoleResiduePair = HDB5_io::RealPoleResiduePair;
+  using CCPoleResiduePair = HDB5_io::CCPoleResiduePair;
+
+  /**
+   * \class FrRadiationConvolutionModel
+   * \brief Class for computing the convolution integrals.
+   */
+  class FrRadiationRecursiveConvolutionModel : public FrRadiationModel {
+
+   public:
+    /// Default constructor
+    FrRadiationRecursiveConvolutionModel(const std::string &name,
+                                         FrOffshoreSystem *system,
+                                         std::shared_ptr<FrHydroDB> HDB);
+
+   private:
+
+//    mathutils::VectorN<double>               c_velocities;
+//    mathutils::VectorN<std::complex<double>> c_states;
+//    mathutils::VectorN<std::complex<double>> c_alpha;
+//    mathutils::VectorN<std::complex<double>> c_beta0;
+//    mathutils::VectorN<std::complex<double>> c_beta1;
+
+    Eigen::VectorXcd c_poles;
+    Eigen::VectorXcd c_residues;
+    Eigen::ArrayXd   c_velocities;
+    Eigen::ArrayXcd  c_states;
+    Eigen::ArrayXcd  c_alpha;
+    Eigen::ArrayXcd  c_beta0;
+    Eigen::ArrayXcd  c_beta1;
+    double           c_deltaT;
+    double           c_time;
+    unsigned int     c_N_poles;
+
+    std::unordered_map<FrBEMBody *, GeneralizedVelocity> c_previousVelocity;
+//    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
+//    std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
+
+    /// Method to initialize the radiation model
+    void Initialize() override;
+
+
+    /// Compute the radiation convolution.
+    /// \param time Current time of the simulation from beginning, in seconds
+    void Compute(double time) override;
+
+    template<typename T>
+    T TrapezoidaleIntegration(T previousState, double velocity, double previousVelocity,
+                              HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
+
+    template<typename T>
+    T PiecewiseLinearIntegration(T previousState, double velocity, double previousVelocity,
+                                 HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
+
+
+    template<typename T>
+    mathutils::Vector3d<T> PiecewiseLinearIntegration(mathutils::Vector3d<T> previousStates, double velocity,
+                                                      double previousVelocity, mathutils::Vector3d<T> poles,
+                                                      double DeltaT);
+
+    void Compute_PieceWiseLinearCoefficients(const Eigen::ArrayXcd& poles, double dt);
+
+    Eigen::ArrayXd GetVelocities() const;
+
+    // TODO:: Add const to FrBEMBody
+    GeneralizedForce Compute_RadiationForce(FrBEMBody* body, int &indice) const;
+
+  };
+
+
+  std::shared_ptr<FrRadiationRecursiveConvolutionModel>
+  make_recursive_convolution_model(const std::string &name,
+                                   FrOffshoreSystem *system,
+                                   std::shared_ptr<FrHydroDB> HDB);
+  // -------------------------------------------------------------------------
+  // Radiation model with classic convolution
   // -------------------------------------------------------------------------
 
   /**
@@ -119,8 +197,6 @@ namespace frydom {
 
    private:
     std::unordered_map<FrBEMBody *, FrTimeRecorder<GeneralizedVelocity> > m_recorder;    ///< Recorder of the perturbation velocity of the body at COG
-    double m_Te = -9.;      ///< Persistence time of the recorder
-    double m_dt = -9.;      ///< Time step of the recorder
 
    public:
     /// Default constructor
@@ -154,10 +230,17 @@ namespace frydom {
     /// \param dt Time step
     void SetImpulseResponseSize(double Te, double dt);
 
-    /// Return the generalized force part relative to the added mass term
-    /// \param body Body for which the motion is considered
-    /// \return Part the the radiation force linked with the acceleration of the body
-    GeneralizedForce GetRadiationInertiaPart(FrBody *body) const;
+    /// Return the impulse response function size
+    /// \param BEMBody BEM body database corresponding to the body to which the radiation force is applied
+    /// \param Te Time length
+    /// \param dt Time step
+    void GetImpulseResponseSize(FrBEMBody *body, double &Te, double &dt) const;
+
+    /// Return the impulse response function size
+    /// \param body Body to which the radiation force is applied
+    /// \param Te Time length
+    /// \param dt Time step
+    void GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const;
 
    private:
 
@@ -165,16 +248,10 @@ namespace frydom {
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
 
-    /// Return the impulse response function size
-    /// \param Te Time length
-    /// \param dt Time step
-    /// \param N Number of time step
-    void GetImpulseResponseSize(double &Te, double &dt, unsigned int &N) const;
-
     /// Compute the the convolution part of the radiation force linked with steady speed
     /// \param meanSpeed Steady speed of the body
     /// \return Generalized force
-    GeneralizedForce ConvolutionKu(double meanSpeed) const;
+    GeneralizedForce ForwardSpeedCorrection(FrBEMBody *BEMBody) const;
   };
 
   std::shared_ptr<FrRadiationConvolutionModel>

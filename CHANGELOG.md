@@ -3,6 +3,20 @@
 This is the Changelog of the FRyDom framework.
 This file should be kept up to date following [these guidelines](https://keepachangelog.com/en/1.0.0/)
 
+## [Unreleased]
+
+### Added
+- New recursive convolution for the radiation model, based on modal coefficients
+
+### Changed
+- Hydrodynamic databases read using HDB5_IO
+- New HDB format version 3.0
+- HDB5Tool updated to new HDB format
+
+### Fixed
+- Excitation force computation for hdb with a forceMask
+- Forward speed correction for the radiation force
+
 ## [3.1] - 2020-02-06
 
 ### Changed

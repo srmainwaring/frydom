@@ -31,7 +31,12 @@ set(hermes_TAG FR_log_frydom_refactoring)
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.2)
+set(mathutils_TAG v1.3)
+
+
+# HDB5_IO
+set(hdb5io_URL git@frydom-ce.org:ce/hdb5-io.git)
+set(hdb5io_TAG develop)
 
 
 # TimeZone
@@ -52,7 +57,8 @@ set(json_TAG v3.6.1)
 
 # OpenMesh
 set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
-set(openmesh_TAG OpenMesh-7.0)
+set(openmesh_TAG OpenMesh-8.0)
+
 
 
 # spdlog

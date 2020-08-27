@@ -390,8 +390,13 @@ class NemohReader(_BEMReader):
 
                 mesh.name, _ = os.path.splitext(meshfile)
 
+                # Fix problem of convertion between bytes and string when using h5py.
+                if (mesh.name[0:2] == "b'" and mesh.name[-1] == "'"):
+                    mesh.name = mesh.name[2:-1]
+
                 # Instantiating BodyDB.
-                body = body_db.BodyDB(ibody, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir , mesh)
+                body = body_db.BodyDB(ibody, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir, mesh)
+                body.name = mesh.name
 
                 # RADIATION.
                 nb_dof = int(f.readline().split()[0])

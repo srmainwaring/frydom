@@ -22,7 +22,6 @@ import meshmagick.MMviewer
 Dof_notation = [r'x', r'y', r'z', r'\phi', r'\theta', r'\psi']
 Dof_name = ["surge", "sway", "heave", "roll", "pitch", "yaw"]
 
-
 def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, show=True, save=False, filename="Loads.png"):
     """Plots the diffraction or Froude-Krylov or excitation response function of a given modes set.
 
@@ -287,6 +286,7 @@ def plot_AB_array(data, w, ibody_force, ibody_motion, pyHDB):
     plt.suptitle(title)
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.subplots_adjust(top=0.88)
 
     # Show the plot.
     plt.show()

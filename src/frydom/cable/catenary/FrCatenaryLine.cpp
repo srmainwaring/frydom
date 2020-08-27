@@ -88,7 +88,6 @@ namespace frydom {
 
     FrCatenaryLineBase::Initialize();
   }
-
 //  void FrCatenaryLine::StepFinalize() {}
 
   Force FrCatenaryLine::GetTension(const double &s, FRAME_CONVENTION fc) const {

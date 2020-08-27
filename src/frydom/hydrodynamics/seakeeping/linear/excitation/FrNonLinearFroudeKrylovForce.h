@@ -27,6 +27,8 @@
 #include "frydom/mesh/FrHydroMesh.h"
 #include "FrLinearHDBForce.h"
 
+#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+
 namespace frydom {
 
   // Forward declarations.

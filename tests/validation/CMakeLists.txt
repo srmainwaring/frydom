@@ -9,6 +9,7 @@ set(VALIDATION_CASES
         bench_SphereIrregular
         bench_SphereRegular
         bench_StabilityAnalysis
+        bench_Recursive_convolution
         )
 
 foreach (bench ${VALIDATION_CASES})
