@@ -8,9 +8,6 @@ set(SRC_FILES
         catenary/FrCatenaryLineBase.cpp
         catenary/FrCatenaryLine.cpp
         catenary/FrCatenaryLineSeabed.cpp
-        catenary_ee444075/FrCable_ee444.cpp
-        catenary_ee444075/FrCatenaryForce_ee444.cpp
-        catenary_ee444075/FrCatenaryLine_ee444.cpp
 
         lumped/FrLumpedMassCable.cpp
 

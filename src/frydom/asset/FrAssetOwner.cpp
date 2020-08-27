@@ -23,7 +23,6 @@
 #include "shape/FrSphereShape.h"
 #include "shape/FrTriangleMeshShape.h"
 #include "frydom/cable/catenary/FrCatenaryLineBase.h"
-#include "frydom/cable/catenary_ee444075/FrCatenaryLine_ee444.h"
 #include "frydom/core/common/FrPhysicsItem.h"
 
 
@@ -191,11 +190,6 @@ namespace frydom {
       }
 
       if (auto catenary_line_base = dynamic_cast<FrCatenaryLineBase *>(assetOwner)) {
-        // FIXME: voir si on a besoin de differencier catenary line & hydro_mesh
-        return internal::GetChronoPhysicsItem(catenary_line_base);
-      }
-
-      if (auto catenary_line_base = dynamic_cast<FrCatenaryLine_ee444 *>(assetOwner)) {
         // FIXME: voir si on a besoin de differencier catenary line & hydro_mesh
         return internal::GetChronoPhysicsItem(catenary_line_base);
       }

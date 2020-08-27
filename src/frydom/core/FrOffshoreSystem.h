@@ -786,8 +786,6 @@ namespace frydom {
 
     void AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base);
 
-    void AddCatenaryLine(std::shared_ptr<FrCatenaryLine_ee444> catenary_line);
-
     void AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame);
 
     void AddRadiationModel(std::shared_ptr<FrRadiationModel> radiation_model);

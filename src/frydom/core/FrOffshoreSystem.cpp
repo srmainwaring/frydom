@@ -36,7 +36,6 @@
 #include "frydom/cable/fea/FrFEALink.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
-#include "frydom/cable/catenary_ee444075/FrCatenaryLine_ee444.h"
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/environment/FrEnvironment.h"
@@ -400,12 +399,6 @@ namespace frydom {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(catenary_line_base));
     m_physicsItemsList.push_back(catenary_line_base);
     event_logger::info(GetTypeName(), GetName(), "A Catenary line has been ADDED to the system");
-  }
-
-  void FrOffshoreSystem::AddCatenaryLine(std::shared_ptr<FrCatenaryLine_ee444> catenary_line) {
-    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(catenary_line));
-    m_physicsItemsList.push_back(catenary_line);
-    event_logger::info(GetTypeName(), GetName(), "A catenary line has been ADDED to the system");
   }
 
   void FrOffshoreSystem::AddEquilibriumFrame(std::shared_ptr<FrEquilibriumFrame> equilibrium_frame) {
@@ -1418,10 +1411,6 @@ namespace frydom {
       // MUST BE BEFORE PHYSICS ITEM
     } else if (auto catenary_line = std::dynamic_pointer_cast<FrCatenaryLineBase>(item)) {
       AddCatenaryLineBase(catenary_line);
-      m_pathManager->RegisterTreeNode(catenary_line.get());
-
-    } else if (auto catenary_line = std::dynamic_pointer_cast<FrCatenaryLine_ee444>(item)) {
-      AddCatenaryLine(catenary_line);
       m_pathManager->RegisterTreeNode(catenary_line.get());
 
     } else if (auto equilibrium_frame = std::dynamic_pointer_cast<FrEquilibriumFrame>(item)) {
