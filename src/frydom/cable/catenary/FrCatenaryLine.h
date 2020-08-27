@@ -72,6 +72,18 @@ namespace frydom {
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
+    /// Returns the cartesian tension at the start of the line.
+    /// This tension is applied by the line on its node
+    /// \param fc frame convention (NED/NWU)
+    /// \return tension applied by the line on the starting node
+    Force GetStartingNodeTension(FRAME_CONVENTION fc) const;
+
+    /// Returns the cartesian tension at the end of the line.
+    /// This tension is applied by the line on its node
+    /// \param fc frame convention (NED/NWU)
+    /// \return tension applied by the line on the ending node
+    Force GetEndingNodeTension(FRAME_CONVENTION fc) const;
+
     Direction GetTangent(const double s, FRAME_CONVENTION fc) const override;
 
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;

@@ -96,6 +96,14 @@ namespace frydom {
     return tension;
   }
 
+  Force FrCatenaryLine::GetStartingNodeTension(FRAME_CONVENTION fc) const {
+    return GetTension(0, NWU);
+  }
+
+  Force FrCatenaryLine::GetEndingNodeTension(FRAME_CONVENTION fc) const {
+    return -GetTension(GetUnstretchedLength(), NWU);
+  }
+
   Direction FrCatenaryLine::GetTangent(const double s, FRAME_CONVENTION fc) const {
     Direction direction = t(s / m_unstretchedLength).normalized();
     if (IsNED(fc)) {
@@ -511,11 +519,11 @@ namespace frydom {
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("StartingNodeTension", "N", fmt::format("Starting node tension in world reference frame in {}", GetLogFC()),
-         [this]() { return GetTension(0., GetLogFC()); });
+         [this]() { return GetStartingNodeTension(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("EndingNodeTension", "N", fmt::format("Ending node tension in world reference frame in {}", GetLogFC()),
-         [this]() { return -GetTension(GetUnstretchedLength(), GetLogFC()); });
+         [this]() { return GetEndingNodeTension(GetLogFC()); });
   }
 
   void FrCatenaryLine::BuildCache() {
