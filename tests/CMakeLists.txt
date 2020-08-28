@@ -7,7 +7,7 @@ message(STATUS "Test programs for FRyDoM framework...")
 set(FRYDOM_DATA_FOLDER ${CMAKE_SOURCE_DIR}/data)
 
 
-set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/../logs)
+set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/../bin)
 configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/../bin/.frydom_config)
 
 # FIXME : reactivate options?
