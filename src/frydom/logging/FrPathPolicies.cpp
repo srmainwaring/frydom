@@ -69,12 +69,6 @@ namespace frydom {
 
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrHydroMesh, "")
 
-  class FrCatenaryLine_ee444;
-  TYPE_TO_NORMALIZED_PATH_PREFIX(FrCatenaryLine_ee444,"");
-
-  class FrCatenaryForce_ee444;
-  TYPE_TO_NORMALIZED_PATH_PREFIX(FrCatenaryForce_ee444,"");
-
   class FrMorisonCompositeElement;
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrMorisonCompositeElement, "");
 
