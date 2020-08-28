@@ -49,7 +49,7 @@ foreach (test ${UNIT_TESTS})
 
     set_target_properties( ${test}
             PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/unit_tests"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
     add_test(NAME ${test}
             COMMAND ${test})
