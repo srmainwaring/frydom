@@ -28,6 +28,11 @@ foreach (test ${DEMOS})
     message(STATUS "        ...add demo_${test}")
     add_executable(demo_${test} demo_${test}.cpp)
     target_link_libraries(demo_${test} FRyDoM_Engine)
+
+    set_target_properties( demo_${test}
+            PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos"
+            )
 endforeach ()
 
 #foreach (test ${BENCH})

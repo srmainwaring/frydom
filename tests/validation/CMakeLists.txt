@@ -2,21 +2,26 @@
 message(STATUS "    ...VALIDATION CASES :")
 
 set(VALIDATION_CASES
-        bench_BoxDecayTests
-        bench_DTMB5512
-        bench_HS_equilibrium
-        bench_SphereDecay
-        bench_SphereIrregular
-        bench_SphereRegular
-        bench_StabilityAnalysis
-        bench_Recursive_convolution
+        BoxDecayTests
+        DTMB5512
+        HS_equilibrium
+        SphereDecay
+        SphereIrregular
+        SphereRegular
+        StabilityAnalysis
+        Recursive_convolution
         )
 
-foreach (bench ${VALIDATION_CASES})
-    message(STATUS "        ...add ${bench}")
+foreach (test ${VALIDATION_CASES})
+    message(STATUS "        ...add bench_${test}")
 
-    add_executable(${bench} ${bench}.cpp)
-    target_link_libraries(${bench} FRyDoM_Engine)
+    add_executable(bench_${test} bench_${test}.cpp)
+    target_link_libraries(bench_${test} FRyDoM_Engine)
+
+    set_target_properties( bench_${test}
+            PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/validation"
+            )
 
 endforeach ()
 
