@@ -35,5 +35,3 @@ if (${frydom_build_validation})
     add_subdirectory(validations)
 endif ()
 
-add_subdirectory(validations)
-

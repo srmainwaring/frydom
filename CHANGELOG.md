@@ -12,6 +12,8 @@ This file should be kept up to date following [these guidelines](https://keepach
 - Hydrodynamic databases read using HDB5_IO
 - New HDB format version 3.0
 - HDB5Tool updated to new HDB format
+- Catenary line model refactored
+- FEA line model refactored
 
 ### Fixed
 - Excitation force computation for hdb with a forceMask
