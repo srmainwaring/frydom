@@ -47,10 +47,10 @@ foreach (test ${UNIT_TESTS})
     add_executable(${test} ${test}.cpp)
     target_link_libraries(${test} FRyDoM_Engine gtest_main)
 
-    set_target_properties( ${test}
-            PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-            )
+#    set_target_properties( ${test}
+#            PROPERTIES
+#            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+#            )
     add_test(NAME ${test}
             COMMAND ${test})
 endforeach ()
