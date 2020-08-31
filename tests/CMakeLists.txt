@@ -7,13 +7,13 @@ message(STATUS "Test programs for FRyDoM framework...")
 set(FRYDOM_DATA_FOLDER ${CMAKE_SOURCE_DIR}/data)
 
 
-#set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/../bin)
-#configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/../bin/.frydom_config)
+set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/../logs)
+configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/../bin/.frydom_config)
 
 # FIXME : reactivate options?
 if (${frydom_build_dev_test})
-    set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/dev_tests)
-    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/dev_tests/.frydom_config)
+#    set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/dev_tests)
+#    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/dev_tests/.frydom_config)
     add_subdirectory(dev_tests)
 endif ()
 
@@ -24,10 +24,16 @@ if (${frydom_build_unit_test})
 endif ()
 
 if (${frydom_build_demo})
-    set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/demo)
-    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/demos/.frydom_config)
+#    set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/demo)
+#    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/demos/.frydom_config)
     add_subdirectory(demos)
 endif ()
 
-add_subdirectory(validation)
+if (${frydom_build_validation})
+#    set(FRYDOM_LOG_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/validations)
+#    configure_file(frydom_config.in ${CMAKE_CURRENT_BINARY_DIR}/validations/.frydom_config)
+    add_subdirectory(validations)
+endif ()
+
+add_subdirectory(validations)
 
