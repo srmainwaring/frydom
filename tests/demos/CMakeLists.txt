@@ -31,7 +31,7 @@ foreach (test ${DEMOS})
 
     set_target_properties( demo_${test}
             PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
 endforeach ()
 

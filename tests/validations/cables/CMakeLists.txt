@@ -14,7 +14,7 @@ foreach (test ${CABLE_VALIDATION_CASES})
 
     set_target_properties( bench_${test}
             PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/validations"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
 
 endforeach ()
