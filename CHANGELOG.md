@@ -7,13 +7,16 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Added
 - New recursive convolution for the radiation model, based on modal coefficients
+- New catenary line model, replacing the old one : FrCatenaryLine
+- New finite element line model, FrFEACable, replacing the old one : FrDynamicCable
+- New field with a height variation, for current and wind models : FrHeightVaryingField
 
 ### Changed
 - Hydrodynamic databases read using HDB5_IO
 - New HDB format version 3.0
 - HDB5Tool updated to new HDB format
-- Catenary line model refactored
-- FEA line model refactored
+- Morison model extended, with added mass terms
+- Logs mechanisms : de/activation, every n timesteps
 
 ### Fixed
 - Excitation force computation for hdb with a forceMask
