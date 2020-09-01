@@ -184,7 +184,6 @@ namespace frydom {
    private:
     Tension m_t0;
     std::vector<internal::PointForce> m_point_forces;
-    double m_relax;
 
     // Cache
     FLUID_TYPE c_fluid;                 ///< cached value of the fluid type in which the catenary line is mostly in.
