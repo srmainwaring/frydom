@@ -153,6 +153,11 @@ namespace frydom {
 
   TYPE_TO_STRING(FrPrismaticRevoluteLink, "PrismaticRevoluteLink")
 
+  namespace internal {
+    class FrFEALinkBase;
+  }
+  TYPE_TO_STRING(internal::FrFEALinkBase, "FEALinkBase")
+
 
   // CONSTRAINTS
 
@@ -201,6 +206,9 @@ namespace frydom {
 
   TYPE_TO_STRING(FrLumpedMassCable, "LumpedMassCable")
 
+  // MORISON ELEMENTS
+  class FrMorisonCompositeElement;
+  TYPE_TO_STRING(FrMorisonCompositeElement, "MorisonElements");
 
 }
 

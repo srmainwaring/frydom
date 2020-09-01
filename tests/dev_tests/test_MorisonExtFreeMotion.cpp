@@ -164,10 +164,10 @@ int main(int argc, char* argv[]) {
   //body->SetPosition({0., 0., 2.}, NWU);
   //body->SetPosition({0., 0., 0.}, NWU);
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
-    system.RunInViewer(t_end, 100.);
+//    system.RunInViewer(t_end, 100.);
 
   } else {
     while (time < t_end) {

@@ -18,7 +18,7 @@
 #include "FrException.h"
 #include "FrFrame.h"
 #include "FrNode.h"
-#include "FrObject.h"
+//#include "FrObject.h"
 #include "FrPhysicsItem.h"
 #include "FrFEAMesh.h"
 #include "FrRotation.h"

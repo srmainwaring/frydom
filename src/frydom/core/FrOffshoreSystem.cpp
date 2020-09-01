@@ -23,25 +23,29 @@
 
 #include "frydom/core/link/links_lib/FrLink.h"
 #include "frydom/core/link/links_lib/actuators/FrActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
+#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
 #include "frydom/core/link/constraint/FrConstraint.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/core/common/FrFEAMesh.h"
+#include "frydom/core/statics/FrStaticAnalysis.h"
+
+#include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
+
 #include "frydom/cable/fea/FrFEACable.h"
+#include "frydom/cable/fea/FrFEALink.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
 #include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/environment/FrEnvironment.h"
-#include "frydom/utils/FrIrrApp.h"
-#include "frydom/core/statics/FrStaticAnalysis.h"
+
+#ifndef H5_NO_IRRLICHT
+  #include "frydom/utils/FrIrrApp.h"
+#endif
+
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
-#include "frydom/cable/fea/FrFEALink.h"
-
-#include "frydom/core/link/links_lib/actuators/FrLinearActuator.h"
-#include "frydom/core/link/links_lib/actuators/FrAngularActuator.h"
-
-#include "frydom/core/math/functions/ramp/FrCosRampFunction.h"
 
 #include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrPathManager.h"
@@ -50,6 +54,9 @@
 
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/logging/FrSerializerFactory.h"
+
+#include "frydom/hydrodynamics/morison/FrMorisonElements.h"
+
 
 
 namespace frydom {
@@ -387,6 +394,7 @@ namespace frydom {
       Remove(actuator);
   }
 
+
   void FrOffshoreSystem::AddCatenaryLineBase(std::shared_ptr<FrCatenaryLineBase> catenary_line_base) {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(catenary_line_base));
     m_physicsItemsList.push_back(catenary_line_base);
@@ -431,6 +439,11 @@ namespace frydom {
     return m_physicsItemsList;
   }
 
+  void FrOffshoreSystem::AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements) {
+    m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(morison_elements));
+    m_physicsItemsList.push_back(morison_elements);
+    event_logger::info(GetTypeName(), GetName(), "Morison elements have been ADDED to the system");
+  }
 
 // ***** FEAMesh *****
 
@@ -598,8 +611,13 @@ namespace frydom {
       return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetTotalIterations();
     });
 
-    if (dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
+    msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); }); 
 
+    msg->AddField<double>("residual_log", "", "residual of the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetResidualLog(); }); 
+
+    msg->AddField<double>("max_delta_unknowns", "", "", [this]() { return m_chronoSystem->GetSolver()->GetMaxDeltaUnknowns(); });
+
+    if (dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
       msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
         return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
       });
@@ -714,6 +732,9 @@ namespace frydom {
         break;
       case MINRES:
         m_chronoSystem->SetSolverType(SOLVERS::MINRES);
+        break;
+      case PMINRES:
+        m_chronoSystem->SetSolverType(SOLVERS::PMINRES);
         break;
       case SOLVER_SMC:
         m_chronoSystem->SetSolverType(SOLVERS::SOLVER_SMC);
@@ -1165,6 +1186,7 @@ namespace frydom {
   }
 
 
+#ifndef H5_NO_IRRLICHT
 // Irrlicht visualization
 
   FrIrrApp *FrOffshoreSystem::GetIrrApp() const {
@@ -1250,6 +1272,7 @@ namespace frydom {
   void FrOffshoreSystem::VisualizeStaticAnalysis() {
     VisualizeStaticAnalysis(100);
   }
+#endif
 
   void FrOffshoreSystem::AddAsset(std::shared_ptr<chrono::ChAsset> asset) {
     m_chronoSystem->AddAsset(std::move(asset));
@@ -1406,7 +1429,10 @@ namespace frydom {
 //      AddPhysicsItem(equilibrium_frame);
 //      m_pathManager->RegisterTreeNode(equilibrium_frame.get());
 
-
+      // MORISON MODEL
+    } else if (auto morison = std::dynamic_pointer_cast<FrMorisonCompositeElement>(item)) {
+      AddMorisonElements(morison);
+      m_pathManager->RegisterTreeNode(morison.get());
 
       // RADIATION MODEL
     } else if (auto model = std::dynamic_pointer_cast<FrRadiationModel>(item)) {
@@ -1425,6 +1451,22 @@ namespace frydom {
     } else if (auto fea_cable = std::dynamic_pointer_cast<FrFEACable>(item)) {
       AddFEACable(fea_cable);
       m_pathManager->RegisterTreeNode(fea_cable.get());
+      //##CC
+      std::cout << "debug : FrOffshoreSystem : add fea cable" << std::endl;
+      auto fea_mesh = internal::GetChronoFEAMesh(fea_cable);
+      auto start_link = fea_mesh->GetStartLink();
+      auto end_link = fea_mesh->GetEndLink();
+      m_pathManager->RegisterTreeNode(start_link.get());
+      m_pathManager->RegisterTreeNode(end_link.get());
+      std::cout << "debug : FrOffshoreSystem : ad fea link" << std::endl;
+
+      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(start_link)) {
+        m_logManager->Add(loggable);
+      }
+      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(end_link)) {
+        m_logManager->Add(loggable);
+      }
+      //##
 
     } else if (auto clump_weight = std::dynamic_pointer_cast<FrClumpWeight>(item)) {
       AddClumpWeight(clump_weight);

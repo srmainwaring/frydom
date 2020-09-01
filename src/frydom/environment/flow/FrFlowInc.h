@@ -18,5 +18,6 @@
 
 #include "FrFieldBase.h"
 #include "FrUniformField.h"
+#include "FrHeightVaryingField.h"
 
 #endif //FRYDOM_FRFLOWINC_H

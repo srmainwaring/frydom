@@ -298,6 +298,10 @@ namespace frydom {
 
   Velocity FrMorisonSingleElement::GetFlowVelocity() {
 
+    //##LL : no computation of flow velocity above the flow...
+    if (not m_isImmerged) return {0., 0., 0.};
+    //##LL
+
     Velocity velocity;
     Position worldPos = m_node->GetPositionInWorld(NWU);
     auto body = m_node->GetBody();
@@ -313,12 +317,6 @@ namespace frydom {
 
     //Velocity velocityBody = body->GetFrame().ProjectVectorParentInFrame(velocity, NWU);
     Velocity velocityNode = m_node->GetFrameInWorld().ProjectVectorParentInFrame(velocity, NWU);
-
-    //##CC
-    if (not m_isImmerged) {
-      velocityNode = {0., 0., 0.};
-    }
-    //##CC
 
     return velocityNode;
   }
@@ -374,6 +372,8 @@ namespace frydom {
     Force localForce;
     Vector3d<double> Cd = {m_property.cd.x, m_property.cd.y, M_PI * m_property.cf};
     localForce = 0.5 * rho * m_property.diameter * m_property.length * Vnorm_n * velocity_n.cwiseProduct(Cd);
+    // friction
+    localForce.z() = 0.5 * rho * m_property.diameter * m_property.length * std::abs(velocity.z()) * velocity.z() * Cd[2];
 
     // Flow acceleration part
     if (m_extendedModel and m_isImmerged) {
@@ -533,7 +533,7 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
-      m_chronoPhysicsItem->Update(time, false);
+      //m_chronoPhysicsItem->Update(time, false);
     }
   }
 

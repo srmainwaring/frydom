@@ -43,6 +43,8 @@ namespace frydom {
 
       chrono::ChVector<double> GetTangent(const double eta);
 
+      int GetOrder() const { return order; }
+
      public:
       FrEnvironment* m_environment;
 

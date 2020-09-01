@@ -38,7 +38,7 @@ namespace frydom {
   }
 
   void FrFlowBase::MakeFieldUniform() {
-    NewField<FrUniformField>();
+     NewField<FrUniformField>();
 //        m_field = std::make_unique<FrUniformField>();
   }
 
