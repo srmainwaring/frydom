@@ -72,4 +72,9 @@ namespace frydom {
   class FrMorisonCompositeElement;
   TYPE_TO_NORMALIZED_PATH_PREFIX(FrMorisonCompositeElement, "");
 
+  namespace internal {
+    class FrFEALinkBase;
+  }
+  TYPE_TO_NORMALIZED_PATH_PREFIX(internal::FrFEALinkBase, "LINKS/FEA_LINKS_")
+
 }  // end namespace frydom

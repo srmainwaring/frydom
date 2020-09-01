@@ -55,6 +55,10 @@ namespace frydom {
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
+    //Force GetForceAtStartLink(FRAME_CONVENTION fc);
+
+    //Force GetForceAtEndLink(FRAME_CONVENTION fc);
+
     Position GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const override;
 
     void Initialize() override;
@@ -77,6 +81,11 @@ namespace frydom {
 
     std::shared_ptr<FrClumpWeight> AddClumpWeight(const std::string &name, const double &s, const double &distance);
 
+    Force GetForceStartNodeInWorld(FRAME_CONVENTION fc);
+
+    Force GetForceEndNodeInWorld(FRAME_CONVENTION fc);
+
+    Force GetForceEndNodeInBody(FRAME_CONVENTION fc);
 
    protected:
 
@@ -127,6 +136,8 @@ namespace frydom {
                  double unstretched_length,
                  unsigned int nb_elements);
 
+  // forward declatation
+  class FrOffshoreSystem;
 
   namespace internal {
 
@@ -137,7 +148,7 @@ namespace frydom {
     class FrFEACableBase : public FrFEAMeshBase {
 
      public:
-      explicit FrFEACableBase(FrFEACable *cable);
+      explicit FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system);
 
       std::shared_ptr<FrFEALinkBase> GetStartLink();
 

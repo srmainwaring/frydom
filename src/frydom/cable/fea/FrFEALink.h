@@ -8,23 +8,56 @@
 #include <chrono/physics/ChLinkMate.h>
 #include <chrono/physics/ChLinkDistance.h>
 
+#include "frydom/core/math/FrVector.h"
+#include "frydom/core/common/FrRotation.h"
+#include "frydom/core/force/FrForce.h"
+#include "frydom/logging/FrLoggable.h"
+
 
 namespace frydom {
 
+  class FrOffshoreSystem;
 
   // Forward declaration
   class FrNode;
 
   namespace internal {
 
-    class FrFEALinkBase : public chrono::ChLinkMateGeneric { // TODO: en faire un loggable ???
+    class FrFEALinkBase : public chrono::ChLinkMateGeneric, public FrLoggable<FrOffshoreSystem> { // TODO: en faire un loggable ???
+
      public:
-      FrFEALinkBase(bool mc_x = true,
+
+      FrFEALinkBase(const std::string& name,
+                    FrOffshoreSystem* system,
+                    bool mc_x = true,
                     bool mc_y = true,
                     bool mc_z = true,
                     bool mc_rx = true,
                     bool mc_ry = true,
                     bool mc_rz = true);
+
+      inline FrOffshoreSystem *GetOffshoreSystem() const {
+        return GetParent();
+      }
+
+      const std::string &GetName() const { return FrLoggable<FrOffshoreSystem>::GetName(); }
+
+      const Position GetNode1PositionInWorld(FRAME_CONVENTION fc) const;
+
+      const Position GetNode2PositionInWorld(FRAME_CONVENTION fc) const;
+
+      const Position GetNodePosition1WRT2(FRAME_CONVENTION fc) const;
+
+      void UpdateCache();
+
+     protected:
+
+      void DefineLogMessages() override;
+
+     private:
+
+      FrFrame c_frame1Abs;
+      FrFrame c_frame2Abs;
 
     };
 
