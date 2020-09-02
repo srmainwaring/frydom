@@ -60,6 +60,8 @@ namespace frydom {
     void Set(std::vector<double> heights, std::vector<double> velocities, SPEED_UNIT speedUnit,
         double angle, ANGLE_UNIT angleUnit,  FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
 
+    void ReadJSON(const std::string &json_file);
+
    private:
 
     mathutils::Interp1dLinear<double, double> m_fieldInterpolator;

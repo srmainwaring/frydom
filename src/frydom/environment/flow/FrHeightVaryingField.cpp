@@ -11,6 +11,11 @@
 
 #include "FrHeightVaryingField.h"
 
+#include <string>
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 namespace frydom {
 
   Velocity frydom::FrHeightVaryingField::GetFluxVelocityInWorld(const frydom::Position &worldPos,
@@ -75,6 +80,53 @@ namespace frydom {
                                  double angle, ANGLE_UNIT angleUnit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) {
     if (angleUnit == mathutils::DEG) angle *= DEG2RAD; // Convert in RAD
     Set(heights, velocities, speedUnit, {cos(angle), sin(angle), 0}, fc, dc);
+  }
+
+  void FrHeightVaryingField::ReadJSON(const std::string &json_file) {
+    std::ifstream ifs(json_file);
+    auto json_obj = json::parse(ifs);
+
+    if (json_obj.find("field") == json_obj.end()) {
+      std::cout << "error : field is not defined in the input file :" << json_file << std::endl;
+      ifs.close();
+      exit(1);
+    }
+
+    auto param = json_obj["field"];
+
+    auto angle = param.at("angle").get<double>();
+
+    auto angle_unit_str = param.at("angle_unit").get<std::string>();
+
+    ANGLE_UNIT angle_unit;
+    if (angle_unit_str == "DEG") {
+      angle_unit = mathutils::DEG;
+    } else if (angle_unit_str == "RAD") {
+      angle_unit = mathutils::RAD;
+    } else {
+      throw FrException("unknown value for the angle unit value");
+    }
+
+    SPEED_UNIT speed_unit;
+    auto speed_unit_str = param.at("speed_unit").get<std::string>();
+    if (speed_unit_str == "MS") {
+      speed_unit = mathutils::MS;
+    } else if (speed_unit_str == "KNOT") {
+      speed_unit = mathutils::KNOT;
+    } else if (speed_unit_str == "KMH") {
+      speed_unit = mathutils::KMH;
+    } else {
+      throw FrException("unknown value for the speed unit value");
+    }
+
+    auto fc = param.at("frame_convention").get<std::string>();
+    auto dc = param.at("direction_convention").get<std::string>();
+
+    auto heights = param.at("heights").get<std::vector<double>>();
+    auto velocities = param.at("velocities").get<std::vector<double>>();
+    Set(heights, velocities, speed_unit, angle, angle_unit, STRING2FRAME(fc), STRING2DIRECTION(dc));
+    }
+
   }
 
 } // end namespace frydom
