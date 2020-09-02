@@ -94,6 +94,8 @@ int main(int argc, char *argv[]) {
   if (argv[1]) { iPeriod = atoi(argv[1]); }
   if (argv[2]) { iSteepness = atoi(argv[2]); }
 
+  bool recursive_radiation = true;
+
   // -- System
 
   FrOffshoreSystem system("Sphere_RW");
@@ -160,8 +162,12 @@ int main(int argc, char *argv[]) {
 
   // -- Radiation
 
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(body.get(), 6., 0.1);
+  if (recursive_radiation) {
+    auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
+  } else {
+    auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+    radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
+  }
 
   // -- Linear diffraction
 
