@@ -26,7 +26,7 @@ set(googletest_TAG release-1.8.1)
 
 # hermes
 set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG FR_log_frydom_refactoring)
+set(hermes_TAG feature/FR_log_frydom_refactoring)
 
 
 # MathUtils
