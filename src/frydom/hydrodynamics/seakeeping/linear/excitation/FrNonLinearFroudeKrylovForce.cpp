@@ -24,6 +24,16 @@
 
 namespace frydom {
 
+  /// This class defines the nonlinear hydrostatic force applied to a hydrodynamic body.
+  /// The non linear hydrostatic force is computed by integrating the hydrostatic pressure (-rho g z) over the wetted
+  /// body surface. This surface is defined using the body mesh, clipped by the free surface if the body is floating.
+  /// 2 levels of approximation are defined for the free surface position
+  /// - the mean water level : z = 0
+  /// - the incident wave position : z = eta_i
+  /// Be careful that in the second approximation, the hydrostatic force is no longer equals to rho g Vdisp vec(z)
+  /// and contains some horizontal components. The hydrostatic force also does not apply on the buoyancy center, B,
+  /// which means M_B (HS) != 0 (see technical report : non linear hydrostatics and Froude-Krylov)
+
   FrNonLinearFroudeKrylovForce::FrNonLinearFroudeKrylovForce(const std::string &name,
                                                              FrBody *body,
                                                              std::shared_ptr<FrHydroMesh> HydroMesh) :
