@@ -125,7 +125,6 @@ namespace frydom {
     auto heights = param.at("heights").get<std::vector<double>>();
     auto velocities = param.at("velocities").get<std::vector<double>>();
     Set(heights, velocities, speed_unit, angle, angle_unit, STRING2FRAME(fc), STRING2DIRECTION(dc));
-    }
 
   }
 
