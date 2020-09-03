@@ -60,6 +60,7 @@ namespace frydom {
 
     switch (m_hydroMesh->GetClippingSupport()) {
       case FrHydroMesh::ClippingSupport::PLANESURFACE: {
+        // Set at the center of buyancy so the torque is null.
         SetForceInWorldAtPointInWorld(GetHydrostaticForceInWorld(NWU), GetCenterOfBuoyancyInWorld(NWU), NWU);
         break;
       }
