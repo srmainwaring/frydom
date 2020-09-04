@@ -270,6 +270,8 @@ namespace frydom {
     std::shared_ptr<chrono::ChMaterialSurfaceSMC>
     GetMaterialSurface() { return m_chronoBody->GetMaterialSurfaceSMC(); }
 
+    Force GetContactForceInWorld(FRAME_CONVENTION fc);
+
     // =============================================================================================================
     // SPEED LIMITATIONS TO STABILIZE SIMULATIONS
     // =============================================================================================================

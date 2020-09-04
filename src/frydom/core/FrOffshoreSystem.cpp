@@ -942,6 +942,13 @@ namespace frydom {
     m_chronoSystem->SetMaxPenetrationRecoverySpeed(speed);
   }
 
+  Force FrOffshoreSystem::GetContactForceOnBodyInWorld(FrBody* body, FRAME_CONVENTION fc) const {
+    auto ChForce = m_chronoSystem->GetContactContainer()->GetContactableForce(internal::GetChronoBody(body).get());
+    auto force = internal::ChVectorToVector3d<Force>(ChForce);
+    if(IsNED(fc)) internal::SwapFrameConvention(force);
+    return force;
+  }
+
   int FrOffshoreSystem::GetNbPositionCoords() const {
     return m_chronoSystem->GetNcoords();
   }

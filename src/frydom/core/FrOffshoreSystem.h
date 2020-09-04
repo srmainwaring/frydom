@@ -86,6 +86,8 @@ namespace frydom {
 
   }
 
+  class Force;
+
   class FrBody;
 
   class FrLinkBase;
@@ -558,6 +560,8 @@ namespace frydom {
     /// situations. Usually set a positive value, about 0.1 .. 2 . (as exiting speed, in m/s)
     /// \param speed speed of exiting from penetration situations
     void SetMaxPenetrationRecoverySpeed(double speed);
+
+    Force GetContactForceOnBodyInWorld(FrBody* body, FRAME_CONVENTION fc) const;
 
 
     // Informations on system problem size

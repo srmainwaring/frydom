@@ -454,6 +454,12 @@ namespace frydom {
     AllowCollision(true);
   }
 
+  Force FrBody::GetContactForceInWorld(FRAME_CONVENTION fc) {
+    auto force = GetSystem()->GetContactForceOnBodyInWorld(this, fc);
+    return force;
+  }
+
+
   void FrBody::ActivateSpeedLimits(bool activate) {
     m_chronoBody->SetLimitSpeed(activate);
     if (activate) {
@@ -1171,6 +1177,11 @@ namespace frydom {
         ("TotalExtTorqueInWorldAtCOG", "Nm",
          fmt::format("Total external torque at COG, expressed in world reference frame in {}", GetLogFC()),
          [this]() { return GetTotalExtTorqueInWorldAtCOG(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ContactForceInWorld", "N",
+         fmt::format("Total contact force, expressed in world reference frame in {}", GetLogFC()),
+         [this]() { return GetContactForceInWorld(GetLogFC()); });
 
   }
 
