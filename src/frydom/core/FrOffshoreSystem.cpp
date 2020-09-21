@@ -181,6 +181,11 @@ namespace frydom {
       return output;
     }
 
+    void AddPhysicsItem(FrOffshoreSystem& system, std::shared_ptr<FrPhysicsItem> item) {
+      system.m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(item));
+      system.GetPhysicsItemList().push_back(item);
+      event_logger::info(system.GetTypeName(), system.GetName(), "A physics item has been ADDED to the system");
+    }
   }  // end namespace frydom::internal
 
 

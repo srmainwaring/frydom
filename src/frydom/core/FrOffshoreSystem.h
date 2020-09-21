@@ -30,6 +30,7 @@ namespace frydom {
 
   // Forward declaration
   class FrOffshoreSystem;
+  class FrPhysicsItem;
 
   namespace internal {
 
@@ -72,6 +73,8 @@ namespace frydom {
     class FrSystemBaseNSC : public chrono::ChSystemNSC {
       // TODO
     };
+
+    void AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
 
   }  // end namespace frydom::internal
 
@@ -913,6 +916,12 @@ namespace frydom {
     PhysicsIter physics_item_end();
 
     ConstPhysicsIter physics_item_end() const;
+
+    // ===================================================================================================
+    // friend declarations
+    // ===================================================================================================
+
+    friend void internal::AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
 
   };
 
