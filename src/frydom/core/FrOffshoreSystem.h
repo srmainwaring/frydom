@@ -317,7 +317,7 @@ namespace frydom {
 
     /// Remove an item (body, link, etc.) from the offshore sytem
     /// \param item item to be added to the offshore system
-    void Remove(std::shared_ptr<FrTreeNodeBase> item);
+    virtual void Remove(std::shared_ptr<FrTreeNodeBase> item);
 
 
     // ***** Body *****

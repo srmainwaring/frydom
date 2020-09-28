@@ -7,12 +7,6 @@ set(chrono_TAG 4.0.0)
 set(chrono_PATCH chrono_V4.0.0.patch)
 
 
-# fmt
-set(fmt_URL https://github.com/fmtlib/fmt.git)
-#set(fmt_TAG 4.1.0)
-set(fmt_TAG 6.0.0)
-
-
 # GeographicLib
 set(geographiclib_URL https://github.com/D-ICE/geographiclib.git)
 set(geographiclib_TAG v1.49)
@@ -63,7 +57,7 @@ set(openmesh_TAG OpenMesh-8.0)
 
 # spdlog
 set(spdlog_URL https://github.com/gabime/spdlog.git)
-set(spdlog_TAG v1.4.2)
+set(spdlog_TAG v1.7.0)
 
 
 # cxxopts
