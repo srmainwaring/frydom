@@ -94,24 +94,15 @@ int main(int argc, char *argv[]) {
     Ocean->SetDynamicViscosity(0.001397);
 
     //--------------------------------------------------------------------------------------------------------------
-    // A uniform field is also set by default for the current model. In order to set the current characteristics,
-    // you need to get first this uniform field.
-    auto current = Ocean->GetCurrent()->GetFieldUniform();
+    // A depth varying current can be generated using the following method
+    auto current = Ocean->GetCurrent()->MakeDepthVaryingField();
 
-    // Several methods are available to set the current characteristics : velocity amplitude, direction, etc. In all
-    // these methods, you must specify the direction convention used (GOTO/COMEFROM). The frame convention is implicit
-    // for those with a cardinal direction in their name. Otherwise, you have to specify the frame convention (NED/NWU)
-    // as well.
-    double currentAmplitude = 6.; // in knots (KNOT), but can be in m/s (MS) or in km/h (KMH)
-    Velocity currentVelocity = EAST(fc) * currentAmplitude;
+    // For this kind of filed, you need to specify the velocity profile, either by directly setting it in the main, or
+    // reading a JSON file.
+    auto current_file = FrFileSystem::join({system.config_file().GetDataFolder(), "current.json"});
+    current->ReadJSON(current_file);
 
-    current->Set(currentVelocity, fc, dc);
-
-    current->Set(-90, currentAmplitude, DEG, KNOT, NWU, dc);
-
-    current->Set(EAST, currentAmplitude, KNOT, dc);
-
-    current->SetEast(currentAmplitude, KNOT, dc);
+//    current->Set({-30,-15,0}, {0,0.5,1}, MS, EAST(NWU), NWU, GOTO);
 
     //--------------------------------------------------------------------------------------------------------------
     // You can access to the seabed component, to set or get the mean bathymetry or manipulate the seabed asset.

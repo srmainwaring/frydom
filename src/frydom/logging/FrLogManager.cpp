@@ -36,11 +36,15 @@ namespace frydom {
 
   FrLogManager::FrLogManager(FrOffshoreSystem *system) :
       m_log_CSV(true),
-      m_system(system) { // FIXME : Du coup LogManager devrait etre un TreeNode...
+      m_system(system),
+      m_nfreq_output(1),
+      m_ifreq_output(0) { // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
     m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), GetDateFolder()});
     FrFileSystem::mkdir(m_log_folder);
+
+    WriteMetaDataFile();
 
     event_logger::info("LogManager", "", "Logging into directory \"{}\".", m_log_folder);
 
@@ -82,7 +86,7 @@ namespace frydom {
     return (std::find(m_loggable_list.begin(), m_loggable_list.end(), obj) != m_loggable_list.end());
   }
 
-  void FrLogManager::WriteMetaDataFile(const std::string &log_folder) {
+  void FrLogManager::WriteMetaDataFile() const {
 
     json j;
 
@@ -95,7 +99,7 @@ namespace frydom {
 
 
     std::ofstream file;
-    file.open(FrFileSystem::join({log_folder, META_FILE_NAME}), std::ios::trunc);
+    file.open(FrFileSystem::join({m_log_folder, META_FILE_NAME}), std::ios::trunc);
     file << j.dump(2);
     file.close();
 
@@ -107,31 +111,31 @@ namespace frydom {
     return now_str.substr(0, now_str.size() - 1); // Removing last char that is an end line...
   }
 
-  std::string FrLogManager::LogFolderFromFrydomConfigFile(const std::string &path_to_config_file) {
-
-    if (!FrFileSystem::exists(path_to_config_file)) exit(EXIT_FAILURE);
-
-    std::ifstream ifs(path_to_config_file);
-
-    json json_obj = json::parse(ifs);
-
-    std::string log_folder;
-
-    try {
-      log_folder = json_obj["log_folder"].get<std::string>();
-    } catch (nlohmann::detail::type_error &e) {
-      log_folder = FrFileSystem::cwd();
-      event_logger::warn("LogManager", "",
-                         "No log_folder key found into config file \"{}\". Using current directory by default \"{}\"",
-                         path_to_config_file, log_folder);
-    }
-
-    // FIXME : on autorise pas les chemins relatif mais on devrait. Demande reflexion...
-    if (!FrFileSystem::isabs(log_folder)) return "";
-
-    return log_folder;
-
-  }
+//  std::string FrLogManager::LogFolderFromFrydomConfigFile(const std::string &path_to_config_file) {
+//
+//    if (!FrFileSystem::exists(path_to_config_file)) exit(EXIT_FAILURE);
+//
+//    std::ifstream ifs(path_to_config_file);
+//
+//    json json_obj = json::parse(ifs);
+//
+//    std::string log_folder;
+//
+//    try {
+//      log_folder = json_obj["log_folder"].get<std::string>();
+//    } catch (nlohmann::detail::type_error &e) {
+//      log_folder = FrFileSystem::cwd();
+//      event_logger::warn("LogManager", "",
+//                         "No log_folder key found into config file \"{}\". Using current directory by default \"{}\"",
+//                         path_to_config_file, log_folder);
+//    }
+//
+//    // FIXME : on autorise pas les chemins relatif mais on devrait. Demande reflexion...
+//    if (!FrFileSystem::isabs(log_folder)) return "";
+//
+//    return log_folder;
+//
+//  }
 
   std::string FrLogManager::GetDateFolder() {
 
@@ -151,11 +155,20 @@ namespace frydom {
 
   void FrLogManager::Initialize() { // TODO : retirer la necessite d'avoir cette methode friend de FrLoggableBase
 
-    auto path_manager = GetSystem()->GetPathManager();
+//    auto path_manager = GetSystem()->GetPathManager();
+
+    if (m_log_CSV) {
+      event_logger::info("FrLogManager", "", "CSV logging *IS* activated");
+    } else {
+      event_logger::info("FrLogManager", "", "CSV logging *IS NOT* activated");
+    }
 
     for (auto &obj : m_loggable_list) {
 
-      if (!obj->IsLogged()) continue;
+      if (!obj->IsLogged()) {
+        event_logger::info(obj->GetTypeName(), "", "won't be logged");
+        continue;
+      }
 
       obj->DefineLogMessages();
 
@@ -184,10 +197,17 @@ namespace frydom {
   }
 
   void FrLogManager::StepFinalize() {
-    for (auto &obj : m_loggable_list) {
-      if (!obj->IsLogged()) continue;
-      obj->StepFinalizeLog();
+
+    m_ifreq_output += 1;
+
+    if (m_ifreq_output == m_nfreq_output) {
+      for (auto &obj : m_loggable_list) {
+        if (!obj->IsLogged()) continue;
+        obj->StepFinalizeLog();
+      }
+      m_ifreq_output = 0;
     }
+
   }
 
   void FrLogManager::SetLogFrameConvention(FRAME_CONVENTION fc) {
@@ -200,6 +220,16 @@ namespace frydom {
 
   unsigned int FrLogManager::GetNumberOfLoggables() const {
     return m_loggable_list.size();
+  }
+
+  void FrLogManager::DisableAllLogs() {
+    for (auto &obj : m_loggable_list) {
+      obj->LogThis(false);
+    }
+  }
+
+  void FrLogManager::SetNFreqOutput(int n) {
+    m_nfreq_output = n;
   }
 
 }  // end namespace frydom

@@ -114,9 +114,12 @@ namespace frydom {
 
   class FrLogManager;
 
+#ifndef H5_NO_IRRLICHT
   class FrIrrApp;
+#endif
 
   class FrCatenaryLineBase;
+  class FrCatenaryLine_ee444;
 
   class FrEquilibriumFrame;
 
@@ -134,6 +137,8 @@ namespace frydom {
     class FrFEAMeshBase;
 
     class FrFEACableBase;
+
+    class FrFEALinkBase;
   }
 
   class FrLumpedMassCable;
@@ -213,6 +218,7 @@ namespace frydom {
       PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
       APGD,               ///< An iterative solver based on Nesterov's Projected Gradient Descent.
       MINRES,             ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
+      PMINRES,
       ///< with gradient projection (active set).
       SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
     };
@@ -253,7 +259,9 @@ namespace frydom {
 
     std::unique_ptr<FrStaticAnalysis> m_statics;
 
+    #ifndef H5_NO_IRRLICHT
     std::unique_ptr<FrIrrApp> m_irrApp;
+    #endif
 
     // Container: definition.
     using BodyContainer = std::vector<std::shared_ptr<FrBody>>;
@@ -262,6 +270,7 @@ namespace frydom {
     using ActuatorContainer = std::vector<std::shared_ptr<FrActuator>>;
     using PhysicsContainer = std::vector<std::shared_ptr<FrPhysicsItem>>;
     using FEAMeshContainer = std::vector<std::shared_ptr<FrFEAMesh>>;
+    using FEALinkContainer = std::vector<std::shared_ptr<internal::FrFEALinkBase>>;
 
     // Container: list of objects.
     BodyContainer m_bodyList;               ///< list of bodies managed by this offshore system
@@ -270,6 +279,8 @@ namespace frydom {
     ActuatorContainer m_actuatorList;       ///< list of actuators between bodies managed by this offshore system
     PhysicsContainer m_physicsItemsList;   ///< list of physics items, updated before the bodies
     FEAMeshContainer m_feaMeshList;         ///< list of FEA mesh items, managed by this offshore system
+    FEALinkContainer m_feaLinkList;
+
 
     bool m_isInitialized = false;
 
@@ -306,7 +317,7 @@ namespace frydom {
 
     /// Remove an item (body, link, etc.) from the offshore sytem
     /// \param item item to be added to the offshore system
-    void Remove(std::shared_ptr<FrTreeNodeBase> item);
+    virtual void Remove(std::shared_ptr<FrTreeNodeBase> item);
 
 
     // ***** Body *****
@@ -685,6 +696,7 @@ namespace frydom {
     void Clear();
 
 
+#ifndef H5_NO_IRRLICHT
     // Visualization
 
     // Irrlicht Application
@@ -723,6 +735,7 @@ namespace frydom {
     void VisualizeStaticAnalysis(double dist);
 
     void VisualizeStaticAnalysis();
+#endif
 
     /// Add an optional asset (it can be used to define visualization shapes, or textures, or custom attached
     /// properties that the user can define by creating his class inherited from FrAssetComponent)

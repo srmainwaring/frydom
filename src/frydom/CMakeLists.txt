@@ -42,10 +42,8 @@ list(APPEND FRYDOM_SRC_FILES "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")
 add_library(FRyDoM_Engine SHARED ${FRYDOM_SRC_FILES})
 target_link_libraries(FRyDoM_Engine
         ChronoEngine
-        ChronoEngine_irrlicht
         MathUtils::MathUtils
         hdb5io
-#        HDF5
         GeographicLib
         fmt
         cppfs
@@ -55,6 +53,15 @@ target_link_libraries(FRyDoM_Engine
         nlohmann_json
         spdlog::spdlog_header_only
         )
+if(frydom_use_irrlicht)
+    target_link_libraries(FRyDoM_Engine ChronoEngine_irrlicht)
+else()
+    target_compile_definitions(FRyDoM_Engine PUBLIC -DH5_NO_IRRLICHT)
+endif()
+
+if (frydom_build_on_LIGER)
+    target_compile_definitions(FRyDoM_Engine PUBLIC -DH5_NO_UUID)
+endif()
 
 target_include_directories(FRyDoM_Engine PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/..

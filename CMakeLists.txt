@@ -8,7 +8,7 @@
 #-----------------------------------------------------------------------------
 # Check backward compatibility
 #-----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.13)
 
 #-----------------------------------------------------------------------------
 # Prevent in-source builds
@@ -34,12 +34,18 @@ set(CMAKE_CXX_STANDARD 14)
 option(frydom_build_tests "Activate build tests" ON)
 option(frydom_build_unit_test "Build unit tests" ON)
 option(frydom_build_demo "Build demo tests" ON)
+option(frydom_build_validation "Build demo tests" ON)
 option(frydom_build_dev_test "Build dev test" ON)
 option(frydom_download_demo_data "Downloading demo data" ON)
 
 option(frydom_build_tools "Build the standalone tools" ON)
 
+option(frydom_use_irrlicht "Use Irrlicht" ON)
+option(frydom_build_on_LIGER "For building on LIGER supercomputer" OFF)
 
+if (frydom_build_on_LIGER)
+    set(frydom_use_irrlicht FALSE CACHE BOOL "" FORCE)
+endif()
 
 
 # Access to local cmake scripts
@@ -65,21 +71,30 @@ if (${frydom_download_demo_data})
     DownloadData()
 endif ()
 
+# FIXME : manage by target
+## Grouping binaries and libraries
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 
 include(Add_googletest)
 
 include(Add_chrono)
 include(Add_MathUtils)
 include(Add_HDB5_IO)
-#include(Add_HDF5)
 include(Add_GeographicLib)
-include(Add_fmt)
 include(Add_cppfs)
 include(Add_TimeZone)
 include(Add_hermes)
 include(Add_OpenMesh)
 include(Add_json)
 include(Add_spdlog)
+
+
+
+
+
 
 #=============================================================================
 # Adding the FRyDoM project sources

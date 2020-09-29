@@ -10,17 +10,24 @@
 // in the LICENSE file of FRyDoM.
 //
 // ==========================================================================
+#ifndef H5_NO_UUID
 
 #include "boost/lexical_cast.hpp"
 #include "boost/uuid/uuid_io.hpp"
-#include "boost/uuid/uuid.hpp"
 #include "boost/uuid/uuid_generators.hpp"
+
+#endif
 
 #include "FrObject.h"
 
 namespace frydom {
+#ifdef H5_NO_UUID
+  FrObject::FrObject() : m_UUID("") {}
+#else
 
   FrObject::FrObject() : m_UUID(boost::lexical_cast<std::string>(boost::uuids::random_generator()())) {}
+
+#endif
 
   std::string FrObject::GetUUID() const { return m_UUID; }
 

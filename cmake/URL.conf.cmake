@@ -7,12 +7,6 @@ set(chrono_TAG 4.0.0)
 set(chrono_PATCH chrono_V4.0.0.patch)
 
 
-# fmt
-set(fmt_URL https://github.com/fmtlib/fmt.git)
-#set(fmt_TAG 4.1.0)
-set(fmt_TAG 6.0.0)
-
-
 # GeographicLib
 set(geographiclib_URL https://github.com/D-ICE/geographiclib.git)
 set(geographiclib_TAG v1.49)
@@ -26,7 +20,7 @@ set(googletest_TAG release-1.8.1)
 
 # hermes
 set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG FR_log_frydom_refactoring)
+set(hermes_TAG feature/FR_log_frydom_refactoring)
 
 
 # MathUtils
@@ -60,11 +54,17 @@ set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-8.0)
 
 
+
 # spdlog
 set(spdlog_URL https://github.com/gabime/spdlog.git)
-set(spdlog_TAG v1.4.2)
+set(spdlog_TAG v1.7.0)
 
 
 # cxxopts
 set(cxxopts_URL https://github.com/jarro2783/cxxopts.git)
 set(cxxopts_TAG v2.2.0)
+
+
+# HDF5
+set(HDF5_URL https://github.com/HDFGroup/hdf5.git)
+set(HDF5_TAG hdf5-1_8_21)

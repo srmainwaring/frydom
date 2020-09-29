@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
 
   // -- System
 
+  bool recursive_radiation = true;
+
   FrOffshoreSystem system("Sphere_Decay");
 
   auto Ocean = system.GetEnvironment()->GetOcean();
@@ -81,9 +83,12 @@ int main(int argc, char *argv[]) {
 
   // -- Radiation
 
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
-
+  if (recursive_radiation) {
+    auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
+  } else {
+    auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+    radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
+  }
   // -- Simulation
 
   auto dt = 0.01;

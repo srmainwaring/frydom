@@ -129,9 +129,6 @@ namespace frydom {
 
   void FrCatenaryLine::solve() {
 
-    //TODO : keep the relaxation mecanism?
-    m_relax = 0.1;
-
     // Defining the linear solver
     Eigen::FullPivLU<Eigen::Matrix3d> linear_solver;
 
@@ -155,21 +152,9 @@ namespace frydom {
       iter++;
       residue = GetResidue();
       linear_solver.compute(GetJacobian());
-//      dt0 = linear_solver.solve(-residue);
-      Tension dt0_tmp = linear_solver.solve(-residue);
-
-      while (dt0.infNorm() < m_relax * dt0_tmp.infNorm()) {
-        m_relax *= 0.5;
-        if (m_relax < 1e-10) {
-          std::cout << "DAMPING TOO STRONG. NO CATENARY CONVERGENCE." << std::endl;
-        }
-      }
-      dt0 = dt0_tmp;
-
+      dt0 = linear_solver.solve(-residue);
       t0_prec = m_t0;
-      m_t0 += m_relax * dt0;
-
-      m_relax = std::min(1., m_relax * 2.);
+      m_t0 += dt0;
 
       pos_error = residue.array().abs().maxCoeff();
       tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /

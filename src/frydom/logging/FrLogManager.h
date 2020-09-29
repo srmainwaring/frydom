@@ -47,6 +47,8 @@ namespace frydom {
 
     unsigned int GetNumberOfLoggables() const;
 
+    void SetNFreqOutput(int n);
+
     virtual void Initialize();
 
     void StepFinalize();
@@ -54,6 +56,8 @@ namespace frydom {
     void SetLogFrameConvention(FRAME_CONVENTION fc);
 
     void NoCSVLlog();  // TODO: permettre de ne pas logger en CSV... -> perf !
+
+    void DisableAllLogs();
 
     using LoggableList = std::list<FrLoggableBase *>;
     using LoggableIter = LoggableList::iterator;
@@ -71,11 +75,11 @@ namespace frydom {
 
 //    std::string InitializeLogFolder();
 
-    static std::string LogFolderFromFrydomConfigFile(const std::string &path_to_config_file);
+//    static std::string LogFolderFromFrydomConfigFile(const std::string &path_to_config_file);
 
     static std::string GetDateFolder();
 
-    void WriteMetaDataFile(const std::string &log_folder);
+    void WriteMetaDataFile() const;
 
     static std::string now();
 
@@ -87,6 +91,9 @@ namespace frydom {
     FrOffshoreSystem *m_system;
 
     bool m_log_CSV;
+
+    int m_nfreq_output;
+    int m_ifreq_output;
 
   };
 

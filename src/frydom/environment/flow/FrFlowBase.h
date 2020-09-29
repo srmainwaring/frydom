@@ -20,6 +20,7 @@
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrConvention.h"
 #include "FrUniformField.h"  // TODO : enlever et utiliser du virtual copy constructor
+#include "FrHeightVaryingField.h"  // TODO : enlever et utiliser du virtual copy constructor
 
 namespace frydom {
 
@@ -85,6 +86,10 @@ namespace frydom {
 
     /// Create a uniform field
     void MakeFieldUniform();
+
+    FrHeightVaryingField * MakeDepthVaryingField() {
+      return NewField<FrHeightVaryingField>();
+    }
 
     /// Return the field model of the flow
     /// \tparam Field Field model

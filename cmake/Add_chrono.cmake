@@ -52,6 +52,12 @@ if (NOT chrono_FOUND)
         set(ENABLE_MODULE_VEHICLE OFF CACHE BOOL "" FORCE)
         set(ENABLE_OPENMP ON CACHE BOOL "" FORCE)
 
+        if(frydom_use_irrlicht)
+            set(ENABLE_MODULE_IRRLICHT ON CACHE BOOL "" FORCE)
+        else()
+            set(ENABLE_MODULE_IRRLICHT OFF CACHE BOOL "" FORCE)
+        endif()
+
 
         add_subdirectory(${chrono_SOURCE_DIR} ${chrono_BINARY_DIR})
 

@@ -21,6 +21,7 @@ set(REFACTORING_TESTS
         test_fea_cable_discretization
         test_fea_mooring_line_with_clump
         test_SimpleCable
+        test_vertical_fea_cable_in_waves
         )
 
 foreach (test ${REFACTORING_TESTS})
@@ -29,13 +30,18 @@ foreach (test ${REFACTORING_TESTS})
     add_executable(${test} ${test}.cpp)
     target_link_libraries(${test} FRyDoM_Engine)
 
+    set_target_properties( ${test}
+            PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+            )
+
 endforeach ()
 
-set(subdirs
-        # add here the test source subdirectories
-        )
-
-foreach (subdir ${subdirs})
-    add_subdirectory(${subdir})
-endforeach ()
+#set(subdirs
+#        # add here the test source subdirectories
+#        )
+#
+#foreach (subdir ${subdirs})
+#    add_subdirectory(${subdir})
+#endforeach ()
 

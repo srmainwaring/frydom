@@ -298,6 +298,10 @@ namespace frydom {
 
   Velocity FrMorisonSingleElement::GetFlowVelocity() {
 
+    //##LL : no computation of flow velocity above the flow...
+    if (not m_isImmerged) return {0., 0., 0.};
+    //##LL
+
     Velocity velocity;
     Position worldPos = m_node->GetPositionInWorld(NWU);
     auto body = m_node->GetBody();
@@ -313,12 +317,6 @@ namespace frydom {
 
     //Velocity velocityBody = body->GetFrame().ProjectVectorParentInFrame(velocity, NWU);
     Velocity velocityNode = m_node->GetFrameInWorld().ProjectVectorParentInFrame(velocity, NWU);
-
-    //##CC
-    if (not m_isImmerged) {
-      velocityNode = {0., 0., 0.};
-    }
-    //##CC
 
     return velocityNode;
   }

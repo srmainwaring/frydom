@@ -19,23 +19,8 @@ set(DEMOS
         NonLinearHydrostatics
         Constraints
         Links
+        Tensegrity
         HexagonalArticulatedBuoy
-        )
-
-set(BENCH
-        SphereDecay
-        SphereRegular
-        SphereIrregular
-        DTMB5512
-        Cables
-        BoxDecayTests
-        StabilityAnalysis
-        HS_equilibrium
-        FixedJacketStructure
-        MorisonSingleImmersedElement
-        MorisonCrossingElement
-        SpreadMooredFPSO
-        Recursive_convolution
         )
 
 # Compile target
@@ -43,19 +28,24 @@ foreach (test ${DEMOS})
     message(STATUS "        ...add demo_${test}")
     add_executable(demo_${test} demo_${test}.cpp)
     target_link_libraries(demo_${test} FRyDoM_Engine)
+
+    set_target_properties( demo_${test}
+            PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+            )
 endforeach ()
 
-foreach (test ${BENCH})
-    message(STATUS "        ...add bench_${test}")
-    add_executable(bench_${test} bench_${test}.cpp)
-    target_link_libraries(bench_${test} FRyDoM_Engine)
-endforeach ()
+#foreach (test ${BENCH})
+#    message(STATUS "        ...add bench_${test}")
+#    add_executable(bench_${test} bench_${test}.cpp)
+#    target_link_libraries(bench_${test} FRyDoM_Engine)
+#endforeach ()
 
-set(subdirs
-        # add here the test source subdirectories
-        )
-
-foreach (subdir ${subdirs})
-    add_subdirectory(${subdir})
-endforeach ()
+#set(subdirs
+#        # add here the test source subdirectories
+#        )
+#
+#foreach (subdir ${subdirs})
+#    add_subdirectory(${subdir})
+#endforeach ()
 

@@ -85,7 +85,6 @@ namespace frydom {
 
   };
 
-
 } // end namespace frydom
 
 #endif //FRYDOM_FRPATHMANAGER_H

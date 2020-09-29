@@ -10,7 +10,6 @@
 // ==========================================================================
 
 #include "frydom/frydom.h"
-#include <fstream>
 
 #include <highfive/H5File.hpp>
 #include <highfive/H5Easy.hpp>
@@ -20,7 +19,7 @@ using namespace frydom;
 
 void ValidationResults(const std::vector<double> vtime, const std::vector<double> heave, const std::string dbfile,
                        const int iperiod, const int isteepness) {
-
+  
   auto path = "T" + std::to_string(iperiod) + "/H" + std::to_string(isteepness);
 
   HighFive::File file(dbfile, HighFive::File::ReadOnly);
@@ -29,25 +28,22 @@ void ValidationResults(const std::vector<double> vtime, const std::vector<double
   auto period = H5Easy::load<double>(file, path + "/period");
   auto steepness = H5Easy::load<double>(file, path + "/steepness");
 
-  std::cout << "0.2" << std::endl;
   int it = 0;
   while (vtime[it] < 100.) {
     it += 1;
   }
-  std::cout << "1st" << std::endl;
 
   auto motionMax = -999.;
   for (int i = it; i < vtime.size(); i++) {
     motionMax = std::max(motionMax, heave[i]);
   }
-  std::cout << "2nd" << std::endl;
 
   auto motionMin = 999.;
   for (int i = it; i < vtime.size(); i++) {
     motionMin = std::min(motionMin, heave[i]);
   }
-  std::cout << "3rd" << std::endl;
 
+//  auto rao = motion / (0.5 * wave_height);
   auto rao = ((motionMax - motionMin) * 0.5) / (0.5 * wave_height);
   auto err_rel = std::abs(rao - rao_bench) / rao_bench;
 
@@ -74,11 +70,9 @@ std::vector<double> ReadParam(const std::string dbfile, const int iperiod, const
   std::vector<double> param(2);
 
   HighFive::File file(dbfile, HighFive::File::ReadOnly);
-
   param[0] = H5Easy::load<double>(file, path + "/period");
   param[1] = H5Easy::load<double>(file, path + "/wave_height");
-
-  auto steepness = H5Easy::load<double>(file, path + "/steepness");
+  double steepness = H5Easy::load<double>(file, path + "/steepness");
 
   std::cout << "Regular wave T = " << param[0] << " s, Wave Height = "
             << param[1] << " m " << "steepness = " << steepness << std::endl;
@@ -89,20 +83,22 @@ std::vector<double> ReadParam(const std::string dbfile, const int iperiod, const
 int main(int argc, char *argv[]) {
 
   std::cout << " ==================================================== \n"
-               " Benchmark test : Heave motion in irregular waves \n"
+               " Benchmark test : Heave motion in regular waves \n"
                " ==================================================== " << std::endl;
 
   // -- Input
 
-//  int iPeriod = 0;
-//  int iSteepness = 0;
-//
-//  if (argv[1]) { iPeriod = atoi(argv[1]); }
-//  if (argv[2]) { iSteepness = atoi(argv[2]); }
+  int iPeriod = 0;
+  int iSteepness = 0;
+
+  if (argv[1]) { iPeriod = atoi(argv[1]); }
+  if (argv[2]) { iSteepness = atoi(argv[2]); }
+
+  bool recursive_radiation = true;
 
   // -- System
 
-  FrOffshoreSystem system("Sphere_IW");
+  FrOffshoreSystem system("Sphere_RW");
 
   // -- Ocean
 
@@ -110,54 +106,22 @@ int main(int argc, char *argv[]) {
   ocean->SetInfiniteDepth();
   ocean->SetDensity(1000.);
 
-  // To manipulate the free surface grid asset, you first need to access it, through the free surface object.
-  auto FSAsset = system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset();
-
-  // The free surface grid is defined here as a squared one ranging from -100m to 100m (in north and west
-  // directions) with a 2m steps.
-  FSAsset->SetGrid(-100., 100, 2, -100, 100, 2);
-
-  // You have to specify if you want the free surface asset to be updated during the simulation. By default, the
-  // update is not activated.
-  FSAsset->SetUpdateStep(5);
-
   // -- Wave field
 
-//  auto data = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/bench_sphere_regular.h5"});
-//  auto param = ReadParam(data, iPeriod, iSteepness);
-//
-//  double Hs = param[1];
-//  double Tp = param[0];
+  auto data = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/bench_sphere_regular.h5"});
+  auto param = ReadParam(data, iPeriod, iSteepness);
 
-  auto waveField = ocean->GetFreeSurface()->SetAiryIrregularWaveField();
-//  double Hs = 0.5;
-//  double Tp = 4.4;
-//  double gamma = 1.0;
-//
-//  auto Jonswap = waveField->SetJonswapWaveSpectrum(Hs, Tp, gamma);
-//  double w1 = 0.5;
-//  double w2 = 2;
-//  unsigned int nbFreq = 20;
-//  waveField->SetWaveFrequencies(w1, w2, nbFreq);
-//  waveField->SetMeanWaveDirection(Direction(NORTH(NWU)), NWU, GOTO);
-//  double spreadingFactor = 10.;
-//  unsigned int nbDir = 10;
-//  waveField->SetDirectionalParameters(nbDir, spreadingFactor);
-//  waveField->GenerateRandomWavePhases(0);
-//
-//  waveField->WriteToJSON("bench_sphere_irregular_sea_state.json");
+  double waveHeight = 0.5 * param[1];
+  double wavePeriod = param[0];
 
-  auto seastate = FrFileSystem::join(
-      {system.config_file().GetDataFolder(), "ce/bench/sphere/bench_sphere_irregular_sea_state.json"});
-  waveField->LoadJSON(seastate);
+  auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
+  waveField->SetWaveHeight(waveHeight);
+  waveField->SetWavePeriod(wavePeriod);
+  waveField->SetDirection(NORTH(NWU), NWU, GOTO);
 
   // -- Body
 
   auto body = system.NewBody("Sphere");
-  auto sphere_mesh = FrFileSystem::join(
-      {system.config_file().GetDataFolder(), "ce/bench/sphere/Sphere_6200_faces.obj"});
-  body->AddMeshAsset(sphere_mesh);
-  body->SetColor(Yellow);
 
   Position COGPosition(0., 0., -2.);
 
@@ -172,8 +136,8 @@ int main(int argc, char *argv[]) {
   // -- Inertia
 
   double mass = 2.618E5; // Theoretical mass.
-//    double mass = 2.61299E5; // Mass from mesh with 6200 faces.
-//    double mass = 2.61488E5; // Mass from mesh with 10000 faces.
+//  double mass = 2.61299E5; // Mass from mesh with 6200 faces.
+//  double mass = 2.61488E5; // Mass from mesh with 10000 faces.
 
   double Ixx = 1.690E6;
   double Iyy = 1.690E6;
@@ -184,71 +148,61 @@ int main(int argc, char *argv[]) {
   body->SetInertiaTensor(InertiaTensor);
 
   // -- Hydrodynamics
-
   auto sphere_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/sphere_hdb.hdb5"});
   auto hdb = make_hydrodynamic_database(sphere_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body);
 
+
   hdb->Map(0, body.get(), eqFrame);
+
+  // -- Linear hydrostatics
+
+  auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
 
   // -- Radiation
 
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(body.get(), 6., 0.1);
-
-  bool linear = true;
-
-  if (linear) {
-
-    // -- Linear hydrostatics
-
-    auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
-
-    // -- Linear diffraction
-
-//    auto diffractionForce = make_linear_diffraction_force("linear_diffraction", body, hdb);
-
-    // -- Linear Froude-Krylov
-
-//    auto LinFKForce = make_linear_froude_krylov_force("linear_froude_krylov", body, hdb);
-
-    // -- Linear excitation
-
-    auto excitationForce = make_linear_excitation_force("linear_excitation", body, hdb);
-
+  if (recursive_radiation) {
+    auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
   } else {
-
-    // -- Linear diffraction
-
-    auto diffractionForce = make_linear_diffraction_force("linear_diffraction", body, hdb);
-
-    // -- Hydrodynamic mesh
-
-    auto bodyMesh = make_hydro_mesh("sphere_mesh", body, sphere_mesh, FrFrame(),
-                                    FrHydroMesh::ClippingSupport::WAVESURFACE);
-    bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
-
-    // -- Nonlinear hydrostatics
-
-    auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
-    forceHst->LogThis(true);
-
-    // -- Nonlinear Froude-Krylov
-
-    auto NonlinFKForce = make_nonlinear_froude_krylov_force("nonlinear_froude_krylov", body, bodyMesh);
-    NonlinFKForce->LogThis(true);
-
+    auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+    radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
   }
+
+  // -- Linear diffraction
+
+//  auto diffractionForce = make_linear_diffraction_force("linear_diffraction", body, hdb);
+
+  // -- Linear Froude-Krylov
+
+//  auto LinFKForce = make_linear_froude_krylov_force("linear_froude_krylov", body, hdb);
+
+  // -- Linear excitation
+
+  auto excitationForce = make_linear_excitation_force("linear_excitation", body, hdb);
+
+  // -- Hydrodynamic mesh
+
+//  auto sphere_mesh = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/Sphere_6200_faces.obj"});
+//  auto bodyMesh = make_hydro_mesh("sphere_mesh", body, sphere_mesh, FrFrame(), FrHydroMesh::ClippingSupport::WAVESURFACE);
+//  bodyMesh->GetInitialMesh().Write("Mesh_Initial.obj");
+
+  // -- Nonlinear hydrostatics
+
+//  auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, bodyMesh);
+//  forceHst->SetLogged(true);
+
+  // -- Nonlinear Froude-Krylov
+
+//  auto NonlinFKForce = make_nonlinear_froude_krylov_force("nonlinear_froude_krylov", body, bodyMesh);
+//  NonlinFKForce->SetLogged(true);
 
   // -- Simulation
 
-  auto dt = 0.02;
+  auto dt = 0.005;
 
   system.SetTimeStep(dt);
   system.Initialize();
-
-  waveField->WriteToJSON("bench_sphere_irregular_sea_state.json");
 
   auto time = -dt;
 
@@ -257,19 +211,21 @@ int main(int argc, char *argv[]) {
 
   clock_t begin = clock();
 
-//    system.RunInViewer(200,10);
-
-  while (time < 10.) {
+  while (time < 200.) {
     time += dt;
     system.AdvanceTo(time);
-    std::cout << "time : " << time << std::endl;
+
+    std::cout << "time : " << time << " s" << std::endl;
+
+    heave.push_back(body->GetPosition(NWU).GetZ());
+    vtime.push_back(time);
   }
 
   clock_t end = clock();
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-  std::cout << "Elapsed time in seconds : " << elapsed_secs << std::endl;
+  std::cout << elapsed_secs << std::endl;
 
-//  ValidationResults(vtime, heave, data, iPeriod, iSteepness);
+  ValidationResults(vtime, heave, data, iPeriod, iSteepness);
 
   std::cout << " ================================= End ======================= " << std::endl;
 
