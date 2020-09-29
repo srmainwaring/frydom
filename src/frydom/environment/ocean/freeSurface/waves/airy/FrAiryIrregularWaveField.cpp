@@ -523,6 +523,8 @@ namespace frydom {
 
     // TODO : a generaliser pour d'autres combinaisons de spectre et type de wavefield...
 
+    m_waveSpectrum = std::make_unique<FrJonswapWaveSpectrum>();
+
     std::ifstream ifs(filename);
     auto json_obj = json::parse(ifs);
 

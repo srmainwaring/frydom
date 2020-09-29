@@ -121,6 +121,10 @@ class BodyDB(object):
         # Poles and residues.
         self.poles_residues = None
 
+        self.cog = None
+        self.cob = None
+        self.underwater_volume = None
+
     # @property
     # def name(self):
     #
