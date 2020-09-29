@@ -118,4 +118,9 @@ namespace frydom {
 
   }
 
+  void FrCollisionModel::SetDefaultSuggestedEnvelope(double env) {
+    m_chronoCollisionModel->SetDefaultSuggestedEnvelope(env);
+    m_chronoCollisionModel->SetEnvelope(env);
+  }
+
 } // end namespace frydom
