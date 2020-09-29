@@ -1309,7 +1309,11 @@ class pyHDB():
         # Kochin function angular step.
         if(self.solver == "Helios"):
             dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
-            dset.attrs['Description'] = "Kochin function angular step"
+            dset.attrs['Description'] = "Kochin function angular step (deg)"
+        elif(self.solver == "Nemoh"):
+            kochin_step = (self.angle_kochin[1] - self.angle_kochin[0]) * 180 / np.pi
+            dset = dg.create_dataset("KochinStep", data=kochin_step)
+            dset.attrs['Description'] = "Kochin function angular step (deg)"
 
     def UpdateDriftObject(self):
 
