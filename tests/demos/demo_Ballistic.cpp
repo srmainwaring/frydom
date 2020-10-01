@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
   // Create the floor box (with a collision box already defined from makeItBox)
   auto floorBox = system.NewBody("floor");
-  makeItBox(floorBox, 100., 100., 2., 1000.);
+  makeItBox(floorBox, 30., 30., 2., 1000.);
   floorBox->SetColor(Green);
   floorBox->SetPosition(Position(0., 0., 0.), fc);
   floorBox->SetFixedInWorld(true);
@@ -54,6 +54,14 @@ int main(int argc, char *argv[]) {
     // A new ball is created in the offshore system
     std::string ballName = "Ball_" + std::to_string(ib);
     auto ball = system.NewBody(ballName);
+
+
+    // Essais de reglages de contact
+
+
+
+
+
 
     // Make it a sphere, with a collision box, spheric asset and inertia tensor automatically calculated
     makeItSphere(ball, radius, density);
@@ -78,7 +86,7 @@ int main(int argc, char *argv[]) {
   // Now you are ready to perform the simulation and you can watch its progression in the viewer. You can adjust
   // the time length of the simulation (here 15) and the distance from the camera to the objectif (75m).
   // For saving snapshots of the simulation, just turn the boolean to true.
-  system.RunInViewer(15, 75, false);
+  system.RunInViewer(1000, 75, true);
 
 
 }

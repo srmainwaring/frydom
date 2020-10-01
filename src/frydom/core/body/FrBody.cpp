@@ -125,6 +125,10 @@ namespace frydom {
       }
     }
 
+    chrono::ChVariables *FrBodyBase::GetVariables1() {
+      return &Variables();
+    }
+
     void FrBodyBase::SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables) {
       m_variables_ptr = new_variables;
       variables.SetDisabled(true);
@@ -222,6 +226,8 @@ namespace frydom {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
+
+    SetContactMethod();
 
     event_logger::info(GetTypeName(), GetName(), "Body created");
 
@@ -340,32 +346,46 @@ namespace frydom {
 
   }
 
-  void FrBody::SetSmoothContact() {
-    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceSMC>();
-    m_chronoBody->SetMaterialSurface(materialSurface);
-    m_contactType = CONTACT_TYPE::SMOOTH_CONTACT;
-  }
+//  FrOffshoreSystem::SYSTEM_TYPE FrBody::GetSystemType() const {
+//    return GetSystem()->GetSystemType();
+//  }
+//
+//  void FrBody::SetSmoothContact() {
+//    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceSMC>();
+//    m_chronoBody->SetMaterialSurface(materialSurface);
+//    m_contactType = CONTACT_TYPE::SMOOTH_CONTACT;
+//    event_logger::info(GetTypeName(), GetName(), "Contact method set to SMOOTH");
+//  }
+//
+//  void FrBody::SetNonSmoothContact() {
+//    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceNSC>();
+//    m_chronoBody->SetMaterialSurface(materialSurface);
+//    m_contactType = CONTACT_TYPE::NONSMOOTH_CONTACT;
+//    event_logger::info(GetTypeName(), GetName(), "Contact method set to NON SMOOTH");
+//  }
 
-  void FrBody::SetNonSmoothContact() {
-    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceNSC>();
-    m_chronoBody->SetMaterialSurface(materialSurface);
-    m_contactType = CONTACT_TYPE::NONSMOOTH_CONTACT;
-  }
+//  void FrBody::SetContactMethod(CONTACT_TYPE contactType) {
+//    switch (contactType) {
+//      case CONTACT_TYPE::SMOOTH_CONTACT:
+//        SetSmoothContact();
+//        break;
+//      case CONTACT_TYPE::NONSMOOTH_CONTACT:
+//        SetNonSmoothContact();
+//        break;
+//    }
+//  }
 
-  void FrBody::SetContactMethod(CONTACT_TYPE contactType) {
-    switch (contactType) {
-      case CONTACT_TYPE::SMOOTH_CONTACT:
-        SetSmoothContact();
-        break;
-      case CONTACT_TYPE::NONSMOOTH_CONTACT:
-        SetNonSmoothContact();
-        break;
-    }
-  }
+//  void FrBody::SetAutoContact() {
+//    GetSystem()->GetSystemType()
+//
+//    if (GetSystem()) {
+//      GetSystem()->Get
+//    }
+//  }
 
-  FrBody::CONTACT_TYPE FrBody::GetContactType() const {
-    return m_contactType;
-  }
+//  FrBody::CONTACT_TYPE FrBody::GetContactType() const {
+//    return m_contactType;
+//  }
 
   // Force linear iterators
   FrBody::ForceIter FrBody::force_begin() {
@@ -1060,6 +1080,21 @@ namespace frydom {
 
   Position FrBody::GeoToCart(const FrGeographicCoord &geoCoord, FRAME_CONVENTION fc) {
     return GetSystem()->GetEnvironment()->GetGeographicServices()->GeoToCart(geoCoord, fc);
+  }
+
+  void FrBody::SetContactMethod() {
+    switch (GetSystem()->GetSystemType()) {
+      case FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT:
+        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceSMC>());
+        event_logger::info(GetTypeName(), GetName(), "Contact method set to SMOOTH");
+        break;
+      case FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT:
+        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceNSC>());
+        event_logger::info(GetTypeName(), GetName(), "Contact method set to NON SMOOTH");
+        break;
+    };
+
+
   }
 
   void FrBody::InitializeLockedDOF() {

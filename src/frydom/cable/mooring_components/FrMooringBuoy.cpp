@@ -61,7 +61,7 @@ namespace frydom {
                               chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
     collisionModel->BuildModel();
     AllowCollision(true);  // A retirer ?
-    SetSmoothContact();  // Smooth contact by default
+//    SetSmoothContact();  // Smooth contact by default
 
     // Asset
     AddSphereShape(radius, {0., 0., 0.}, NWU);

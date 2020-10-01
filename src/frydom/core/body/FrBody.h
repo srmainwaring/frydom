@@ -98,7 +98,7 @@ namespace frydom {
 
       chrono::ChVariables &Variables() override;
 
-      chrono::ChVariables *GetVariables1() override { return &*m_variables_ptr.get(); }
+      chrono::ChVariables *GetVariables1() override;
 
       void SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables);
 
@@ -160,8 +160,8 @@ namespace frydom {
     using NodeContainer = std::vector<std::shared_ptr<FrNode>>;
     NodeContainer m_nodes;                    ///< Container of the nodes belonging to the body
 
-    using CONTACT_TYPE = FrOffshoreSystem::SYSTEM_TYPE;
-    CONTACT_TYPE m_contactType = CONTACT_TYPE::SMOOTH_CONTACT; ///< The contact method that has to be consistent with that of the FrOffshoreSystem
+//    using CONTACT_TYPE = FrOffshoreSystem::SYSTEM_TYPE;
+//    CONTACT_TYPE m_contactType = CONTACT_TYPE::SMOOTH_CONTACT; ///< The contact method that has to be consistent with that of the FrOffshoreSystem
 
 
     std::unique_ptr<FrDOFMask> m_DOFMask;
@@ -233,22 +233,26 @@ namespace frydom {
     // CONTACT
     // =============================================================================================================
 
-    /// Set the contact method to SMOOTH
-    /// The system where the body is registered must be consistent
-    void SetSmoothContact();
+//    FrOffshoreSystem::SYSTEM_TYPE GetSystemType() const;
 
-    /// Set the contact method to NONSMOOTH
-    /// The system where the body is registered must be consistent
-    void SetNonSmoothContact();
+//    /// Set the contact method to SMOOTH
+//    /// The system where the body is registered must be consistent
+//    void SetSmoothContact();
+//
+//    /// Set the contact method to NONSMOOTH
+//    /// The system where the body is registered must be consistent
+//    void SetNonSmoothContact();
 
-    /// Set the contact method (SMOOTH or NONSMOOTH)
-    /// The system where the body is registered must be consistent
-    /// \param contactType contact method to be used (SMOOTH/NONSMOOTH)
-    void SetContactMethod(CONTACT_TYPE contactType);
+//    /// Set the contact method (SMOOTH or NONSMOOTH)
+//    /// The system where the body is registered must be consistent
+//    /// \param contactType contact method to be used (SMOOTH/NONSMOOTH)
+//    void SetContactMethod(CONTACT_TYPE contactType);
 
-    /// Get the contact method of this body
-    /// \return contact method used (SMOOTH/NONSMOOTH)
-    CONTACT_TYPE GetContactType() const;
+//    void SetAutoContact();
+
+//    /// Get the contact method of this body
+//    /// \return contact method used (SMOOTH/NONSMOOTH)
+//    CONTACT_TYPE GetContactType() const;
 
     /// Set the collide mode. If true, a collision shape must be set and the body will participate in physical
     /// collision with other physical collision enabled items
@@ -264,9 +268,11 @@ namespace frydom {
     void SetCollisionModel(std::shared_ptr<FrCollisionModel> collisionModel);
 
     void SetMaterialSurface(const std::shared_ptr<chrono::ChMaterialSurfaceSMC> &materialSurface) {
+      // FIXME: SMC code en dur...
       m_chronoBody->SetMaterialSurface(materialSurface);
     }
 
+    // FIXME: SMC code en dur...
     std::shared_ptr<chrono::ChMaterialSurfaceSMC>
     GetMaterialSurface() { return m_chronoBody->GetMaterialSurfaceSMC(); }
 
@@ -964,6 +970,8 @@ namespace frydom {
 
 
     void InitializeLockedDOF();
+
+    void SetContactMethod();
 
    public:
 
