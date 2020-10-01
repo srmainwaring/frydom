@@ -13,6 +13,8 @@
 #ifndef FRYDOM_FRBODY_H
 #define FRYDOM_FRBODY_H
 
+#include <frydom/core/contact/FrContactNSC.h>
+
 #include "chrono/physics/ChBodyAuxRef.h"
 
 #include "frydom/asset/FrAssetOwner.h"
@@ -143,6 +145,10 @@ namespace frydom {
 
   class FrDOFMask;
 
+  class FrContactParamsSMC;
+
+  class FrContactParamsNSC;
+
   /// Main class for a FRyDoM rigid body
   /**
    * \class FrBody
@@ -160,22 +166,13 @@ namespace frydom {
     using NodeContainer = std::vector<std::shared_ptr<FrNode>>;
     NodeContainer m_nodes;                    ///< Container of the nodes belonging to the body
 
-//    using CONTACT_TYPE = FrOffshoreSystem::SYSTEM_TYPE;
-//    CONTACT_TYPE m_contactType = CONTACT_TYPE::SMOOTH_CONTACT; ///< The contact method that has to be consistent with that of the FrOffshoreSystem
-
-
     std::unique_ptr<FrDOFMask> m_DOFMask;
-//        std::shared_ptr<FrLink> m_DOFLink;
 
    public:
 
     /// Default constructor
     FrBody(const std::string &name, FrOffshoreSystem *system);
 
-//    /// Get the FrOffshoreSystem where the body has been registered
-//    inline FrOffshoreSystem *GetSystem() const {
-//      return GetParent();
-//    }
     ~FrBody() = default;
 
     /// Make the body fixed
@@ -233,27 +230,6 @@ namespace frydom {
     // CONTACT
     // =============================================================================================================
 
-//    FrOffshoreSystem::SYSTEM_TYPE GetSystemType() const;
-
-//    /// Set the contact method to SMOOTH
-//    /// The system where the body is registered must be consistent
-//    void SetSmoothContact();
-//
-//    /// Set the contact method to NONSMOOTH
-//    /// The system where the body is registered must be consistent
-//    void SetNonSmoothContact();
-
-//    /// Set the contact method (SMOOTH or NONSMOOTH)
-//    /// The system where the body is registered must be consistent
-//    /// \param contactType contact method to be used (SMOOTH/NONSMOOTH)
-//    void SetContactMethod(CONTACT_TYPE contactType);
-
-//    void SetAutoContact();
-
-//    /// Get the contact method of this body
-//    /// \return contact method used (SMOOTH/NONSMOOTH)
-//    CONTACT_TYPE GetContactType() const;
-
     /// Set the collide mode. If true, a collision shape must be set and the body will participate in physical
     /// collision with other physical collision enabled items
     /// \param isColliding true if a collision model is to be defined, false otherwise
@@ -261,20 +237,20 @@ namespace frydom {
 
     /// Get the collision model, containing the collision box
     /// \return collision model
-    FrCollisionModel *GetCollisionModel();
+    FrCollisionModel *GetCollisionModel(); // TODO: utile de proposer ???
 
     /// Set the collision model, containing the collision box
     /// \param collisionModel collision model, containing the collision box
     void SetCollisionModel(std::shared_ptr<FrCollisionModel> collisionModel);
+    // TODO voir si on garde en l'etat, on pourrait avoir notre propre logique, plus simple
 
-    void SetMaterialSurface(const std::shared_ptr<chrono::ChMaterialSurfaceSMC> &materialSurface) {
-      // FIXME: SMC code en dur...
-      m_chronoBody->SetMaterialSurface(materialSurface);
-    }
+    std::shared_ptr<FrContactParamsSMC> GetContactParamsSMC();
 
-    // FIXME: SMC code en dur...
-    std::shared_ptr<chrono::ChMaterialSurfaceSMC>
-    GetMaterialSurface() { return m_chronoBody->GetMaterialSurfaceSMC(); }
+    void SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p);
+
+    std::shared_ptr<FrContactParamsNSC> GetContactParamsNSC();
+
+    void SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p);
 
     // =============================================================================================================
     // SPEED LIMITATIONS TO STABILIZE SIMULATIONS
@@ -1021,6 +997,7 @@ namespace frydom {
     friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(FrBody *body);
 
   };
+
 
 //  FRYDOM_DECLARE_CLASS_TYPE(FrBody, "Body")
 

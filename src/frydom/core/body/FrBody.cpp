@@ -29,6 +29,8 @@
 
 #include "frydom/core/common/FrVariablesBodyBase.h"
 
+#include "frydom/core/contact/FrContactInc.h"
+
 
 namespace frydom {
 
@@ -215,7 +217,6 @@ namespace frydom {
     std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(FrBody *body) {
       return body->m_chronoBody;
     }
-
 
   }  // end namespace frydom::internal
 
@@ -472,6 +473,42 @@ namespace frydom {
   void FrBody::SetCollisionModel(std::shared_ptr<FrCollisionModel> collisionModel) {
     m_chronoBody->SetCollisionModel(collisionModel->m_chronoCollisionModel);
     AllowCollision(true);
+  }
+
+  std::shared_ptr<FrContactParamsSMC> FrBody::GetContactParamsSMC() {
+    // TODO
+  }
+
+  void FrBody::SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p) {
+    // TODO
+  }
+
+  std::shared_ptr<FrContactParamsNSC> FrBody::GetContactParamsNSC() {
+    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT) {
+      event_logger::error(GetTypeName(), GetName(),
+                          "Attemping to get non-NSC contact parameters while body is NSC");
+      exit(EXIT_FAILURE);
+    }
+
+    return std::make_shared<FrContactParamsNSC>(this);
+  }
+
+  void FrBody::SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p) {
+
+    auto ms = m_chronoBody->GetMaterialSurfaceNSC();
+
+    ms->SetSfriction(p->static_friction);
+    ms->SetKfriction(p->sliding_friction);
+    ms->SetRollingFriction(p->rolling_friction);
+    ms->SetSpinningFriction(p->spinning_friction);
+    ms->SetRestitution(p->restitution);
+    ms->SetCohesion(p->cohesion);
+    ms->SetDampingF(p->dampingf);
+    ms->SetCompliance(p->compliance);
+    ms->SetComplianceT(p->complianceT);
+    ms->SetComplianceRolling(p->complianceRoll);
+    ms->SetComplianceSpinning(p->complianceSpin);
+
   }
 
   void FrBody::ActivateSpeedLimits(bool activate) {
@@ -1208,14 +1245,6 @@ namespace frydom {
          [this]() { return GetTotalExtTorqueInWorldAtCOG(GetLogFC()); });
 
   }
-
-//  std::shared_ptr<internal::FrBodyBase> FrBody::GetChronoBody() {
-//    return m_chronoBody;
-//  }
-
-//  internal::FrBodyBase *FrBody::GetChronoItem_ptr() const {
-//    return m_chronoBody.get();
-//  }
 
   FrBody::ForceContainer FrBody::GetForceList() const { return m_externalForces; }
 
