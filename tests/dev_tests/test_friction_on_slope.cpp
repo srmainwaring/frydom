@@ -17,6 +17,9 @@ using namespace chrono;
 
 //#define HAS_IRRLICHT
 
+#define DEG2RAD (M_PI/180)
+#define RAD2DEG (180/M_PI)
+
 #ifdef HAS_IRRLICHT
 using namespace chrono::irrlicht;
 
@@ -29,32 +32,44 @@ using namespace irr::io;
 using namespace irr::gui;
 #endif
 
-int slope(double deg) {
+bool slope(double deg, double friction = 0.5, bool verbose = false, bool output = false) {
 
   // Print to file
   std::ofstream myfile;
-  myfile.open("slope_" + std::to_string(deg) + ".csv", std::ios::out);
-
-  myfile << "time;z;\ns;m;" << std::endl;
+  if (output) {
+    myfile.open("slope_" + std::to_string(deg) + ".csv", std::ios::out);
+    myfile << "time;z;\ns;m;" << std::endl;
+  }
 
   ChSystemNSC system;
 
-  auto floor = std::make_shared<ChBodyEasyBox>(50,1,50,100,
+  auto floor = std::make_shared<ChBodyEasyBox>(50, 1, 50, 100,
                                                true, true, ChMaterialSurface::ContactMethod::NSC);
   floor->SetBodyFixed(true);
-  auto floorColor = std::make_shared<ChColorAsset>(0.7,0.1,0.5,0.5);
+  auto floorColor = std::make_shared<ChColorAsset>(0.7, 0.1, 0.5, 0.5);
   floor->AddAsset(floorColor);
-  chrono::ChQuaternion<double> floorRotation;
-  double angle = deg*M_PI/180;
-  floorRotation.Q_from_AngX(angle);
-  floor->SetRot(floorRotation);
+  floor->GetMaterialSurfaceNSC()->SetSfriction(1.);
 
-  auto box = std::make_shared<ChBodyEasyBox>(1,1,1,1000,
+  auto box = std::make_shared<ChBodyEasyBox>(1, 1, 1, 1000,
                                              true, true, ChMaterialSurface::ContactMethod::NSC);
-  auto boxColor = std::make_shared<ChColorAsset>(0.1,0.7,0.5,0.5);
+  auto boxColor = std::make_shared<ChColorAsset>(0.1, 0.7, 0.5, 0.5);
   box->AddAsset(boxColor);
-  box->SetRot(floorRotation);
-  box->SetPos(ChVector<double>(0.,cos(angle),sin(angle)));
+  box->SetPos(ChVector<double>(0., 1., 0.));
+  box->GetMaterialSurfaceNSC()->SetSfriction(friction);
+
+  auto mg = -box->GetMass() * system.Get_G_acc().y();
+  auto tangentialForce = mg * tan(deg * M_PI / 180);
+  if (verbose) {
+    std::cout << "angle : " << deg << "°" << std::endl;
+    std::cout << "Mass x g : " << mg << "kg" << std::endl;
+    std::cout << "Tangential Force : " << tangentialForce << "N" << std::endl;
+  }
+
+  auto constantForce = std::make_shared<ChForce>();
+  box->AddForce(constantForce);
+  constantForce->SetVrelpoint(ChVector<double>());
+  auto function = std::make_shared<ChFunction_Const>(tangentialForce);
+  constantForce->SetF_x(function);
 
   system.AddBody(floor);
   system.AddBody(box);
@@ -85,7 +100,7 @@ int slope(double deg) {
     application.BeginScene();
     application.DrawAll();
     application.DoStep();
-    myfile << system.GetChTime() << ";" << box->GetPos().z() << ";" << std::endl;
+    if (output) myfile << system.GetChTime() << ";" << box->GetPos().z() << ";" << std::endl;
     application.EndScene();
   }
   #else
@@ -94,25 +109,75 @@ int slope(double deg) {
   while(time<100) {
     time += dt;
     system.DoFrameDynamics(time);
-    myfile << system.GetChTime() << ";" << box->GetPos().z() << ";" << std::endl;
-    std::cout<<"time : "<<time<<std::endl;
-//    std::cout<<"iter : "<<system.GetSolver()->GetIterLog()<<std::endl;
+    if (output)
+      myfile << system.GetChTime() << ";" << box->GetPos().z() << ";" << std::endl;
+    if (verbose) {
+//      std::cout<<"time : "<<time<<std::endl;
+//      std::cout<<"iter : "<<system.GetSolver()->GetIterLog()<<std::endl;
+    }
   }
   #endif
 
+  if (output)
+    myfile.close();
 
-  myfile.close();
+  if (verbose)
+    std::cout << "box position : " << box->GetPos().x() << std::endl;
+
+  return box->GetPos().x() < 1E-5;
+}
+
+double dichotomy(double friction, bool verbose = true) {
+
+  auto target_angle = atan(friction) * RAD2DEG;
+
+  double eps = 1e-8;
+  double a = target_angle-1.;
+  double b = target_angle+1.;
+  double m;
+
+  bool m_ok;
+  while (abs(b-a)>eps) {
+    m = 0.5*(a+b);
+    m_ok = slope(m, friction, true);
+    if (verbose)
+      std::cout<<"angle "<< m <<" : "<< m_ok << std::endl;
+    if (m_ok) {
+      a = m;
+    }
+    else {
+      b = m;
+    }
+  }
+
+  if (m_ok) {
+    std::cout << " Coulomb angle = " << m << std::endl;
+    return m;
+  } else {
+    std::cout<<" Coulomb angle = " << a << std::endl;
+    return a;
+  }
 
 
 }
 
+
+
 int main() {
 
-//  for (auto deg : {10,20,30,40}) {
-//    slope(deg);
-//    std::cout << "deg "<< deg << " done"<< std::endl;
-//  }
+//  slope(30.9637, 0.6, true, true);
 
-  slope(32.);
+  auto friction = 0.6;
+  auto target_angle = atan(friction) * RAD2DEG;
+  std::cout << "target Coulomb angle = " << target_angle << std::endl;
+
+  auto coulomb_angle = dichotomy(friction);
+  auto friction_coeff = tan(coulomb_angle*DEG2RAD);
+  std::cout << "friction coeff = " << friction_coeff << std::endl;
+
+  auto relative_error = abs(friction - friction_coeff)/friction;
+  std::cout << "relative error = " << 100*relative_error << std::endl;
+
+  return relative_error > 1E-5;
 
 }

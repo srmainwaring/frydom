@@ -22,7 +22,6 @@ set(REFACTORING_TESTS
         test_fea_mooring_line_with_clump
         test_vertical_fea_cable_in_waves
         test_friction_on_slope
-        demo_IRR_friction
         )
 
 foreach (test ${REFACTORING_TESTS})
