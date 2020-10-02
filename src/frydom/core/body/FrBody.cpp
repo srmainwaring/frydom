@@ -29,6 +29,8 @@
 
 #include "frydom/core/common/FrVariablesBodyBase.h"
 
+#include "frydom/core/contact/FrContactInc.h"
+
 
 namespace frydom {
 
@@ -125,6 +127,10 @@ namespace frydom {
       }
     }
 
+    chrono::ChVariables *FrBodyBase::GetVariables1() {
+      return &Variables();
+    }
+
     void FrBodyBase::SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables) {
       m_variables_ptr = new_variables;
       variables.SetDisabled(true);
@@ -212,7 +218,6 @@ namespace frydom {
       return body->m_chronoBody;
     }
 
-
   }  // end namespace frydom::internal
 
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
@@ -222,6 +227,8 @@ namespace frydom {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
+
+    SetContactMethod();
 
     event_logger::info(GetTypeName(), GetName(), "Body created");
 
@@ -340,33 +347,6 @@ namespace frydom {
 
   }
 
-  void FrBody::SetSmoothContact() {
-    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceSMC>();
-    m_chronoBody->SetMaterialSurface(materialSurface);
-    m_contactType = CONTACT_TYPE::SMOOTH_CONTACT;
-  }
-
-  void FrBody::SetNonSmoothContact() {
-    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceNSC>();
-    m_chronoBody->SetMaterialSurface(materialSurface);
-    m_contactType = CONTACT_TYPE::NONSMOOTH_CONTACT;
-  }
-
-  void FrBody::SetContactMethod(CONTACT_TYPE contactType) {
-    switch (contactType) {
-      case CONTACT_TYPE::SMOOTH_CONTACT:
-        SetSmoothContact();
-        break;
-      case CONTACT_TYPE::NONSMOOTH_CONTACT:
-        SetNonSmoothContact();
-        break;
-    }
-  }
-
-  FrBody::CONTACT_TYPE FrBody::GetContactType() const {
-    return m_contactType;
-  }
-
   // Force linear iterators
   FrBody::ForceIter FrBody::force_begin() {
     return m_externalForces.begin();
@@ -459,6 +439,41 @@ namespace frydom {
     return force;
   }
 
+  std::shared_ptr<FrContactParamsSMC> FrBody::GetContactParamsSMC() {
+    // TODO
+  }
+
+  void FrBody::SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p) {
+    // TODO
+  }
+
+  std::shared_ptr<FrContactParamsNSC> FrBody::GetContactParamsNSC() {
+    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT) {
+      event_logger::error(GetTypeName(), GetName(),
+                          "Attemping to get non-NSC contact parameters while body is NSC");
+      exit(EXIT_FAILURE);
+    }
+
+    return std::make_shared<FrContactParamsNSC>(this);
+  }
+
+  void FrBody::SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p) {
+
+    auto ms = m_chronoBody->GetMaterialSurfaceNSC();
+
+    ms->SetSfriction(p->static_friction);
+    ms->SetKfriction(p->sliding_friction);
+    ms->SetRollingFriction(p->rolling_friction);
+    ms->SetSpinningFriction(p->spinning_friction);
+    ms->SetRestitution(p->restitution);
+    ms->SetCohesion(p->cohesion);
+    ms->SetDampingF(p->dampingf);
+    ms->SetCompliance(p->compliance);
+    ms->SetComplianceT(p->complianceT);
+    ms->SetComplianceRolling(p->complianceRoll);
+    ms->SetComplianceSpinning(p->complianceSpin);
+
+  }
 
   void FrBody::ActivateSpeedLimits(bool activate) {
     m_chronoBody->SetLimitSpeed(activate);
@@ -1068,6 +1083,21 @@ namespace frydom {
     return GetSystem()->GetEnvironment()->GetGeographicServices()->GeoToCart(geoCoord, fc);
   }
 
+  void FrBody::SetContactMethod() {
+    switch (GetSystem()->GetSystemType()) {
+      case FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT:
+        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceSMC>());
+        event_logger::info(GetTypeName(), GetName(), "Contact method set to SMOOTH");
+        break;
+      case FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT:
+        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceNSC>());
+        event_logger::info(GetTypeName(), GetName(), "Contact method set to NON SMOOTH");
+        break;
+    };
+
+
+  }
+
   void FrBody::InitializeLockedDOF() {
 
     // TODO : voir si n'accepte pas de definir des offset sur les ddl bloques...
@@ -1184,14 +1214,6 @@ namespace frydom {
          [this]() { return GetContactForceInWorld(GetLogFC()); });
 
   }
-
-//  std::shared_ptr<internal::FrBodyBase> FrBody::GetChronoBody() {
-//    return m_chronoBody;
-//  }
-
-//  internal::FrBodyBase *FrBody::GetChronoItem_ptr() const {
-//    return m_chronoBody.get();
-//  }
 
   FrBody::ForceContainer FrBody::GetForceList() const { return m_externalForces; }
 

@@ -54,7 +54,7 @@ class pyHDB():
         self.yoz_sym = None
 
         # Kochin parameters.
-        self.has_kochin = False
+        self.has_kochin = False # Presence of Kochin function files of Nemoh (True) or not (False).
         self.nb_angle_kochin = 0
         self.min_angle_kochin = 0.
         self.max_angle_kochin = 0.
@@ -79,7 +79,7 @@ class pyHDB():
         # Froude-Krylov loads.
         self._has_froude_krylov = False
 
-        # Wave drift coeffcients (given in input of Nemoh2HDB).
+        # Wave drift coeffcients (given in input of hdb5tool).
         self._wave_drift = None
 
         # IRF.
@@ -100,7 +100,7 @@ class pyHDB():
         self.has_wave_field = False
 
         # Mean wave drift loads from Kochin functions.
-        self.has_Drift_Kochin = False
+        self.has_Drift_Kochin = False # Drift coefficients are computed from Kochin functions (True) or not (False).
         self.Wave_drift_force = None
 
         # Vector fitting.
@@ -1311,8 +1311,11 @@ class pyHDB():
             dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step (deg)"
         elif(self.solver == "Nemoh"):
-            kochin_step = (self.angle_kochin[1] - self.angle_kochin[0]) * 180 / np.pi
-            dset = dg.create_dataset("KochinStep", data=kochin_step)
+            if(self.has_kochin):
+                kochin_step = (self.angle_kochin[1] - self.angle_kochin[0]) * 180 / np.pi
+                dset = dg.create_dataset("KochinStep", data=kochin_step)
+            else:
+                dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step (deg)"
 
     def UpdateDriftObject(self):

@@ -40,7 +40,7 @@ namespace frydom {
                            chrono::ChVector<double>()); // TODO: permettre de specifier une position relative (et orientation ?)
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ??
-    body->SetSmoothContact();
+//    body->SetSmoothContact();
 
     // Asset
     body->AddBoxShape(xSize, ySize, zSize, {0., 0., 0.}, NWU);
@@ -66,7 +66,7 @@ namespace frydom {
                                 chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ?
-    body->SetSmoothContact();  // Smooth contact by default
+//    body->SetSmoothContact();  // Smooth contact by default
 
     // Asset
     body->AddCylinderShape(radius, height, {0., 0., 0.}, NWU);
@@ -88,7 +88,7 @@ namespace frydom {
     collisionModel->AddSphere(radius, chrono::ChVector<double>());
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ?
-    body->SetSmoothContact();  // Smooth contact by default
+//    body->SetSmoothContact();  // Smooth contact by default
 
     // Asset
     body->AddSphereShape(radius, {0., 0., 0.}, NWU);
