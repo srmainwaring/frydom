@@ -10,13 +10,16 @@
 // ==========================================================================
 
 #include "gtest/gtest.h"
+
+#include "frydom/frydom.h"
+
 #include "chrono/physics//ChSystemNSC.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono_irrlicht/ChIrrApp.h"
 
 using namespace chrono;
+using namespace frydom;
 
-#define RAD2DEG (180/M_PI)
 //#define HAS_IRRLICHT
 
 #ifdef HAS_IRRLICHT
@@ -31,10 +34,10 @@ using namespace irr::io;
 using namespace irr::gui;
 #endif
 
-TEST(friction, coulomb_angle) {
-  bool verbose = false;
+TEST(friction, chrono) {
+  bool verbose = true;
 
-  double friction = 0.5;
+  double friction = 0.6;
 
   auto target_coulomb_angle = atan(friction) * RAD2DEG;
   std::cout << "static friction coefficient : " << friction << std::endl;
@@ -45,7 +48,7 @@ TEST(friction, coulomb_angle) {
   auto floor = std::make_shared<ChBodyEasyBox>(50, 1, 50, 100,
                                                true, true, ChMaterialSurface::ContactMethod::NSC);
   floor->SetBodyFixed(true);
-  floor->GetMaterialSurfaceNSC()->SetSfriction(1.);
+  floor->GetMaterialSurfaceNSC()->SetSfriction(friction);
 
   auto box = std::make_shared<ChBodyEasyBox>(1, 1, 1, 1000,
                                              true, true, ChMaterialSurface::ContactMethod::NSC);
@@ -83,4 +86,39 @@ TEST(friction, coulomb_angle) {
 //    std::cout << "relative error bis : " << relative_error_bis << std::endl;
   }
   EXPECT_TRUE(relative_error < 1E-6);
+}
+
+TEST(friction, static_friction) {
+  bool verbose = false;
+
+  FrOffshoreSystem system("test_friction", FrOffshoreSystem::NONSMOOTH_CONTACT,
+                   FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED, FrOffshoreSystem::APGD);
+
+  auto floor = system.NewBody("floor");
+  floor->SetFixedInWorld(true);
+  makeItBox(floor, 10, 10, 1, 1E3);
+  auto param = floor->GetContactParamsNSC();
+  param->static_friction = 0.6;
+  floor->SetContactParamsNSC(param);
+
+  auto box = system.NewBody("box");
+  makeItBox(box, 1, 1, 1, 1E3);
+  box->SetPosition(Position(0.,0.,1), NWU);
+  box->SetContactParamsNSC(param);
+
+  Force tangent(box->GetMass() * system.GetGravityAcceleration(),0. ,0.);
+  auto tangentForce = make_constant_force("tangent", box->NewNode("center"), frydom::FrConstantForce::FOLLOWING,
+                                          Force(box->GetMass() * system.GetGravityAcceleration(),0. ,0.), NWU);
+
+  system.AdvanceOneStep(0.01);
+
+  auto contactForce = box->GetContactForceInWorld(NWU);
+  double ratio = abs(contactForce.GetFx()/contactForce.GetFz());
+
+  auto relative_error = abs(ratio - param->static_friction) / param->static_friction;
+  if (verbose) {
+    std::cout << "ratio : " << ratio << std::endl;
+    std::cout << "relative error : " << relative_error << std::endl;
+  }
+  EXPECT_TRUE(relative_error < 1E-12);
 }
