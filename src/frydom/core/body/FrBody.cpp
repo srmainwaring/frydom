@@ -347,47 +347,6 @@ namespace frydom {
 
   }
 
-//  FrOffshoreSystem::SYSTEM_TYPE FrBody::GetSystemType() const {
-//    return GetSystem()->GetSystemType();
-//  }
-//
-//  void FrBody::SetSmoothContact() {
-//    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceSMC>();
-//    m_chronoBody->SetMaterialSurface(materialSurface);
-//    m_contactType = CONTACT_TYPE::SMOOTH_CONTACT;
-//    event_logger::info(GetTypeName(), GetName(), "Contact method set to SMOOTH");
-//  }
-//
-//  void FrBody::SetNonSmoothContact() {
-//    auto materialSurface = std::make_shared<chrono::ChMaterialSurfaceNSC>();
-//    m_chronoBody->SetMaterialSurface(materialSurface);
-//    m_contactType = CONTACT_TYPE::NONSMOOTH_CONTACT;
-//    event_logger::info(GetTypeName(), GetName(), "Contact method set to NON SMOOTH");
-//  }
-
-//  void FrBody::SetContactMethod(CONTACT_TYPE contactType) {
-//    switch (contactType) {
-//      case CONTACT_TYPE::SMOOTH_CONTACT:
-//        SetSmoothContact();
-//        break;
-//      case CONTACT_TYPE::NONSMOOTH_CONTACT:
-//        SetNonSmoothContact();
-//        break;
-//    }
-//  }
-
-//  void FrBody::SetAutoContact() {
-//    GetSystem()->GetSystemType()
-//
-//    if (GetSystem()) {
-//      GetSystem()->Get
-//    }
-//  }
-
-//  FrBody::CONTACT_TYPE FrBody::GetContactType() const {
-//    return m_contactType;
-//  }
-
   // Force linear iterators
   FrBody::ForceIter FrBody::force_begin() {
     return m_externalForces.begin();

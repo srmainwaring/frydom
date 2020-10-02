@@ -13,13 +13,11 @@ list(APPEND SRC_FILES
         body/FrAssembly.cpp
         )
 
-
 # CONTACT
 list(APPEND SRC_FILES
         contact/FrContactSMC.cpp
         contact/FrContactNSC.cpp
         )
-
 
 # COMMON
 list(APPEND SRC_FILES

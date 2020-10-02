@@ -33,7 +33,6 @@ namespace chrono {
 
 namespace frydom {
 
-
   // Forward declarations
   class FrUnitQuaternion;
 
@@ -586,7 +585,6 @@ namespace frydom {
     void
     SetGeneralizedVelocityInBody(const Velocity &bodyVel, const AngularVelocity &bodyAngVel, FRAME_CONVENTION fc);
 
-
     /// Get the velocity of the body reference frame with a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
     /// \return body velocity in world reference frame
@@ -596,7 +594,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body velocity in body reference frame
     Velocity GetVelocityInBody(FRAME_CONVENTION fc) const;
-
 
     /// Get the velocity of the body COG with a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
@@ -638,7 +635,6 @@ namespace frydom {
     /// \return COG acceleration in body reference frame
     Acceleration GetCOGAccelerationInBody(FRAME_CONVENTION fc) const;
 
-
     /// Set the body angular velocity from a vector expressed in WORLD frame
     /// \param worldAngVel body angular velocity in world reference frame
     /// \param fc frame convention (NED/NWU)
@@ -651,7 +647,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     void SetAngularVelocityInBody(const AngularVelocity &bodyAngVel, FRAME_CONVENTION fc);
 
-
     /// Get the body angular velocity from a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
     /// \return body angular velocity in world reference frame
@@ -661,7 +656,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body angular velocity in body reference frame
     AngularVelocity GetAngularVelocityInBody(FRAME_CONVENTION fc) const;
-
 
     /// Set the body angular acceleration from a vector expressed in WORLD frame
     /// \param worldAngAcc body angular acceleration in world reference frame
@@ -673,7 +667,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     void SetAngularAccelerationInBody(const AngularAcceleration &bodyAngAcc, FRAME_CONVENTION fc);
 
-
     /// Get the body angular acceleration from a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
     /// \return body angular acceleration in world reference frame
@@ -683,7 +676,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body angular acceleration in body reference frame
     AngularAcceleration GetAngularAccelerationInBody(FRAME_CONVENTION fc) const;
-
 
     /// Get the velocity expressed in world frame of a body fixed point whose coordinates are given in world frame
     /// \param worldPoint point position in world reference frame, at which the velocity is requested
@@ -709,7 +701,6 @@ namespace frydom {
     /// \return body velocity expressed in body reference frame
     Velocity GetVelocityInBodyAtPointInBody(const Position &bodyPoint, FRAME_CONVENTION fc) const;
 
-
     /// Get the acceleration expressed in world frame of a body fixed point whose coordinates are given in world frame
     /// \param worldPoint point position in world reference frame, at which the acceleration is requested
     /// \param fc frame convention (NED/NWU)
@@ -733,7 +724,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body acceleration expressed in body reference frame
     Acceleration GetAccelerationInBodyAtPointInBody(const Position &bodyPoint, FRAME_CONVENTION fc) const;
-
 
     /// Set the velocity expressed in WORLD frame of a body fixed point whose coordinates are given in WORLD frame
     /// along with the angular velocity expressed in WORLD frame so that the velocity state is totally defined
