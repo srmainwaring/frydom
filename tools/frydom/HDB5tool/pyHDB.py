@@ -988,10 +988,11 @@ class pyHDB():
             dg.attrs['Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
                                       "and generates forces on body %u." % (j, body.i_body)
 
-            modal_path = radiation_body_motion_path + "/Modal"
-            dg = writer.create_group(modal_path)
-            dg.attrs['Description'] = "Poles and residues corresponding to the radiation coefficients due to the motion of body %u " \
-                                      "and generating the loads on body %u." % (j, body.i_body)
+            if(self.has_VF):
+                modal_path = radiation_body_motion_path + "/Modal"
+                dg = writer.create_group(modal_path)
+                dg.attrs['Description'] = "Poles and residues corresponding to the radiation coefficients due to the motion of body %u " \
+                                          "and generating the loads on body %u." % (j, body.i_body)
 
             # Zero-frequency added mass.
             if (body.Zero_Added_mass is not None):
@@ -1308,7 +1309,11 @@ class pyHDB():
         # Kochin function angular step.
         if(self.solver == "Helios"):
             dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
-            dset.attrs['Description'] = "Kochin function angular step"
+            dset.attrs['Description'] = "Kochin function angular step (deg)"
+        elif(self.solver == "Nemoh"):
+            kochin_step = (self.angle_kochin[1] - self.angle_kochin[0]) * 180 / np.pi
+            dset = dg.create_dataset("KochinStep", data=kochin_step)
+            dset.attrs['Description'] = "Kochin function angular step (deg)"
 
     def UpdateDriftObject(self):
 
