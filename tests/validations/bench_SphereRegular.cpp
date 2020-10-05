@@ -108,11 +108,16 @@ int main(int argc, char *argv[]) {
 
   // -- Wave field
 
+  /*
   auto data = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/bench_sphere_regular.h5"});
   auto param = ReadParam(data, iPeriod, iSteepness);
 
   double waveHeight = 0.5 * param[1];
   double wavePeriod = param[0];
+  */
+  double waveHeight = 1;
+  double wavePeriod = 4.8;
+
 
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
   waveField->SetWaveHeight(waveHeight);
@@ -199,7 +204,7 @@ int main(int argc, char *argv[]) {
 
   // -- Simulation
 
-  auto dt = 0.005;
+  auto dt = 0.01;
 
   system.SetTimeStep(dt);
   system.Initialize();
@@ -225,7 +230,7 @@ int main(int argc, char *argv[]) {
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
   std::cout << elapsed_secs << std::endl;
 
-  ValidationResults(vtime, heave, data, iPeriod, iSteepness);
+  //ValidationResults(vtime, heave, data, iPeriod, iSteepness);
 
   std::cout << " ================================= End ======================= " << std::endl;
 

@@ -49,8 +49,10 @@ void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double 
   system.SetGravityAcceleration(9.807);
 
 
-  system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(wave_height, wave_period, wave_dir,
+  auto waveField = system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(wave_height, wave_period, wave_dir,
                                                                                  DEG, NWU, GOTO);
+
+  waveField->SetStretching(WHEELER);
 
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
