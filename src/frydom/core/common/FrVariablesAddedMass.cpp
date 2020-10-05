@@ -9,7 +9,7 @@ namespace frydom {
   namespace internal {
 
     FrVariablesAddedMass::FrVariablesAddedMass(const mathutils::Matrix66<double>& added_mass,
-                                               FrBody* body) : FrVariablesBodyBase(body) {
+                                               chrono::ChVariablesBodyOwnMass *variables) : FrVariablesBodyBase(variables) {
       m_body_mass = m_mass;
       SetAddedMass(added_mass);
     }
