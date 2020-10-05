@@ -29,7 +29,7 @@ namespace frydom {
 
     // Constructor
 
-    FrVariablesBodyBase(FrBody* body);
+    FrVariablesBodyBase(chrono::ChVariablesBodyOwnMass* variables);
 
     // Compute
 
