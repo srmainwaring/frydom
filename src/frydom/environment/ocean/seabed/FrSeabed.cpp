@@ -264,7 +264,7 @@ namespace frydom {
     collision_model->BuildModel();
 
     m_seabed_body->AllowCollision(true);
-    m_seabed_body->SetSmoothContact();
+//    m_seabed_body->SetSmoothContact();
 
 //    m_seabed_body->AddBoxShape(hx, hy, hz, {0, 0, -0.5*hz}, NWU);
 

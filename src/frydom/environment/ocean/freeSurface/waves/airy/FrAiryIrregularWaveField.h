@@ -60,7 +60,7 @@ namespace frydom {
     ///< or if they need to be randomly generated.
     std::unique_ptr<FrKinematicStretching> m_verticalFactor;    ///< Vertical scale velocity factor with stretching
 
-    bool m_set_from_file;
+    bool m_externally_defined;
 
    public:
 

@@ -30,13 +30,15 @@ namespace frydom {
 
   // Forward declaration
   class FrOffshoreSystem;
+  class FrPhysicsItem;
 
   namespace internal {
 
     /// Base class inheriting from chrono ChSystemSMC for physical system in which contact is modeled using a smooth
     /// (penalty-based) method. This class must not be used by external FRyDoM users.
     /// It is used in composition rule along with the FrOffshoreSystem_ FRyDoM class
-    class FrSystemBaseSMC : public chrono::ChSystemSMC {
+    template <class SystemType>
+    class FrSystemBase : public SystemType {
 
      private:
       FrOffshoreSystem *m_offshoreSystem;   ///< pointer to the offshore system
@@ -44,7 +46,7 @@ namespace frydom {
      public:
       /// Constructor of the systemBase
       /// \param offshoreSystem pointer to the offshore system
-      explicit FrSystemBaseSMC(FrOffshoreSystem *offshoreSystem);
+      explicit FrSystemBase(FrOffshoreSystem *offshoreSystem);
 
       /// Update the state of the systemBase, called from chrono, call the Update of the offshore system
       /// \param update_assets check if the assets are updated
@@ -66,12 +68,26 @@ namespace frydom {
 
     };
 
-    /// Base class inheriting from chrono ChSystemNSC for physical system in which contact is modeled using a non-smooth
-    /// (complementarity-based) method.. This class must not be used by external FRyDoM users.
-    /// It is used in composition rule along with the FrOffshoreSystem_ FRyDoM class
-    class FrSystemBaseNSC : public chrono::ChSystemNSC {
-      // TODO
-    };
+    using FrSystemBaseSMC = FrSystemBase<chrono::ChSystemSMC>;
+    using FrSystemBaseNSC = FrSystemBase<chrono::ChSystemNSC>;
+
+
+//    class FrSystemBaseSMC : public FrSystemBase {
+//     public:
+//      explicit FrSystemBaseSMC(FrOffshoreSystem* offshoreSystem);
+//
+//
+//    };
+
+
+//    /// Base class inheriting from chrono ChSystemNSC for physical system in which contact is modeled using a non-smooth
+//    /// (complementarity-based) method.. This class must not be used by external FRyDoM users.
+//    /// It is used in composition rule along with the FrOffshoreSystem_ FRyDoM class
+//    class FrSystemBaseNSC : public chrono::ChSystemNSC {
+//      // TODO
+//    };
+
+    void AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
 
   }  // end namespace frydom::internal
 
@@ -85,6 +101,8 @@ namespace frydom {
     class FrPhysicsItemBase;
 
   }
+
+  class Force;
 
   class FrBody;
 
@@ -257,6 +275,7 @@ namespace frydom {
     SOLVER m_solverType;                       ///< solver aimed at solving complementarity problems
     ///< arising from QP optimization problems.
 
+
     std::unique_ptr<FrStaticAnalysis> m_statics;
 
     #ifndef H5_NO_IRRLICHT
@@ -301,9 +320,9 @@ namespace frydom {
     /// \param solver solver type
     explicit
     FrOffshoreSystem(const std::string &name,
-                     SYSTEM_TYPE systemType = SMOOTH_CONTACT,
+                     SYSTEM_TYPE systemType = NONSMOOTH_CONTACT,
                      TIME_STEPPER timeStepper = EULER_IMPLICIT_LINEARIZED,
-                     SOLVER solver = BARZILAIBORWEIN);
+                     SOLVER solver = APGD);
 
     /// Destructor
     ~FrOffshoreSystem() override;
@@ -414,6 +433,8 @@ namespace frydom {
 
 
    public:
+
+    SYSTEM_TYPE GetSystemType() const;
 
     // Constraint solver
 
@@ -558,6 +579,8 @@ namespace frydom {
     /// situations. Usually set a positive value, about 0.1 .. 2 . (as exiting speed, in m/s)
     /// \param speed speed of exiting from penetration situations
     void SetMaxPenetrationRecoverySpeed(double speed);
+
+    Force GetContactForceOnBodyInWorld(FrBody* body, FRAME_CONVENTION fc) const;
 
 
     // Informations on system problem size
@@ -843,8 +866,8 @@ namespace frydom {
     /// Check the compatibility between the contact method, the solver and the time stepper.
     void CheckCompatibility() const;
 
-    /// Check the compatibility between the system contact method and the specified body contact type
-    bool CheckBodyContactMethod(std::shared_ptr<FrBody> body);
+//    /// Check the compatibility between the system contact method and the specified body contact type
+//    bool CheckBodyContactMethod(std::shared_ptr<FrBody> body);
 
     void FinalizeDynamicSimulation() const;
 
@@ -909,6 +932,12 @@ namespace frydom {
     PhysicsIter physics_item_end();
 
     ConstPhysicsIter physics_item_end() const;
+
+    // ===================================================================================================
+    // friend declarations
+    // ===================================================================================================
+
+    friend void internal::AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
 
   };
 
