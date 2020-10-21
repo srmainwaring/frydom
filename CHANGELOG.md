@@ -10,6 +10,8 @@ This file should be kept up to date following [these guidelines](https://keepach
 - New catenary line model, replacing the old one : FrCatenaryLine
 - New finite element line model, FrFEACable, replacing the old one : FrDynamicCable
 - New field with a height variation, for current and wind models : FrHeightVaryingField
+- New contact formulation : non smooth (complementarity-based) method
+- Bodies can now get contact forces applied on them
 
 ### Changed
 - Hydrodynamic databases read using HDB5_IO
@@ -21,6 +23,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 ### Fixed
 - Excitation force computation for hdb with a forceMask
 - Forward speed correction for the radiation force
+- Added mass variables definition for morison elements (de-allocation problems)
 
 ## [3.1] - 2020-02-06
 
