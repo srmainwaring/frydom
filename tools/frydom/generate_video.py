@@ -12,8 +12,8 @@
 # ==========================================================================
 
 import sys
-from subprocess import call
 from distutils.spawn import find_executable
+from subprocess import call
 
 ffmpeg = find_executable('ffmpeg')
 
@@ -25,14 +25,14 @@ def main():
         filename = "frydom_video.mp4"
 
     call([ffmpeg,
+          "-framerate", "10",
           "-i", "screenshot%5d.bmp",
           "-c:v", "libx264",
           "-preset", "slow",
           "-crf", "21",
-          "-r", "100",  # TODO: permettre de regler les fps ici...
           filename
           ])
 
+
 if __name__ == '__main__':
     main()
-    
