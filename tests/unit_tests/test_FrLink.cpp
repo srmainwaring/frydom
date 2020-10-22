@@ -15,7 +15,7 @@ TEST(FrLinkTest, FrLinkTest_Fixed_force_Test) {
   FrOffshoreSystem system("test_FrLink",
                           FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
                           FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::SOLVER::SOR);
+                          FrOffshoreSystem::SOLVER::BARZILAIBORWEIN);
 
   auto WBody = system.GetWorldBody();
   makeItBox(WBody, 2., 0.2, 0.2, 1.);
@@ -145,7 +145,7 @@ TEST(FrLinkTest, FrLinkTest_Prismatic_velocity_Test) {
   FrOffshoreSystem system("FrLinkTest_Prismatic_velocity_Test",
                           FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
                           FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::SOLVER::MINRES);
+                          FrOffshoreSystem::SOLVER::BARZILAIBORWEIN);
 
   auto WBody = system.GetWorldBody();
   makeItBox(WBody, 2., 0.2, 0.2, 1.);
@@ -265,7 +265,7 @@ TEST(FrLinkTest, FrLinkTest_Revolute_velocity_Test) {
   FrOffshoreSystem system("FrLinkTest_Revolute_velocity_Test",
                           FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
                           FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::SOLVER::MINRES);
+                          FrOffshoreSystem::SOLVER::BARZILAIBORWEIN);
 
   auto WBody = system.GetWorldBody();
   makeItBox(WBody, 2., 0.2, 0.2, 1.);
@@ -385,7 +385,7 @@ TEST(FrLinkTest, FrLinkTest_Prismatic_force_Test) {
   FrOffshoreSystem system("FrLinkTest_Prismatic_force_Test",
                           FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
                           FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::SOLVER::MINRES);
+                          FrOffshoreSystem::SOLVER::BARZILAIBORWEIN);
 
   auto WBody = system.GetWorldBody();
   makeItBox(WBody, 2., 0.2, 0.2, 1.);
@@ -520,7 +520,7 @@ TEST(FrLinkTest, FrLinkTest_Revolute_force_Test) {
   FrOffshoreSystem system("FrLinkTest_Revolute_force_Test",
                           FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
                           FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::SOLVER::MINRES);
+                          FrOffshoreSystem::SOLVER::BARZILAIBORWEIN);
 
   auto WBody = system.GetWorldBody();
   makeItBox(WBody, 2., 0.2, 0.2, 1.);
