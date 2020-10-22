@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   DIRECTION_CONVENTION dc = GOTO;
 
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
-  FrOffshoreSystem system("demo_Cable");
+  FrOffshoreSystem system("demo_Cable", FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT);
 
   // Hide the free surface and seabed visual assets.
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(false);
@@ -165,11 +165,14 @@ int main(int argc, char *argv[]) {
         auto sphere = system.NewBody("Sphere_" + std::to_string(ib));
 
         // Set the material properties
-        auto sphere_material_props = sphere->GetMaterialSurface();
-        sphere_material_props->SetKn(steelYoungModulus);
-        sphere_material_props->SetGn(steelNormalDamping);
-        sphere_material_props->young_modulus = steelYoungModulus;
-        sphere_material_props->restitution = 0;
+//        auto sphere_material_props = sphere->GetMaterialSurface();
+//        sphere_material_props->SetKn(steelYoungModulus);
+//        sphere_material_props->SetGn(steelNormalDamping);
+//        sphere_material_props->young_modulus = steelYoungModulus;
+//        sphere_material_props->restitution = 0;
+
+        auto sphere_material_props = sphere->GetContactParamsNSC();
+        sphere_material_props->restitution = 1.;
 
         // Make it a sphere : gives an asset, a collision box, and its inertia parameters
         makeItSphere(sphere, 0.5 * diameter, density);
@@ -209,11 +212,14 @@ int main(int argc, char *argv[]) {
         auto sphere = system.NewBody("Spherebis_" + std::to_string(ib));
 
         // Set the material properties
-        auto sphere_material_props = sphere->GetMaterialSurface();
-        sphere_material_props->SetKn(steelYoungModulus);
-        sphere_material_props->SetGn(steelNormalDamping);
-        sphere_material_props->young_modulus = steelYoungModulus;
-        sphere_material_props->restitution = 0;
+//        auto sphere_material_props = sphere->GetMaterialSurface();
+//        sphere_material_props->SetKn(steelYoungModulus);
+//        sphere_material_props->SetGn(steelNormalDamping);
+//        sphere_material_props->young_modulus = steelYoungModulus;
+//        sphere_material_props->restitution = 0;
+
+        auto sphere_material_props = sphere->GetContactParamsNSC();
+        sphere_material_props->restitution = 1.;
 
         // Make it a sphere : gives an asset, a collision box, and its inertia parameters
         makeItSphere(sphere, 0.5 * diameter, density);

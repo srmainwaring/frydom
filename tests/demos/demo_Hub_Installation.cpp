@@ -30,12 +30,6 @@ int main(int argc, char *argv[]) {
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
   FrOffshoreSystem system("Hub_Installation");
 
-  auto steel = std::make_shared<chrono::ChMaterialSurfaceSMC>();
-  steel->SetYoungModulus(1e8);
-  steel->SetKn(1e8);
-  steel->SetGn(1e10);
-  steel->SetRestitution(0);
-
   // --------------------------------------------------
   // Environment
   // --------------------------------------------------
@@ -55,7 +49,9 @@ int main(int argc, char *argv[]) {
   seabedCollision->BuildModel();
   system.GetWorldBody()->SetCollisionModel(seabedCollision);
 
-  system.GetWorldBody()->SetMaterialSurface(steel);
+  auto steel = system.GetWorldBody()->GetContactParamsSMC();
+  steel->young_modulus = 1e8;
+  system.GetWorldBody()->SetContactParamsSMC(steel);
 
   auto FreeSurface = system.GetEnvironment()->GetOcean()->GetFreeSurface();
   // To manipulate the free surface grid asset, you first need to access it, through the free surface object.
@@ -103,7 +99,7 @@ int main(int argc, char *argv[]) {
   barge->SetInertiaTensor(
       FrInertiaTensor((1137.6 - 180.6) * 1000, 2.465e7, 1.149e7, 1.388e07, 0., 0., 0., Position(), NWU));
 
-  barge->SetMaterialSurface(steel);
+  barge->SetContactParamsSMC(steel);
 
   // -- Hydrodynamics
 
@@ -214,7 +210,7 @@ int main(int argc, char *argv[]) {
   auto hub_node = hub_box->NewNode("hub_node");
   hub_node->SetPositionInBody(Position(0., 0., 0.75), fc);
 
-  hub_box->SetMaterialSurface(steel);
+  hub_box->SetContactParamsSMC(steel);
 
   // --------------------------------------------------
   // Hub Line

@@ -86,7 +86,10 @@ void AttachBodies(const std::shared_ptr<FrBody> &body1, const std::shared_ptr<Fr
 TEST(FrAssemblyTest, Add) {
   FRAME_CONVENTION fc = NWU;
 
-  FrOffshoreSystem system("unit_test_FrAssembly_Add");
+  FrOffshoreSystem system("unit_test_FrAssembly_Add",
+                          FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
+                          FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::SOLVER::MINRES);
 
   system.GetEnvironment()->ShowSeabed(false);
   system.GetEnvironment()->ShowFreeSurface(false);
@@ -99,6 +102,8 @@ TEST(FrAssemblyTest, Add) {
   makeItBox(body1, L1, L2, L3 * d3, L1 * L2 * L3 * d3);
   body1->SetColor(DarkRed);
   body1->SetFixedInWorld(true);
+//  body1->AllowCollision(false);
+  body1->SetPosition(Position(0.5*L1, .5*L2, .5*L3 * d3),NWU);
 
   FrAssembly assembly(body1);
 
@@ -107,6 +112,7 @@ TEST(FrAssemblyTest, Add) {
   if (d1 != 0 && d2 != 0) {
     auto body2 = system.NewBody("body_2");
     makeItBox(body2, d1 * L1, d2 * L2, (1. - d3) * L3, d1 * L1 * d2 * L2 * (1. - d3) * L3);
+//    body2->AllowCollision(false);
     body2->SetColor(DarkBlue);
     AttachBodies(body1, body2, Position(-0.5 * L1, -0.5 * L2, 0.5 * d3 * L3),
                  Position(-0.5 * L1 * d1, -0.5 * L2 * d2, -0.5 * L3 * (1. - d3)), fc);
@@ -117,6 +123,7 @@ TEST(FrAssemblyTest, Add) {
     if (d1 < 1) {
       auto body3 = system.NewBody("body_3");
       makeItBox(body3, (1. - d1) * L1, d2 * L2, (1. - d3) * L3, (1. - d1) * L1 * d2 * L2 * (1. - d3) * L3);
+//      body3->AllowCollision(false);
       body3->SetColor(DarkGreen);
       AttachBodies(body2, body3, Position(0.5 * d1 * L1, -0.5 * d2 * L2, -0.5 * (1. - d3) * L3),
                    Position(-0.5 * (1. - d1) * L1, -0.5 * d2 * L2, -0.5 * (1. - d3) * L3), fc);
@@ -129,6 +136,7 @@ TEST(FrAssemblyTest, Add) {
 
   auto body4 = system.NewBody("body_4");
   makeItBox(body4, L1, (1. - d2) * L2, (1. - d3) * L3, L1 * (1. - d2) * L2 * (1. - d3) * L3);
+//  body4->AllowCollision(false);
   body4->SetColor(DarkGoldenRod);
   AttachBodies(body1, body4, Position(0.5 * L1, 0.5 * L2, 0.5 * d3 * L3),
                Position(0.5 * L1, 0.5 * (1. - d2) * L2, -0.5 * (1. - d3) * L3), fc);
@@ -139,7 +147,9 @@ TEST(FrAssemblyTest, Add) {
   auto bodyFull = system.NewBody("full_body");
   bodyFull->SetColor(DarkKhaki);
   makeItBox(bodyFull, L1, L2, L3, L1 * L2 * L3);
+//  bodyFull->AllowCollision(false);
   bodyFull->SetFixedInWorld(true);
+  bodyFull->SetPosition(Position(0.5*L1, .5*L2, .5*L3),NWU);
 
   system.SetTimeStep(0.01);
 
@@ -167,7 +177,10 @@ TEST(FrAssemblyTest, Add) {
 TEST(FrAssemblyTest, AddRotation) {
   FRAME_CONVENTION fc = NWU;
 
-  FrOffshoreSystem system("unit_test_FrAssembly_AddRotation");
+  FrOffshoreSystem system("unit_test_FrAssembly_AddRotation",
+                          FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
+                          FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::SOLVER::MINRES);
 
   system.GetEnvironment()->ShowSeabed(false);
   system.GetEnvironment()->ShowFreeSurface(false);
@@ -260,7 +273,10 @@ TEST(FrAssemblyTest, AddRotation) {
 TEST(FrAssemblyTest, AddCOG) {
   FRAME_CONVENTION fc = NWU;
 
-  FrOffshoreSystem system("unit_test_FrAssembly_AddCOG");
+  FrOffshoreSystem system("unit_test_FrAssembly_AddCOG",
+                          FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
+                          FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::SOLVER::MINRES);
 
   system.GetEnvironment()->ShowSeabed(false);
   system.GetEnvironment()->ShowFreeSurface(false);
@@ -340,7 +356,10 @@ TEST(FrAssemblyTest, AddCOG) {
 TEST(FrAssemblyTest, AddCOGRotation) {
   FRAME_CONVENTION fc = NWU;
 
-  FrOffshoreSystem system("unit_test_FrAssembly_AddCOGRotation");
+  FrOffshoreSystem system("unit_test_FrAssembly_AddCOGRotation",
+                          FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
+                          FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::SOLVER::MINRES);
 
   system.GetEnvironment()->ShowSeabed(false);
   system.GetEnvironment()->ShowFreeSurface(false);

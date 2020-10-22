@@ -440,11 +440,26 @@ namespace frydom {
   }
 
   std::shared_ptr<FrContactParamsSMC> FrBody::GetContactParamsSMC() {
-    // TODO
+    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT) {
+      event_logger::error(GetTypeName(), GetName(),
+                          "Attemping to get non-NSC contact parameters while body is NSC");
+      exit(EXIT_FAILURE);
+    }
+
+    return std::make_shared<FrContactParamsSMC>(this);
   }
 
   void FrBody::SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p) {
-    // TODO
+
+    auto ms = m_chronoBody->GetMaterialSurfaceSMC();
+
+    ms->SetSfriction(p->static_friction);
+    ms->SetKfriction(p->sliding_friction);
+    ms->SetYoungModulus(p->young_modulus);
+    ms->SetPoissonRatio(p->poisson_ratio);
+    ms->SetRestitution(p->restitution);
+    ms->SetAdhesion(p->constant_adhesion);
+    ms->SetAdhesionMultDMT(p->adhesionMultDMT);
   }
 
   std::shared_ptr<FrContactParamsNSC> FrBody::GetContactParamsNSC() {
