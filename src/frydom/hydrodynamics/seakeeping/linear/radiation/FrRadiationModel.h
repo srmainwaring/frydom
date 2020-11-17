@@ -197,6 +197,7 @@ namespace frydom {
 
    private:
     std::unordered_map<FrBEMBody *, FrTimeRecorder<GeneralizedVelocity> > m_recorder;    ///< Recorder of the perturbation velocity of the body at COG
+    bool c_FScorrection = false;
 
    public:
     /// Default constructor
@@ -241,6 +242,10 @@ namespace frydom {
     /// \param Te Time length
     /// \param dt Time step
     void GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const;
+
+    void ActivateForwardSpeedCorrection(bool activation) {
+      c_FScorrection = activation;
+    }
 
    private:
 

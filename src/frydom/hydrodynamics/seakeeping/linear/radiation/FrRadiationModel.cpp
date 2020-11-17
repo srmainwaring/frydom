@@ -461,9 +461,14 @@ namespace frydom {
           radiationForce += TrapzLoc(vtime, kernel);
         }
       }
-      radiationForce += ForwardSpeedCorrection(BEMBody->first);
 
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
+      auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
+
+      if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection) {
+        radiationForce += ForwardSpeedCorrection(BEMBody->first);
+      }
+
       auto forceInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetForce(), NWU);
       auto TorqueInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetTorque(), NWU);
 
@@ -483,8 +488,6 @@ namespace frydom {
 
     auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody);
     auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
-    if (meanSpeed.squaredNorm() < FLT_EPSILON)
-      return radiationForce;
 
     auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU);
 
