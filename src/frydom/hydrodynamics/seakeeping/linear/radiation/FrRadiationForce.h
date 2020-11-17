@@ -78,6 +78,10 @@ namespace frydom {
     /// Methods to be applied at the end of each time step
     void StepFinalize() override;
 
+   protected:
+
+    void DefineLogMessages() override;
+
    private:
 
     /// Compute the radiation force via convolution
