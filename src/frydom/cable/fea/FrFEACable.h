@@ -51,7 +51,8 @@ namespace frydom {
                const std::shared_ptr<FrNode> &endingNode,
                const std::shared_ptr<FrCableProperties> &properties,
                double unstretched_length,
-               unsigned int nb_nodes);
+               unsigned int nb_nodes,
+               unsigned int order = 1);
 
     Force GetTension(const double &s, FRAME_CONVENTION fc) const override;
 
@@ -134,7 +135,8 @@ namespace frydom {
                  const std::shared_ptr<FrNode> &endingNode,
                  const std::shared_ptr<FrCableProperties> &properties,
                  double unstretched_length,
-                 unsigned int nb_elements);
+                 unsigned int nb_elements,
+                 const unsigned int order = 1);
 
   // forward declatation
   class FrOffshoreSystem;
@@ -148,7 +150,8 @@ namespace frydom {
     class FrFEACableBase : public FrFEAMeshBase {
 
      public:
-      explicit FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system);
+      explicit FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system,
+          const unsigned int = 1);
 
       std::shared_ptr<FrFEALinkBase> GetStartLink();
 

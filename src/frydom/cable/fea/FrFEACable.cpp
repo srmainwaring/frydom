@@ -31,7 +31,8 @@ namespace frydom {
                          const std::shared_ptr<FrNode> &endingNode,
                          const std::shared_ptr<FrCableProperties> &properties,
                          double unstretched_length,
-                         unsigned int nb_nodes) :
+                         unsigned int nb_nodes,
+                         unsigned int order) :
       m_start_link_type(SPHERICAL),
       m_end_link_type(SPHERICAL),
       m_nb_nodes(nb_nodes),
@@ -39,7 +40,7 @@ namespace frydom {
       FrFEAMesh(name,
                 TypeToString(this),
                 startingNode->GetBody()->GetSystem(),
-                std::make_shared<internal::FrFEACableBase>(name, this, startingNode->GetBody()->GetSystem())) {}
+                std::make_shared<internal::FrFEACableBase>(name, this, startingNode->GetBody()->GetSystem(), order)) {}
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
     // TODO
@@ -241,7 +242,8 @@ namespace frydom {
                                              const std::shared_ptr<FrNode> &endingNode,
                                              const std::shared_ptr<FrCableProperties> &properties,
                                              double unstretched_length,
-                                             unsigned int nb_elements) {
+                                             unsigned int nb_elements,
+                                             const unsigned int order) {
 
     // This cable is empty
     auto cable = std::make_shared<FrFEACable>(name,
@@ -249,7 +251,8 @@ namespace frydom {
                                               endingNode,
                                               properties,
                                               unstretched_length,
-                                              nb_elements);
+                                              nb_elements,
+                                              order);
 
     startingNode->GetBody()->GetSystem()->Add(cable);
 
@@ -259,8 +262,9 @@ namespace frydom {
 
   namespace internal {
 
-    FrFEACableBase::FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system) :
-        m_bspline_order(2),
+    FrFEACableBase::FrFEACableBase(const std::string& name, FrFEACable *cable, FrOffshoreSystem* system,
+        const unsigned int order) :
+        m_bspline_order(order),
         m_start_link(std::make_shared<FrFEALinkBase>(name+"_start_link", system)),
         m_end_link(std::make_shared<FrFEALinkBase>(name+"_end_link", system)),
         FrFEAMeshBase(cable) {
@@ -338,12 +342,13 @@ namespace frydom {
 
       // Interpolating with BSpline
       // FIXME: l'ordre est hard code...
-      auto bspline = bspline::internal::FrBSplineTools<2>::BSplineInterpFromPoints<3>(neutral_line_points,
-                                                                                      m_control_points_abscissa);
+      auto bspline = bspline::internal::FrBSplineTools::BSplineInterpFromPoints<3>(neutral_line_points,
+                                                                                   m_control_points_abscissa,
+                                                                                   m_bspline_order);
 
       // Building the shape with the FEABuilder
       FrFEACableBuilder builder;
-      builder.Build(this, m_section, bspline);
+      builder.Build(this, m_section, bspline, m_bspline_order);
 
     }
 
