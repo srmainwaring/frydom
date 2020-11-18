@@ -12,6 +12,8 @@ set(VALIDATION_CASES
         Recursive_convolution
         MorisonCrossingElement
         MorisonSingleImmersedElement
+        FixedJacketStructure
+        SpreadMooredFPSO
         )
 
 foreach (test ${VALIDATION_CASES})

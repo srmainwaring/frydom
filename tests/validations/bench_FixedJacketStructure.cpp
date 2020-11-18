@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
   // System
 
   FrOffshoreSystem system("bench_FixedJacketStructure");
+  system.SetGravityAcceleration(9.807);
 
   // Environment
 
@@ -29,7 +30,7 @@ int main(int argc, char *argv[]) {
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
   waveField->SetWaveHeight(waveHeight);
   waveField->SetWavePeriod(wavePeriod);
-  waveField->SetStretching(WHEELER);
+  waveField->SetStretching(WHEELER); // WHEELER
 
   system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., wavePeriod, 1.);
   system.GetEnvironment()->GetTimeRamp()->SetActive(true);
@@ -38,7 +39,8 @@ int main(int argc, char *argv[]) {
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetUpdateStep(5);
   //ocean->GetFreeSurface()->Show(true);
 
-  ocean->GetSeabed()->SetBathymetry(-45, NWU);
+  //ocean->GetSeabed()->SetBathymetry(-45, NWU);
+  ocean->GetSeabed()->SetBathymetry(-1000, NWU);
   ocean->GetSeabed()->GetSeabedGridAsset()->SetGrid(-50, 50, 5, -50, 50, 2);
   ocean->GetSeabed()->Show(true);
 
@@ -74,7 +76,7 @@ int main(int argc, char *argv[]) {
   system.SetTimeStep(dt);
   system.Initialize();
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(t_end, 200, false);

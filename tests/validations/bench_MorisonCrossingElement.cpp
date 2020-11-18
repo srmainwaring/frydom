@@ -68,7 +68,7 @@ std::shared_ptr<FrCompositeBarElement> make_bar_element(std::shared_ptr<FrBody> 
 
 int main(int argc, char* argv[]) {
 
-  element_case ec = ec_YZ;
+  element_case ec = ec_XYZ;
 
   // System
 
@@ -83,7 +83,10 @@ int main(int argc, char* argv[]) {
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
   waveField->SetWavePeriod(wavePeriod);
   waveField->SetWaveHeight(waveAmplitude);
-  waveField->SetStretching(WHEELER);
+  waveField->SetStretching(WHEELER); // WHEELER
+
+  auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
+  seabed->SetBathymetry(-1000, NWU);
 
   system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., wavePeriod, 1.);
   system.GetEnvironment()->GetTimeRamp()->SetActive(true);

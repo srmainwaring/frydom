@@ -380,6 +380,9 @@ namespace frydom {
       Acceleration acceleration = GetFlowAcceleration();
       localForce.x() += rho * (m_property.ca.x + 1.) * GetVolume() * acceleration.x();
       localForce.y() += rho * (m_property.ca.y + 1.) * GetVolume() * acceleration.y();
+      //##CC debug
+      //localForce.z() += rho * 1. * GetVolume()  * acceleration.z();
+      //##
     }
 
     // Project local force in world at COG
