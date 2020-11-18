@@ -1443,7 +1443,7 @@ namespace frydom {
 //      //PHYSICS ITEM
 //    } else if (auto physics_item = std::dynamic_pointer_cast<FrPhysicsItem>(item)) {
 //      AddPhysicsItem(physics_item);
-////      m_pathManager->RegisterTreeNode(physics_item.get());
+//      m_pathManager->RegisterTreeNode(physics_item.get());
 
 
       // FEA CABLE

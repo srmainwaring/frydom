@@ -23,6 +23,122 @@ enum LINK_CASES {
 CASES BENCH_CASE = HARMONIC_SURGE;
 LINK_CASES BENCH_LINK = SET_MOTION;
 
+
+class MovingBody : public FrBody {
+
+ public:
+
+  MovingBody(const std::string& name, FrOffshoreSystem* system) : FrBody(name, system),
+   m_bench_case(STATIC), m_motion_fct(FrConstantFunction(0.), FrConstantFunction(0.)){}
+
+  MovingBody(const std::string& name, FrOffshoreSystem* system,
+      FrMulFunction function,CASES bench_case)
+    : FrBody(name, system), m_motion_fct(function), m_bench_case(bench_case) {
+  }
+
+  void SetFunction(FrMulFunction function) {
+    m_motion_fct = function;
+  }
+
+  void SetBenchCase(CASES bench_case) {
+    m_bench_case = bench_case;
+  }
+
+  void StepFinalize() override {
+
+    auto time = GetSystem()->GetTime();
+
+    //std::cout << "debug : MovingBody : StepFinalize : time " << time << std::endl;
+
+    switch(m_bench_case) {
+      case HARMONIC_SURGE:
+        //std::cout << "debug : MovingBody : Set surge : " << m_motion_fct.Get_y(time) << std::endl;
+        SetPosition({m_motion_fct.Get_y(time), 0., 0.}, NWU);
+        SetVelocityInWorldNoRotation({m_motion_fct.Get_y_dx(time), 0., 0.}, NWU);
+        SetAccelerationInWorldNoRotation({m_motion_fct.Get_y_dxdx(time), 0., 0.}, NWU);
+        break;
+      case HARMONIC_SWAY:
+        SetPosition({0., m_motion_fct.Get_y(time), 0.}, NWU);
+        SetVelocityInWorldNoRotation({0., m_motion_fct.Get_y_dx(time), 0.}, NWU);
+        SetAccelerationInWorldNoRotation({0., m_motion_fct.Get_y_dxdx(time), 0.}, NWU);
+        break;
+    }
+
+    FrBody::Update();
+    FrBody::StepFinalize();
+  }
+
+ private:
+
+  FrMulFunction m_motion_fct;
+  CASES m_bench_case;
+
+};
+
+
+void make_body_with_motion(FrOffshoreSystem* system, std::shared_ptr<FrBody>& body,
+                                              double motion_amplitude, double period, CASES bench_case) {
+  auto ramp = FrCosRampFunction();
+  ramp.SetByTwoPoints(40., 0., 40+period, motion_amplitude);
+  auto t = new_var();
+  auto function = ramp * sin(MU_2PI/period * t);
+  function.SetXOffset(0.);
+  function.Initialize();
+
+  auto new_body = std::make_shared<MovingBody>("platform_motion", system, function, bench_case);
+  new_body->SetFixedInWorld(true);
+  new_body->SetSmoothContact();
+
+  system->Remove(body);
+  system->Add(new_body);
+  body = new_body;
+
+  return;
+}
+
+
+std::shared_ptr<FrPrismaticLink> make_motor_link(FrOffshoreSystem* system,
+                                                 std::shared_ptr<FrNode> node_1, std::shared_ptr<FrNode> node_2,
+                                                 double period, double motion_amplitude) {
+
+  auto link = make_prismatic_link("link", system, node_1, node_2);
+
+  auto t = new_var();
+  double w = MU_2PI / period;
+  auto ramp = FrCosRampFunction();
+  ramp.SetByTwoPoints(0., period, 0., 1.);
+  auto motor_function = motion_amplitude * cos(w * t);
+
+  auto motor = link->Motorize("motor", POSITION);
+  motor->SetMotorFunction(motor_function);
+
+  return link;
+}
+
+
+std::shared_ptr<FrBody> make_body_with_motorlink(FrOffshoreSystem* system, std::shared_ptr<FrBody> body,
+                                                 double motion_amplitude, double period, CASES bench_case) {
+
+  auto body_node = body->NewNode("body_node");
+  auto body_fixed_node = system->GetWorldBody()->NewNode("body_fixed_node");
+  body_fixed_node->SetPositionInWorld({0., 0., 0.}, NWU);
+
+  switch (bench_case) {
+    case HARMONIC_SURGE:
+      body_fixed_node->RotateAroundYInWorld(MU_PI_2, NWU);
+      body_node->RotateAroundYInWorld(MU_PI_2, NWU);
+      break;
+    case HARMONIC_SWAY:
+      body_fixed_node->RotateAroundXInWorld(MU_PI_2, NWU);
+      body_node->RotateAroundXInWorld(MU_PI_2, NWU);
+      break;
+  }
+
+  auto link = make_motor_link(system, body_node, body_fixed_node, period, motion_amplitude);
+
+  return body;
+}
+
 void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir) {
 
   // Seabed
@@ -77,33 +193,82 @@ std::shared_ptr<FrCableProperties> InitializeCableProperties() {
   cable_properties->SetDragCoefficients(1.1, 0.);
   cable_properties->SetAddedMassCoefficients(1., 0.);
 
+  cable_properties->SetRayleighDamping(1e4);
+
   return cable_properties;
 }
 
-std::shared_ptr<FrPrismaticLink> make_motor_link(FrOffshoreSystem& system,
-    std::shared_ptr<FrNode> node_1, std::shared_ptr<FrNode> node_2,
-    double period, double motion_amplitude) {
 
-  auto link = make_prismatic_link("link", &system, node_1, node_2);
-
-  auto t = new_var();
-  double w = MU_2PI / period;
-  auto ramp = FrCosRampFunction();
-  ramp.SetByTwoPoints(0., period, 0., 1.);
-  auto motor_function = motion_amplitude * cos(w * t);
-
-  auto motor = link->Motorize("motor", POSITION);
-  motor->SetMotorFunction(motor_function);
-
-  return link;
-}
-
-int main() {
+int main(int argc, char* argv[]) {
 
   FrOffshoreSystem system("bench_FEACable_FOWT_moored");
 
+  if (argc >= 2) {
+    auto i_case = (int)*argv[1];
+    BENCH_CASE = CASES(i_case);
+    std::cout << "* CASES : " << BENCH_CASE << std::endl;
+  }
+
+  // Environment
+  double wave_height = 0.;
+  double wave_period = 10.;
+  double wave_dir = 0.;
+
+  switch (BENCH_CASE) {
+    case AIRY_0_DEG:
+      wave_height = 5.;
+      wave_period = 27.;
+      wave_dir = 0.;
+      break;
+    case AIRY_90_DEG:
+      wave_height = 5.;
+      wave_period = 27.;
+      wave_dir = 90.;
+      break;
+    default:
+      break;
+  }
+  InitializeEnvironment(system, wave_height, wave_period, wave_dir);
+
+  // Body
+
+  double motion_amplitude = 0.;
+  double period = 50.;
+
+  switch (BENCH_CASE) {
+    case STATIC:
+      break;
+    case HARMONIC_SURGE:
+      motion_amplitude = 10.;
+      break;
+    case HARMONIC_SWAY:
+      motion_amplitude = 10.;
+      break;
+    default:
+      break;
+  }
+
+  auto body = system.NewBody("platform");
+
+  if (BENCH_LINK == MOTOR) {
+    make_body_with_motorlink(&system, body, motion_amplitude, period, BENCH_CASE);
+  } else if (BENCH_LINK == SET_MOTION) {
+    make_body_with_motion(&system, body, motion_amplitude, period, BENCH_CASE);
+  } else {
+    //pass
+  }
+
+  body->SetPosition({0., 0., 0.}, NWU);
+
+  auto body_asset = FrFileSystem::join({system.config_file().GetDataFolder(),
+                                        "ce/bench/FOWT/Base_01.obj"});
+  body->AddMeshAsset(body_asset);
+  body->SetColor(Yellow);
+
+  // Cable
+
   double cable_length = 835.500; // m
-  int nb_elements = 167;
+  int nb_elements = 30;
 
   // Anchor points
   auto world_body = system.GetWorldBody();
@@ -116,15 +281,6 @@ int main() {
 
   auto G3 = world_body->NewNode("G3");
   G3->SetPositionInWorld({418.8, -725.383, -200.}, NWU);
-
-  // Support body
-  auto body = system.NewBody("body");
-  body->SetPosition({0., 0., 0.}, NWU);
-
-  auto body_asset = FrFileSystem::join({system.config_file().GetDataFolder(),
-                                        "ce/bench/FOWT/Base_01.obj"});
-  body->AddMeshAsset(body_asset);
-  body->SetColor(Yellow);
 
   // Fair-lead points
 
@@ -141,40 +297,6 @@ int main() {
   auto body_fixed_node = world_body->NewNode("body_fixed_node");
   body_fixed_node->SetPositionInWorld({0., 0., 0.}, NWU);
 
-  // Motion
-
-  double motion_amplitude = 0.;
-  double period = 40.;
-  double wave_height = 0.;
-  double wave_period = 10.;
-  double wave_dir = 0.;
-
-  switch (BENCH_CASE) {
-    case STATIC:
-      break;
-    case HARMONIC_SURGE:
-      motion_amplitude = 10.;
-      body_fixed_node->RotateAroundYInWorld(MU_PI_2, NWU);
-      body_node->RotateAroundYInWorld(MU_PI_2, NWU);
-      break;
-    case HARMONIC_SWAY:
-      motion_amplitude = 10.;
-      body_fixed_node->RotateAroundXInWorld(MU_PI_2, NWU);
-      body_node->RotateAroundXInWorld(MU_PI_2, NWU);
-      break;
-    case AIRY_0_DEG:
-      wave_height = 5.;
-      wave_period = 27.;
-      wave_dir = 0.;
-      break;
-    case AIRY_90_DEG:
-      wave_height = 5.;
-      wave_period = 27.;
-      wave_dir = 90.;
-      break;
-  }
-  InitializeEnvironment(system, wave_height, wave_period, wave_dir);
-
   // Create cable properties
   auto cable_properties = InitializeCableProperties();
 
@@ -188,22 +310,18 @@ int main() {
   std::shared_ptr<FrLink> link;
 
   auto ramp = FrCosRampFunction();
-  ramp.SetByTwoPoints(40., 0., 40+period, motion_amplitude);
+  ramp.SetByTwoPoints(50., 0., 50+period, motion_amplitude);
   auto t = new_var();
   auto function = ramp * sin(MU_2PI/period * t);
   function.SetXOffset(0.);
   function.Initialize();
 
-  switch (BENCH_LINK) {
-    case MOTOR:
-      link = make_motor_link(system, body_node, body_fixed_node, period, motion_amplitude);
-      break;
-    case SET_MOTION:
-      body->SetFixedInWorld(true);
-      break;
+  // Solver
+  system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::NEWMARK);
+  if (auto timestepper = std::dynamic_pointer_cast<chrono::ChTimestepperNewmark>(system.GetChronoSystem()->GetTimestepper())) {
+    timestepper->SetGammaBeta(0.9, 0.8);
   }
 
-  // Solver
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverWarmStarting(true);
   system.SetSolverMaxIterSpeed(1000);
@@ -213,7 +331,7 @@ int main() {
 
   // Time step
   double dt = 0.01;
-  double t_max = 160.;
+  double t_max = 250.;
 
   system.SetTimeStep(dt);
 

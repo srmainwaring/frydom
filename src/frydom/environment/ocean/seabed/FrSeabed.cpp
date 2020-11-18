@@ -245,10 +245,11 @@ namespace frydom {
 //        gt(20)
     auto surface_material = std::make_shared<chrono::ChMaterialSurfaceSMC>();
     surface_material->SetYoungModulus(2e12f);
-    surface_material->SetFriction(0.3f); // Devrait venir du modele de cable...
-    surface_material->SetRestitution(0.0f);
+    surface_material->SetFriction(0.0f); // 0.3f// Devrait venir du modele de cable...
+    surface_material->SetRestitution(0.4f); // 0.0f
     surface_material->SetAdhesion(0);
-    surface_material->SetKn(2e12);
+    surface_material->SetKn(1e5); //2e12
+    surface_material->SetKt(1e5); //not defined
     surface_material->SetGn(1e6);
 //    surface_material->SetKt(2e6);
 

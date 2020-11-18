@@ -308,6 +308,12 @@ namespace frydom {
     /// Destructor
     ~FrOffshoreSystem() override;
 
+    //##CC
+    chrono::ChSystem* GetChronoSystem() {
+      return m_chronoSystem.get();
+    }
+    //##
+
     const FrConfig &config_file();
 
 
