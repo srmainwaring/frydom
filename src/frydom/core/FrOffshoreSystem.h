@@ -89,6 +89,8 @@ namespace frydom {
 
     void AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
 
+    chrono::ChSystem* GetChronoSystem(FrOffshoreSystem* system);
+
   }  // end namespace frydom::internal
 
 
@@ -938,6 +940,8 @@ namespace frydom {
     // ===================================================================================================
 
     friend void internal::AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
+
+    friend chrono::ChSystem* internal::GetChronoSystem(FrOffshoreSystem* system);
 
   };
 

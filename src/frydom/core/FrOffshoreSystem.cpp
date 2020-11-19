@@ -190,6 +190,10 @@ namespace frydom {
       system.m_physicsItemsList.push_back(item);
       event_logger::info(system.GetTypeName(), system.GetName(), "A physics item has been ADDED to the system");
     }
+
+    chrono::ChSystem *GetChronoSystem(FrOffshoreSystem *system) {
+      return system->m_chronoSystem.get();
+    }
 //    FrSystemBaseSMC::FrSystemBaseSMC(FrOffshoreSystem *offshoreSystem) : FrSystemBase(offshoreSystem) {}
 
 
