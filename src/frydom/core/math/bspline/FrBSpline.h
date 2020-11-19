@@ -47,7 +47,7 @@ namespace frydom {
 
         static unsigned int FindSpan(const double &u,
                                      const KnotVector &knots,
-                                     const int degree = 1) {
+                                     const int degree) {
           unsigned int n = knots.size() - 2 - degree;
 
           // assuming (p+1)-multiple end knots
@@ -72,7 +72,7 @@ namespace frydom {
         static std::vector<double> BasisFunctionsEval(const double &u,
                                                       const unsigned int ispan,
                                                       const KnotVector &knots,
-                                                      const int degree = 1) {
+                                                      const int degree) {
           // Returns the minimal basis function vector with size p+1
 
           std::vector<double> basis_functions(degree + 1);
@@ -101,7 +101,7 @@ namespace frydom {
                                       const unsigned int ispan,
                                       const unsigned int deriv_order,
                                       const KnotVector &knots,
-                                      const int degree = 1) {
+                                      const int degree) {
 
           Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> DN(deriv_order + 1, degree + 1);
 
@@ -174,7 +174,7 @@ namespace frydom {
         static FrBSpline<_dim>
         BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
                                 std::vector<double> &uk,
-                                const int degree = 1,
+                                const int degree,
                                 KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
 
           unsigned int n = points.size(); // Number of points to interpolate
@@ -224,8 +224,8 @@ namespace frydom {
 
           // Filling basis functions matrix A
           for (unsigned int i = 0; i < n; i++) {
-            unsigned int ispan = FindSpan(uk[i], knots);
-            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots);
+            unsigned int ispan = FindSpan(uk[i], knots, degree);
+            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots, degree);
 
             for (unsigned int j = 0; j <= degree; j++) {
               A(i, ispan - degree + j) = basis_functions[j];
@@ -263,7 +263,7 @@ namespace frydom {
         template<unsigned int _dim>
         static std::shared_ptr<FrBSpline<_dim>>
         BSplineInterpFromPoints(const std::vector<Point<_dim>> &points,
-                                const int degree = 1,
+                                const int degree,
                                 KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
           std::vector<double> uk;
           return BSplineInterpFromPoints<_dim>(points, uk, degree, knot_arrangement_type);
@@ -275,7 +275,7 @@ namespace frydom {
                                 const Direction<_dim> &dir_p0,
                                 const Direction<_dim> &dir_p1,
                                 std::vector<double> &uk,
-                                const int degree = 1,
+                                const int degree,
                                 KNOT_ARRANGEMENT_ALGO knot_arrangement_type = CHORD_LENGTH) {
 
           unsigned int n = points.size(); // Number of points to interpolate
@@ -325,8 +325,8 @@ namespace frydom {
 
           // Filling basis functions matrix A
           for (unsigned int i = 0; i < n; i++) {
-            unsigned int ispan = FindSpan(uk[i], knots);
-            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots);
+            unsigned int ispan = FindSpan(uk[i], knots, degree);
+            auto basis_functions = BasisFunctionsEval(uk[i], ispan, knots, degree);
 
             for (unsigned int j = 0; j <= degree; j++) {
               A(i, ispan - degree + j) = basis_functions[j];
@@ -411,7 +411,7 @@ namespace frydom {
      public:
       FrBSpline(const KnotVector knots,
                 const std::vector<Point<_dim>> &ctrl_points,
-                const int degree = 1) :
+                const int degree) :
           m_knots(std::move(knots)),
           m_ctrl_points(ctrl_points),
           m_degree(degree) {

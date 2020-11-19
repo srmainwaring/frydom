@@ -36,7 +36,7 @@ namespace frydom {
       void Build(FrFEACableBase *cable,                ///< mesh to store the resulting elements
                  std::shared_ptr<chrono::fea::ChBeamSectionCosserat> section, ///< section material for beam elements
                  const frydom::bspline::FrBSpline<3> &bspline,                         ///< the B-spline to be used as the centerline
-                 const int order = 1
+                 const int order
       ) {
         // TODO: voir si on passe le YDir en parametre (comme fait dans chrono) ou si on le calcule en place...
 
