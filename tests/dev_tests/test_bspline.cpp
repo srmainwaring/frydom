@@ -56,9 +56,10 @@ void test_basis_function() {
   knots.push_back(5.);
 
   double u = 5. / 2.;
-  auto span = FrBSplineTools<2>::FindSpan(u, knots);
+  double order = 2;
+  auto span = FrBSplineTools::FindSpan(u, knots, order);
 
-  auto basis = FrBSplineTools<2>::BasisFunctionsEval(5. / 2., span, knots);
+  auto basis = FrBSplineTools::BasisFunctionsEval(5. / 2., span, knots, order);
 
   assert(basis[0] == 1. / 8.);
   assert(basis[1] == 6. / 8.);
@@ -90,7 +91,8 @@ void test_interpolation() {
 
 
   std::vector<double> uk;
-  auto bspline_interp = FrBSplineTools<3>::BSplineInterpFromPoints<2>(points, uk);
+  double order = 3;
+  auto bspline_interp = FrBSplineTools::BSplineInterpFromPoints<2>(points, uk, order);
 
   // Checking back that the curve is passing among points
   for (int i = 0; i < n; i++) {

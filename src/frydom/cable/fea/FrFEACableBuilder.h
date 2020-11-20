@@ -33,10 +33,10 @@ namespace frydom {
       /// Adds beam FEM elements to the mesh to create a spline beam
       /// using ChElementBeamIGA type elements, given a B-spline line in 3D space.
       /// Before running, each time resets lists of beam_elems and beam_nodes.
-      template<unsigned int _order>
       void Build(FrFEACableBase *cable,                ///< mesh to store the resulting elements
                  std::shared_ptr<chrono::fea::ChBeamSectionCosserat> section, ///< section material for beam elements
-                 const frydom::bspline::FrBSpline<_order, 3> &bspline                         ///< the B-spline to be used as the centerline
+                 const frydom::bspline::FrBSpline<3> &bspline,                         ///< the B-spline to be used as the centerline
+                 const int order
       ) {
         // TODO: voir si on passe le YDir en parametre (comme fait dans chrono) ou si on le calcule en place...
 
@@ -48,7 +48,7 @@ namespace frydom {
         double rest_length = cable->GetFEACable()->GetUnstretchedLength() / (nb_ctrl_points - 1);
 
         // compute nb_span of spans (excluding start and end multiple knots with zero lenght span):
-        int nb_span = (int) bspline.GetNbKnots() - _order - _order - 1;  // = n+p+1 -p-p-1 = n-p
+        int nb_span = (int) bspline.GetNbKnots() - order - order - 1;  // = n+p+1 -p-p-1 = n-p
 
         double span_length = cable->GetFEACable()->GetUnstretchedLength() / nb_span;
 
@@ -84,18 +84,18 @@ namespace frydom {
         // Create the single elements by picking a subset of the nodes and control points
         for (int i_el = 0; i_el < nb_span; ++i_el) {
           std::vector<double> element_knots;
-          for (int i_el_knot = 0; i_el_knot < _order + _order + 1 + 1; ++i_el_knot) {
+          for (int i_el_knot = 0; i_el_knot < order + order + 1 + 1; ++i_el_knot) {
             element_knots.push_back(bspline.GetKnot(i_el + i_el_knot));
           }
 
           std::vector<std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> element_nodes;
-          for (int i_el_node = 0; i_el_node < _order + 1; ++i_el_node) {
+          for (int i_el_node = 0; i_el_node < order + 1; ++i_el_node) {
             element_nodes.push_back(fea_nodes[i_el + i_el_node]);
           }
 
           auto environment = cable->GetFEACable()->GetSystem()->GetEnvironment();
           auto element_i = std::make_shared<internal::FrFEACableElementBase>(environment);
-          element_i->SetNodesGenericOrder(element_nodes, element_knots, _order);
+          element_i->SetNodesGenericOrder(element_nodes, element_knots, order);
           element_i->SetSection(section);
           element_i->SetRestLength(rest_length);
           cable->AddElement(element_i);

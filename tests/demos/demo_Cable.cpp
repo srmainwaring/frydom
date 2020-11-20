@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   };
 
   // Chose the one you want to run
-  cableCase Case = Newton_Pendulum;
+  cableCase Case = Pendulum;
 
   // Line properties :
   bool elastic = true;                      //  non elastic catenary lines are only available for non strained lines
@@ -131,7 +131,8 @@ int main(int argc, char *argv[]) {
       // Dynamic cable properties :
       unstrainedLength -= 1.;
 
-      auto DynamicCable = make_fea_cable("DynamicCable", sphereNode2, worldNode2, cableProp, unstrainedLength, nbElement);
+      int order = 2;
+      auto DynamicCable = make_fea_cable("DynamicCable", sphereNode2, worldNode2, cableProp, unstrainedLength, nbElement, order);
 
 
       break;
