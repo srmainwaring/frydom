@@ -37,6 +37,7 @@ option(frydom_build_demo "Build demo tests" ON)
 option(frydom_build_validation "Build demo tests" ON)
 option(frydom_build_dev_test "Build dev test" ON)
 option(frydom_download_demo_data "Downloading demo data" ON)
+set(frydom_data_version "1.1.5" CACHE STRING "Data version")
 
 option(frydom_build_tools "Build the standalone tools" ON)
 

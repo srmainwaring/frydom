@@ -3,13 +3,11 @@
 #-------------------------------------------------------------------------------
 function(DownloadData)
 
-    include(${CMAKE_CURRENT_SOURCE_DIR}/data/DEMO_DATA_VERSION.conf.cmake)
-
     message(STATUS "...Downloading data for demos and tests")
 
     set(AWS_URL https://frydom-ce-data.s3.amazonaws.com/demo)
 
-    set(DATA_FILE_CE data_v${TEST_DATA_VERSION}.tar.gz)
+    set(DATA_FILE_CE data_v${frydom_data_version}.tar.gz)
 
     set(OUT ${CMAKE_SOURCE_DIR}/data/ce/${DATA_FILE_CE})
 
