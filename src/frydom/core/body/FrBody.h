@@ -13,6 +13,8 @@
 #ifndef FRYDOM_FRBODY_H
 #define FRYDOM_FRBODY_H
 
+#include <frydom/core/contact/FrContactNSC.h>
+
 #include "chrono/physics/ChBodyAuxRef.h"
 
 #include "frydom/asset/FrAssetOwner.h"
@@ -30,7 +32,6 @@ namespace chrono {
 }
 
 namespace frydom {
-
 
   // Forward declarations
   class FrUnitQuaternion;
@@ -98,7 +99,7 @@ namespace frydom {
 
       chrono::ChVariables &Variables() override;
 
-      chrono::ChVariables *GetVariables1() override { return &*m_variables_ptr.get(); }
+      chrono::ChVariables *GetVariables1() override;
 
       void SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables);
 
@@ -143,6 +144,10 @@ namespace frydom {
 
   class FrDOFMask;
 
+  class FrContactParamsSMC;
+
+  class FrContactParamsNSC;
+
   /// Main class for a FRyDoM rigid body
   /**
    * \class FrBody
@@ -160,22 +165,13 @@ namespace frydom {
     using NodeContainer = std::vector<std::shared_ptr<FrNode>>;
     NodeContainer m_nodes;                    ///< Container of the nodes belonging to the body
 
-    using CONTACT_TYPE = FrOffshoreSystem::SYSTEM_TYPE;
-    CONTACT_TYPE m_contactType = CONTACT_TYPE::SMOOTH_CONTACT; ///< The contact method that has to be consistent with that of the FrOffshoreSystem
-
-
     std::unique_ptr<FrDOFMask> m_DOFMask;
-//        std::shared_ptr<FrLink> m_DOFLink;
 
    public:
 
     /// Default constructor
     FrBody(const std::string &name, FrOffshoreSystem *system);
 
-//    /// Get the FrOffshoreSystem where the body has been registered
-//    inline FrOffshoreSystem *GetSystem() const {
-//      return GetParent();
-//    }
     ~FrBody() = default;
 
     /// Make the body fixed
@@ -233,23 +229,6 @@ namespace frydom {
     // CONTACT
     // =============================================================================================================
 
-    /// Set the contact method to SMOOTH
-    /// The system where the body is registered must be consistent
-    void SetSmoothContact();
-
-    /// Set the contact method to NONSMOOTH
-    /// The system where the body is registered must be consistent
-    void SetNonSmoothContact();
-
-    /// Set the contact method (SMOOTH or NONSMOOTH)
-    /// The system where the body is registered must be consistent
-    /// \param contactType contact method to be used (SMOOTH/NONSMOOTH)
-    void SetContactMethod(CONTACT_TYPE contactType);
-
-    /// Get the contact method of this body
-    /// \return contact method used (SMOOTH/NONSMOOTH)
-    CONTACT_TYPE GetContactType() const;
-
     /// Set the collide mode. If true, a collision shape must be set and the body will participate in physical
     /// collision with other physical collision enabled items
     /// \param isColliding true if a collision model is to be defined, false otherwise
@@ -257,18 +236,22 @@ namespace frydom {
 
     /// Get the collision model, containing the collision box
     /// \return collision model
-    FrCollisionModel *GetCollisionModel();
+    FrCollisionModel *GetCollisionModel(); // TODO: utile de proposer ???
 
     /// Set the collision model, containing the collision box
     /// \param collisionModel collision model, containing the collision box
     void SetCollisionModel(std::shared_ptr<FrCollisionModel> collisionModel);
+    // TODO voir si on garde en l'etat, on pourrait avoir notre propre logique, plus simple
 
-    void SetMaterialSurface(const std::shared_ptr<chrono::ChMaterialSurfaceSMC> &materialSurface) {
-      m_chronoBody->SetMaterialSurface(materialSurface);
-    }
+    std::shared_ptr<FrContactParamsSMC> GetContactParamsSMC();
 
-    std::shared_ptr<chrono::ChMaterialSurfaceSMC>
-    GetMaterialSurface() { return m_chronoBody->GetMaterialSurfaceSMC(); }
+    void SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p);
+
+    std::shared_ptr<FrContactParamsNSC> GetContactParamsNSC();
+
+    void SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p);
+
+    Force GetContactForceInWorld(FRAME_CONVENTION fc);
 
     // =============================================================================================================
     // SPEED LIMITATIONS TO STABILIZE SIMULATIONS
@@ -604,7 +587,6 @@ namespace frydom {
     void
     SetGeneralizedVelocityInBody(const Velocity &bodyVel, const AngularVelocity &bodyAngVel, FRAME_CONVENTION fc);
 
-
     /// Get the velocity of the body reference frame with a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
     /// \return body velocity in world reference frame
@@ -614,7 +596,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body velocity in body reference frame
     Velocity GetVelocityInBody(FRAME_CONVENTION fc) const;
-
 
     /// Get the velocity of the body COG with a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
@@ -656,7 +637,6 @@ namespace frydom {
     /// \return COG acceleration in body reference frame
     Acceleration GetCOGAccelerationInBody(FRAME_CONVENTION fc) const;
 
-
     /// Set the body angular velocity from a vector expressed in WORLD frame
     /// \param worldAngVel body angular velocity in world reference frame
     /// \param fc frame convention (NED/NWU)
@@ -669,7 +649,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     void SetAngularVelocityInBody(const AngularVelocity &bodyAngVel, FRAME_CONVENTION fc);
 
-
     /// Get the body angular velocity from a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
     /// \return body angular velocity in world reference frame
@@ -679,7 +658,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body angular velocity in body reference frame
     AngularVelocity GetAngularVelocityInBody(FRAME_CONVENTION fc) const;
-
 
     /// Set the body angular acceleration from a vector expressed in WORLD frame
     /// \param worldAngAcc body angular acceleration in world reference frame
@@ -691,7 +669,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     void SetAngularAccelerationInBody(const AngularAcceleration &bodyAngAcc, FRAME_CONVENTION fc);
 
-
     /// Get the body angular acceleration from a vector expressed in WORLD frame
     /// \param fc frame convention (NED/NWU)
     /// \return body angular acceleration in world reference frame
@@ -701,7 +678,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body angular acceleration in body reference frame
     AngularAcceleration GetAngularAccelerationInBody(FRAME_CONVENTION fc) const;
-
 
     /// Get the velocity expressed in world frame of a body fixed point whose coordinates are given in world frame
     /// \param worldPoint point position in world reference frame, at which the velocity is requested
@@ -727,7 +703,6 @@ namespace frydom {
     /// \return body velocity expressed in body reference frame
     Velocity GetVelocityInBodyAtPointInBody(const Position &bodyPoint, FRAME_CONVENTION fc) const;
 
-
     /// Get the acceleration expressed in world frame of a body fixed point whose coordinates are given in world frame
     /// \param worldPoint point position in world reference frame, at which the acceleration is requested
     /// \param fc frame convention (NED/NWU)
@@ -751,7 +726,6 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return body acceleration expressed in body reference frame
     Acceleration GetAccelerationInBodyAtPointInBody(const Position &bodyPoint, FRAME_CONVENTION fc) const;
-
 
     /// Set the velocity expressed in WORLD frame of a body fixed point whose coordinates are given in WORLD frame
     /// along with the angular velocity expressed in WORLD frame so that the velocity state is totally defined
@@ -965,6 +939,8 @@ namespace frydom {
 
     void InitializeLockedDOF();
 
+    void SetContactMethod();
+
    public:
 
     void SetupInitial();
@@ -1013,6 +989,7 @@ namespace frydom {
     friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(FrBody *body);
 
   };
+
 
 //  FRYDOM_DECLARE_CLASS_TYPE(FrBody, "Body")
 

@@ -64,53 +64,55 @@ namespace frydom {
 
   namespace internal {
 
-    FrSystemBaseSMC::FrSystemBaseSMC(frydom::FrOffshoreSystem *offshoreSystem) :
-        chrono::ChSystemSMC(),
+    template <class SystemType>
+    FrSystemBase<SystemType>::FrSystemBase(frydom::FrOffshoreSystem *offshoreSystem) :
+        SystemType(),
         m_offshoreSystem(offshoreSystem) {}
 
-    void FrSystemBaseSMC::Update(bool update_assets) {
+    template <class SystemType>
+    void FrSystemBase<SystemType>::Update(bool update_assets) {
 
       // Note : there is no ChAssembly::Update() as it is better expanded here...
 
       CH_PROFILE("Update");
 
-      timer_update.start();  // Timer for profiling
+      SystemType::timer_update.start();  // Timer for profiling
 
       // Pre updates that are not about multibody dynamics
       m_offshoreSystem->PreUpdate();
 
       // Executes the "forUpdate" in all controls of controlslist
-      ExecuteControlsForUpdate();
+      SystemType::ExecuteControlsForUpdate();
 
       // Physics item that have to be updated before all
-      m_offshoreSystem->PrePhysicsUpdate(ChTime, update_assets);
+      m_offshoreSystem->PrePhysicsUpdate(SystemType::ChTime, update_assets);
 
       // Bodies updates  // FIXME : appeler les updates directement des objets frydom !
-      for (auto &body : bodylist) {
-        body->Update(ChTime, update_assets);
+      for (auto &body : SystemType::bodylist) {
+        body->Update(SystemType::ChTime, update_assets);
 //            body->Update(ChTime, update_assets);  // FIXME : Appel redondant
       }
 
-      for (auto &physics_item : otherphysicslist) {
-        physics_item->Update(ChTime, update_assets);
+      for (auto &physics_item : SystemType::otherphysicslist) {
+        physics_item->Update(SystemType::ChTime, update_assets);
       }
 
       // Links updates  // FIXME : appeler les updates directement des objets frydom !
-      for (auto &link : linklist) {
-        link->Update(ChTime, update_assets);
+      for (auto &link : SystemType::linklist) {
+        link->Update(SystemType::ChTime, update_assets);
       }
 
-      for (auto &mesh : meshlist) {
-        mesh->Update(ChTime, update_assets);
+      for (auto &mesh : SystemType::meshlist) {
+        mesh->Update(SystemType::ChTime, update_assets);
       }
 
       // Update all contacts, if any
-      contact_container->Update(ChTime, update_assets);
+      SystemType::contact_container->Update(SystemType::ChTime, update_assets);
 
       // Post updates that are not about multibody dynamics
       m_offshoreSystem->PostUpdate();
 
-      timer_update.stop();
+      SystemType::timer_update.stop();
 
     }
 
@@ -156,15 +158,16 @@ namespace frydom {
 //            return reach_tolerance;
 //        }
 
-    bool FrSystemBaseSMC::DoStaticLinear() {
+    template <class SystemType>
+    bool FrSystemBase<SystemType>::DoStaticLinear() {
       // Set no speed and accel. on bodies, meshes and other physics items
-      for (auto &body : bodylist) {
+      for (auto &body : SystemType::bodylist) {
         body->SetNoSpeedNoAcceleration();
       }
-      for (auto &mesh : meshlist) {
+      for (auto &mesh : SystemType::meshlist) {
         mesh->SetNoSpeedNoAcceleration();
       }
-      for (auto &ip : otherphysicslist) {
+      for (auto &ip : SystemType::otherphysicslist) {
         ip->SetNoSpeedNoAcceleration();
       }
       return true;
@@ -175,11 +178,24 @@ namespace frydom {
 //      m_offshoreSystem->StepFinalize();
 //    }
 
-    bool FrSystemBaseSMC::Integrate_Y() {
+    template <class SystemType>
+    bool FrSystemBase<SystemType>::Integrate_Y() {
       auto output = chrono::ChSystem::Integrate_Y();
       m_offshoreSystem->StepFinalize();
       return output;
     }
+
+    void AddPhysicsItem(FrOffshoreSystem& system, std::shared_ptr<FrPhysicsItem> item) {
+      system.m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(item));
+      system.m_physicsItemsList.push_back(item);
+      event_logger::info(system.GetTypeName(), system.GetName(), "A physics item has been ADDED to the system");
+    }
+
+    chrono::ChSystem *GetChronoSystem(FrOffshoreSystem *system) {
+      return system->m_chronoSystem.get();
+    }
+//    FrSystemBaseSMC::FrSystemBaseSMC(FrOffshoreSystem *offshoreSystem) : FrSystemBase(offshoreSystem) {}
+
 
   }  // end namespace frydom::internal
 
@@ -240,10 +256,10 @@ namespace frydom {
 
   void FrOffshoreSystem::AddBody(std::shared_ptr<FrBody> body) {
 
-    // TODO : voir si on set pas d'autorite le mode de contact a celui du systeme plutot que de faire un if...
-    if (!CheckBodyContactMethod(body)) {
-      body->SetContactMethod(m_systemType);
-    }
+//    // TODO : voir si on set pas d'autorite le mode de contact a celui du systeme plutot que de faire un if...
+//    if (!CheckBodyContactMethod(body)) {
+//      body->SetContactMethod(m_systemType);
+//    }
 
     m_chronoSystem->AddBody(internal::GetChronoBody(body));  // Authorized because this method is a friend of FrBody
     m_bodyList.push_back(body);
@@ -689,7 +705,7 @@ namespace frydom {
         break;
       case NONSMOOTH_CONTACT:
         std::cout << "NSC systems is not tested for now !!!!" << std::endl;
-        m_chronoSystem = std::make_unique<internal::FrSystemBaseNSC>();
+        m_chronoSystem = std::make_unique<internal::FrSystemBaseNSC>(this);
         break;
     }
 
@@ -703,8 +719,12 @@ namespace frydom {
 
   }
 
-  bool FrOffshoreSystem::CheckBodyContactMethod(std::shared_ptr<FrBody> body) {
-    return m_systemType == body->GetContactType();
+//  bool FrOffshoreSystem::CheckBodyContactMethod(std::shared_ptr<FrBody> body) {
+//    return m_systemType == body->GetContactType();
+//  }
+
+  FrOffshoreSystem::SYSTEM_TYPE FrOffshoreSystem::GetSystemType() const {
+    return m_systemType;
   }
 
   void FrOffshoreSystem::SetSolver(SOLVER solver, bool checkCompat) {
@@ -942,6 +962,13 @@ namespace frydom {
     m_chronoSystem->SetMaxPenetrationRecoverySpeed(speed);
   }
 
+  Force FrOffshoreSystem::GetContactForceOnBodyInWorld(FrBody* body, FRAME_CONVENTION fc) const {
+    auto ChForce = m_chronoSystem->GetContactContainer()->GetContactableForce(internal::GetChronoBody(body).get());
+    auto force = internal::ChVectorToVector3d<Force>(ChForce);
+    if(IsNED(fc)) internal::SwapFrameConvention(force);
+    return force;
+  }
+
   int FrOffshoreSystem::GetNbPositionCoords() const {
     return m_chronoSystem->GetNcoords();
   }
@@ -1143,14 +1170,14 @@ namespace frydom {
     m_worldBody->SetFixedInWorld(true);
 //      m_worldBody->SetName("WorldBody");
 //      m_worldBody->SetLogged(false);
-    switch (m_systemType) {
-      case SMOOTH_CONTACT:
-        m_worldBody->SetSmoothContact();
-        break;
-      case NONSMOOTH_CONTACT:
-        m_worldBody->SetNonSmoothContact();
-        break;
-    }
+//    switch (m_systemType) {
+//      case SMOOTH_CONTACT:
+//        m_worldBody->SetSmoothContact();
+//        break;
+//      case NONSMOOTH_CONTACT:
+//        m_worldBody->SetNonSmoothContact();
+//        break;
+//    }
     Add(m_worldBody);
     m_worldBody->LogThis(false);  // No log for the world body
   }
@@ -1159,14 +1186,14 @@ namespace frydom {
     auto body = std::make_shared<FrBody>(name, this);
     // TODO : suivant le type de systeme SMC ou NSC, regler le type de surface...
 
-    switch (m_systemType) {
-      case SMOOTH_CONTACT:
-        body->SetSmoothContact();
-        break;
-      case NONSMOOTH_CONTACT:
-        body->SetNonSmoothContact();
-        break;
-    }
+//    switch (m_systemType) {
+//      case SMOOTH_CONTACT:
+//        body->SetSmoothContact();
+//        break;
+//      case NONSMOOTH_CONTACT:
+//        body->SetNonSmoothContact();
+//        break;
+//    }
 
     Add(body);
     return body;

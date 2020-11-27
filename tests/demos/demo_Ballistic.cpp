@@ -43,11 +43,15 @@ int main(int argc, char *argv[]) {
 
   // ------------------ Balls ------------------ //
 
-  // Set the number of balls you want, their radius and density.
+  // Set the number of balls you want, their radius and mass.
   int n_balls = 10;
   double dtheta = 2 * M_PI / n_balls;
   double radius = 1.;
-  double density = 250;
+  double mass = 50;
+
+  // Contact parameters for NSC
+  auto contact_params_NSC = MakeDefaultContactParamsNSC();
+  contact_params_NSC->restitution = 0.3;
 
   // Create as many balls as specified
   for (int ib = 0; ib < n_balls; ++ib) {
@@ -55,8 +59,11 @@ int main(int argc, char *argv[]) {
     std::string ballName = "Ball_" + std::to_string(ib);
     auto ball = system.NewBody(ballName);
 
+    // Set the contact parameters
+    ball->SetContactParamsNSC(contact_params_NSC);
+
     // Make it a sphere, with a collision box, spheric asset and inertia tensor automatically calculated
-    makeItSphere(ball, radius, density);
+    makeItSphere(ball, radius, mass);
 
     // Set the color
     ball->SetColor(Red);
@@ -78,7 +85,7 @@ int main(int argc, char *argv[]) {
   // Now you are ready to perform the simulation and you can watch its progression in the viewer. You can adjust
   // the time length of the simulation (here 15) and the distance from the camera to the objectif (75m).
   // For saving snapshots of the simulation, just turn the boolean to true.
-  system.RunInViewer(15, 75, false);
+  system.RunInViewer(1000, 75, true);
 
 
 }

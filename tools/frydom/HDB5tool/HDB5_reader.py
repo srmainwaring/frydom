@@ -563,7 +563,7 @@ class HDB5reader_v2(HDB5reader):
         if(pyHDB.has_VF):
             body.poles_residues = []
 
-        for j in range(pyHDB.nb_bodies):
+        for j in range(pyHDB.nb_bodies): # Body motion.
 
             # Paths.
             radiation_body_motion_path = radiation_path + "/BodyMotion_%u" % j

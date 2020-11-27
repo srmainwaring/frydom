@@ -9,17 +9,10 @@
 //
 // ==========================================================================
 
-#ifndef FRYDOM_FRBEMBODY_H
-#define FRYDOM_FRBEMBODY_H
+#ifndef FRYDOM_FRCONTACTINC_H
+#define FRYDOM_FRCONTACTINC_H
 
-#include "hdb5_io/HDB5_io.h"
+#include "FrContactSMC.h"
+#include "FrContactNSC.h"
 
-namespace frydom {
-
-  using FrBEMBody = HDB5_io::Body;
-
-  using FrMask = HDB5_io::Mask;
-
-}
-
-#endif //FRYDOM_FRBEMBODY_H
+#endif //FRYDOM_FRCONTACTINC_H

@@ -13,7 +13,6 @@
 #ifndef FRYDOM_FRCORE_H_H
 #define FRYDOM_FRCORE_H_H
 
-//#include "FrPlatform.h"
 #include "FrOffshoreSystem.h"
 
 #include "body/FrBodyInc.h"
@@ -23,5 +22,6 @@
 #include "math/FrMathInc.h"
 #include "misc/FrMiscInc.h"
 #include "statics/FrStaticsInc.h"
+#include "contact/FrContactInc.h"
 
 #endif //FRYDOM_FRCORE_H_H
