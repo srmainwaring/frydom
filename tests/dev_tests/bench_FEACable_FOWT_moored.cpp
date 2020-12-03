@@ -12,7 +12,9 @@ enum CASES {
   HARMONIC_SWAY,
   HARMONIC_HEAVE,
   AIRY_0_DEG,
-  AIRY_90_DEG
+  AIRY_90_DEG,
+  CURRENT_0,
+  CURRENT_90
 };
 
 enum LINK_CASES {
@@ -62,6 +64,11 @@ class MovingBody : public FrBody {
         SetVelocityInWorldNoRotation({0., m_motion_fct.Get_y_dx(time), 0.}, NWU);
         SetAccelerationInWorldNoRotation({0., m_motion_fct.Get_y_dxdx(time), 0.}, NWU);
         break;
+      case HARMONIC_HEAVE:
+        SetPosition({0., 0., m_motion_fct.Get_y(time)}, NWU);
+        SetVelocityInWorldNoRotation({0., 0., m_motion_fct.Get_y_dx(time)}, NWU);
+        SetAccelerationInWorldNoRotation({0., 0., m_motion_fct.Get_y_dxdx(time)}, NWU);
+        break;
     }
 
     FrBody::Update();
@@ -87,7 +94,7 @@ void make_body_with_motion(FrOffshoreSystem* system, std::shared_ptr<FrBody>& bo
 
   auto new_body = std::make_shared<MovingBody>("platform_motion", system, function, bench_case);
   new_body->SetFixedInWorld(true);
-  new_body->SetSmoothContact();
+  //new_body->SetSmoothContact();
 
   system->Remove(body);
   system->Add(new_body);
@@ -139,7 +146,8 @@ std::shared_ptr<FrBody> make_body_with_motorlink(FrOffshoreSystem* system, std::
   return body;
 }
 
-void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir) {
+void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir,
+    double current_dir, double current_speed) {
 
   // Seabed
   auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
@@ -150,7 +158,8 @@ void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double 
   // FreeSurface
   auto ocean = system.GetEnvironment()->GetOcean();
   ocean->ShowFreeSurface(true);
-  ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-1000, 1000, 200, -1000, 1000, 200);
+  //ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-1000, 1000, 200, -1000, 1000, 200);
+  ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-150, 150, 10, -150, 150, 10);
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
   // Current
@@ -201,12 +210,18 @@ std::shared_ptr<FrCableProperties> InitializeCableProperties() {
 
 int main(int argc, char* argv[]) {
 
-  FrOffshoreSystem system("bench_FEACable_FOWT_moored");
+  FrOffshoreSystem system("bench_FEACable_FOWT_moored",
+                          FrOffshoreSystem::SYSTEM_TYPE ::SMOOTH_CONTACT,
+                          FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::SOLVER::MINRES);
 
+  int nb_elements = 30;
   if (argc >= 2) {
-    auto i_case = (int)*argv[1];
+    auto i_case = std::atoi(argv[1]);
     BENCH_CASE = CASES(i_case);
+    nb_elements = std::atoi(argv[2]);
     std::cout << "* CASES : " << BENCH_CASE << std::endl;
+    std::cout << "* NB_ELEMENTS : " << nb_elements << std::endl;
   }
 
   // Environment
@@ -244,6 +259,10 @@ int main(int argc, char* argv[]) {
     case HARMONIC_SWAY:
       motion_amplitude = 10.;
       break;
+    case HARMONIC_HEAVE:
+      period = 30.;
+      motion_amplitude = 5.;
+      break;
     default:
       break;
   }
@@ -268,7 +287,6 @@ int main(int argc, char* argv[]) {
   // Cable
 
   double cable_length = 835.500; // m
-  int nb_elements = 30;
 
   // Anchor points
   auto world_body = system.GetWorldBody();
@@ -301,9 +319,9 @@ int main(int argc, char* argv[]) {
   auto cable_properties = InitializeCableProperties();
 
   // Create the cables
-  auto cable_1 = make_fea_cable("cable_1", G1, T1, cable_properties, cable_length, nb_elements);
-  auto cable_2 = make_fea_cable("cable_2", G2, T2, cable_properties, cable_length, nb_elements);
-  auto cable_3 = make_fea_cable("cable_3", G3, T3, cable_properties, cable_length, nb_elements);
+  auto cable_1 = make_fea_cable("cable_1", G1, T1, cable_properties, cable_length, nb_elements, 2);
+  auto cable_2 = make_fea_cable("cable_2", G2, T2, cable_properties, cable_length, nb_elements, 2);
+  auto cable_3 = make_fea_cable("cable_3", G3, T3, cable_properties, cable_length, nb_elements, 2);
 
   // Set Motion
 
@@ -322,11 +340,11 @@ int main(int argc, char* argv[]) {
     timestepper->SetGammaBeta(0.9, 0.8);
   }
 
-  system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
+  //system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverWarmStarting(true);
   system.SetSolverMaxIterSpeed(1000);
   system.SetSolverMaxIterStab(1000);
-  system.SetSolverForceTolerance(1e-7);
+  system.SetSolverForceTolerance(1e-9);
   system.SetSolverDiagonalPreconditioning(true);
 
   // Time step
@@ -344,7 +362,7 @@ int main(int argc, char* argv[]) {
   system.SolveStaticWithRelaxation();
 
   // Run simulation
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(t_max, 100., false, 10);
@@ -352,16 +370,16 @@ int main(int argc, char* argv[]) {
     double time = 0.;
     while(time < t_max) {
 
-      if (motion_amplitude > DBL_EPSILON and BENCH_LINK == SET_MOTION) {
-        body->SetPosition({function.Get_y(time), 0., 0.}, NWU);
-        body->SetVelocityInWorldNoRotation({function.Get_y_dx(time), 0., 0.}, NWU);
-        body->SetAccelerationInWorldNoRotation({function.Get_y_dxdx(time), 0., 0.}, NWU);
-      }
+      //if (motion_amplitude > DBL_EPSILON and BENCH_LINK == SET_MOTION) {
+      //  body->SetPosition({function.Get_y(time), 0., 0.}, NWU);
+      //  body->SetVelocityInWorldNoRotation({function.Get_y_dx(time), 0., 0.}, NWU);
+      //  body->SetAccelerationInWorldNoRotation({function.Get_y_dxdx(time), 0., 0.}, NWU);
+      //}
 
+      time += dt;
       system.AdvanceTo(time);
       std::cout << "time = " << time << " s ; ";
-      std::cout << "surge : " << function.Get_y(time) << std::endl;
-      time += dt;
+
     }
   }
 
