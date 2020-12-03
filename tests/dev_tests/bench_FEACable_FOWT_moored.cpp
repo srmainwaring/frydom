@@ -146,8 +146,7 @@ std::shared_ptr<FrBody> make_body_with_motorlink(FrOffshoreSystem* system, std::
   return body;
 }
 
-void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir,
-    double current_dir, double current_speed) {
+void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir) {
 
   // Seabed
   auto seabed = system.GetEnvironment()->GetOcean()->GetSeabed();
