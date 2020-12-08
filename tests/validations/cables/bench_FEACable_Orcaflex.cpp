@@ -18,7 +18,7 @@ enum CASES {
 };
 
 
-CASES BENCH_CASE = HARMONIC_SURGE;
+CASES BENCH_CASE = STATIC;
 
 
 void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir) {
@@ -98,8 +98,8 @@ int main() {
   double cable_length = 170.; // m
 //  int nb_elements = 68;
 
-  int bspline_order = 1;
-  int nb_elements = 68; // 44
+  int bspline_order = 2;
+  int nb_elements = 15; // 44
 
   double dt = 0.01;
   double t_max = 100;
@@ -234,9 +234,9 @@ int main() {
 
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(500);
-  system.SetSolverMaxIterStab(500);
-  system.SetSolverForceTolerance(1e-14);
+  system.SetSolverMaxIterSpeed(1000);
+  system.SetSolverMaxIterStab(1000);
+  system.SetSolverForceTolerance(1e-9);
   system.SetSolverDiagonalPreconditioning(true);
 
   system.SetTimeStep(dt);

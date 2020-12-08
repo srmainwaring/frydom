@@ -37,9 +37,20 @@ Langlee - validation of the multibody hydrodynamic interactions
 
     langlee
 
+Morison - Validation FRyDoM / Deeplines
++++++++++++++++++++++++++++++++++++++++
+.. toctree::
+    :maxdepth: 2
+
+    bench_morison_model
+    bench_jacket_offshore
+
+
 Cables and mooring
 ~~~~~~~~~~~~~~~~~~
 .. toctree::
     :maxdepth: 2
 
     comparisons_catenary_dynamic_cables
+    mooring_lines_fowt
+    hanging_cable

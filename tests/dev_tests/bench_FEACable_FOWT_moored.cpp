@@ -179,7 +179,7 @@ void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double 
 
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
-  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., wave_period, 1.);
+  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(50., 0., 50+wave_period, 1.);
   system.GetEnvironment()->GetTimeRamp()->SetActive(true);
 
 }
@@ -201,7 +201,7 @@ std::shared_ptr<FrCableProperties> InitializeCableProperties() {
   cable_properties->SetDragCoefficients(1.1, 0.);
   cable_properties->SetAddedMassCoefficients(1., 0.);
 
-  cable_properties->SetRayleighDamping(1e4);
+  //cable_properties->SetRayleighDamping(1e4);
 
   return cable_properties;
 }
@@ -318,9 +318,9 @@ int main(int argc, char* argv[]) {
   auto cable_properties = InitializeCableProperties();
 
   // Create the cables
-  auto cable_1 = make_fea_cable("cable_1", G1, T1, cable_properties, cable_length, nb_elements, 2);
-  auto cable_2 = make_fea_cable("cable_2", G2, T2, cable_properties, cable_length, nb_elements, 2);
-  auto cable_3 = make_fea_cable("cable_3", G3, T3, cable_properties, cable_length, nb_elements, 2);
+  auto cable_1 = make_fea_cable("cable_1", G1, T1, cable_properties, cable_length, nb_elements, 1);
+  auto cable_2 = make_fea_cable("cable_2", G2, T2, cable_properties, cable_length, nb_elements, 1);
+  auto cable_3 = make_fea_cable("cable_3", G3, T3, cable_properties, cable_length, nb_elements, 1);
 
   // Set Motion
 
@@ -348,7 +348,7 @@ int main(int argc, char* argv[]) {
 
   // Time step
   double dt = 0.01;
-  double t_max = 250.;
+  double t_max = 100.;
 
   system.SetTimeStep(dt);
 
@@ -358,6 +358,8 @@ int main(int argc, char* argv[]) {
   // Solve static
   system.GetStaticAnalysis()->SetNbIteration(40);
   system.GetStaticAnalysis()->SetNbSteps(50);
+  system.GetStaticAnalysis()->SetTolerance(1E-08);
+
   system.SolveStaticWithRelaxation();
 
   // Run simulation
