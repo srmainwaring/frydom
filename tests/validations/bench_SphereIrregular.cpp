@@ -249,7 +249,7 @@ int main(int argc, char *argv[]) {
 
   // -- Simulation
 
-  auto dt = 0.02;
+  auto dt = 0.01;
 
   system.SetTimeStep(dt);
   system.Initialize();
