@@ -64,9 +64,7 @@ namespace frydom {
   FrMask FrHydroDB::GetBodyDOFMask(FrBEMBody *BEMBody) const {
 
     auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
-    //##CC - Comment to force computation of force
-    //DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
-    //##
+    DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
 
     return DOFMask&&BEMBody->GetForceMask();
   }
