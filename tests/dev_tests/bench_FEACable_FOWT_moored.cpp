@@ -210,7 +210,7 @@ std::shared_ptr<FrCableProperties> InitializeCableProperties() {
 int main(int argc, char* argv[]) {
 
   FrOffshoreSystem system("bench_FEACable_FOWT_moored",
-                          FrOffshoreSystem::SYSTEM_TYPE ::SMOOTH_CONTACT,
+                          FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
                           FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::SOLVER::MINRES);
 
