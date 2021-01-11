@@ -26,12 +26,12 @@ namespace frydom {
                                      FrBody *body,
                                      std::shared_ptr<FrHydroDB> hdb)
       : FrForce(name, TypeToString(this), body),
-        m_hdb(hdb) {}
+        m_hdb(hdb), m_threshold(10.) {}
 
   void FrWaveDriftForce::Compute(double time) {
 
-    auto force = Force();
-    auto torque = Torque();
+    auto force = Force(); force.SetNull();
+    auto torque = Torque(); torque.SetNull();
 
     auto body = GetBody();
 
@@ -162,7 +162,9 @@ namespace frydom {
       std::vector<double> freqDir;
       freqDir.reserve(nbFreq);
       for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
-        freqDir.push_back(waveFrequencies[ifreq] - waveNumbers[ifreq] * velocity[idir]);
+        auto freq = waveFrequencies[ifreq] - waveNumbers[ifreq] * velocity[idir];
+        if (freq < m_threshold)
+          freqDir.push_back(freq);
       }
       waveEncounterFrequencies.push_back(freqDir);
     }
