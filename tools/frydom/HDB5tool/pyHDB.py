@@ -495,6 +495,23 @@ class pyHDB():
             f_interp_kochin_radiation_freq = interpolate.interp1d(self.wave_freq, self.kochin_radiation, axis=1) # axis = 1 -> wave frequencies.
             self.kochin_radiation = f_interp_kochin_radiation_freq(discretization._wave_frequencies) # Application of the interpolation.
 
+        # Mean wave drift loads.
+        if self.has_Drift:
+
+            # Wave frequencies.
+            f_interp_Drift_freq = interpolate.interp1d(self.wave_freq, self.Wave_drift_force, axis=1) # axis = 1 -> wave frequencies.
+            self.Wave_drift_force = f_interp_Drift_freq(discretization._wave_frequencies)
+
+            # Wave directions.
+            if (self.nb_wave_dir > 1): # Several wave directions, so the interpolation is possible.
+
+                f_interp_Drift_dir = interpolate.interp1d(self.wave_dir, self.Wave_drift_force, axis=2) # axis = 2 -> wave directions.
+                self.Wave_drift_force = f_interp_Drift_dir(discretization._wave_dirs) # Application of the interpolation.
+
+            else:  # Only one wave direction so the data are copied along a second direction.
+
+                self.Wave_drift_force = np.repeat(self.Wave_drift_force, 2, axis=2) # axis = 2 -> wave directions.
+
         # Update wave directions and frequencies vectors.
         self.min_wave_freq = discretization._min_frequency
         self.max_wave_freq = discretization._max_frequency
