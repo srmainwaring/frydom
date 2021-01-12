@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
 //  if (argv[1]) { iPeriod = atoi(argv[1]); }
 //  if (argv[2]) { iSteepness = atoi(argv[2]); }
 
-  bool recursive_radiation = true;
+  bool recursive_radiation = false;
 
   // -- System
 
@@ -132,14 +132,14 @@ int main(int argc, char *argv[]) {
 //  double Tp = param[0];
 
   auto waveField = ocean->GetFreeSurface()->SetAiryIrregularWaveField();
-//  double Hs = 0.5;
-//  double Tp = 4.4;
-//  double gamma = 1.0;
+//  double Hs = 1.;
+//  double Tp = 10.;
+//  double gamma = 3.3;
 //
 //  auto Jonswap = waveField->SetJonswapWaveSpectrum(Hs, Tp, gamma);
-//  double w1 = 0.5;
+//  double w1 = 0.1;
 //  double w2 = 2;
-//  unsigned int nbFreq = 20;
+//  unsigned int nbFreq = 100;
 //  waveField->SetWaveFrequencies(w1, w2, nbFreq);
 //  waveField->SetMeanWaveDirection(Direction(NORTH(NWU)), NWU, GOTO);
 //  double spreadingFactor = 10.;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 //  waveField->WriteToJSON("bench_sphere_irregular_sea_state.json");
 
   auto seastate = FrFileSystem::join(
-      {system.config_file().GetDataFolder(), "ce/bench/sphere/bench_sphere_irregular_sea_state.json"});
+      {system.config_file().GetDataFolder(), "ce/bench/sphere/bench_sphere_irregular_deeplines.json"});
   waveField->LoadJSON(seastate);
 
   // -- Body
@@ -167,6 +167,7 @@ int main(int argc, char *argv[]) {
 
   body->GetDOFMask()->SetLock_X(true);
   body->GetDOFMask()->SetLock_Y(true);
+  body->GetDOFMask()->SetLock_Z(true);
   body->GetDOFMask()->SetLock_Rx(true);
   body->GetDOFMask()->SetLock_Ry(true);
   body->GetDOFMask()->SetLock_Rz(true);
@@ -200,7 +201,7 @@ int main(int argc, char *argv[]) {
     auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
   } else {
     auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-    radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
+    radiationModel->SetImpulseResponseSize(body.get(), 20., 0.1);
   }
 
   bool linear = true;
@@ -250,11 +251,12 @@ int main(int argc, char *argv[]) {
   // -- Simulation
 
   auto dt = 0.02;
+  double t_max = 1000.;
 
   system.SetTimeStep(dt);
   system.Initialize();
 
-  waveField->WriteToJSON("bench_sphere_irregular_sea_state.json");
+  //waveField->WriteToJSON("bench_sphere_irregular_sea_state.json");
 
   auto time = -dt;
 
@@ -265,11 +267,28 @@ int main(int argc, char *argv[]) {
 
 //    system.RunInViewer(200,10);
 
-  while (time < 10.) {
+  //##CC
+  std::string wave_filename = "wave_elevation.csv";
+
+  std::ofstream wave_file;
+  wave_file.open(wave_filename);
+  wave_file << "time;eta" << std::endl;
+  wave_file << "s;m" << std::endl;
+  //##
+
+  while (time < t_max) {
     time += dt;
     system.AdvanceTo(time);
     std::cout << "time : " << time << std::endl;
+
+    //##CC
+    wave_file << time << ";" << waveField->GetElevation(0., 0., NWU) << std::endl;
+    //##
   }
+
+  //##CC
+  wave_file.close();
+  //##
 
   clock_t end = clock();
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;

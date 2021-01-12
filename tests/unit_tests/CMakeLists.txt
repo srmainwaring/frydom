@@ -39,6 +39,7 @@ set(UNIT_TESTS
         test_Torsor
         #test_FrLinearHydrostaticForce
         test_FrHeightVaryingField
+        test_static_friction
         )
 
 foreach (test ${UNIT_TESTS})

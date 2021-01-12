@@ -91,6 +91,9 @@ namespace frydom {
         double sphereswept_thickness = 0.0                  ///< outward sphere-swept layer (when supported)
     );
 
+    void SetDefaultSuggestedEnvelope(double env);
+
+
    protected:
 
     /// Add a triangle mesh to this model, passing a triangle mesh.

@@ -11,9 +11,10 @@ namespace frydom {
 
   namespace internal {
 
-    FrVariablesBodyBase::FrVariablesBodyBase(FrBody *body)
-        : chrono::ChVariablesBody(internal::GetChronoBody(body)->VariablesBody()),
-        m_variablesBodyOwnMass(&internal::GetChronoBody(body)->VariablesBody()){
+    FrVariablesBodyBase::FrVariablesBodyBase(chrono::ChVariablesBodyOwnMass* variables)
+        : chrono::ChVariablesBody(*variables) {
+
+      m_variablesBodyOwnMass = variables;
 
       // Set mass matrix 6x6
       m_mass.setZero();
@@ -26,7 +27,7 @@ namespace frydom {
       m_inv_mass = m_mass.inverse();
 
       // Replace chrono variables with this new variables
-      internal::GetChronoBody(body)->SetVariables(std::shared_ptr<FrVariablesBodyBase>(this));
+      //internal::GetChronoBody(body)->SetVariables(std::shared_ptr<FrVariablesBodyBase>(this));
     }
 
     void FrVariablesBodyBase::Compute_invMb_v(chrono::ChMatrix<double> &result,

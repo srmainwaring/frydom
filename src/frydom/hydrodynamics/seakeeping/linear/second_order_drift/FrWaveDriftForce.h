@@ -36,6 +36,8 @@ namespace frydom {
    private:
     std::shared_ptr<FrHydroDB> m_hdb;               ///< Hydrodynamic database
 
+    double m_threshold;
+
    public:
 
     /// Constructor of the wave drift force with specified hydrodynamic database
@@ -44,6 +46,8 @@ namespace frydom {
 
     /// Method to initialize the wave drift model
     void Initialize() override;
+
+    void SetThreshold(double threshold) { m_threshold = threshold; }
 
     /// Method to be applied at the end of each time steps
     //void StepFinalize() override;

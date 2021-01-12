@@ -26,7 +26,7 @@ namespace frydom {
 
   FrAiryIrregularWaveField::FrAiryIrregularWaveField(FrFreeSurface *freeSurface) :
       FrWaveField(freeSurface),
-      m_set_from_file(false) {
+      m_externally_defined(false) {
 
     m_waveModel = LINEAR_WAVES;
     m_verticalFactor = std::make_unique<FrKinematicStretching>();
@@ -251,6 +251,7 @@ namespace frydom {
       m_wavePhases.push_back(phases);
     }
     event_logger::info("IrregularWaveField", "", "Random phases generated");
+    m_externally_defined = true;
 
   }
 
@@ -287,7 +288,7 @@ namespace frydom {
     FrWaveField::Initialize();
     m_verticalFactor->SetInfDepth(m_infinite_depth);
 
-    if (!m_set_from_file) {
+    if (!m_externally_defined) {
 
       if (m_waveDirections.empty()) { m_waveDirections.push_back(m_meanDir); }
 
@@ -523,6 +524,8 @@ namespace frydom {
 
     // TODO : a generaliser pour d'autres combinaisons de spectre et type de wavefield...
 
+    m_waveSpectrum = std::make_unique<FrJonswapWaveSpectrum>();
+
     std::ifstream ifs(filename);
     auto json_obj = json::parse(ifs);
 
@@ -544,7 +547,7 @@ namespace frydom {
     m_wavePhases.clear();
     m_wavePhases = json_obj["wave_phases_rad"].get<std::vector<std::vector<double>>>();
 
-    m_set_from_file = true;
+    m_externally_defined = true;
 
   }
 

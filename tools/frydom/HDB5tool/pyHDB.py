@@ -250,6 +250,19 @@ class pyHDB():
 
         return n
 
+    @property
+    def wave_drift(self):
+
+        """This function gives the wave drift data of the body.
+
+        Returns
+        -------
+        WaveDriftDB
+            Wave drift data of the body.
+        """
+
+        return self._wave_drift
+
     def Eval_Froude_Krylov_loads(self):
 
         """ This functions computes the Froude-Krylov loads."""
@@ -557,14 +570,14 @@ class pyHDB():
                     # RAO.
                     if(self.has_RAO):
                         RAO_db_temp = np.copy(body.RAO[:, :, i])
-                        RAO_db_temp[(1, 3, 5), :] = -RAO_db_temp[(1, 3, 5), :] # 1 = sway, 3 = roll and 5 = yaw.
-                        body.RAO = np.concatenate((body.RAO, RAO_db_temp.reshape(6, nw, 1)), axis=2) # Axis of the wave directions.
+                        RAO_db_temp[(1, 3, 5), :] = -RAO_db_temp[(1, 3, 5), :]  # 1 = sway, 3 = roll and 5 = yaw.
+                        body.RAO = np.concatenate((body.RAO, RAO_db_temp.reshape(6, nw, 1)), axis=2)  # Axis of the wave directions.
 
                 # Wave drift loads.
-                if(self.has_Drift):
+                if(self.has_Drift_Kochin):
                     Drift_db_temp = np.copy(self.Wave_drift_force[:, :, i])
-                    Drift_db_temp[(1, 3, 5), :] = -Drift_db_temp[(1, 3, 5), :] # 1 = sway, 3 = roll and 5 = yaw.
-                    self.Wave_drift_force = np.concatenate((self.Wave_drift_force, Drift_db_temp.reshape(6, nw, 1)), axis=2) # Axis of the wave directions.
+                    Drift_db_temp[(1, 2), :] = -Drift_db_temp[(1, 2), :] # 1 = sway and 2 = yaw.
+                    self.Wave_drift_force = np.concatenate((self.Wave_drift_force, Drift_db_temp.reshape(3, nw, 1)), axis=2)  # Axis of the wave directions.
 
     def _initialize_wave_dir(self):
 
@@ -601,7 +614,7 @@ class pyHDB():
                             body.RAO[:, :, idir] = body.RAO[:, :, i360]
 
                     # Wave drift loads.
-                    if (self.has_Drift):
+                    if (self.has_Drift_Kochin):
                         self.Wave_drift_force[:, :, idir] = self.Wave_drift_force[:, :, i360]
 
         # Sorting wave directions and creates the final FK and diffraction loads data.
@@ -622,7 +635,7 @@ class pyHDB():
                 body.RAO = body.RAO[:, :, sort_dirs]
 
         # Wave drift loads.
-        if (self.has_Drift):
+        if (self.has_Drift_Kochin):
             self.Wave_drift_force = self.Wave_drift_force[:, :, sort_dirs]
 
         # Update parameters.
@@ -662,12 +675,16 @@ class pyHDB():
             for body in self.bodies:
                 self.write_body(writer, body)
 
+            # Update the format of the drift coefficients if computed from Kochin functions.
+            if(self.has_Drift_Kochin is False and self._wave_drift is None and self.Wave_drift_force is not None):
+                self.UpdateDriftObject()
+
             # Wave field.
             if(self.has_wave_field):
                 self.write_wave_field(writer, "/WaveField")
 
             # Wave drift coefficients.
-            if (self.has_Drift):
+            if (self._wave_drift):
                 self.write_wave_drift(writer, "/WaveDrift")
 
             # Vector fitting.
@@ -1260,34 +1277,67 @@ class pyHDB():
         dg = writer.create_group(wave_drift_path)
 
         # Loop over the degrees of freedom.
-        idof = 0
-        for mode in ["surge", "sway", "heave", "roll", "pitch", "yaw"]:
-            grp_modes = dg.require_group(mode)
+        for key, mode in self.wave_drift.modes.items():
+            grp_modes = dg.require_group(mode.name)
 
             # Loop over the wave directions.
-            for ibeta in range(0, self.nb_wave_dir):
-                grp_dir = grp_modes.require_group("angle_%i" % ibeta)
+            for i_angle, angle in enumerate(mode.heading):
+                grp_dir = grp_modes.require_group("angle_%i" % i_angle)
 
                 # Set heading angle.
-                dset = grp_dir.create_dataset("angle", data=self.wave_dir[ibeta] * 180 / np.pi)
+                dset = grp_dir.create_dataset("angle", data=angle * 180 / np.pi)
                 dset.attrs['Unit'] = 'deg'
                 dset.attrs['Description'] = "Heading angle"
 
                 # Set data.
-                dset = grp_dir.create_dataset("data", data=self.Wave_drift_force[idof, :, ibeta])
+                dset = grp_dir.create_dataset("data", data=np.array(mode.data)[i_angle, :])
                 dset.attrs['Description'] = "Mean wave drift load coefficients"
-            idof = idof + 1
+
+        # # Set frequency.
+        # if(self.wave_drift.discrete_frequency is not None):
+        #     dset = dg.create_dataset("freq", data=self.wave_drift.discrete_frequency)
+        #     dset.attrs['Unit'] = "rads"
+        #     dset.attrs['Description'] = "Wave discretization of the data"
 
         # Set sym.
-        dset = dg.create_dataset("sym_x", data=self.sym_x)
+        dset = dg.create_dataset("sym_x", data=self.wave_drift.sym_x)
         dset.attrs['Description'] = "Symmetry along x"
-        dset = dg.create_dataset('sym_y', data=self.sym_y)
+        dset = dg.create_dataset('sym_y', data=self.wave_drift.sym_y)
         dset.attrs['Description'] = "Symmetry along y"
 
         # Kochin function angular step.
         if(self.solver == "Helios"):
-            dset = dg.create_dataset("KochinStep", data=self.kochin_step)
+            dset = dg.create_dataset("KochinStep", data=self.wave_drift.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
+
+    def UpdateDriftObject(self):
+
+        """This function creates a WaveDriftDB object when the Kochin functions were used."""
+
+        # Initialization.
+        self._wave_drift = WaveDriftDB()
+
+        # Sym x.
+        self.wave_drift.sym_x = False
+
+        # Sym y.
+        self.wave_drift.sym_y = False
+
+        # Frequencies.
+        self.wave_drift.discrete_frequency = self.omega
+
+        # Drift force coefficients.
+
+        # Loop over the wave directions.
+        for ibeta in range(0, self.nb_wave_dir):
+            self._wave_drift.add_cn(self.omega, self.Wave_drift_force[2, :, ibeta], self.wave_dir[ibeta]) # Yaw.
+            self._wave_drift.add_cy(self.omega, self.Wave_drift_force[1, :, ibeta], self.wave_dir[ibeta]) # Sway.
+            self._wave_drift.add_cx(self.omega, self.Wave_drift_force[0, :, ibeta], self.wave_dir[ibeta]) # Surge.
+
+        # Deletion of the old structure.
+        self.Wave_drift_force = None
+
+        self.has_Drift_Kochin = False
 
     def write_VF(self, writer, VF_path = "/VectorFitting"):
         """This function writes the vector fitting parameters into the *.hdb5 file.

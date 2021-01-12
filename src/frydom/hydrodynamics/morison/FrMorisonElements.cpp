@@ -64,7 +64,7 @@ namespace frydom {
       Cd = element["cd"].get<double>();
       Cm = element["cm"].get<double>();
       Direction dv = (PosB - PosA);
-      model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm - 1.), MorisonCoeff(Cd), 0.);
+      model->AddElement(PosA, PosB, diameter, MorisonCoeff(Cm - 1.), MorisonCoeff(Cd), 0., 20);
     }
 
     body->GetSystem()->Add(model);

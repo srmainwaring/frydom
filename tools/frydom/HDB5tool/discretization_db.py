@@ -310,7 +310,8 @@ class DiscretizationDB(object):
         if self.nb_frequencies is None:
             self._nb_frequencies = pyHDB.nb_wave_freq
 
-        self._wave_frequencies = np.linspace(self.min_frequency, self.max_frequency, self.nb_frequencies)
+        if self._wave_frequencies is None:
+            self._wave_frequencies = np.linspace(self.min_frequency, self.max_frequency, self.nb_frequencies)
 
         # Wave directions.
         if self.max_angle is None:

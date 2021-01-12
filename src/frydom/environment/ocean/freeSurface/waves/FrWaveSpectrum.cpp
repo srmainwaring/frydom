@@ -292,7 +292,7 @@ namespace frydom {
     double threshold = m0 * 0.01;
 
     wmin = dichotomySearch(1E-4, GetPeakFreq(mathutils::RADS), threshold);
-    wmax = dichotomySearch(GetPeakFreq(mathutils::RADS), 10., threshold);
+    wmax = dichotomySearch(GetPeakFreq(mathutils::RADS), 100., threshold);
   }
 
   double FrWaveSpectrum::dichotomySearch(double wmin, double wmax, double threshold) const {

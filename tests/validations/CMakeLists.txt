@@ -10,6 +10,10 @@ set(VALIDATION_CASES
         SphereRegular
         StabilityAnalysis
         Recursive_convolution
+        MorisonCrossingElement
+        MorisonSingleImmersedElement
+        FixedJacketStructure
+        SpreadMooredFPSO
         )
 
 foreach (test ${VALIDATION_CASES})

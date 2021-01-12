@@ -18,7 +18,7 @@ enum CASES {
 };
 
 
-CASES BENCH_CASE = AIRY_90_DEG;
+CASES BENCH_CASE = STATIC;
 
 
 void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double wave_period, double wave_dir) {
@@ -49,8 +49,10 @@ void InitializeEnvironment(FrOffshoreSystem &system, double wave_height, double 
   system.SetGravityAcceleration(9.807);
 
 
-  system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(wave_height, wave_period, wave_dir,
+  auto waveField = system.GetEnvironment()->GetOcean()->GetFreeSurface()->SetAiryRegularWaveField(wave_height, wave_period, wave_dir,
                                                                                  DEG, NWU, GOTO);
+
+  waveField->SetStretching(WHEELER);
 
   system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
@@ -95,8 +97,14 @@ int main() {
 
   double cable_length = 170.; // m
 //  int nb_elements = 68;
-  int nb_elements = 68; // 44
 
+  int bspline_order = 2;
+  int nb_elements = 15; // 44
+
+  double dt = 0.01;
+  double t_max = 100;
+
+  bool is_irrlicht = false;
 
   // Create left node (always fixed)
   auto world_body = system.GetWorldBody();
@@ -207,7 +215,8 @@ int main() {
                               right_node,
                               cable_properties,
                               cable_length,
-                              nb_elements);
+                              nb_elements,
+                              bspline_order);
 
 
   auto link = make_prismatic_link("link", &system, right_node, right_fixed_node);
@@ -225,13 +234,25 @@ int main() {
 
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(500);
-  system.SetSolverMaxIterStab(500);
-  system.SetSolverForceTolerance(1e-14);
+  system.SetSolverMaxIterSpeed(1000);
+  system.SetSolverMaxIterStab(1000);
+  system.SetSolverForceTolerance(1e-9);
   system.SetSolverDiagonalPreconditioning(true);
 
-  system.SetTimeStep(0.01);
-  system.RunInViewer(0., 100., false, 10);
+  system.SetTimeStep(dt);
+
+  if (is_irrlicht) {
+    system.RunInViewer(t_max, 100., false, 10);
+  } else {
+    double time = 0;
+    while (time < t_max) {
+      time += dt;
+      system.AdvanceTo(time);
+      std::cout << "time = " << time << " s" << std::endl;
+    }
+  }
+
+
 
 
 //  double A = 10.;

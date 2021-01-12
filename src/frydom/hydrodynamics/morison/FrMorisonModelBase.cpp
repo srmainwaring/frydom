@@ -20,7 +20,11 @@ namespace frydom {
       auto body = m_frydomMorisonCompositeElement->GetBody();
       mathutils::Matrix66<double> added_mass;
       added_mass.setZero();
-      m_variables = std::make_shared<FrVariablesAddedMass>(added_mass, body);
+
+      auto chronoBody = internal::GetChronoBody(body);
+
+      m_variables = std::make_shared<FrVariablesAddedMass>(added_mass, &chronoBody->VariablesBody());
+      internal::GetChronoBody(body)->SetVariables(m_variables);
     }
 
     void FrMorisonModelBase::Update(bool update_assets) {
