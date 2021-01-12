@@ -977,15 +977,17 @@ class pyHDB():
             dg.attrs['Description'] = "Damping coefficients for velocity of body %u that radiates waves " \
                                       "and generates forces on body %u." % (j, body.i_body)
 
-            irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
-            dg = writer.create_group(irf_path)
-            dg.attrs['Description'] = "Impulse response functions K due to the velocity of body %u that radiates waves " \
-                                      "and generates forces on body %u." % (j, body.i_body)
+            if (body.irf is not None):
+                irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
+                dg = writer.create_group(irf_path)
+                dg.attrs['Description'] = "Impulse response functions K due to the velocity of body %u that radiates waves " \
+                                          "and generates forces on body %u." % (j, body.i_body)
 
-            irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
-            dg = writer.create_group(irf_ku_path)
-            dg.attrs['Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
-                                      "and generates forces on body %u." % (j, body.i_body)
+            if (body.irf_ku is not None):
+                irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
+                dg = writer.create_group(irf_ku_path)
+                dg.attrs['Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
+                                          "and generates forces on body %u." % (j, body.i_body)
 
             if(self.has_VF):
                 modal_path = radiation_body_motion_path + "/Modal"
