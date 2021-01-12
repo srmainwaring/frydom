@@ -184,7 +184,7 @@ def Read_cal_hdb5(args):
     if (args.read is not None):
         database = H5T.HDB5()
         database.read_hdb5(args.read)
-        database._is_initialized = True  # No initialization except if asked.
+        database._is_initialized = True # No initialization except if asked.
 
     if (args.path_to_nemoh_cal is None and args.read is None):
         print("No input file has been defined.")
@@ -328,7 +328,6 @@ def get_Arg_part_1_CE(args, database):
 
     return database
 
-
 def get_Arg_part_2_CE(args, database):
     """This function makes the symmetry of the HDB and updates the radiation mask."""
 
@@ -341,7 +340,6 @@ def get_Arg_part_2_CE(args, database):
         database.Update_radiation_mask()
 
     return database
-
 
 def get_Arg_part_3_CE(args, database):
     """ This function plots all the physical quantities: added mass, damping, loads and IRF."""

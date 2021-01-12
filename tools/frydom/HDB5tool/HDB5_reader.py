@@ -20,7 +20,6 @@ import h5py
 from meshmagick.mesh import Mesh
 
 import frydom.HDB5tool.body_db as body_db
-import frydom.HDB5tool.wave_drift_db as wave_drift_db
 import frydom.HDB5tool.PoleResidue as PoleResidue
 from frydom.HDB5tool.pyHDB import inf
 
@@ -332,29 +331,23 @@ class HDB5reader():
 
         try:
             reader[wave_drift_path]
-            pyHDB._wave_drift = wave_drift_db.WaveDriftDB()
+            pyHDB.Wave_drift_force = np.zeros((6, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir), dtype=np.float)
 
             # sym_x.
             if(int(np.array(reader[wave_drift_path + "/sym_x"])) == 0):
-                pyHDB._wave_drift.sym_x = False
+                pyHDB.sym_x = False
             else:
-                pyHDB._wave_drift.sym_x = True
+                pyHDB.sym_x = True
 
             # sym_y
             if (int(np.array(reader[wave_drift_path + "/sym_y"])) == 0):
-                pyHDB._wave_drift.sym_y = False
+                pyHDB.sym_y = False
             else:
-                pyHDB._wave_drift.sym_y = True
-
-            if (pyHDB.version <= 2.0):
-                # Wave frequencies.
-                pyHDB._wave_drift.discrete_frequency = np.array(reader[wave_drift_path + "/freq"])
-            else:
-                pyHDB._wave_drift.discrete_frequency = pyHDB.wave_freq
+                pyHDB.sym_y = True
 
             # Kochin function angular step.
             try:
-                pyHDB._wave_drift.kochin_step = np.array(reader[wave_drift_path + "/KochinStep"])
+                pyHDB.kochin_step = np.array(reader[wave_drift_path + "/KochinStep"])
             except:
                 pass
 
@@ -380,21 +373,20 @@ class HDB5reader():
 
                         # Wave drift coefficients.
                         if(mode == "/surge"):
-                            pyHDB._wave_drift.add_cx(pyHDB._wave_drift.discrete_frequency, list(reader[heading_path + "/data"]), pyHDB.wave_dir[ibeta])
+                            pyHDB.Wave_drift_force[0, :, ibeta] = np.array(list(reader[heading_path + "/data"]))
                         elif(mode == "/sway"):
-                            pyHDB._wave_drift.add_cy(pyHDB._wave_drift.discrete_frequency, list(reader[heading_path + "/data"]), pyHDB.wave_dir[ibeta])
+                            pyHDB.Wave_drift_force[1, :, ibeta] = np.array(list(reader[heading_path + "/data"]))
                         elif(mode == "/heave"):
-                            pyHDB._wave_drift.add_cz(pyHDB._wave_drift.discrete_frequency, list(reader[heading_path + "/data"]), pyHDB.wave_dir[ibeta])
+                            pyHDB.Wave_drift_force[2, :, ibeta] = np.array(list(reader[heading_path + "/data"]))
                         elif(mode == "/roll"):
-                            pyHDB._wave_drift.add_cr(pyHDB._wave_drift.discrete_frequency, list(reader[heading_path + "/data"]), pyHDB.wave_dir[ibeta])
+                            pyHDB.Wave_drift_force[3, :, ibeta] = np.array(list(reader[heading_path + "/data"]))
                         elif(mode == "/pitch"):
-                            pyHDB._wave_drift.add_cm(pyHDB._wave_drift.discrete_frequency, list(reader[heading_path + "/data"]), pyHDB.wave_dir[ibeta])
+                            pyHDB.Wave_drift_force[4, :, ibeta] = np.array(list(reader[heading_path + "/data"]))
                         else: # Yaw.
-                            pyHDB._wave_drift.add_cn(pyHDB._wave_drift.discrete_frequency, list(reader[heading_path + "/data"]), pyHDB.wave_dir[ibeta])
-
+                            pyHDB.Wave_drift_force[5, :, ibeta] = np.array(list(reader[heading_path + "/data"]))
                 except:
                     pass
-
+            pyHDB.has_Drift = True
         except:
             pass
 

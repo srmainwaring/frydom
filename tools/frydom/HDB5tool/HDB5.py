@@ -21,7 +21,6 @@ import frydom.HDB5tool.bem_reader as bem_reader
 import frydom.HDB5tool.HDB5_reader as HDB5_reader
 import frydom.HDB5tool.pyHDB as pyHDB
 from frydom.HDB5tool.discretization_db import DiscretizationDB
-from frydom.HDB5tool.wave_drift_db import WaveDriftDB
 import frydom.HDB5tool.plot_db as plot_db
 
 class HDB5(object):
@@ -161,12 +160,6 @@ class HDB5(object):
         """
 
         return self._pyHDB.Wave_drift_force
-
-    def activate_wave_drift(self):
-
-        """This function initializes the wave drift force parameters."""
-
-        self._pyHDB._wave_drift = WaveDriftDB()
 
     @property
     def omega(self):
