@@ -41,7 +41,6 @@ namespace frydom {
     // Wave encounter frequencies
     auto eqFrame = m_hdb->GetMapper()->GetEquilibriumFrame(body);
     auto waveFrequencies = GetEncounterWaveFrequencies(eqFrame->GetFrameVelocityInWorld(NWU));
-    auto nbFreq = waveFrequencies[0].size();
 
     // Wave direction
     auto waveDir = GetRelativeWaveDir();
@@ -53,9 +52,16 @@ namespace frydom {
     if (table->HasSurge()) {
       for (unsigned int idir = 0; idir < nbWaveDir; idir++) {
         auto angle = waveDir[idir];
-        for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
+        for (unsigned int ifreq = 0; ifreq < waveFrequencies[idir].size(); ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          force.GetFx() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("surge", freq, angle);
+          auto truc = table->Eval("surge", freq, angle);
+//          if (truc > 0) {
+//            std::cout<<"time : "<<time<< ", table = "<<truc<<std::endl;
+//          }
+//          else {
+//            std::cout<<"time : "<<time<< ", table = "<<truc<<std::endl;
+//          }
+          force.GetFx() += std::pow(waveAmplitude[idir][ifreq], 2.) * truc;
         }
       }
     }
@@ -63,9 +69,9 @@ namespace frydom {
     if (table->HasSway()) {
       for (unsigned int idir = 0; idir < nbWaveDir; idir++) {
         auto angle = waveDir[idir];
-        for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
+        for (unsigned int ifreq = 0; ifreq < waveFrequencies[idir].size(); ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          force.GetFy() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("sway", freq, angle);
+          force.GetFy() += std::pow(waveAmplitude[idir][ifreq], 2.) * table->Eval("sway", freq, angle);
         }
       }
     }
@@ -73,9 +79,9 @@ namespace frydom {
     if (table->HasHeave()) {
       for (unsigned int idir = 0; idir < nbWaveDir; idir++) {
         auto angle = waveDir[idir];
-        for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
+        for (unsigned int ifreq = 0; ifreq < waveFrequencies[idir].size(); ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          force.GetFz() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("heave", freq, angle);
+          force.GetFz() += std::pow(waveAmplitude[idir][ifreq], 2.) * table->Eval("heave", freq, angle);
         }
       }
     }
@@ -83,9 +89,9 @@ namespace frydom {
     if (table->HasRoll()) {
       for (unsigned int idir = 0; idir < nbWaveDir; idir++) {
         auto angle = waveDir[idir];
-        for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
+        for (unsigned int ifreq = 0; ifreq < waveFrequencies[idir].size(); ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          torque.GetMx() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("roll", freq, angle);
+          torque.GetMx() += std::pow(waveAmplitude[idir][ifreq], 2.) * table->Eval("roll", freq, angle);
         }
       }
     }
@@ -93,9 +99,9 @@ namespace frydom {
     if (table->HasPitch()) {
       for (unsigned int idir = 0; idir < nbWaveDir; idir++) {
         auto angle = waveDir[idir];
-        for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
+        for (unsigned int ifreq = 0; ifreq < waveFrequencies[idir].size(); ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          torque.GetMy() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("pitch", freq, angle);
+          torque.GetMy() += std::pow(waveAmplitude[idir][ifreq], 2.) * table->Eval("pitch", freq, angle);
         }
       }
     }
@@ -103,9 +109,9 @@ namespace frydom {
     if (table->HasYaw()) {
       for (unsigned int idir = 0; idir < nbWaveDir; idir++) {
         auto angle = waveDir[idir];
-        for (unsigned int ifreq = 0; ifreq < nbFreq; ifreq++) {
+        for (unsigned int ifreq = 0; ifreq < waveFrequencies[idir].size(); ifreq++) {
           auto freq = waveFrequencies[idir][ifreq];
-          torque.GetMz() += std::pow(waveAmplitude[idir][ifreq], 2) * table->Eval("yaw", freq, angle);
+          torque.GetMz() += std::pow(waveAmplitude[idir][ifreq], 2.) * table->Eval("yaw", freq, angle);
         }
       }
     }
