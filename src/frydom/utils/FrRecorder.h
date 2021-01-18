@@ -16,7 +16,11 @@
 #include <vector>
 #include <cfloat>
 #include <assert.h>
+#include <math.h>
 #include "boost/circular_buffer.hpp"
+#include <numeric>
+
+
 
 namespace frydom {
 
@@ -104,6 +108,8 @@ namespace frydom {
 
     /// Get the mean value of the stored data
     T GetMean() const;
+
+    double GetStandardDeviation();
 
    private:
 
@@ -244,6 +250,17 @@ namespace frydom {
     if (m_data.size() > 0) { result /= m_data.size(); }
 
     return result;
+  }
+
+  template<class T>
+  double FrTimeRecorder<T>::GetStandardDeviation() {
+
+    double sum = std::accumulate(m_data.begin(), m_data.end(), 0.);
+    double mean_val = sum / m_data.size();
+
+    double sq_sum = std::inner_product(m_data.begin(), m_data.end(), m_data.begin(), 0.);
+    double stdev = std::sqrt(sq_sum / m_data.size() - mean_val * mean_val);
+    return stdev;
   }
 
 }  // end namespace frydom
