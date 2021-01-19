@@ -151,6 +151,11 @@ namespace frydom {
     return m_frame.ProjectVectorParentInFrame<AngularVelocity>(worldAngularVelocity, fc);
   }
 
+  double FrEquilibriumFrame::GetDriftAngle(FRAME_CONVENTION fc, ANGLE_UNIT unit) const {
+    auto velocity = GetFrameVelocityInFrame(fc);
+    return velocity.GetProjectedAngleAroundZ(unit);
+  }
+
   void FrEquilibriumFrame::Initialize() {
     c_prevTime = 0.;
     if (m_initSpeedFromBody) {
@@ -227,6 +232,11 @@ namespace frydom {
            GetPerturbationFrame().GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, GetLogFC());
            return Vector3d<double>(phi, theta, psi);
          });
+
+    msg->AddField<double>
+        ("DriftAngle", "rad", fmt::format(
+            "Drift angle of the equilibrium frame in {}", GetLogFC()),
+                [this]() { return GetDriftAngle(GetLogFC(), RAD); });
   }
 
   void FrEquilibriumFrame::ApplyFrameProjection() {

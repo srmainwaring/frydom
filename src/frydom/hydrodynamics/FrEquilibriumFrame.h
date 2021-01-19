@@ -145,6 +145,8 @@ namespace frydom {
     /// \return Perturbation velocity in frame coordinate
     AngularVelocity GetPerturbationAngularVelocityInFrame(FRAME_CONVENTION fc) const;
 
+    double GetDriftAngle(FRAME_CONVENTION fc, ANGLE_UNIT unit) const;
+
     /// Initialization of the position and velocity of the equilibrium frame
     void Initialize() override;
 
