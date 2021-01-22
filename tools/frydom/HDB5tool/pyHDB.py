@@ -55,11 +55,13 @@ class pyHDB():
         # Kochin parameters.
         self.has_kochin = False
         self.nb_angle_kochin = 0
-        self.min_angle_kochin = 0.
-        self.max_angle_kochin = 0.
-        self.angle_kochin = np.array([])
+        self.min_angle_kochin = 0. # deg.
+        self.max_angle_kochin = 0. # deg.
+        self.angle_kochin = np.array([]) # rad.
         self.kochin_diffraction = None # Diffraction Kochin functions.
+        self.kochin_diffraction_derivative = None # Derivative of the diffraction Kochin functions.
         self.kochin_radiation = None # Radiation Kochin functions.
+        self.kochin_radiation_derivative = None # Derivative of the radiation Kochin functions.
         self.nb_dir_kochin = 0 # Different from self.nb_wave_dir if the symmetry was used.
         self.min_dir_kochin = 0. # Different from self.min_wave_dir if the symmetry was used (deg).
         self.max_dir_kochin = 0. # Different from self.max_wave_dir if the symmetry was used (deg).
@@ -194,17 +196,6 @@ class pyHDB():
         self.min_dir_kochin = self.min_wave_dir
         self.max_dir_kochin = self.max_wave_dir
         self.wave_dir_kochin = np.radians(np.linspace(self.min_dir_kochin, self.max_dir_kochin, self.nb_dir_kochin, dtype=np.float))
-
-    # @property
-    # def wave_dir(self):
-    #     """Wave direction angles array of BEM computations in radians
-    #
-    #     Returns
-    #     -------
-    #     np.ndarray
-    #         angles array in radians.
-    #     """
-    #     return self.wave_dir
 
     def append(self, body):
 
@@ -491,9 +482,33 @@ class pyHDB():
                 # Diffraction Kochin functions - Wave directions.
                 self.kochin_diffraction = np.repeat(self.kochin_diffraction, 2, axis=0) # axis = 0 -> wave directions.
 
+            # Derivatives of the diffraction Kochin functions.
+            if(self.kochin_diffraction_derivative):
+
+                # Diffraction Kochin function derivatives - Wave frequencies.
+                f_interp_kochin_derivative_diffraction_freq = interpolate.interp1d(self.wave_freq, self.kochin_diffraction_derivative, axis=1)  # axis = 1 -> wave frequencies.
+                self.kochin_diffraction_derivative = f_interp_kochin_derivative_diffraction_freq(discretization._wave_frequencies)  # Application of the interpolation.
+
+                # Wave directions.
+                if (self.nb_wave_dir > 1):  # Several wave directions, so the interpolations are possible.
+
+                    # Diffraction Kochin function derivatives - Wave directions.
+                    f_interp_kochin_derivative_diffraction_dir = interpolate.interp1d(self.wave_dir, self.kochin_diffraction_derivative, axis=0)  # axis = 0 -> wave directions.
+                    self.kochin_diffraction_derivative = f_interp_kochin_derivative_diffraction_dir(discretization._wave_dirs)  # Application of the interpolation.
+
+                else:  # Only one wave direction so the data are copied along a second direction.
+
+                    # Diffraction Kochin function derivatives - Wave directions.
+                    self.kochin_diffraction_derivative = np.repeat(self.kochin_diffraction_derivative, 2, axis=0)  # axis = 0 -> wave directions.
+
             # Radiation Kochin functions - Wave frequencies.
             f_interp_kochin_radiation_freq = interpolate.interp1d(self.wave_freq, self.kochin_radiation, axis=1) # axis = 1 -> wave frequencies.
             self.kochin_radiation = f_interp_kochin_radiation_freq(discretization._wave_frequencies) # Application of the interpolation.
+
+            # Derivatives of the radiation Kochin functions.
+            if (self.kochin_radiation_derivative):
+                f_interp_kochin_derivative_radiation_freq = interpolate.interp1d(self.wave_freq, self.kochin_radiation_derivative, axis=1)  # axis = 1 -> wave frequencies.
+                self.kochin_radiation_derivative = f_interp_kochin_derivative_radiation_freq(discretization._wave_frequencies)  # Application of the interpolation.
 
         # Mean wave drift loads.
         if self.has_Drift:
@@ -1264,6 +1279,61 @@ class pyHDB():
 
         dg = writer.create_group(wave_field_path)
 
+    def write_kochin(self, writer, kochin_path="/WaveDrift/Kochin"):
+
+        """This method writes the Kochin functions and their angular derivatives into the *.hdb5 file."""
+
+        dg = writer.create_group(kochin_path)
+
+        nbeta = self.nb_wave_dir
+        nbodies = self.nb_bodies
+
+        # Diffraction Kochin functions and their derivatives.
+        grp_diffraction = dg.require_group("Diffraction")
+        for iwave in range(nbeta):
+
+            grp_angle = grp_diffraction.require_group("Angle_"+str(iwave))
+
+            # Wave direction.
+            dset = grp_angle.create_dataset("Angle", data=self.wave_dir[iwave] * 180 / np.pi)
+            dset.attrs['Unit'] = 'deg'
+            dset.attrs['Description'] = "Wave direction"
+
+            # Function
+            grp_diffraction_function = grp_angle.require_group("Function")
+            dset = grp_diffraction_function.create_dataset("RealPart",
+                                                           data=self.kochin_diffraction[iwave, :, :].transpose().real)
+            dset = grp_diffraction_function.create_dataset("ImagPart",
+                                                           data=self.kochin_diffraction[iwave, :, :].transpose().imag)
+
+            # Function
+            grp_diffraction_derivative = grp_angle.require_group("Derivative")
+            dset = grp_diffraction_derivative.create_dataset("RealPart",
+                                                           data=self.kochin_diffraction_derivative[iwave, :, :].transpose().real)
+            dset = grp_diffraction_derivative.create_dataset("ImagPart",
+                                                           data=self.kochin_diffraction_derivative[iwave, :, :].transpose().imag)
+
+        # Radiation Kochin functions and their derivatives.
+        grp_radiation = dg.require_group("Radiation")
+        for body in self.bodies:
+            for imotion in range(0, 6):
+
+                grp_dof = grp_radiation.require_group("Body_" + str(body.i_body) + "/DOF_" + str(imotion))
+
+                # Function
+                grp_radiation_function = grp_dof.require_group("Function")
+                dset = grp_radiation_function.create_dataset("RealPart",
+                                                               data=self.kochin_radiation[imotion, :, :].transpose().real)
+                dset = grp_radiation_function.create_dataset("ImagPart",
+                                                               data=self.kochin_radiation[imotion, :, :].transpose().imag)
+
+                # Function
+                grp_radiation_derivative = grp_dof.require_group("Derivative")
+                dset = grp_radiation_derivative.create_dataset("RealPart",
+                                                               data=self.kochin_radiation_derivative[imotion, :, :].transpose().real)
+                dset = grp_radiation_derivative.create_dataset("ImagPart",
+                                                               data=self.kochin_radiation_derivative[imotion, :, :].transpose().imag)
+
     def write_wave_drift(self, writer, wave_drift_path="/WaveDrift"):
 
         """This function writes the wave drift loads into the *.hdb5 file.
@@ -1308,6 +1378,10 @@ class pyHDB():
         if(self.solver == "Helios"):
             dset = dg.create_dataset("KochinStep", data=self.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
+
+        # Kochin functions.
+        if(self.has_kochin):
+            self.write_kochin(writer, "/WaveDrift/Kochin")
 
     def write_VF(self, writer, VF_path = "/VectorFitting"):
         """This function writes the vector fitting parameters into the *.hdb5 file.

@@ -316,6 +316,87 @@ class HDB5reader():
         except:
             pass
 
+    def read_kochin(self, reader, pyHDB, kochin_path):
+        """"This method reads the Kochin functions and their derivatives of the *. hdb5 file."""
+
+        pyHDB.has_kochin = True
+
+        # Angular discretization.
+        pyHDB.min_angle_kochin = 0.
+        pyHDB.max_angle_kochin = 360.
+        pyHDB.nb_angle_kochin = int((360. / pyHDB.kochin_step) + 1.)
+        pyHDB.angle_kochin = np.radians(np.linspace(pyHDB.min_angle_kochin, pyHDB.max_angle_kochin, pyHDB.nb_angle_kochin, dtype=np.float))
+
+        # Wave directions for diffraction Kochin functions.
+        pyHDB.set_wave_directions_Kochin()
+
+        # Parameters.
+        ntheta = pyHDB.nb_angle_kochin
+        nw = pyHDB.nb_wave_freq
+        nbeta = pyHDB.nb_wave_dir
+        nbodies = pyHDB.nb_bodies
+
+        # Diffraction Kochin functions and their derivatives.
+        pyHDB.kochin_diffraction = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
+        pyHDB.kochin_diffraction_derivative = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
+        for iwave in range(nbeta):
+
+            # Real part - Function.
+            diffraction_function_real = np.array(reader[kochin_path + "/Diffraction/Angle_"+str(iwave)+"/Function/RealPart"])
+            assert(diffraction_function_real.shape[0] == ntheta)
+            assert(diffraction_function_real.shape[1] == nw)
+
+            # Imaginary part - Function.
+            diffraction_function_imag = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Function/ImagPart"])
+            assert(diffraction_function_imag.shape[0] == ntheta)
+            assert(diffraction_function_imag.shape[1] == nw)
+
+            # Real part - Derivative.
+            diffraction_derivative_real = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Derivative/RealPart"])
+            assert(diffraction_derivative_real.shape[0] == ntheta)
+            assert(diffraction_derivative_real.shape[1] == nw)
+
+            # Imaginary part - Function.
+            diffraction_derivative_imag = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Derivative/ImagPart"])
+            assert(diffraction_derivative_imag.shape[0] == ntheta)
+            assert(diffraction_derivative_imag.shape[1] == nw)
+
+            # Setting.
+            for ifreq in range(nw):
+                pyHDB.kochin_diffraction[iwave, ifreq, :] = diffraction_function_real[:,ifreq] + 1j * diffraction_function_imag[:, ifreq]
+                pyHDB.kochin_diffraction_derivative[iwave, ifreq, :] = diffraction_derivative_real[:,ifreq] + 1j * diffraction_derivative_imag[:, ifreq]
+
+        # Radiation Kochin functions and their derivatives.
+        pyHDB.kochin_radiation = np.zeros((6*nbodies, nw, ntheta), dtype=np.complex)
+        pyHDB.kochin_radiation_derivative = np.zeros((6*nbodies, nw, ntheta), dtype=np.complex)
+        for body in pyHDB.bodies:
+            for imotion in range(0, 6):
+
+                # Real part - Function.
+                radiation_function_real = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Function/RealPart"])
+                assert (radiation_function_real.shape[0] == ntheta)
+                assert (radiation_function_real.shape[1] == nw)
+
+                # Imaginary part - Function.
+                radiation_function_imag = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Function/ImagPart"])
+                assert (radiation_function_imag.shape[0] == ntheta)
+                assert (radiation_function_imag.shape[1] == nw)
+
+                # Real part - Derivative.
+                radiation_derivative_real = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Derivative/RealPart"])
+                assert (radiation_derivative_real.shape[0] == ntheta)
+                assert (radiation_derivative_real.shape[1] == nw)
+
+                # Imaginary part - Function.
+                radiation_derivative_imag = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Derivative/ImagPart"])
+                assert (radiation_derivative_imag.shape[0] == ntheta)
+                assert (radiation_derivative_imag.shape[1] == nw)
+
+                # Setting.
+                for ifreq in range(nw):
+                    pyHDB.kochin_radiation[imotion, ifreq, :] = radiation_function_real[:, ifreq] + 1j * radiation_function_imag[:, ifreq]
+                    pyHDB.kochin_radiation_derivative[imotion, ifreq, :] = radiation_derivative_real[:, ifreq] + 1j * radiation_derivative_imag[:, ifreq]
+
     def read_wave_drift(self, reader, pyHDB, wave_drift_path):
         """This function reads the wave drift loads of the *.hdb5 file.
 
@@ -348,6 +429,12 @@ class HDB5reader():
             # Kochin function angular step.
             try:
                 pyHDB.kochin_step = np.array(reader[wave_drift_path + "/KochinStep"])
+            except:
+                pass
+
+            # Kochin functions and their derivatives.
+            try:
+                self.read_kochin(reader, pyHDB, wave_drift_path + "/Kochin")
             except:
                 pass
 
