@@ -34,14 +34,14 @@ using json = nlohmann::json;
 
 namespace frydom {
 
-  FrLogManager::FrLogManager(FrOffshoreSystem *system) :
+  FrLogManager::FrLogManager(FrOffshoreSystem *system, const std::string &logFolderName) :
       m_log_CSV(true),
       m_system(system),
       m_nfreq_output(1),
       m_ifreq_output(0) { // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
-    m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), GetDateFolder()});
+    m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), logFolderName});
     FrFileSystem::mkdir(m_log_folder);
 
     WriteMetaDataFile();

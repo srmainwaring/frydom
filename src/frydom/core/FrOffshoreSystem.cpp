@@ -208,7 +208,8 @@ namespace frydom {
   FrOffshoreSystem::FrOffshoreSystem(const std::string &name,
                                      SYSTEM_TYPE systemType,
                                      TIME_STEPPER timeStepper,
-                                     SOLVER solver) :
+                                     SOLVER solver,
+                                     const std::string& logFolderName) :
       FrLoggable(name, TypeToString(this), nullptr),
       m_monitor_real_time(false),
       m_config_file() {
@@ -217,7 +218,7 @@ namespace frydom {
     SetSystemType(systemType, false);
 
     // Creating the log manager service
-    m_logManager = std::make_unique<FrLogManager>(this);
+    m_logManager = std::make_unique<FrLogManager>(this, logFolderName);
 
     // Setting the time stepper
     SetTimeStepper(timeStepper, false);

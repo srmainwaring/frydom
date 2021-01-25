@@ -31,7 +31,7 @@ namespace frydom {
 
    public:
 
-    explicit FrLogManager(FrOffshoreSystem *system);
+    explicit FrLogManager(FrOffshoreSystem *system, const std::string &logFolderName);
 
     ~FrLogManager();
 
@@ -70,14 +70,14 @@ namespace frydom {
       return m_loggable_list.end();
     }
 
+    static std::string GetDateFolder();
+
    private:
     bool Has(FrLoggableBase *obj) const;
 
 //    std::string InitializeLogFolder();
 
 //    static std::string LogFolderFromFrydomConfigFile(const std::string &path_to_config_file);
-
-    static std::string GetDateFolder();
 
     void WriteMetaDataFile() const;
 
