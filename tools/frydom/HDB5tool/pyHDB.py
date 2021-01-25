@@ -1200,9 +1200,9 @@ class pyHDB():
                                         (body.i_body, np.degrees(self.wave_dir[idir]))
 
             # Phase.
-            dset = writer.create_dataset(wave_dir_path + "/Phase", data=np.angle(body.RAO[:, :, idir], deg=True))
-            dset.attrs['Unit'] = ''
-            dset.attrs['Description'] = "Phase of the RAO of" \
+            dset = writer.create_dataset(wave_dir_path + "/Phase", data=np.angle(body.RAO[:, :, idir], deg=True)) # Degree.
+            dset.attrs['Unit'] = 'deg'
+            dset.attrs['Description'] = "Phase in deg of the RAO of" \
                                         " body %u for a wave direction of %.1f deg." % \
                                         (body.i_body, np.degrees(self.wave_dir[idir]))
 
