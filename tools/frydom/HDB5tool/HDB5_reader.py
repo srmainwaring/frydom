@@ -818,7 +818,10 @@ class HDB5reader_v2(HDB5reader):
                 Abs_RAO = np.array(reader[wave_dir_path + "/Amplitude"])
 
                 # Phase.
-                Phase_RAO = np.radians(np.array(reader[wave_dir_path + "/Phase"])) # Conversion to rad.
+                if reader[wave_dir_path + "/Phase"].attrs['Unit'] == 'rad':
+                    Phase_RAO = np.array(reader[wave_dir_path + "/Phase"])
+                else:
+                    Phase_RAO = np.radians(np.array(reader[wave_dir_path + "/Phase"])) # Conversion to rad.
 
                 # RAO.
                 body.RAO[:, :, idir] = Abs_RAO * np.exp(1j * Phase_RAO)
