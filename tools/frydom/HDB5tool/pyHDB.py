@@ -67,6 +67,9 @@ class pyHDB():
         self.max_dir_kochin = 0. # Different from self.max_wave_dir if the symmetry was used (deg).
         self.wave_dir_kochin = np.array([]) # Different from self.wave_dir if the symmetry was used (rad).
 
+        # The diffraction Kochin functions are not symetrised, only the mean wave drift loads are. That is why there is
+        # two wave direction vectors : self.wave_dir_kochin and self.wave_dir.
+
         # Bodies.
         self.nb_bodies = 0
         self.bodies = []
@@ -557,6 +560,9 @@ class pyHDB():
     def symetrize(self):
 
         """This function updates the hdb due to a modification of the wave direction convention."""
+
+        # The diffraction Kochin functions are not symetrised, only the mean wave drift loads are. That is why there is
+        # two wave direction vectors : self.wave_dir_kochin and self.wave_dir.
 
         ndir = self.nb_wave_dir
         nw = self.nb_wave_freq
@@ -1285,7 +1291,7 @@ class pyHDB():
 
         dg = writer.create_group(kochin_path)
 
-        nbeta = self.nb_wave_dir
+        nbeta = self.nb_dir_kochin # different from self.nb_wave_dir if symmetry of the hdb was done.
         nbodies = self.nb_bodies
 
         # Diffraction Kochin functions and their derivatives.

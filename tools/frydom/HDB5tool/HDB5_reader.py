@@ -328,12 +328,17 @@ class HDB5reader():
         pyHDB.angle_kochin = np.radians(np.linspace(pyHDB.min_angle_kochin, pyHDB.max_angle_kochin, pyHDB.nb_angle_kochin, dtype=np.float))
 
         # Wave directions for diffraction Kochin functions.
-        pyHDB.set_wave_directions_Kochin()
+        # Do not use pyHDB.set_wave_directions_Kochin() because in case of symmetry, the wave directions for the hdb is
+        # different from the wave direction for the Kochin functions (which are not symmetrised).
+        pyHDB.nb_dir_kochin = len(reader[kochin_path + "/Diffraction"].keys())
+        pyHDB.min_dir_kochin = np.array(reader[kochin_path + "/Diffraction/Angle_0/Angle"]) # deg.
+        pyHDB.max_dir_kochin = np.array(reader[kochin_path + "/Diffraction/Angle_"+str(pyHDB.nb_dir_kochin - 1)+"/Angle"]) # deg.
+        pyHDB.wave_dir_kochin = np.radians(np.linspace(pyHDB.min_dir_kochin, pyHDB.max_dir_kochin, pyHDB.nb_dir_kochin, dtype=np.float))
 
         # Parameters.
         ntheta = pyHDB.nb_angle_kochin
         nw = pyHDB.nb_wave_freq
-        nbeta = pyHDB.nb_wave_dir
+        nbeta = pyHDB.nb_dir_kochin
         nbodies = pyHDB.nb_bodies
 
         # Diffraction Kochin functions and their derivatives.
