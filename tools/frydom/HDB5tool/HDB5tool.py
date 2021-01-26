@@ -11,7 +11,7 @@
 #
 # ==========================================================================
 """
-    ArgParse module of Nemoh2HDB.
+    ArgParse module of hdb5tool.
 """
 
 import os
@@ -30,13 +30,14 @@ except:
 def creation_parser_CE():
     parser = argparse.ArgumentParser(
         description="""  --  HDB5tool  --
-            A Python module and a command line utility to add write HDB5 file from Nemoh output files.\n\n  Example of use:\n\n  hdb5tool --help""",
+            A Python module and a command line utility to handle HDB5 files.\n\n  Example of use:\n\n  hdb5tool --help""",
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     return parser
 
 
 def get_parser(parser):
+
     # Path to Nemoh.cal.
     parser.add_argument('--path_to_nemoh_cal', '-cal', action="store", nargs=1, metavar='Arg', help="""
                 Path to the folder including the file Nemoh.cal.""")
