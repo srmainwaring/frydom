@@ -23,7 +23,8 @@ setup(
     entry_points={
         'console_scripts': ['hdb5tool=frydom.HDB5tool.HDB5tool:main',
         'generate_video=frydom.generate_video:main',
-        'generate_gif=frydom.generate_gif:main']
+        'generate_gif=frydom.generate_gif:main',
+        'hdb5merge=frydom.HDB5merge.HDB5merge:main']
     },
 
     classifiers=[
