@@ -20,7 +20,7 @@ from frydom.HDB5tool.wave_dispersion_relation import solve_wave_dispersion_relat
 
 inf = float('inf') # Definition of infinity for depth.
 
-class pyHDB():
+class pyHDB(object):
     """
         Class for storing the hydrodynamique database.
     """
