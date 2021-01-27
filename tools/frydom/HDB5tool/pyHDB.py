@@ -75,7 +75,8 @@ class pyHDB(object):
         self.bodies = []
 
         # Version.
-        self.version = 2.0
+        self.version = 3.0
+        self.version_max = 3.0
 
         # Froude-Krylov loads.
         self._has_infinite_added_mass = False
@@ -1418,6 +1419,6 @@ class pyHDB(object):
             """
 
             # Version.
-            dset = writer.create_dataset('Version', data= 3.0)
+            dset = writer.create_dataset('Version', data= self.version_max)
             dset.attrs['Description'] = "Version of the hdb5 output file."
 
