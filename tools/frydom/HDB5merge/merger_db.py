@@ -38,6 +38,14 @@ class Merger(object):
             print("Range of the second *.hdb5: [%f , %f]" % (pyHDB_2.min_wave_freq, pyHDB_2.max_wave_freq))
             exit()
 
+    def merge_version(self, pyHDB_out):
+
+        """
+            This method merges the version of the pyHDB.
+        """
+
+        pyHDB_out.version = self._pyHDB_1.version_max
+
     def merge(self):
 
         """
@@ -46,6 +54,9 @@ class Merger(object):
 
         # Initialization of the merged pyHDB.
         pyHDB_out = pyHDB.pyHDB()
+
+        # Version.
+        self.merge_version(pyHDB_out)
 
         return
 
