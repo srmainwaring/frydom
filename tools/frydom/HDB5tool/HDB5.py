@@ -47,6 +47,18 @@ class HDB5(object):
         return
 
     @property
+    def pyHDB(self):
+
+        """This function returns the hdb.
+
+        Returns
+        -------
+        BodyDB
+        """
+
+        return self._pyHDB
+
+    @property
     def body(self):
 
         """This function returns all the bodies.

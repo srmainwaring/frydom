@@ -18,6 +18,7 @@ import os
 import argparse
 
 import frydom.HDB5tool.HDB5 as H5T
+import frydom.HDB5merge.merger_db as merger_db
 
 try:
     import argcomplete
@@ -78,6 +79,14 @@ def main():
     ####################################################################################################################
 
     database_1, database_2 = Read_hdb5(args)
+
+    ####################################################################################################################
+    #                                                Merging
+    ####################################################################################################################
+
+    merger = merger_db.Merger(database_1.pyHDB, database_2.pyHDB)
+    merger.merge()
+
 
 if __name__ == '__main__':
     main()
