@@ -343,6 +343,14 @@ class Merger(object):
             # Add body to pyHDB.
             pyHDB_out.append(body_out)
 
+    def merge_wave_field(self, pyHDB_out):
+
+        """
+            This method merges the wave field data of the two pyHDB.
+        """
+
+        assert (self._pyHDB_1.has_wave_field == self._pyHDB_2.has_wave_field)
+        pyHDB_out.has_wave_field = self._pyHDB_1.has_wave_field
 
     def merge(self):
 
@@ -370,4 +378,7 @@ class Merger(object):
 
         # Bodies.
         self.merge_bodies(pyHDB_out)
+
+        # Wave field.
+        self.merge_wave_field(pyHDB_out)
 
