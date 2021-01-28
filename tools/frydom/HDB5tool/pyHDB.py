@@ -487,7 +487,7 @@ class pyHDB(object):
                 self.kochin_diffraction = np.repeat(self.kochin_diffraction, 2, axis=0) # axis = 0 -> wave directions.
 
             # Derivatives of the diffraction Kochin functions.
-            if(self.kochin_diffraction_derivative):
+            if(self.kochin_diffraction_derivative is not None):
 
                 # Diffraction Kochin function derivatives - Wave frequencies.
                 f_interp_kochin_derivative_diffraction_freq = interpolate.interp1d(self.wave_freq, self.kochin_diffraction_derivative, axis=1)  # axis = 1 -> wave frequencies.
@@ -510,7 +510,7 @@ class pyHDB(object):
             self.kochin_radiation = f_interp_kochin_radiation_freq(discretization._wave_frequencies) # Application of the interpolation.
 
             # Derivatives of the radiation Kochin functions.
-            if (self.kochin_radiation_derivative):
+            if (self.kochin_radiation_derivative is not None):
                 f_interp_kochin_derivative_radiation_freq = interpolate.interp1d(self.wave_freq, self.kochin_radiation_derivative, axis=1)  # axis = 1 -> wave frequencies.
                 self.kochin_radiation_derivative = f_interp_kochin_derivative_radiation_freq(discretization._wave_frequencies)  # Application of the interpolation.
 
