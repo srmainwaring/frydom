@@ -15,7 +15,7 @@ import frydom.HDB5tool.pyHDB as pyHDB
 
 class Merger(object):
     """
-        Class for merging two pyHDB.
+        Class for merging two pyHDB of the same problem, only the wave freqency ranges are different.
     """
 
     def __init__(self, pyHDB_1, pyHDB_2):
@@ -41,10 +41,40 @@ class Merger(object):
     def merge_version(self, pyHDB_out):
 
         """
-            This method merges the version of the pyHDB.
+            This method merges the version of the two pyHDB.
         """
 
         pyHDB_out.version = self._pyHDB_1.version_max
+
+    def merge_environment(self, pyHDB_out):
+
+        """
+            This method merges the environmental data of the two pyHDB.
+        """
+
+        # Gravity acceleration.
+        assert (self._pyHDB_1.grav == self._pyHDB_2.grav)
+        pyHDB_out.grav = self._pyHDB_1.grav
+
+        # Water density.
+        assert (self._pyHDB_1.rho_water == self._pyHDB_2.rho_water)
+        pyHDB_out.rho_water = self._pyHDB_1.rho_water
+
+        # Normalisation length.
+        assert (self._pyHDB_1.normalization_length == self._pyHDB_2.normalization_length)
+        pyHDB_out.normalization_length = self._pyHDB_1.normalization_length
+
+        # Water depth.
+        assert (self._pyHDB_1.depth == self._pyHDB_2.depth)
+        pyHDB_out.depth = self._pyHDB_1.depth
+
+        # Number of bodies.
+        assert (self._pyHDB_1.nb_bodies == self._pyHDB_2.nb_bodies)
+        pyHDB_out.nb_bodies = self._pyHDB_1.nb_bodies
+
+        # Solver.
+        assert (self._pyHDB_1.solver == self._pyHDB_2.solver)
+        pyHDB_out.solver = self._pyHDB_1.solver
 
     def merge(self):
 
@@ -57,6 +87,9 @@ class Merger(object):
 
         # Version.
         self.merge_version(pyHDB_out)
+
+        # Environnement.
+        self.merge_environnement(pyHDB_out)
 
         return
 
