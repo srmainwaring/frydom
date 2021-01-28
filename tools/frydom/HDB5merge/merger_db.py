@@ -105,6 +105,18 @@ class Merger(object):
         pyHDB_out.dt = self._pyHDB_1.dt
         pyHDB_out.time = self._pyHDB_1.time
 
+    def merge_symmetries(self, pyHDB_out):
+
+        """
+            This method merges the symmetry data of the two pyHDB.
+        """
+
+        assert (self._pyHDB_1.bottom_sym == self._pyHDB_2.bottom_sym)
+        pyHDB_out.bottom_sym = self._pyHDB_1.bottom_sym
+        assert (self._pyHDB_1.xoz_sym == self._pyHDB_2.xoz_sym)
+        pyHDB_out.xoz_sym = self._pyHDB_1.xoz_sym
+        assert (self._pyHDB_1.yoz_sym == self._pyHDB_2.yoz_sym)
+        pyHDB_out.yoz_sym = self._pyHDB_1.yoz_sym
 
     def merge(self):
 
@@ -123,4 +135,7 @@ class Merger(object):
 
         # Discretization.
         self.merge_discretization(pyHDB_out)
+
+        # Symmetries.
+        self.merge_symmetries(pyHDB_out)
 
