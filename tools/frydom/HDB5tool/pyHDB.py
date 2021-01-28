@@ -1330,16 +1330,16 @@ class pyHDB(object):
                 # Function
                 grp_radiation_function = grp_dof.require_group("Function")
                 dset = grp_radiation_function.create_dataset("RealPart",
-                                                               data=self.kochin_radiation[imotion, :, :].transpose().real)
+                                                               data=self.kochin_radiation[6 * body.i_body + imotion, :, :].transpose().real)
                 dset = grp_radiation_function.create_dataset("ImagPart",
-                                                               data=self.kochin_radiation[imotion, :, :].transpose().imag)
+                                                               data=self.kochin_radiation[6 * body.i_body + imotion, :, :].transpose().imag)
 
                 # Function
                 grp_radiation_derivative = grp_dof.require_group("Derivative")
                 dset = grp_radiation_derivative.create_dataset("RealPart",
-                                                               data=self.kochin_radiation_derivative[imotion, :, :].transpose().real)
+                                                               data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().real)
                 dset = grp_radiation_derivative.create_dataset("ImagPart",
-                                                               data=self.kochin_radiation_derivative[imotion, :, :].transpose().imag)
+                                                               data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().imag)
 
     def write_wave_drift(self, writer, wave_drift_path="/WaveDrift"):
 

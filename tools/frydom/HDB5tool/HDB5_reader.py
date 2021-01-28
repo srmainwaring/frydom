@@ -399,8 +399,8 @@ class HDB5reader():
 
                 # Setting.
                 for ifreq in range(nw):
-                    pyHDB.kochin_radiation[imotion, ifreq, :] = radiation_function_real[:, ifreq] + 1j * radiation_function_imag[:, ifreq]
-                    pyHDB.kochin_radiation_derivative[imotion, ifreq, :] = radiation_derivative_real[:, ifreq] + 1j * radiation_derivative_imag[:, ifreq]
+                    pyHDB.kochin_radiation[6 * body.i_body + imotion, ifreq, :] = radiation_function_real[:, ifreq] + 1j * radiation_function_imag[:, ifreq]
+                    pyHDB.kochin_radiation_derivative[6 * body.i_body + imotion, ifreq, :] = radiation_derivative_real[:, ifreq] + 1j * radiation_derivative_imag[:, ifreq]
 
     def read_wave_drift(self, reader, pyHDB, wave_drift_path):
         """This function reads the wave drift loads of the *.hdb5 file.
