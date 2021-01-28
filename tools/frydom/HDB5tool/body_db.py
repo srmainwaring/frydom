@@ -98,7 +98,7 @@ class BodyDB(object):
         self.irf_ku = None
 
         # Flags (?).
-        self._flags = np.ones((6, 6*nb_bodies), dtype=np.bool)
+        self._flags = np.ones((6, 6 * nb_bodies), dtype=np.bool)
 
         # Hydrostatics.
         self._hydrostatic = None
@@ -121,6 +121,7 @@ class BodyDB(object):
         # Poles and residues.
         self.poles_residues = None
 
+        # Diodore date.
         self.cog = None
         self.cob = None
         self.underwater_volume = None
