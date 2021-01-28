@@ -40,7 +40,7 @@ def get_parser(parser):
     # Merge two hdb5 files into a single one.
     parser.add_argument('--merge', '-m', nargs=2, action="store", help="""Reading a hdb5 file with the given name.""")
 
-    # Writing the hdb5 output file.
+    # Writing the output hdb5 file.
     parser.add_argument('--write', '-w', action="store", help="""Writing the hdb5 output file with the given name.""")
 
     return parser
@@ -84,9 +84,21 @@ def main():
     #                                                Merging
     ####################################################################################################################
 
-    merger = merger_db.Merger(database_1.pyHDB, database_2.pyHDB)
-    merger.merge()
+    if (args.merge is not None):
+        merger = merger_db.Merger(database_1.pyHDB, database_2.pyHDB)
+        database_out = H5T.HDB5()
+        database_out._pyHDB = merger.merge()
+        database_out._is_initialized = True # No initialization.
 
+    ####################################################################################################################
+    #                                                Writing
+    ####################################################################################################################
+
+    if (args.merge is not None):
+        if (args.write is not None):
+            database_out.export_hdb5(args.write)
+    else:
+        print("hdb5merge cannot export a hdb5 file without merging.")
 
 if __name__ == '__main__':
     main()

@@ -472,3 +472,5 @@ class Merger(object):
         # Mean wave drift loads.
         self.merge_drift(pyHDB_out)
 
+        return pyHDB_out
+
