@@ -372,7 +372,7 @@ class HDB5reader():
                 pyHDB.kochin_diffraction_derivative[iwave, ifreq, :] = diffraction_derivative_real[:,ifreq] + 1j * diffraction_derivative_imag[:, ifreq]
 
         # Radiation Kochin functions and their derivatives.
-        pyHDB.kochin_radiation = np.zeros((6*nbodies, nw, ntheta), dtype=np.complex)
+        pyHDB.kochin_radiation = np.zeros((6 * nbodies, nw, ntheta), dtype=np.complex)
         pyHDB.kochin_radiation_derivative = np.zeros((6*nbodies, nw, ntheta), dtype=np.complex)
         for body in pyHDB.bodies:
             for imotion in range(0, 6):

@@ -352,6 +352,93 @@ class Merger(object):
         assert (self._pyHDB_1.has_wave_field == self._pyHDB_2.has_wave_field)
         pyHDB_out.has_wave_field = self._pyHDB_1.has_wave_field
 
+    def merge_Kochin(self, pyHDB_out):
+
+        """
+            This method merges the wave field data of the two pyHDB.
+        """
+
+        # Angular discretization.
+        assert (self._pyHDB_1.min_angle_kochin == self._pyHDB_2.min_angle_kochin)
+        pyHDB_out.min_angle_kochin = self._pyHDB_1.min_angle_kochin
+        assert (self._pyHDB_1.max_angle_kochin == self._pyHDB_2.max_angle_kochin)
+        pyHDB_out.max_angle_kochin = self._pyHDB_1.max_angle_kochin
+        assert (self._pyHDB_1.nb_angle_kochin == self._pyHDB_2.nb_angle_kochin)
+        pyHDB_out.nb_angle_kochin = self._pyHDB_1.nb_angle_kochin
+        pyHDB_out.angle_kochin = self._pyHDB_1.angle_kochin
+
+        # Wave directions.
+        assert (self._pyHDB_1.nb_dir_kochin == self._pyHDB_2.nb_dir_kochin)
+        pyHDB_out.nb_dir_kochin = self._pyHDB_1.nb_dir_kochin
+        assert (self._pyHDB_1.min_dir_kochin == self._pyHDB_2.min_dir_kochin)
+        pyHDB_out.min_dir_kochin = self._pyHDB_1.min_dir_kochin
+        assert (self._pyHDB_1.max_dir_kochin == self._pyHDB_2.max_dir_kochin)
+        pyHDB_out.max_dir_kochin = self._pyHDB_1.max_dir_kochin
+        pyHDB_out.wave_dir_kochin = self._pyHDB_1.wave_dir_kochin
+
+        # Parameters.
+        ntheta = pyHDB_out.nb_angle_kochin
+        nw = pyHDB_out.nb_wave_freq
+        nbeta = pyHDB_out.nb_dir_kochin
+        nbodies = pyHDB_out.nb_bodies
+
+        # Diffraction Kochin functions.
+        pyHDB_out.kochin_diffraction = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
+        assert (pyHDB_out.kochin_diffraction.shape[0] == self._pyHDB_1.kochin_diffraction.shape[0] == self._pyHDB_2.kochin_diffraction.shape[0]) # Wave directions.
+        assert (pyHDB_out.kochin_diffraction.shape[2] == self._pyHDB_1.kochin_diffraction.shape[2] == self._pyHDB_2.kochin_diffraction.shape[2]) # Angular discretization.
+        pyHDB_out.kochin_diffraction = np.concatenate([self._pyHDB_1.kochin_diffraction, self._pyHDB_2.kochin_diffraction], axis=1) # Wave frequencies.
+
+        # Angular discretization of the diffraction Kochin functions.
+        pyHDB_out.kochin_diffraction_derivative = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
+        assert (pyHDB_out.kochin_diffraction_derivative.shape[0] == self._pyHDB_1.kochin_diffraction_derivative.shape[0] == self._pyHDB_2.kochin_diffraction_derivative.shape[0]) # Wave directions.
+        assert (pyHDB_out.kochin_diffraction_derivative.shape[2] == self._pyHDB_1.kochin_diffraction_derivative.shape[2] == self._pyHDB_2.kochin_diffraction_derivative.shape[2]) # Angular discretization.
+        pyHDB_out.kochin_diffraction_derivative = np.concatenate([self._pyHDB_1.kochin_diffraction_derivative, self._pyHDB_2.kochin_diffraction_derivative], axis=1) # Wave frequencies.
+
+        # Radiation Kochin functions.
+        pyHDB_out.kochin_radiation = np.zeros((6 * nbodies, nw, ntheta), dtype=np.complex)
+        assert (pyHDB_out.kochin_radiation.shape[0] == self._pyHDB_1.kochin_radiation.shape[0] == self._pyHDB_2.kochin_radiation.shape[0]) # Bodies and dof.
+        assert (pyHDB_out.kochin_radiation.shape[2] == self._pyHDB_1.kochin_radiation.shape[2] == self._pyHDB_2.kochin_radiation.shape[2]) # Angular discretization.
+        pyHDB_out.kochin_radiation = np.concatenate([self._pyHDB_1.kochin_radiation, self._pyHDB_2.kochin_radiation], axis=1) # Wave frequencies.
+
+        # Angular discretization of the radiation Kochin functions.
+        pyHDB_out.kochin_radiation_derivative = np.zeros((6 * nbodies, nw, ntheta), dtype=np.complex)
+        assert (pyHDB_out.kochin_radiation_derivative.shape[0] == self._pyHDB_1.kochin_radiation_derivative.shape[0] == self._pyHDB_2.kochin_radiation_derivative.shape[0]) # Bodies and dof.
+        assert (pyHDB_out.kochin_radiation_derivative.shape[2] == self._pyHDB_1.kochin_radiation_derivative.shape[2] == self._pyHDB_2.kochin_radiation_derivative.shape[2]) # Angular discretization.
+        pyHDB_out.kochin_radiation_derivative = np.concatenate([self._pyHDB_1.kochin_radiation_derivative, self._pyHDB_2.kochin_radiation_derivative], axis=1) # Wave frequencies.
+
+    def merge_drift(self, pyHDB_out):
+
+        """
+            This method merges the drift data of the two pyHDB.
+        """
+
+        # sym_x.
+        assert (self._pyHDB_1.sym_x == self._pyHDB_2.sym_x)
+        pyHDB_out.sym_x = self._pyHDB_1.sym_x
+
+        # sym_y.
+        assert (self._pyHDB_1.sym_y == self._pyHDB_2.sym_y)
+        pyHDB_out.sym_y = self._pyHDB_1.sym_y
+
+        # Kochin angular step.
+        assert (self._pyHDB_1.kochin_step == self._pyHDB_2.kochin_step)
+        pyHDB_out.kochin_step = self._pyHDB_1.kochin_step
+
+        # Kochin functions and their angular derivatives.
+        assert (self._pyHDB_1.has_kochin == self._pyHDB_2.has_kochin)
+        pyHDB_out.has_kochin = self._pyHDB_1.has_kochin
+        if(pyHDB_out.has_kochin):
+            self.merge_Kochin(pyHDB_out)
+
+        # Mean wave drift loads.
+        assert (self._pyHDB_1.has_Drift == self._pyHDB_2.has_Drift)
+        pyHDB_out.has_Drift = self._pyHDB_1.has_Drift
+        if (pyHDB_out.has_Drift):
+            pyHDB_out.Wave_drift_force = np.zeros((6, pyHDB_out.nb_wave_freq, pyHDB_out.nb_wave_dir), dtype=np.float)
+            assert (pyHDB_out.Wave_drift_force.shape[0] == self._pyHDB_1.Wave_drift_force.shape[0] == self._pyHDB_2.Wave_drift_force.shape[0]) # Dof.
+            assert (pyHDB_out.Wave_drift_force.shape[2] == self._pyHDB_1.Wave_drift_force.shape[2] == self._pyHDB_2.Wave_drift_force.shape[2]) # Wave directions.
+            pyHDB_out.Wave_drift_force = np.concatenate([self._pyHDB_1.Wave_drift_force, self._pyHDB_2.Wave_drift_force], axis=1) # Wave frequencies.
+
     def merge(self):
 
         """
@@ -381,4 +468,7 @@ class Merger(object):
 
         # Wave field.
         self.merge_wave_field(pyHDB_out)
+
+        # Mean wave drift loads.
+        self.merge_drift(pyHDB_out)
 
