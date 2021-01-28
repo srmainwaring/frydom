@@ -12,7 +12,9 @@
 # ==========================================================================
 
 import numpy as np
+
 import frydom.HDB5tool.pyHDB as pyHDB
+import frydom.HDB5tool.body_db as body_db
 
 class Merger(object):
     """
@@ -133,6 +135,215 @@ class Merger(object):
         assert (self._pyHDB_1.has_VF == self._pyHDB_2.has_VF)
         pyHDB_out.has_VF = self._pyHDB_1.has_VF
 
+    def merge_excitation(self, body_1, body_2, body_out):
+
+        """
+            This method merges the excitation loads of the two pyHDB.
+        """
+
+        # Froude-Kylov loads.
+        assert (body_out.Froude_Krylov.shape[0] == body_1.Froude_Krylov.shape[0] == body_2.Froude_Krylov.shape[0]) # Dof.
+        assert (body_out.Froude_Krylov.shape[2] == body_1.Froude_Krylov.shape[2] == body_2.Froude_Krylov.shape[2]) # Wave directions.
+        body_out.Froude_Krylov = np.concatenate([body_1.Froude_Krylov, body_2.Froude_Krylov], axis=1) # Wave frequencies.
+
+        # Diffraction loads.
+        assert (body_out.Diffraction.shape[0] == body_1.Diffraction.shape[0] == body_2.Diffraction.shape[0]) # Dof.
+        assert (body_out.Diffraction.shape[2] == body_1.Diffraction.shape[2] == body_2.Diffraction.shape[2]) # Wave directions.
+        body_out.Diffraction = np.concatenate([body_1.Diffraction, body_2.Diffraction], axis=1) # Wave frequencies.
+
+    def merge_radiation(self, body_1, body_2, body_out, pyHDB_out):
+
+        """
+            This method merges the radiation quantities of the two pyHDB.
+        """
+
+        # Infinite-frequency added mass.
+        assert (np.all(body_1.Inf_Added_mass == body_2.Inf_Added_mass))
+        body_out.Inf_Added_mass = body_1.Inf_Added_mass
+
+        # Zero-frequency added mass.
+        assert (np.all(body_1.Zero_Added_mass == body_2.Zero_Added_mass))
+        body_out.Zero_Added_mass = body_1.Zero_Added_mass
+
+        # Radiation mask.
+        assert (np.all(body_1.Radiation_mask == body_2.Radiation_mask))
+        body_out.Radiation_mask = body_1.Radiation_mask
+
+        # Added mass.
+        assert (body_out.Added_mass.shape[0] == body_1.Added_mass.shape[0] == body_2.Added_mass.shape[0]) # i_force.
+        assert (body_out.Added_mass.shape[1] == body_1.Added_mass.shape[1] == body_2.Added_mass.shape[1]) # i_motion.
+        body_out.Added_mass = np.concatenate([body_1.Added_mass, body_2.Added_mass], axis=2) # Wave frequencies.
+
+        # Damping.
+        assert (body_out.Damping.shape[0] == body_1.Damping.shape[0] == body_2.Damping.shape[0]) # i_force.
+        assert (body_out.Damping.shape[1] == body_1.Damping.shape[1] == body_2.Damping.shape[1]) # i_motion.
+        body_out.Damping = np.concatenate([body_1.Damping, body_2.Damping], axis=2) # Wave frequencies.
+
+        # Impulse response functions without forward speed.
+        assert (body_1.irf == body_2.irf)
+        if(body_1.irf is not None and body_2.irf is not None):
+            body_out.irf = np.zeros((6, 6 * pyHDB_out.nb_bodies, pyHDB_out.nb_time_samples), dtype=np.float)
+            assert (np.all(body_1.irf == body_2.irf))
+            body_out.irf = body_1.irf
+
+        # Impulse response functions with forward speed.
+        assert (body_1.irf_ku == body_2.irf_ku)
+        if (body_1.irf_ku is not None and body_2.irf_ku is not None):
+            body_out.irf_ku = np.zeros((6, 6 * pyHDB_out.nb_bodies, pyHDB_out.nb_time_samples), dtype=np.float)
+            assert (np.all(body_1.irf_ku == body_2.irf_ku))
+            body_out.irf_ku = body_1.irf_ku
+
+        # Poles and residues.
+        if(pyHDB_out.has_VF):
+            print("The vector-fitting approximation of the hdb with the lowest wave frequency range is used. "
+                  "Please check the quality of the vector-fitting approximation.\n")
+            body_out.poles_residues = body_1.poles_residues
+
+    def merge_hydrostatics(self, body_1, body_2, body_out):
+
+        """
+            This method merges the hydrostatics data of the two pyHDB.
+        """
+
+        if(body_1.hydrostatic is not None and body_2.hydrostatic is not None):
+            body_out.activate_hydrostatic()
+            assert (np.all(body_1.hydrostatic.matrix == body_2.hydrostatic.matrix))
+            body_out.hydrostatic.matrix = body_1.hydrostatic.matrix
+
+    def merge_mass_matrix(self, body_1, body_2, body_out):
+
+        """
+            This method merges the inertial data of the two pyHDB.
+        """
+
+        if (body_1.inertia is not None and body_2.inertia is not None):
+            body_out.activate_inertia()
+            assert (body_1.inertia.mass == body_2.inertia.mass)
+            assert (np.all(body_1.inertia.matrix33 == body_2.inertia.matrix33))
+            body_out.inertia.matrix = body_1.inertia.matrix
+
+    def merge_mooring_matrix(self, body_1, body_2, body_out):
+
+        """
+            This method merges the mooring data of the two pyHDB.
+        """
+
+        if (body_1.mooring is not None and body_2.mooring is not None):
+            body_out.activate_mooring()
+            assert (np.all(body_1.mooring == body_2.mooring))
+            body_out.mooring = body_1.mooring
+
+    def merge_extra_linear_damping_matrix(self, body_1, body_2, body_out):
+
+        """
+            This method merges the extra linear damping data of the two pyHDB.
+        """
+
+        if (body_1.extra_damping is not None and body_2.extra_damping is not None):
+            body_out.activate_extra_damping()
+            assert (np.all(body_1.extra_damping == body_2.extra_damping))
+            body_out.extra_damping = body_1.extra_damping
+
+    def merge_RAO(self, body_1, body_2, body_out, pyHDB_out):
+
+        """
+            This method merges the RAO of the two pyHDB.
+        """
+
+        body_out.RAO = np.zeros((6, pyHDB_out.nb_wave_freq, pyHDB_out.nb_wave_dir), dtype=np.complex)
+        assert (body_out.RAO.shape[0] == body_1.RAO.shape[0] == body_2.RAO.shape[0]) # Dof.
+        assert (body_out.RAO.shape[2] == body_1.RAO.shape[2] == body_2.RAO.shape[2]) # Wave directions.
+        body_out.RAO = np.concatenate([body_1.RAO, body_2.RAO], axis=1) # Wave frequencies.
+
+    def merge_Eigenfrequencies(self, body_1, body_2, body_out):
+
+        """
+            This method merges the eigenfrequencies of the two pyHDB.
+        """
+
+        body_out.Eigenfrequencies = np.zeros((6), dtype=np.float)
+        assert (np.all(body_1.Eigenfrequencies == body_2.Eigenfrequencies))
+        body_out.Eigenfrequencies = body_1.Eigenfrequencies
+
+    def merge_bodies(self, pyHDB_out):
+
+        """
+            This method merges the body data of the two pyHDB.
+        """
+
+        for ibody in range(0, pyHDB_out.nb_bodies):
+
+            # Input bodies.
+            body_1 = self._pyHDB_1.bodies[ibody]
+            body_2 = self._pyHDB_2.bodies[ibody]
+
+            # Index.
+            assert (body_1.i_body == body_2.i_body)
+
+            # Body_out.
+            if (pyHDB_out.version == 2.0):
+                body_out = body_db.BodyDB(body_1.i_body, pyHDB_out.nb_bodies, pyHDB_out.nb_wave_freq, pyHDB_out.nb_wave_dir, body_1.mesh)
+            else:
+                body_out = body_db.BodyDB(body_1.i_body, pyHDB_out.nb_bodies, pyHDB_out.nb_wave_freq, pyHDB_out.nb_wave_dir)
+
+            # Name.
+            assert (body_1.name == body_2.name)
+            body_out.name = body_1.name
+
+            # Position.
+            assert (np.all(body_1.position == body_2.position))
+            body_out.position = body_1.position
+
+            # Point.
+            assert (np.all(body_1.point == body_2.point))
+            body_out.point = body_1.point
+
+            # Motion mask.
+            assert (np.all(body_1.Motion_mask == body_2.Motion_mask))
+            body_out.Motion_mask = body_1.Motion_mask
+
+            # Force mask.
+            assert (np.all(body_1.Force_mask == body_2.Force_mask))
+            body_out.Force_mask = body_1.Force_mask
+
+            # Excitation loads.
+            assert (self._pyHDB_1._has_froude_krylov == self._pyHDB_2._has_froude_krylov)
+            pyHDB_out._has_froude_krylov = self._pyHDB_1._has_froude_krylov
+            self.merge_excitation(body_1, body_2, body_out)
+
+            # Added mass and damping coefficients, impulse response functions and poles and residues of the VF.
+            assert (self._pyHDB_1._has_infinite_added_mass == self._pyHDB_2._has_infinite_added_mass)
+            pyHDB_out._has_infinite_added_mass = self._pyHDB_1._has_infinite_added_mass
+            self.merge_radiation(body_1, body_2, body_out, pyHDB_out)
+
+            # Hydrostatics.
+            self.merge_hydrostatics(body_1, body_2, body_out)
+
+            # Mass matrix.
+            self.merge_mass_matrix(body_1, body_2, body_out)
+
+            # Mooring matrix.
+            self.merge_mooring_matrix(body_1, body_2, body_out)
+
+            # Extra linear damping matrix.
+            self.merge_extra_linear_damping_matrix(body_1, body_2, body_out)
+
+            # RAO.
+            assert(self._pyHDB_1.has_RAO == self._pyHDB_2.has_RAO)
+            pyHDB_out.has_RAO = self._pyHDB_1.has_RAO
+            if(pyHDB_out.has_RAO):
+                self.merge_RAO(body_1, body_2, body_out, pyHDB_out)
+
+            # Eigenfrequencies.
+            assert (self._pyHDB_1.has_Eigenfrequencies == self._pyHDB_2.has_Eigenfrequencies)
+            pyHDB_out.has_Eigenfrequencies = self._pyHDB_1.has_Eigenfrequencies
+            if (pyHDB_out.has_Eigenfrequencies):
+                self.merge_Eigenfrequencies(body_1, body_2, body_out)
+
+            # Add body to pyHDB.
+            pyHDB_out.append(body_out)
+
+
     def merge(self):
 
         """
@@ -156,4 +367,7 @@ class Merger(object):
 
         # Vector fitting.
         self.merge_VF(pyHDB_out)
+
+        # Bodies.
+        self.merge_bodies(pyHDB_out)
 
