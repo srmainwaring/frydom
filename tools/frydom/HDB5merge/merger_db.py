@@ -11,6 +11,7 @@
 #
 # ==========================================================================
 
+import numpy as np
 import frydom.HDB5tool.pyHDB as pyHDB
 
 class Merger(object):
@@ -76,6 +77,35 @@ class Merger(object):
         assert (self._pyHDB_1.solver == self._pyHDB_2.solver)
         pyHDB_out.solver = self._pyHDB_1.solver
 
+    def merge_discretization(self, pyHDB_out):
+
+        """
+            This method merges the discretization data of the two pyHDB.
+        """
+
+        # Wave frequency discretization.
+        pyHDB_out.nb_wave_freq = self._pyHDB_1.nb_wave_freq + self._pyHDB_2.nb_wave_freq
+        pyHDB_out.min_wave_freq = self._pyHDB_1.min_wave_freq # By definition pyHDB_1 has the lowest frequency range.
+        pyHDB_out.max_wave_freq = self._pyHDB_2.max_wave_freq # By definition pyHDB_2 has the highest frequency range.
+        pyHDB_out.wave_freq = np.concatenate([self._pyHDB_1.wave_freq, self._pyHDB_2.wave_freq], axis=0)
+
+        # Wave direction discretization.
+        assert (self._pyHDB_1.nb_wave_dir == self._pyHDB_2.nb_wave_dir)
+        pyHDB_out.nb_wave_dir = self._pyHDB_1.nb_wave_dir
+        assert (self._pyHDB_1.min_wave_dir == self._pyHDB_2.min_wave_dir)
+        pyHDB_out.min_wave_dir = self._pyHDB_1.min_wave_dir
+        assert (self._pyHDB_1.max_wave_dir == self._pyHDB_2.max_wave_dir)
+        pyHDB_out.max_wave_dir = self._pyHDB_1.max_wave_dir
+        pyHDB_out.wave_dir = self._pyHDB_1.wave_dir
+
+        # Time samples.
+        assert (self._pyHDB_1.nb_time_samples == self._pyHDB_2.nb_time_samples)
+        pyHDB_out.nb_time_samples = self._pyHDB_1.nb_time_samples
+        assert (self._pyHDB_1.dt == self._pyHDB_2.dt)
+        pyHDB_out.dt = self._pyHDB_1.dt
+        pyHDB_out.time = self._pyHDB_1.time
+
+
     def merge(self):
 
         """
@@ -89,8 +119,8 @@ class Merger(object):
         self.merge_version(pyHDB_out)
 
         # Environnement.
-        self.merge_environnement(pyHDB_out)
+        self.merge_environment(pyHDB_out)
 
-        return
-
+        # Discretization.
+        self.merge_discretization(pyHDB_out)
 
