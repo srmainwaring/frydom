@@ -118,6 +118,21 @@ class Merger(object):
         assert (self._pyHDB_1.yoz_sym == self._pyHDB_2.yoz_sym)
         pyHDB_out.yoz_sym = self._pyHDB_1.yoz_sym
 
+    def merge_VF(self, pyHDB_out):
+
+        """
+            This method merges the VF data of the two pyHDB.
+        """
+
+        assert (self._pyHDB_1.max_order == self._pyHDB_2.max_order)
+        pyHDB_out.max_order = self._pyHDB_1.max_order
+        assert (self._pyHDB_1.relaxed == self._pyHDB_2.relaxed)
+        pyHDB_out.relaxed = self._pyHDB_1.relaxed
+        assert (self._pyHDB_1.tolerance == self._pyHDB_2.tolerance)
+        pyHDB_out.tolerance = self._pyHDB_1.tolerance
+        assert (self._pyHDB_1.has_VF == self._pyHDB_2.has_VF)
+        pyHDB_out.has_VF = self._pyHDB_1.has_VF
+
     def merge(self):
 
         """
@@ -138,4 +153,7 @@ class Merger(object):
 
         # Symmetries.
         self.merge_symmetries(pyHDB_out)
+
+        # Vector fitting.
+        self.merge_VF(pyHDB_out)
 
