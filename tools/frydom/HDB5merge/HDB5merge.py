@@ -58,6 +58,10 @@ def Read_hdb5(args):
         # Second hdb5 input file.
         database_2 = H5T.HDB5()
         database_2.read_hdb5(args.merge[1])
+    else:
+        print("No input file has been provided.")
+        print("Please give two .hdb5 files as inputs for merging.")
+        exit()
 
     return database_1, database_2
 
