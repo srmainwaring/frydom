@@ -1306,19 +1306,22 @@ class pyHDB(object):
             dset.attrs['Unit'] = 'deg'
             dset.attrs['Description'] = "Wave direction"
 
-            # Function
+            # Function.
             grp_diffraction_function = grp_angle.require_group("Function")
             dset = grp_diffraction_function.create_dataset("RealPart",
                                                            data=self.kochin_diffraction[iwave, :, :].transpose().real)
             dset = grp_diffraction_function.create_dataset("ImagPart",
                                                            data=self.kochin_diffraction[iwave, :, :].transpose().imag)
 
-            # Function
-            grp_diffraction_derivative = grp_angle.require_group("Derivative")
-            dset = grp_diffraction_derivative.create_dataset("RealPart",
-                                                           data=self.kochin_diffraction_derivative[iwave, :, :].transpose().real)
-            dset = grp_diffraction_derivative.create_dataset("ImagPart",
-                                                           data=self.kochin_diffraction_derivative[iwave, :, :].transpose().imag)
+            # Derivative.
+            # Nemoh computes the angular derivatives of the Total Kochin functions and not
+            # of the elementary ones so they are useless and not exported.
+            if(self.solver == "Helios"):
+                grp_diffraction_derivative = grp_angle.require_group("Derivative")
+                dset = grp_diffraction_derivative.create_dataset("RealPart",
+                                                               data=self.kochin_diffraction_derivative[iwave, :, :].transpose().real)
+                dset = grp_diffraction_derivative.create_dataset("ImagPart",
+                                                               data=self.kochin_diffraction_derivative[iwave, :, :].transpose().imag)
 
         # Radiation Kochin functions and their derivatives.
         grp_radiation = dg.require_group("Radiation")
@@ -1327,19 +1330,22 @@ class pyHDB(object):
 
                 grp_dof = grp_radiation.require_group("Body_" + str(body.i_body) + "/DOF_" + str(imotion))
 
-                # Function
+                # Function.
                 grp_radiation_function = grp_dof.require_group("Function")
                 dset = grp_radiation_function.create_dataset("RealPart",
                                                                data=self.kochin_radiation[6 * body.i_body + imotion, :, :].transpose().real)
                 dset = grp_radiation_function.create_dataset("ImagPart",
                                                                data=self.kochin_radiation[6 * body.i_body + imotion, :, :].transpose().imag)
 
-                # Function
-                grp_radiation_derivative = grp_dof.require_group("Derivative")
-                dset = grp_radiation_derivative.create_dataset("RealPart",
-                                                               data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().real)
-                dset = grp_radiation_derivative.create_dataset("ImagPart",
-                                                               data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().imag)
+                # Derivative.
+                # Nemoh computes the angular derivatives of the Total Kochin functions and not
+                # of the elementary ones so they are useless and not exported.
+                if (self.solver == "Helios"):
+                    grp_radiation_derivative = grp_dof.require_group("Derivative")
+                    dset = grp_radiation_derivative.create_dataset("RealPart",
+                                                                   data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().real)
+                    dset = grp_radiation_derivative.create_dataset("ImagPart",
+                                                                   data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().imag)
 
     def write_wave_drift(self, writer, wave_drift_path="/WaveDrift"):
 
@@ -1382,7 +1388,7 @@ class pyHDB(object):
         dset.attrs['Description'] = "Symmetry along y"
 
         # Kochin function angular step.
-        if(self.solver == "Helios"):
+        if(self.solver == "Helios" or self.has_kochin):
             dset = dg.create_dataset("KochinStep", data=self.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
 
