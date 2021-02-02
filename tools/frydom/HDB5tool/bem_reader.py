@@ -501,7 +501,12 @@ class NemohReader(_BEMReader):
             pyHDB.has_kochin = bool(float(data[0]))
             if pyHDB.has_kochin:
                 pyHDB.nb_angle_kochin = int(data[0])
+                pyHDB.kochin_step = 360. / (pyHDB.nb_angle_kochin - 1)
                 pyHDB.min_angle_kochin, pyHDB.max_angle_kochin = list(map(float, data[1:]))
+                if(pyHDB.min_angle_kochin != 0. or pyHDB.max_angle_kochin != 360.):
+                    print("Kochin angular discretization must be between 0 and 360 deg for computing the mean wave drift"
+                          " loads.")
+                    exit()
                 pyHDB.set_wave_directions_Kochin()
 
 
