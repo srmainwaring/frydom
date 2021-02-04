@@ -815,49 +815,6 @@ class pyHDB(object):
         dset = writer.create_dataset(symmetry_path + "/yOz", data=self.yoz_sym)
         dset.attrs['Description'] = "(yOz)) symmetry."
 
-    def write_mode(self, writer, body, ForceOrMotion, body_modes_path="/Modes"):
-        """This function writes the force and motion modes into the *.hdb5 file.
-
-        Parameters
-        ----------
-        Writer : string
-            *.hdb5 file.
-        body : BodyDB.
-            Body.
-        ForceOrMotion : int
-            0 for Force, 1 for Motion.
-        body_modes_path : string, optional
-            Path to body modes.
-        """
-
-        if(ForceOrMotion == 0): # Force.
-            dset = writer.create_dataset(body_modes_path + "/NbForceModes", data=6)
-            dset.attrs['Description'] = "Number of force modes for body number %u" % body.i_body
-        else: # Motion.
-            dset = writer.create_dataset(body_modes_path + "/NbMotionModes", data=6)
-            dset.attrs['Description'] = "Number of motion modes for body number %u" % body.i_body
-
-        for iforce in range(0,6):
-
-            if(ForceOrMotion == 0): # Force.
-                mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
-            else: # Motion.
-                mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
-            writer.create_group(mode_path)
-            if(iforce == 0 or iforce == 3):
-                direction = np.array([1., 0., 0.])
-            elif(iforce == 1 or iforce == 4):
-                direction = np.array([0., 1., 0.])
-            elif(iforce == 2 or iforce == 5):
-                direction = np.array([0., 0., 1.])
-            writer.create_dataset(mode_path + "/Direction", data=direction)
-
-            if (iforce <= 2):
-                writer.create_dataset(mode_path + "/Type", data='LINEAR')
-            elif (iforce >= 3):
-                writer.create_dataset(mode_path + "/Type", data='ANGULAR')
-                writer.create_dataset(mode_path + "/Point", data=body.point[iforce-3,:])
-
     def write_mask(self, writer, body, mask_path="/Mask"):
         """This function writes the Force and Motion masks into the *.hdb5 file.
 

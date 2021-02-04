@@ -547,29 +547,29 @@ class HDB5reader_v2(HDB5reader):
         # Bodies.
         self.read_bodies(reader, pyHDB)
 
-    def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
-        """This function reads the force and motion modes of the *.hdb5 file.
-
-        Parameters
-        ----------
-        reader : string
-            *.hdb5 file.
-        body : BodyDB.
-            Body.
-        ForceOrMotion : int
-            0 for Force, 1 for Motion.
-        body_modes_path : string
-            Path to body modes.
-        """
-
-        for iforce in range(0, 6):
-            if (ForceOrMotion == 0):  # Force.
-                mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
-            else:  # Motion.
-                mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
-
-            if (iforce >= 3):
-                body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
+    # def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
+    #     """This function reads the force and motion modes of the *.hdb5 file.
+    #
+    #     Parameters
+    #     ----------
+    #     reader : string
+    #         *.hdb5 file.
+    #     body : BodyDB.
+    #         Body.
+    #     ForceOrMotion : int
+    #         0 for Force, 1 for Motion.
+    #     body_modes_path : string
+    #         Path to body modes.
+    #     """
+    #
+    #     for iforce in range(0, 6):
+    #         if (ForceOrMotion == 0):  # Force.
+    #             mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
+    #         else:  # Motion.
+    #             mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
+    #
+    #         if (iforce >= 3):
+    #             body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
 
     def read_excitation(self, reader, pyHDB, body, excitation_path):
 
@@ -877,12 +877,12 @@ class HDB5reader_v2(HDB5reader):
             except:
                 pass
 
-            if (pyHDB.version == 2.0):
-                # Force modes.
-                self.read_mode(reader, body, 0, body_path + "/Modes")
-
-                # Motion modes.
-                self.read_mode(reader, body, 1, body_path + "/Modes")
+            # if (pyHDB.version == 2.0):
+            #     # Force modes.
+            #     self.read_mode(reader, body, 0, body_path + "/Modes")
+            #
+            #     # Motion modes.
+            #     self.read_mode(reader, body, 1, body_path + "/Modes")
 
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
@@ -930,39 +930,39 @@ class HDB5reader_v1(HDB5reader):
         # Bodies.
         self.read_bodies(reader, pyHDB)
 
-    def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
-        """This function reads the force and motion modes of the *.hdb5 file.
-
-        Parameters
-        ----------
-        reader : string
-            *.hdb5 file.
-        body : BodyDB.
-            Body.
-        ForceOrMotion : int
-            0 for Force, 1 for Motion.
-        body_modes_path : string
-            Path to body modes.
-        """
-
-        j = 0
-        for iforce in range(0, 6):
-            if (ForceOrMotion == 0): # Force.
-                if (body.Motion_mask[iforce] == 1):
-                    mode_path = body_modes_path + "/ForceModes/Mode_%u" % j
-                    j = j + 1
-            else:  # Motion.
-                if (body.Force_mask[iforce] == 1):
-                    mode_path = body_modes_path + "/MotionModes/Mode_%u" % j
-                    j = j + 1
-
-            if (iforce >= 3):
-                if (ForceOrMotion == 0): # Force.
-                    if(body.Motion_mask[iforce] == 1):
-                        body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
-                else: # Motion.
-                    if (body.Force_mask[iforce] == 1):
-                        body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
+    # def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
+    #     """This function reads the force and motion modes of the *.hdb5 file.
+    #
+    #     Parameters
+    #     ----------
+    #     reader : string
+    #         *.hdb5 file.
+    #     body : BodyDB.
+    #         Body.
+    #     ForceOrMotion : int
+    #         0 for Force, 1 for Motion.
+    #     body_modes_path : string
+    #         Path to body modes.
+    #     """
+    #
+    #     j = 0
+    #     for iforce in range(0, 6):
+    #         if (ForceOrMotion == 0): # Force.
+    #             if (body.Motion_mask[iforce] == 1):
+    #                 mode_path = body_modes_path + "/ForceModes/Mode_%u" % j
+    #                 j = j + 1
+    #         else:  # Motion.
+    #             if (body.Force_mask[iforce] == 1):
+    #                 mode_path = body_modes_path + "/MotionModes/Mode_%u" % j
+    #                 j = j + 1
+    #
+    #         if (iforce >= 3):
+    #             if (ForceOrMotion == 0): # Force.
+    #                 if(body.Motion_mask[iforce] == 1):
+    #                     body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
+    #             else: # Motion.
+    #                 if (body.Force_mask[iforce] == 1):
+    #                     body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
 
     def read_excitation(self, reader, pyHDB, body, excitation_path):
 
@@ -1171,11 +1171,11 @@ class HDB5reader_v1(HDB5reader):
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
 
-            # Force modes.
-            self.read_mode(reader, body, 0, body_path + "/Modes")
-
-            # Motion modes.
-            self.read_mode(reader, body, 1, body_path + "/Modes")
+            # # Force modes.
+            # self.read_mode(reader, body, 0, body_path + "/Modes")
+            #
+            # # Motion modes.
+            # self.read_mode(reader, body, 1, body_path + "/Modes")
 
             # Add body to pyHDB.
             pyHDB.append(body)

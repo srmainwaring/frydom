@@ -88,8 +88,8 @@ class BodyDB(object):
         # Product n*dS for the computation of the Froude-Krylov loads.
         self._nds = None
 
-        # Point of computation of the moments.
-        self.point = np.zeros((3,3),dtype = np.float)
+        # # Point of computation of the moments.
+        # self.point = np.zeros((3,3),dtype = np.float)
 
         # Impulse response functions without forward speed.
         self.irf = None
