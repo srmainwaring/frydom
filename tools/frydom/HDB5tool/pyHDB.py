@@ -1346,7 +1346,7 @@ class pyHDB(object):
         dset.attrs['Description'] = "Symmetry along y"
 
         # Kochin function angular step.
-        if(self.solver == "Helios" or self.has_kochin):
+        if((self.solver == "Helios" or self.has_kochin) and self.kochin_step is not None):
             dset = dg.create_dataset("KochinStep", data=self.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
 
