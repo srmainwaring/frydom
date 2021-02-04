@@ -319,8 +319,6 @@ class HDB5reader():
     def read_kochin(self, reader, pyHDB, kochin_path):
         """"This method reads the Kochin functions and their derivatives of the *. hdb5 file."""
 
-        pyHDB.has_kochin = True
-
         # Angular discretization.
         pyHDB.min_angle_kochin = 0.
         pyHDB.max_angle_kochin = 360.
@@ -407,6 +405,8 @@ class HDB5reader():
                     pyHDB.kochin_radiation[6 * body.i_body + imotion, ifreq, :] = radiation_function_real[:, ifreq] + 1j * radiation_function_imag[:, ifreq]
                     if (pyHDB.solver == "Helios"): # No derivative with Nemoh.
                         pyHDB.kochin_radiation_derivative[6 * body.i_body + imotion, ifreq, :] = radiation_derivative_real[:, ifreq] + 1j * radiation_derivative_imag[:, ifreq]
+
+        pyHDB.has_kochin = True
 
     def read_wave_drift(self, reader, pyHDB, wave_drift_path):
         """This function reads the wave drift loads of the *.hdb5 file.
