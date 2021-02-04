@@ -865,11 +865,14 @@ class HDB5reader_v2(HDB5reader):
                 body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir)
 
             # Body name (body mesh name until version 2).
-            body.name = str(np.array(reader[body_path + "/BodyName"]))
+            try:
+                body.name = str(np.array(reader[body_path + "/BodyName"]))
 
-            # Fix problem of convertion between bytes and string when using h5py.
-            if (body.name[0:2] == "b'" and body.name[-1] == "'"):
-                body.name = body.name[2:-1]
+                # Fix problem of convertion between bytes and string when using h5py.
+                if (body.name[0:2] == "b'" and body.name[-1] == "'"):
+                    body.name = body.name[2:-1]
+            except:
+                pass
 
             # Position of the body.
             try:
