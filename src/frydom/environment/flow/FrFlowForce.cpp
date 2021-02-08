@@ -78,7 +78,7 @@ namespace frydom {
     // Conversion to NWU if NED convention is used
     if (fc == NED) {
       for (auto it = polar.begin(); it != polar.end(); ++it) {
-        it->first = -it->first;
+//        it->first = -it->first;
         it->second = {it->second[0], -it->second[1], -it->second[2]};
       }
     }
@@ -125,14 +125,14 @@ namespace frydom {
     auto coeff = m_table.Eval("coeff", alpha);
     double cx = coeff[0];
     double cy = coeff[1];
-    double cz = coeff[2];
+    double cn = coeff[2];
 
     double SquaredVelocity = m_fluxVelocityInBody.squaredNorm();
     double rho = GetFluidDensity();
 
     double fx = 0.5 * rho * cx * m_frontal_area * SquaredVelocity;
     double fy = 0.5 * rho * cy * m_lateral_area * SquaredVelocity;
-    double fz = 0.5 * rho * cz * m_lateral_area * m_length * SquaredVelocity;
+    double mz = 0.5 * rho * cn * m_lateral_area * m_length * SquaredVelocity;
 
     // Build the projected rotation in the XoY plane.
     double phi, theta, psi;
@@ -142,7 +142,7 @@ namespace frydom {
 
 //        auto frame = m_body->GetFrameAtCOG(NWU).ProjectToXYPlane(NWU);
     auto worldForce = frame.ProjectVectorFrameInParent(Force(fx, fy, 0), NWU);
-    auto worldTorque = frame.ProjectVectorFrameInParent(Torque(0., 0., fz), NWU);
+    auto worldTorque = frame.ProjectVectorFrameInParent(Torque(0., 0., mz), NWU);
 
     SetForceTorqueInWorldAtCOG(worldForce, worldTorque, NWU);
   }
