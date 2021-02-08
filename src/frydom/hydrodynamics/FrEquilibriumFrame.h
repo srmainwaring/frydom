@@ -61,7 +61,7 @@ namespace frydom {
                                 const Position &localPos, FRAME_CONVENTION fc);
 
     /// Get a pointer to the body to which this frame is attached
-    inline FrBody *GetBody() const;
+    FrBody *GetBody() const;
 
     /// The velocity of the frame is initialized from the body velocity
     /// \param is_init Boolean True/False
