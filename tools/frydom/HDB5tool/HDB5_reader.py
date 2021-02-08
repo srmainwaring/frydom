@@ -319,8 +319,6 @@ class HDB5reader():
     def read_kochin(self, reader, pyHDB, kochin_path):
         """"This method reads the Kochin functions and their derivatives of the *. hdb5 file."""
 
-        pyHDB.has_kochin = True
-
         # Angular discretization.
         pyHDB.min_angle_kochin = 0.
         pyHDB.max_angle_kochin = 360.
@@ -343,7 +341,8 @@ class HDB5reader():
 
         # Diffraction Kochin functions and their derivatives.
         pyHDB.kochin_diffraction = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
-        pyHDB.kochin_diffraction_derivative = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
+        if (pyHDB.solver == "Helios"):  # No derivative with Nemoh.
+            pyHDB.kochin_diffraction_derivative = np.zeros((nbeta, nw, ntheta), dtype=np.complex)
         for iwave in range(nbeta):
 
             # Real part - Function.
@@ -356,24 +355,27 @@ class HDB5reader():
             assert(diffraction_function_imag.shape[0] == ntheta)
             assert(diffraction_function_imag.shape[1] == nw)
 
-            # Real part - Derivative.
-            diffraction_derivative_real = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Derivative/RealPart"])
-            assert(diffraction_derivative_real.shape[0] == ntheta)
-            assert(diffraction_derivative_real.shape[1] == nw)
+            if (pyHDB.solver == "Helios"):  # No derivative with Nemoh.
+                # Real part - Derivative.
+                diffraction_derivative_real = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Derivative/RealPart"])
+                assert(diffraction_derivative_real.shape[0] == ntheta)
+                assert(diffraction_derivative_real.shape[1] == nw)
 
-            # Imaginary part - Function.
-            diffraction_derivative_imag = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Derivative/ImagPart"])
-            assert(diffraction_derivative_imag.shape[0] == ntheta)
-            assert(diffraction_derivative_imag.shape[1] == nw)
+                # Imaginary part - Derivative.
+                diffraction_derivative_imag = np.array(reader[kochin_path + "/Diffraction/Angle_" + str(iwave) + "/Derivative/ImagPart"])
+                assert(diffraction_derivative_imag.shape[0] == ntheta)
+                assert(diffraction_derivative_imag.shape[1] == nw)
 
             # Setting.
             for ifreq in range(nw):
                 pyHDB.kochin_diffraction[iwave, ifreq, :] = diffraction_function_real[:,ifreq] + 1j * diffraction_function_imag[:, ifreq]
-                pyHDB.kochin_diffraction_derivative[iwave, ifreq, :] = diffraction_derivative_real[:,ifreq] + 1j * diffraction_derivative_imag[:, ifreq]
+                if (pyHDB.solver == "Helios"):  # No derivative with Nemoh.
+                    pyHDB.kochin_diffraction_derivative[iwave, ifreq, :] = diffraction_derivative_real[:,ifreq] + 1j * diffraction_derivative_imag[:, ifreq]
 
         # Radiation Kochin functions and their derivatives.
         pyHDB.kochin_radiation = np.zeros((6 * nbodies, nw, ntheta), dtype=np.complex)
-        pyHDB.kochin_radiation_derivative = np.zeros((6*nbodies, nw, ntheta), dtype=np.complex)
+        if (pyHDB.solver == "Helios"):  # No derivative with Nemoh.
+            pyHDB.kochin_radiation_derivative = np.zeros((6*nbodies, nw, ntheta), dtype=np.complex)
         for body in pyHDB.bodies:
             for imotion in range(0, 6):
 
@@ -387,20 +389,24 @@ class HDB5reader():
                 assert (radiation_function_imag.shape[0] == ntheta)
                 assert (radiation_function_imag.shape[1] == nw)
 
-                # Real part - Derivative.
-                radiation_derivative_real = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Derivative/RealPart"])
-                assert (radiation_derivative_real.shape[0] == ntheta)
-                assert (radiation_derivative_real.shape[1] == nw)
+                if (pyHDB.solver == "Helios"): # No derivative with Nemoh.
+                    # Real part - Derivative.
+                    radiation_derivative_real = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Derivative/RealPart"])
+                    assert (radiation_derivative_real.shape[0] == ntheta)
+                    assert (radiation_derivative_real.shape[1] == nw)
 
-                # Imaginary part - Function.
-                radiation_derivative_imag = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Derivative/ImagPart"])
-                assert (radiation_derivative_imag.shape[0] == ntheta)
-                assert (radiation_derivative_imag.shape[1] == nw)
+                    # Imaginary part - Derivative.
+                    radiation_derivative_imag = np.array(reader[kochin_path + "/Radiation/Body_"+str(body.i_body)+"/DOF_" + str(imotion) + "/Derivative/ImagPart"])
+                    assert (radiation_derivative_imag.shape[0] == ntheta)
+                    assert (radiation_derivative_imag.shape[1] == nw)
 
                 # Setting.
                 for ifreq in range(nw):
                     pyHDB.kochin_radiation[6 * body.i_body + imotion, ifreq, :] = radiation_function_real[:, ifreq] + 1j * radiation_function_imag[:, ifreq]
-                    pyHDB.kochin_radiation_derivative[6 * body.i_body + imotion, ifreq, :] = radiation_derivative_real[:, ifreq] + 1j * radiation_derivative_imag[:, ifreq]
+                    if (pyHDB.solver == "Helios"): # No derivative with Nemoh.
+                        pyHDB.kochin_radiation_derivative[6 * body.i_body + imotion, ifreq, :] = radiation_derivative_real[:, ifreq] + 1j * radiation_derivative_imag[:, ifreq]
+
+        pyHDB.has_kochin = True
 
     def read_wave_drift(self, reader, pyHDB, wave_drift_path):
         """This function reads the wave drift loads of the *.hdb5 file.
@@ -541,29 +547,29 @@ class HDB5reader_v2(HDB5reader):
         # Bodies.
         self.read_bodies(reader, pyHDB)
 
-    def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
-        """This function reads the force and motion modes of the *.hdb5 file.
-
-        Parameters
-        ----------
-        reader : string
-            *.hdb5 file.
-        body : BodyDB.
-            Body.
-        ForceOrMotion : int
-            0 for Force, 1 for Motion.
-        body_modes_path : string
-            Path to body modes.
-        """
-
-        for iforce in range(0, 6):
-            if (ForceOrMotion == 0):  # Force.
-                mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
-            else:  # Motion.
-                mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
-
-            if (iforce >= 3):
-                body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
+    # def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
+    #     """This function reads the force and motion modes of the *.hdb5 file.
+    #
+    #     Parameters
+    #     ----------
+    #     reader : string
+    #         *.hdb5 file.
+    #     body : BodyDB.
+    #         Body.
+    #     ForceOrMotion : int
+    #         0 for Force, 1 for Motion.
+    #     body_modes_path : string
+    #         Path to body modes.
+    #     """
+    #
+    #     for iforce in range(0, 6):
+    #         if (ForceOrMotion == 0):  # Force.
+    #             mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
+    #         else:  # Motion.
+    #             mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
+    #
+    #         if (iforce >= 3):
+    #             body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
 
     def read_excitation(self, reader, pyHDB, body, excitation_path):
 
@@ -859,11 +865,14 @@ class HDB5reader_v2(HDB5reader):
                 body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir)
 
             # Body name (body mesh name until version 2).
-            body.name = str(np.array(reader[body_path + "/BodyName"]))
+            try:
+                body.name = str(np.array(reader[body_path + "/BodyName"]))
 
-            # Fix problem of convertion between bytes and string when using h5py.
-            if (body.name[0:2] == "b'" and body.name[-1] == "'"):
-                body.name = body.name[2:-1]
+                # Fix problem of convertion between bytes and string when using h5py.
+                if (body.name[0:2] == "b'" and body.name[-1] == "'"):
+                    body.name = body.name[2:-1]
+            except:
+                pass
 
             # Position of the body.
             try:
@@ -871,12 +880,12 @@ class HDB5reader_v2(HDB5reader):
             except:
                 pass
 
-            if (pyHDB.version == 2.0):
-                # Force modes.
-                self.read_mode(reader, body, 0, body_path + "/Modes")
-
-                # Motion modes.
-                self.read_mode(reader, body, 1, body_path + "/Modes")
+            # if (pyHDB.version == 2.0):
+            #     # Force modes.
+            #     self.read_mode(reader, body, 0, body_path + "/Modes")
+            #
+            #     # Motion modes.
+            #     self.read_mode(reader, body, 1, body_path + "/Modes")
 
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
@@ -924,39 +933,39 @@ class HDB5reader_v1(HDB5reader):
         # Bodies.
         self.read_bodies(reader, pyHDB)
 
-    def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
-        """This function reads the force and motion modes of the *.hdb5 file.
-
-        Parameters
-        ----------
-        reader : string
-            *.hdb5 file.
-        body : BodyDB.
-            Body.
-        ForceOrMotion : int
-            0 for Force, 1 for Motion.
-        body_modes_path : string
-            Path to body modes.
-        """
-
-        j = 0
-        for iforce in range(0, 6):
-            if (ForceOrMotion == 0): # Force.
-                if (body.Motion_mask[iforce] == 1):
-                    mode_path = body_modes_path + "/ForceModes/Mode_%u" % j
-                    j = j + 1
-            else:  # Motion.
-                if (body.Force_mask[iforce] == 1):
-                    mode_path = body_modes_path + "/MotionModes/Mode_%u" % j
-                    j = j + 1
-
-            if (iforce >= 3):
-                if (ForceOrMotion == 0): # Force.
-                    if(body.Motion_mask[iforce] == 1):
-                        body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
-                else: # Motion.
-                    if (body.Force_mask[iforce] == 1):
-                        body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
+    # def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
+    #     """This function reads the force and motion modes of the *.hdb5 file.
+    #
+    #     Parameters
+    #     ----------
+    #     reader : string
+    #         *.hdb5 file.
+    #     body : BodyDB.
+    #         Body.
+    #     ForceOrMotion : int
+    #         0 for Force, 1 for Motion.
+    #     body_modes_path : string
+    #         Path to body modes.
+    #     """
+    #
+    #     j = 0
+    #     for iforce in range(0, 6):
+    #         if (ForceOrMotion == 0): # Force.
+    #             if (body.Motion_mask[iforce] == 1):
+    #                 mode_path = body_modes_path + "/ForceModes/Mode_%u" % j
+    #                 j = j + 1
+    #         else:  # Motion.
+    #             if (body.Force_mask[iforce] == 1):
+    #                 mode_path = body_modes_path + "/MotionModes/Mode_%u" % j
+    #                 j = j + 1
+    #
+    #         if (iforce >= 3):
+    #             if (ForceOrMotion == 0): # Force.
+    #                 if(body.Motion_mask[iforce] == 1):
+    #                     body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
+    #             else: # Motion.
+    #                 if (body.Force_mask[iforce] == 1):
+    #                     body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
 
     def read_excitation(self, reader, pyHDB, body, excitation_path):
 
@@ -1165,11 +1174,11 @@ class HDB5reader_v1(HDB5reader):
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
 
-            # Force modes.
-            self.read_mode(reader, body, 0, body_path + "/Modes")
-
-            # Motion modes.
-            self.read_mode(reader, body, 1, body_path + "/Modes")
+            # # Force modes.
+            # self.read_mode(reader, body, 0, body_path + "/Modes")
+            #
+            # # Motion modes.
+            # self.read_mode(reader, body, 1, body_path + "/Modes")
 
             # Add body to pyHDB.
             pyHDB.append(body)

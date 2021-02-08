@@ -22,31 +22,31 @@ namespace frydom {
 //      return;
       m_log_folder = FrFileSystem::cwd();
       m_data_folder = FrFileSystem::cwd();
-    }
+    } else {
 
-    // A configuration file has been found
-    std::ifstream ifs(config_file);
-    auto json_obj = json::parse(ifs);
+      // A configuration file has been found
+      std::ifstream ifs(config_file);
+      auto json_obj = json::parse(ifs);
 
 //    std::cout
 
-    try {
-      // Is the file correct ? (does it have a frydom_config root node ?
-      m_log_folder = json_obj["frydom_config"]["log_folder"];
+      try {
+        // Is the file correct ? (does it have a frydom_config root node ?
+        m_log_folder = json_obj["frydom_config"]["log_folder"];
 //    } catch (nlohmann::detail::parse_error &err) {
-    } catch (...) {
-      std::cerr << "log_folder key not found" << std::endl; // FIXME : si pas d'entree la, prendre cwd
+      } catch (...) {
+        std::cerr << "log_folder key not found" << std::endl; // FIXME : si pas d'entree la, prendre cwd
+      }
+
+      try {
+        m_data_folder = json_obj["frydom_config"]["data_folder"];
+        event_logger::info("FrConfig", "", "Data folder is {}", m_data_folder);
+      } catch (...) {
+        std::cerr << "data_folder key not found" << std::endl; // FIXME : si pas d'entree la, prendre cwd
+      }
+
+
     }
-
-    try {
-      m_data_folder = json_obj["frydom_config"]["data_folder"];
-      event_logger::info("FrConfig", "", "Data folder is {}", m_data_folder);
-    } catch (...) {
-      std::cerr << "data_folder key not found" << std::endl; // FIXME : si pas d'entree la, prendre cwd
-    }
-
-
-
     // FIXME : d'autres choses a faire ?
   }
 

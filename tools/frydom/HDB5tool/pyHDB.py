@@ -815,49 +815,6 @@ class pyHDB(object):
         dset = writer.create_dataset(symmetry_path + "/yOz", data=self.yoz_sym)
         dset.attrs['Description'] = "(yOz)) symmetry."
 
-    def write_mode(self, writer, body, ForceOrMotion, body_modes_path="/Modes"):
-        """This function writes the force and motion modes into the *.hdb5 file.
-
-        Parameters
-        ----------
-        Writer : string
-            *.hdb5 file.
-        body : BodyDB.
-            Body.
-        ForceOrMotion : int
-            0 for Force, 1 for Motion.
-        body_modes_path : string, optional
-            Path to body modes.
-        """
-
-        if(ForceOrMotion == 0): # Force.
-            dset = writer.create_dataset(body_modes_path + "/NbForceModes", data=6)
-            dset.attrs['Description'] = "Number of force modes for body number %u" % body.i_body
-        else: # Motion.
-            dset = writer.create_dataset(body_modes_path + "/NbMotionModes", data=6)
-            dset.attrs['Description'] = "Number of motion modes for body number %u" % body.i_body
-
-        for iforce in range(0,6):
-
-            if(ForceOrMotion == 0): # Force.
-                mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
-            else: # Motion.
-                mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
-            writer.create_group(mode_path)
-            if(iforce == 0 or iforce == 3):
-                direction = np.array([1., 0., 0.])
-            elif(iforce == 1 or iforce == 4):
-                direction = np.array([0., 1., 0.])
-            elif(iforce == 2 or iforce == 5):
-                direction = np.array([0., 0., 1.])
-            writer.create_dataset(mode_path + "/Direction", data=direction)
-
-            if (iforce <= 2):
-                writer.create_dataset(mode_path + "/Type", data='LINEAR')
-            elif (iforce >= 3):
-                writer.create_dataset(mode_path + "/Type", data='ANGULAR')
-                writer.create_dataset(mode_path + "/Point", data=body.point[iforce-3,:])
-
     def write_mask(self, writer, body, mask_path="/Mask"):
         """This function writes the Force and Motion masks into the *.hdb5 file.
 
@@ -1228,8 +1185,9 @@ class pyHDB(object):
         dset = writer.create_group(body_path)
 
         # Body name.
-        dset = writer.create_dataset(body_path + "/BodyName", data=body.name)
-        dset.attrs['Description'] = "Body name"
+        if(body.name is not None):
+            dset = writer.create_dataset(body_path + "/BodyName", data=body.name)
+            dset.attrs['Description'] = "Body name"
 
         # Index of the body.
         dset = writer.create_dataset(body_path + "/ID", data=body.i_body)
@@ -1306,19 +1264,22 @@ class pyHDB(object):
             dset.attrs['Unit'] = 'deg'
             dset.attrs['Description'] = "Wave direction"
 
-            # Function
+            # Function.
             grp_diffraction_function = grp_angle.require_group("Function")
             dset = grp_diffraction_function.create_dataset("RealPart",
                                                            data=self.kochin_diffraction[iwave, :, :].transpose().real)
             dset = grp_diffraction_function.create_dataset("ImagPart",
                                                            data=self.kochin_diffraction[iwave, :, :].transpose().imag)
 
-            # Function
-            grp_diffraction_derivative = grp_angle.require_group("Derivative")
-            dset = grp_diffraction_derivative.create_dataset("RealPart",
-                                                           data=self.kochin_diffraction_derivative[iwave, :, :].transpose().real)
-            dset = grp_diffraction_derivative.create_dataset("ImagPart",
-                                                           data=self.kochin_diffraction_derivative[iwave, :, :].transpose().imag)
+            # Derivative.
+            # Nemoh computes the angular derivatives of the Total Kochin functions and not
+            # of the elementary ones so they are useless and not exported.
+            if(self.solver == "Helios"):
+                grp_diffraction_derivative = grp_angle.require_group("Derivative")
+                dset = grp_diffraction_derivative.create_dataset("RealPart",
+                                                               data=self.kochin_diffraction_derivative[iwave, :, :].transpose().real)
+                dset = grp_diffraction_derivative.create_dataset("ImagPart",
+                                                               data=self.kochin_diffraction_derivative[iwave, :, :].transpose().imag)
 
         # Radiation Kochin functions and their derivatives.
         grp_radiation = dg.require_group("Radiation")
@@ -1327,19 +1288,22 @@ class pyHDB(object):
 
                 grp_dof = grp_radiation.require_group("Body_" + str(body.i_body) + "/DOF_" + str(imotion))
 
-                # Function
+                # Function.
                 grp_radiation_function = grp_dof.require_group("Function")
                 dset = grp_radiation_function.create_dataset("RealPart",
                                                                data=self.kochin_radiation[6 * body.i_body + imotion, :, :].transpose().real)
                 dset = grp_radiation_function.create_dataset("ImagPart",
                                                                data=self.kochin_radiation[6 * body.i_body + imotion, :, :].transpose().imag)
 
-                # Function
-                grp_radiation_derivative = grp_dof.require_group("Derivative")
-                dset = grp_radiation_derivative.create_dataset("RealPart",
-                                                               data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().real)
-                dset = grp_radiation_derivative.create_dataset("ImagPart",
-                                                               data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().imag)
+                # Derivative.
+                # Nemoh computes the angular derivatives of the Total Kochin functions and not
+                # of the elementary ones so they are useless and not exported.
+                if (self.solver == "Helios"):
+                    grp_radiation_derivative = grp_dof.require_group("Derivative")
+                    dset = grp_radiation_derivative.create_dataset("RealPart",
+                                                                   data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().real)
+                    dset = grp_radiation_derivative.create_dataset("ImagPart",
+                                                                   data=self.kochin_radiation_derivative[6 * body.i_body + imotion, :, :].transpose().imag)
 
     def write_wave_drift(self, writer, wave_drift_path="/WaveDrift"):
 
@@ -1382,7 +1346,7 @@ class pyHDB(object):
         dset.attrs['Description'] = "Symmetry along y"
 
         # Kochin function angular step.
-        if(self.solver == "Helios"):
+        if((self.solver == "Helios" or self.has_kochin) and self.kochin_step is not None):
             dset = dg.create_dataset("KochinStep", data=self.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
 
