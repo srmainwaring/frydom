@@ -78,7 +78,7 @@ namespace frydom {
     // Conversion to NWU if NED convention is used
     if (fc == NED) {
       for (auto it = polar.begin(); it != polar.end(); ++it) {
-//        it->first = -it->first;
+        it->first = -it->first;
         it->second = {it->second[0], -it->second[1], -it->second[2]};
       }
     }
