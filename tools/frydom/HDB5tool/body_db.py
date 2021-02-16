@@ -47,7 +47,7 @@ class BodyDB(object):
         self.i_body = i_body
 
         # Position.
-        self.position = np.zeros(3, dtype = np.float)
+        self.position = None
 
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
@@ -88,8 +88,8 @@ class BodyDB(object):
         # Product n*dS for the computation of the Froude-Krylov loads.
         self._nds = None
 
-        # # Point of computation of the moments.
-        # self.point = np.zeros((3,3),dtype = np.float)
+        # Point of computation of the moments (for Nemoh only).
+        self.point = np.zeros((3,3),dtype = np.float)
 
         # Impulse response functions without forward speed.
         self.irf = None

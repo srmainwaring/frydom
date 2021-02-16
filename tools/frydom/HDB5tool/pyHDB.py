@@ -1194,8 +1194,9 @@ class pyHDB(object):
         dset.attrs['Description'] = "Body index"
 
         # Position of the body.
-        dset = writer.create_dataset(body_path + "/BodyPosition", data=body.position)
-        dset.attrs['Description'] = "Center of gravity of the body in the absolute frame"
+        if(body.position is not None):
+            dset = writer.create_dataset(body_path + "/BodyPosition", data=body.position)
+            dset.attrs['Description'] = "Center of gravity of the body in the absolute frame"
 
         # Masks.
         self.write_mask(writer, body, body_path + "/Mask")
