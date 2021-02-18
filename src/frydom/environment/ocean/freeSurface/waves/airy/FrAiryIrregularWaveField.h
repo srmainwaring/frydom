@@ -133,6 +133,21 @@ namespace frydom {
     /// \return wave spectrum
     FrPiersonMoskowitzWaveSpectrum *SetPiersonMoskovitzWaveSpectrum(double Hs, double Tp);
 
+    /// Set a Ochi-Hubble wave spectrum, from the significant wave height, all 6 parameters are computed.
+    /// \param Hs significant wave height (meters)
+    /// \return wave spectrum
+    FrOchiHubbleWaveSpectrum *SetOchiHubbleWaveSpectrum(double Hs);
+
+    /// Set a Ochi-Hubble wave spectrum, with its six parameters, three for each two component spectra
+    /// \param hs1 significant wave height for the lower frequency component
+    /// \param hs2 significant wave height for the higher frequency component
+    /// \param w1 modal frequency for the lower frequency component
+    /// \param w2 modal frequency for the higher frequency component
+    /// \param l1 shape parameter for the lower frequency component
+    /// \param l2 shape parameter for the higher frequency component
+    /// \return wave spectrum
+    FrOchiHubbleWaveSpectrum *SetOchiHubbleWaveSpectrum(double hs1, double hs2, double w1, double w2, double l1, double l2);
+
     /// Set a wave spectrum, based on the TEST wave spectrum type
     /// \return the TEST wave spectrum
     FrTestWaveSpectrum *SetTestWaveSpectrum();

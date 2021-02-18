@@ -173,6 +173,25 @@ namespace frydom {
     return dynamic_cast<FrPiersonMoskowitzWaveSpectrum *>(m_waveSpectrum.get());
   }
 
+  FrOchiHubbleWaveSpectrum *FrAiryIrregularWaveField::SetOchiHubbleWaveSpectrum(double Hs) {
+    m_waveSpectrum = std::make_unique<FrOchiHubbleWaveSpectrum>(Hs);
+    event_logger::info("IrregularWaveField", "",
+                       "Wave Spectrum has been set to OCHI-HUBBLE(Hs {} m)", Hs);
+    return dynamic_cast<FrOchiHubbleWaveSpectrum *>(m_waveSpectrum.get());
+  }
+
+  FrOchiHubbleWaveSpectrum *
+  FrAiryIrregularWaveField::SetOchiHubbleWaveSpectrum(double hs1, double hs2, double w1, double w2, double l1,
+                                                      double l2) {
+    m_waveSpectrum = std::make_unique<FrOchiHubbleWaveSpectrum>(hs1, hs2, w1, w2, l1, l2);
+    auto Hs = sqrt(hs1*hs1 + hs2*hs2);
+    auto T1 = 2 * MU_PI / w1;
+    auto T2 = 2 * MU_PI / w2;
+    event_logger::info("IrregularWaveField", "",
+                       "Wave Spectrum has been set to OCHI-HUBBLE(Hs {} m, T1 {}, T2 {})", Hs, T1, T2);
+    return dynamic_cast<FrOchiHubbleWaveSpectrum *>(m_waveSpectrum.get());
+  }
+
   FrTestWaveSpectrum *FrAiryIrregularWaveField::SetTestWaveSpectrum() {
     m_waveSpectrum = std::make_unique<FrTestWaveSpectrum>();
     return dynamic_cast<FrTestWaveSpectrum *>(m_waveSpectrum.get());
