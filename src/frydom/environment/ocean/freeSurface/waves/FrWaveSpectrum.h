@@ -368,6 +368,52 @@ namespace frydom {
 
   };
 
+  // =================================================================================================================
+  /// -------------------------------------------------------------------
+  /// FrOchiHubbleWaveSpectrum
+  /// -------------------------------------------------------------------
+  /// Class for a Ochi-Hubble wave spectrum
+  ///
+  ///    References
+  ///    ----------
+  ///    Ochi M K and Hubble E N, 1976. Six-parameter wave spectra, Proc 15th Coastal Engineering Conference, 301-328.
+  ///
+  //TODO : Implémenter les recommandations de DNV pour la valeur de gamma.
+  //TODO : S'appuyer sur le calcul du spectre de Pierson-Moskowitz pour celui de JONSWAP?
+  /**
+   * \class FrOchiHubbleWaveSpectrum
+   * \brief Class for defining a Ochi-Hubble wave spectrum.
+   */
+  class FrOchiHubbleWaveSpectrum : public FrWaveSpectrum {
+
+   private:
+    double m_Hs[2];
+    double m_Wm[2];
+    double m_lambda[2];
+
+   public:
+
+    /// Default constructor
+    FrJonswapWaveSpectrum() = default;
+
+    /// Constructor for a Ochi-Hubble wave spectrum, based on the significant height. The six parameters are computed
+    /// from Hs, based on formulae given in the Ochi-Hubble paper (Table 2b).
+    /// \param hs significant height
+    explicit FrOchiHubbleWaveSpectrum(double hs);
+
+    /// Constructor for a Ochi-Hubble wave spectrum, based on the six parameters :
+    /// \param hs significant heights
+    /// \param Wm modal frequencies
+    /// \param lambda lambdas
+    explicit FrOchiHubbleWaveSpectrum(double hs1, double hs2, double Wm1, double Wm2, double lambda1, double lambda2);
+
+    /// Eval the spectrum at one frequency
+    /// \param w circular frequency for which the wave spectrum is evaluated
+    /// \return evaluation of the wave spectrum
+    double Eval(double w) const final;
+
+  };
+
 
   // =================================================================================================================
   /// For test use only

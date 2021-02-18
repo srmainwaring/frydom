@@ -15,6 +15,7 @@
 #include "FrWaveSpectrum.h"
 
 #include "MathUtils/VectorGeneration.h"
+#include "MathUtils/Functions.h"
 
 namespace frydom {
 
@@ -384,5 +385,45 @@ namespace frydom {
   double FrTestWaveSpectrum::Eval(double w) const {
     return 1.;
   }
+
+  // =================================================================================================================
+  // FrOchiHubbleWaveSpectrum descriptions
+
+  FrOchiHubbleWaveSpectrum::FrOchiHubbleWaveSpectrum(double hs) :
+  FrWaveSpectrum(hs, 0.) {
+    // According to Ochi M K and Hubble E N, 1976. Six-parameter wave spectra, Proc 15th Coastal Engineering Conference, 301-328. (Table 2b).
+    m_Hs[0] = 0.84*hs;
+    m_Hs[1] = 0.54*hs;
+    m_Wm[0] = 0.7 * exp(-0.046 * hs);
+    m_Wm[1] = 1.15 * exp(-0.039 * hs);
+    m_lambda[0] = 3.;
+    m_lambda[1] = 1.54 * exp(-0.062 * hs);
+  }
+
+  FrOchiHubbleWaveSpectrum::FrOchiHubbleWaveSpectrum(double hs1, double hs2, double Wm1, double Wm2, double lambda1,
+                                                     double lambda2) :
+      FrWaveSpectrum(sqrt(hs1*hs1 + hs2*hs2), 0.) {
+    // According to Ochi M K and Hubble E N, 1976. Six-parameter wave spectra, Proc 15th Coastal Engineering Conference, 301-328. (Table 2b).
+    m_Hs[0] = hs1;
+    m_Hs[1] = hs2;
+    m_Wm[0] = Wm1;
+    m_Wm[1] = Wm2;
+    m_lambda[0] = lambda1;
+    m_lambda[1] = lambda2;
+  }
+
+  double FrOchiHubbleWaveSpectrum::Eval(double w) const {
+    double Sw = 0;
+    for (int j=0; j<2; j++){
+      auto gamma = mathutils::Gamma(m_lambda[j]);
+      auto temp = 4*m_lambda[j]+1;
+      auto num = std::pow(temp * m_Wm[j], m_lambda[0]);
+      auto omega4 = std::pow(m_Wm[0]/w, 4);
+      auto expo = std::exp(-temp*0.25 * omega4);
+      Sw += num * m_Hs[j] * m_Hs[j] / (gamma * std::pow(m_Wm[j], temp)) * expo;
+    }
+    return 0;
+  }
+
 
 }  // end namespace frydom

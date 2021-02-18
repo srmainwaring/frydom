@@ -25,7 +25,7 @@ set(hermes_TAG v1.2)
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.3)
+set(mathutils_TAG develop)
 
 
 # HDB5_IO
