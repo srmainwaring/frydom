@@ -414,15 +414,16 @@ namespace frydom {
 
   double FrOchiHubbleWaveSpectrum::Eval(double w) const {
     double Sw = 0;
+    auto w4 = 1./std::pow(w, 4);
     for (int j=0; j<2; j++){
       auto gamma = mathutils::Gamma(m_lambda[j]);
       auto temp = 4*m_lambda[j]+1;
-      auto num = std::pow(temp * m_Wm[j], m_lambda[0]);
-      auto omega4 = std::pow(m_Wm[0]/w, 4);
-      auto expo = std::exp(-temp*0.25 * omega4);
-      Sw += num * m_Hs[j] * m_Hs[j] / (gamma * std::pow(m_Wm[j], temp)) * expo;
+      auto wp4 = std::pow(m_Wm[j],4);
+      auto num = std::pow(0.25 * temp * wp4, m_lambda[j]);
+      auto expo = std::exp(-0.25 * temp * w4 * wp4);
+      Sw += num * m_Hs[j] * m_Hs[j] / (gamma * std::pow(w, temp)) * expo;
     }
-    return 0;
+    return Sw*0.25;
   }
 
 

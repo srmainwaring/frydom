@@ -387,14 +387,14 @@ namespace frydom {
   class FrOchiHubbleWaveSpectrum : public FrWaveSpectrum {
 
    private:
-    double m_Hs[2];
-    double m_Wm[2];
-    double m_lambda[2];
+    double m_Hs[2]{};
+    double m_Wm[2]{};
+    double m_lambda[2]{};
 
    public:
 
     /// Default constructor
-    FrJonswapWaveSpectrum() = default;
+    FrOchiHubbleWaveSpectrum() = default;
 
     /// Constructor for a Ochi-Hubble wave spectrum, based on the significant height. The six parameters are computed
     /// from Hs, based on formulae given in the Ochi-Hubble paper (Table 2b).
@@ -406,6 +406,10 @@ namespace frydom {
     /// \param Wm modal frequencies
     /// \param lambda lambdas
     explicit FrOchiHubbleWaveSpectrum(double hs1, double hs2, double Wm1, double Wm2, double lambda1, double lambda2);
+
+    void GetParameters(double &hs1, double &hs2, double &w1, double &w2, double &l1, double &l2) const {
+      hs1 = m_Hs[0], hs2 = m_Hs[1], w1 = m_Wm[0], w2 = m_Wm[1], l1 = m_lambda[0], l2 = m_lambda[1];
+    }
 
     /// Eval the spectrum at one frequency
     /// \param w circular frequency for which the wave spectrum is evaluated
