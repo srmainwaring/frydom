@@ -12,6 +12,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 - New field with a height variation, for current and wind models : FrHeightVaryingField
 - New contact formulation : non smooth (complementarity-based) method
 - Bodies can now get contact forces applied on them
+- Ochi-Hubble wave spectrum is now available, with specifying either the global significant wave height, or the six parameters
 
 ### Changed
 - Hydrodynamic databases read using HDB5_IO
