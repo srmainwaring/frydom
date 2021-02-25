@@ -533,10 +533,10 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
+      //m_chronoPhysicsItem->Update(time, false);
+    }
     if (m_simpleAMModel) {
       ComputeForceAddedMass();
-    }
-      //m_chronoPhysicsItem->Update(time, false);
     }
   }
 
