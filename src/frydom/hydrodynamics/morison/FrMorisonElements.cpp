@@ -533,6 +533,9 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
+    if (m_simpleAMModel) {
+      ComputeForceAddedMass();
+    }
       //m_chronoPhysicsItem->Update(time, false);
     }
   }
@@ -550,7 +553,8 @@ namespace frydom {
         m_torque_added_mass += element->GetTorqueAddedMassInWorld();
       }
     }
-
+    m_force += m_force_added_mass;
+    m_torque += m_torque_added_mass;
   }
 
 }  // end namespace frydom

@@ -99,12 +99,13 @@ namespace frydom {
 
    protected:
     std::shared_ptr<FrNode> m_node;   ///< Frame at the center position of the morison element with z-axis along its direction
-    Force m_force;                      ///< Force at COG of the body in world-coordinates
-    Torque m_torque;                    ///< Torque at COG of the body in body-coordinates
+    Force m_force;                    ///< Force at COG of the body in world-coordinates
+    Torque m_torque;                  ///< Torque at COG of the body in body-coordinates
 
-    bool m_includeCurrent;              ///< Include current flow in morison element model
+    bool m_includeCurrent;            ///< Include current flow in morison element model
 
-    bool m_extendedModel;                   ///< If true the inertial component of the morison force is used (false by dafault)
+    bool m_simpleAMModel;             ///< If true, a simple model is used to compute the added mass components to be included the FrMorisonForce
+    bool m_extendedModel;             ///< If true the inertial component of the morison force is used (false by dafault)
     Force m_force_added_mass;
     Torque m_torque_added_mass;
 
@@ -162,6 +163,10 @@ namespace frydom {
     void SetExtendedModel(bool extendedModel) { m_extendedModel = extendedModel; }
 
     bool IsExtendedModel() const { return m_extendedModel; }
+
+    void SetSimpleAMModel(bool simpleAMModel) { m_simpleAMModel = simpleAMModel; }
+
+    bool IsSimpleAMModel() const { return m_simpleAMModel; }
 
     virtual const Eigen::Matrix<double, 6, 6> &GetAMInFrame();
 
