@@ -61,6 +61,14 @@ namespace frydom {
     return m_HDB->GetWaveDrift();
   }
 
+  double FrHydroDB::GetMinFrequency() const {
+    return m_HDB->GetMinFrequency();
+  }
+
+  double FrHydroDB::GetMaxFrequency() const {
+    return m_HDB->GetMaxFrequency();
+  }
+
   FrMask FrHydroDB::GetBodyDOFMask(FrBEMBody *BEMBody) const {
 
     auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
