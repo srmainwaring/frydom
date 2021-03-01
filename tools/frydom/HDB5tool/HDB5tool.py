@@ -304,8 +304,8 @@ def get_Arg_part_1_CE(args, database):
                 for body_motion in database.body:
                     for idof in range(0, 6):
                         database.Cutoff_scaling_IRF(tc=float(args.cutoff_irf_all[0]), ibody_force=body_force.i_body,
-                                                    iforce=iforce,
-                                                    ibody_motion=body_motion.i_body, idof=idof, auto_apply=True)
+                                                    iforce=iforce, ibody_motion=body_motion.i_body,
+                                                    idof=idof, auto_apply=True)
 
     # Filtering impulse response functions with forward speed.
     if (args.cutoff_irf_speed is not None):

@@ -369,7 +369,7 @@ class HDB5(object):
                 sys.stdout.write("Please respond with 'yes' or 'no'")
 
         if bool:
-            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_force + idof, :] *= coeff
+            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + idof, :] *= coeff
 
     def Cutoff_scaling_IRF_speed(self, tc, ibody_force, iforce, ibody_motion, idof, auto_apply=False):
         """This function applies a filter to the impule response functions with forward speed and plot the result.
@@ -422,7 +422,7 @@ class HDB5(object):
                 sys.stdout.write("Please respond with 'yes' or 'no'")
 
         if bool:
-            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_force + iforce, :] *= coeff
+            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + iforce, :] *= coeff
 
     def Update_radiation_mask(self):
         """This function asks the user to define the damping coefficient which should be zeroed and update the radiation mask accordingly."""
