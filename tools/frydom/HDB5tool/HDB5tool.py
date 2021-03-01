@@ -292,9 +292,9 @@ def get_Arg_part_1_CE(args, database):
     if (args.cutoff_irf is not None):
         nb_cut_off_irf = len(args.cutoff_irf)
         for j in range(0, nb_cut_off_irf):
-            database.Cutoff_scaling_IRF(tc=float(args.cutoff_irf[j][0]), ibody_force=int(args.cutoff_irf[j][1] - 1),
-                                        iforce=int(args.cutoff_irf[j][2] - 1),
-                                        ibody_motion=int(args.cutoff_irf[j][3] - 1),
+            database.Cutoff_scaling_IRF(tc=float(args.cutoff_irf[j][0]), ibody_force=int(args.cutoff_irf[j][1]) - 1,
+                                        iforce=int(args.cutoff_irf[j][2]) - 1,
+                                        ibody_motion=int(args.cutoff_irf[j][3]) - 1,
                                         idof=int(args.cutoff_irf[j][4]) - 1)
 
     # Filtering ALL impulse response functions.
@@ -312,10 +312,10 @@ def get_Arg_part_1_CE(args, database):
         nb_cut_off_irf_speed = len(args.cutoff_irf_speed)
         for j in range(0, nb_cut_off_irf_speed):
             database.Cutoff_scaling_IRF_speed(tc=float(args.cutoff_irf_speed[j][0]),
-                                              ibody_force=int(args.cutoff_irf_speed[j][1] - 1),
-                                              iforce=int(args.cutoff_irf_speed[j][2] - 1),
-                                              ibody_motion=int(args.cutoff_irf_speed[j][3] - 1),
-                                              idof=int(args.cutoff_irf_speed[j][4] - 1))
+                                              ibody_force=int(args.cutoff_irf_speed[j][1]) - 1,
+                                              iforce=int(args.cutoff_irf_speed[j][2]) - 1,
+                                              ibody_motion=int(args.cutoff_irf_speed[j][3]) - 1,
+                                              idof=int(args.cutoff_irf_speed[j][4]) - 1)
 
     # Filtering ALL impulse response functions with forward speed.
     if (args.cutoff_irf_all_speed is not None):
