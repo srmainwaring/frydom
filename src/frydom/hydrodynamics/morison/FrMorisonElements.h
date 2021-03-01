@@ -59,23 +59,33 @@ namespace frydom {
   struct MorisonCoeff {
     double x;
     double y;
+    double z;
 
     MorisonCoeff() {}
 
     MorisonCoeff(double val) {
       x = val;
       y = val;
+      z = 0.;
     }
 
     MorisonCoeff(double val1, double val2) {
       x = val1;
       y = val2;
+      z = 0.;
     }
 
     MorisonCoeff &operator=(double val) {
       x = val;
       y = val;
+      z = 0.;
       return *this;
+    }
+
+    MorisonCoeff(double val1, double val2, double val3) {
+      x = val1;
+      y = val2;
+      z = val3;
     }
 
   };
