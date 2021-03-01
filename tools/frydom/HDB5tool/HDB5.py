@@ -360,7 +360,7 @@ class HDB5(object):
             yes = {'yes', 'y', 'ye', ''}
             no = {'no', 'n'}
 
-            choice = raw_input("Apply scaling (y/n) ? ").lower()
+            choice = input("Apply scaling (y/n) ? ").lower()
             if choice in yes:
                 bool = True
             elif choice in no:
