@@ -356,7 +356,7 @@ class HDB5(object):
             # Plot.
             plot_db.plot_filering(data, time, 0, coeff, ibody_force, iforce, ibody_motion, idof)
 
-            # raw_input returns the empty string for "enter".
+            # input returns the empty string for "enter".
             yes = {'yes', 'y', 'ye', ''}
             no = {'no', 'n'}
 
@@ -409,11 +409,11 @@ class HDB5(object):
             # Plot.
             plot_db.plot_filering(data, time, 1, coeff, ibody_force, iforce, ibody_motion, idof)
 
-            # raw_input returns the empty string for "enter".
+            # input returns the empty string for "enter".
             yes = {'yes', 'y', 'ye', ''}
             no = {'no', 'n'}
 
-            choice = raw_input("Apply scaling (y/n) ? ").lower()
+            choice = input("Apply scaling (y/n) ? ").lower()
             if choice in yes:
                 bool = True
             elif choice in no:
