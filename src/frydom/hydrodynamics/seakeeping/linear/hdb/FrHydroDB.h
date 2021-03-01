@@ -76,6 +76,9 @@ namespace frydom {
 
     FrWaveDriftPolarData * GetWaveDrift() const;
 
+    double GetMinFrequency() const;
+
+    double GetMaxFrequency() const;
 
     FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
 
