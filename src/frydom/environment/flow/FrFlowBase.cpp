@@ -30,8 +30,8 @@ namespace frydom {
     return m_field->GetFluxVelocityInWorld(worldPos, fc) * c_ramp;
   }
 
-  Velocity FrFlowBase::GetRelativeVelocityInFrame(const FrFrame &frame, const Velocity &worldVel,
-                                                  FRAME_CONVENTION fc) const {
+  Velocity FrFlowBase::GetFluxRelativeVelocityInFrame(const FrFrame &frame, const Velocity &worldVel,
+                                                      FRAME_CONVENTION fc) const {
     Velocity fluxVelocityInWorld = GetFluxVelocityInWorld(frame.GetPosition(fc), fc) - worldVel;
     if (IsNED(fc)) { internal::SwapFrameConvention(fluxVelocityInWorld); }
     return frame.GetQuaternion().GetInverse().Rotate(fluxVelocityInWorld, NWU);

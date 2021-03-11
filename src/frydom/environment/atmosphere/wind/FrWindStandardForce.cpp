@@ -64,9 +64,9 @@ namespace frydom {
     auto bodyVelocity = body->GetLinearVelocityInWorld(NWU);
     bodyVelocity.z() = 0.;
 
-    Velocity fluxVelocityInBody = environment->GetAtmosphere()->GetWind()->GetRelativeVelocityInFrame(FrameAtCOG,
-                                                                                                      bodyVelocity,
-                                                                                                      NWU);
+    Velocity fluxVelocityInBody = environment->GetAtmosphere()->GetWind()->GetFluxRelativeVelocityInFrame(FrameAtCOG,
+                                                                                                          bodyVelocity,
+                                                                                                          NWU);
 
     fluxVelocityInBody = internal::SwapFrameConvention(fluxVelocityInBody);
     fluxVelocityInBody = -fluxVelocityInBody;   // Swap convention GOTO/COMEFROM;

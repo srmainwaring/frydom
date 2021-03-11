@@ -70,9 +70,9 @@ namespace frydom {
                                                      FLUID_TYPE ft, FRAME_CONVENTION fc) {
     switch (ft) {
       case WATER:
-        return m_ocean->GetCurrent()->GetRelativeVelocityInFrame(frame, worldVel, fc);
+        return m_ocean->GetCurrent()->GetFluxRelativeVelocityInFrame(frame, worldVel, fc);
       case AIR:
-        return m_atmosphere->GetWind()->GetRelativeVelocityInFrame(frame, worldVel, fc);
+        return m_atmosphere->GetWind()->GetFluxRelativeVelocityInFrame(frame, worldVel, fc);
       default:
         throw FrException("Fluid is not known...");
     }

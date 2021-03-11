@@ -63,7 +63,7 @@ namespace frydom {
     /// \param worldVel Translation velocity of the frame in world frame
     /// \param fc Frame convention (NED/NWU)
     /// \return Velocity in local frame
-    Velocity GetRelativeVelocityInFrame(const FrFrame &frame, const Velocity &worldVel, FRAME_CONVENTION fc) const;
+    Velocity GetFluxRelativeVelocityInFrame(const FrFrame &frame, const Velocity &worldVel, FRAME_CONVENTION fc) const;
 
     /// Define a new field with derived type
     /// \tparam T Derived type of the field
