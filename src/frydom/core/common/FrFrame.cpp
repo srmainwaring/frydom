@@ -361,6 +361,9 @@ namespace frydom {
     yaxis.z() = 0.;
     yaxis.normalize();
 
+    // FIXME: I have doubt with respect to the frame convention apparent (non) usage in the following.
+    // It may give indirect rotation. A check has been added to the Set() method of FrRotation to test the cross
+    // products
     Direction zaxis = Direction(0., 0., 1.);
     Position origin = GetPosition(fc);
 
