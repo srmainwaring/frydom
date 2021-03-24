@@ -358,6 +358,7 @@ namespace frydom {
     xaxis.normalize();
 
     Direction zaxis = Direction(0., 0., 1.);
+    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(zaxis);
 
     Direction yaxis = zaxis.cross(xaxis);
 
