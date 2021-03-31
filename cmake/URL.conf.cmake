@@ -25,12 +25,12 @@ set(hermes_TAG v1.2)
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG develop)
+set(mathutils_TAG v1.4)
 
 
 # HDB5_IO
 set(hdb5io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5io_TAG develop)
+set(hdb5io_TAG v1.0.1)
 
 
 # TimeZone
