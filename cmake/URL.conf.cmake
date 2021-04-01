@@ -20,7 +20,7 @@ set(googletest_TAG release-1.8.1)
 
 # hermes
 set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG v1.2)
+set(hermes_TAG v1.3)
 
 
 # MathUtils
