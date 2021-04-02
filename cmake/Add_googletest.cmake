@@ -23,7 +23,7 @@ if (NOT googletest_FOUND)
 
         # Prevent overriding the parent project's compiler/linker
         # settings on Windows
-        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        set(gtest_force_shared_crt ON CACHE BOOL "")
 
         # Add googletest directly to our build. This defines
         # the gtest and gtest_main targets.

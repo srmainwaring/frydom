@@ -15,7 +15,7 @@
 #include "FrWaveSpectrum.h"
 
 #include "MathUtils/VectorGeneration.h"
-#include "MathUtils/Functions.h"
+#include "MathUtils/BoostFunctions.h"
 
 namespace frydom {
 

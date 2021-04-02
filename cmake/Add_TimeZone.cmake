@@ -19,13 +19,13 @@ if (NOT TimeZone_FOUND)
 
         # TimeZone BUILD OPTIONS
         if (frydom_build_on_LIGER)
-            set(USE_SYSTEM_TZ_DB ON CACHE BOOL "Use the operating system's timezone database" FORCE)
+            set(USE_SYSTEM_TZ_DB ON CACHE BOOL "Use the operating system's timezone database")
         else()
-            set(USE_SYSTEM_TZ_DB OFF CACHE BOOL "Use the operating system's timezone database" FORCE)
+            set(USE_SYSTEM_TZ_DB OFF CACHE BOOL "Use the operating system's timezone database")
         endif ()
-        set(USE_TZ_DB_IN_DOT OFF CACHE BOOL "Save the timezone database in the current folder" FORCE)
+        set(USE_TZ_DB_IN_DOT OFF CACHE BOOL "Save the timezone database in the current folder")
         set(BUILD_SHARED_LIBS ON CACHE BOOL "Build a shared version of library" FORCE)
-        set(ENABLE_DATE_TESTING OFF CACHE BOOL "Enable unit tests" FORCE)
+        set(ENABLE_DATE_TESTING OFF CACHE BOOL "Enable unit tests")
 
         message(STATUS ${timezone_SOURCE_DIR})
         message(STATUS ${timezone_BINARY_DIR})

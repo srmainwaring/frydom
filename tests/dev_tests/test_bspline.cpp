@@ -26,15 +26,16 @@ void test_find_span() {
   knots.push_back(5.);
   knots.push_back(5.);
 
-  assert(FrBSplineTools<2>::FindSpan(0., knots) == 2);
-  assert(FrBSplineTools<2>::FindSpan(0.5, knots) == 2);
-  assert(FrBSplineTools<2>::FindSpan(1., knots) == 3);
-  assert(FrBSplineTools<2>::FindSpan(1.5, knots) == 3);
-  assert(FrBSplineTools<2>::FindSpan(3., knots) == 5);
-  assert(FrBSplineTools<2>::FindSpan(4., knots) == 7);
-  assert(FrBSplineTools<2>::FindSpan(4.2, knots) == 7);
-  assert(FrBSplineTools<2>::FindSpan(5., knots) == 7);
-  assert(FrBSplineTools<2>::FindSpan(6., knots) == 7);
+  double order = 2;
+  assert(FrBSplineTools::FindSpan(0., knots, order) == 2);
+  assert(FrBSplineTools::FindSpan(0.5, knots, order) == 2);
+  assert(FrBSplineTools::FindSpan(1., knots, order) == 3);
+  assert(FrBSplineTools::FindSpan(1.5, knots, order) == 3);
+  assert(FrBSplineTools::FindSpan(3., knots, order) == 5);
+  assert(FrBSplineTools::FindSpan(4., knots, order) == 7);
+  assert(FrBSplineTools::FindSpan(4.2, knots, order) == 7);
+  assert(FrBSplineTools::FindSpan(5., knots, order) == 7);
+  assert(FrBSplineTools::FindSpan(6., knots, order) == 7);
 
 }
 

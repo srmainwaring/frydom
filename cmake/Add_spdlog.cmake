@@ -12,8 +12,8 @@ if (NOT spdlog_POPULATED)
     FetchContent_Populate(spdlog)
 
     # spdlog BUILD OPTIONS
-    set(SPDLOG_MASTER_PROJECT OFF CACHE BOOL "" FORCE)
-    set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
+    set(SPDLOG_MASTER_PROJECT OFF CACHE BOOL "")
+    set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "")
 
 
     add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})

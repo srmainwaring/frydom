@@ -18,8 +18,8 @@ if (NOT GeographicLib_FOUND)
         FetchContent_Populate(GeographicLib)
 
         # GeographicLib BUILD OPTIONS
-        set(GEOGRAPHICLIB_LIB_TYPE SHARED CACHE BOOL "" FORCE)
-        set(GEOGRAPHICLIB_DOCUMENTATION OFF CACHE BOOL "" FORCE)
+        set(GEOGRAPHICLIB_LIB_TYPE SHARED CACHE BOOL "")
+        set(GEOGRAPHICLIB_DOCUMENTATION OFF CACHE BOOL "")
 
         add_subdirectory(${geographiclib_SOURCE_DIR} ${geographiclib_BINARY_DIR})
 

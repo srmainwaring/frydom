@@ -17,8 +17,8 @@ if (NOT hdb5io)
         FetchContent_Populate(hdb5io)
 
         # Hdb5io BUILD OPTIONS
-        set(HDB5IO_build_tests OFF CACHE BOOL "" FORCE)
-#        set(HDB5IO_USE_VTK ON CACHE BOOL "" FORCE)
+        set(HDB5IO_BUILD_TESTS OFF CACHE BOOL "")
+        set(HDB5IO_USE_VTK OFF CACHE BOOL "")
 
         add_subdirectory(${hdb5io_SOURCE_DIR} ${hdb5io_BINARY_DIR})
     else()

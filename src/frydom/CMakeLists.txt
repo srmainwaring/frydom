@@ -42,6 +42,7 @@ list(APPEND FRYDOM_SRC_FILES "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")
 add_library(FRyDoM_Engine SHARED ${FRYDOM_SRC_FILES})
 target_link_libraries(FRyDoM_Engine
         ChronoEngine
+        Boost::boost
         MathUtils::MathUtils
         hdb5io
         GeographicLib

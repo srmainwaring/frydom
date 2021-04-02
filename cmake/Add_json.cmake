@@ -19,9 +19,8 @@ if (NOT JSON_FOUND)
         FetchContent_Populate(json)
 
         # json BUILD OPTIONS
-        set(BUILD_TESTING OFF CACHE BOOL "" FORCE)# CACHE BOOL "Build json tests")
-        set(JSON_BuildTests ON CACHE BOOL "" FORCE)# CACHE BOOL "Build json tests")
-        set(JSON_Install ON CACHE BOOL "" FORCE)
+        set(JSON_BuildTests ON CACHE BOOL "")# CACHE BOOL "Build json tests")
+        set(JSON_Install ON CACHE BOOL "")
 
         # TODO: ici, on peut reconstuire la target json a base de find_path et find_library
 

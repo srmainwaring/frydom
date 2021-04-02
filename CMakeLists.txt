@@ -78,17 +78,14 @@ endif ()
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-
-include(Add_googletest)
-
+include(Add_Boost)
 include(Add_chrono)
-include(Add_MathUtils)
 include(Add_HDB5_IO)
 include(Add_GeographicLib)
 include(Add_cppfs)
 include(Add_TimeZone)
 include(Add_hermes)
-include(Add_OpenMesh)
+#include(Add_OpenMesh)
 include(Add_json)
 include(Add_spdlog)
 
