@@ -16,7 +16,7 @@
 
 #include "frydom/core/FrOffshoreSystem.h"
 #include "frydom/core/common/FrConvention.h"
-//##CC#include "frydom/core/FrPlatform.h"
+#include "frydom/core/FrPlatform.h"
 #include "frydom/utils/FrFileSystem.h"
 #include "frydom/version.h"
 
@@ -93,9 +93,8 @@ namespace frydom {
     j["date"] = now();
     j["username@hostname"] = FrFileSystem::get_login() + "@" + FrFileSystem::get_hostname();
     j["project_name"] = GetSystem()->GetName();
-    j["frydom_git_revision"] = GetGitSHA1();
-    j["platform"] = "Linux"; //##CC GetPlatformName();
-    j["frydom_flavor"] = GetFrydomFlavor();
+    j["frydom_git_revision"] = git::GetNormalizedVersionString();
+    j["platform"] = GetPlatformName(); //##CC GetPlatformName();
 
 
     std::ofstream file;

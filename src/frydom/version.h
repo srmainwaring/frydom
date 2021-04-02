@@ -9,19 +9,50 @@
 //
 // ==========================================================================
 
-#ifndef FRYDOM_GITSHA1_H
-#define FRYDOM_GITSHA1_H
+
+#ifndef FRYDOM_VERSION_H
+#define FRYDOM_VERSION_H
 
 #include <string>
 
 namespace frydom {
+  namespace git {
 
-  // TODO: mettre un warning si des modifs ne sont pas commitees...
+    // Is the metadata populated? We may not have metadata if
+    // there wasn't a .git directory (e.g. downloaded source
+    // code without revision history).
+    bool IsPopulated();
 
-  std::string GetGitSHA1();
+    // Were there any uncommitted changes that won't be reflected
+    // in the CommitID?
+    bool AnyUncommittedChanges();
 
-  std::string GetFrydomFlavor();
+    // The commit author's name.
+    std::string AuthorName();
 
-} // end namespace frydom
+    // The commit author's email.
+    std::string AuthorEmail();
 
-#endif //FRYDOM_GITSHA1_H
+    // The commit SHA1.
+    std::string CommitSHA1();
+
+    // The ISO8601 commit date.
+    std::string CommitDate();
+
+    // The last tag past this commit
+    std::string LastTag();
+
+    // The current branch where the current commit lies
+    std::string CurrentBranch();
+
+    // Get the normalized version string
+    std::string GetNormalizedVersionString();
+
+    // The project name as seen by CMake
+    std::string ProjectName();
+
+  }
+
+}
+
+#endif //FRYDOM_VERSION_H
