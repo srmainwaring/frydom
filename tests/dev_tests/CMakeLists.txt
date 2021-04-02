@@ -29,7 +29,7 @@ foreach (test ${REFACTORING_TESTS})
     message(STATUS "        ...add ${test}")
 
     add_executable(${test} ${test}.cpp)
-    target_link_libraries(${test} FRyDoM_Engine)
+    target_link_libraries(${test} frydom)
 
     set_target_properties( ${test}
             PROPERTIES

@@ -1,6 +1,10 @@
 
 # Here we declare the different PATH, TAG and PATCH to get the FRyDoM dependencies
 
+# mathutils
+set(mathutils_URL "https://github.com/projectchrono/chrono.git")
+set(mathutils_TAG v1.5 CACHE STRING "mathutils version")
+
 # Chrono
 set(chrono_URL "https://github.com/projectchrono/chrono.git")
 set(chrono_TAG 4.0.0 CACHE STRING "Chrono version")
@@ -71,3 +75,6 @@ set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 # OpenMesh
 set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-8.0 CACHE STRING "openmesh version")
+
+# Boost
+set(boost_TAG 1.62)

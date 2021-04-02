@@ -8,7 +8,7 @@ FetchContent_Declare(spdlog
 
 FetchContent_GetProperties(spdlog)
 if (NOT spdlog_POPULATED)
-    message(STATUS "Downloading, Configuring and Generating 'spdlog' dependency")
+    message(STATUS "******* FETCHING spdlog dependency from ${PROJECT_NAME} (requested version: ${spdlog_TAG}) *******")
     FetchContent_Populate(spdlog)
 
     # spdlog BUILD OPTIONS
@@ -17,6 +17,4 @@ if (NOT spdlog_POPULATED)
 
 
     add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
-else ()
-    message(STATUS "spdlog already populated")
 endif ()

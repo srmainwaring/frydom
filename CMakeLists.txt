@@ -20,7 +20,7 @@ endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 #-----------------------------------------------------------------------------
 # Define project name and specify version information
 #-----------------------------------------------------------------------------
-project(FRyDoM)
+project(frydom)
 
 #-----------------------------------------------------------------------------
 # C++ dialect
@@ -46,7 +46,7 @@ option(frydom_build_on_LIGER "For building on LIGER supercomputer" OFF)
 
 if (frydom_build_on_LIGER)
     set(frydom_use_irrlicht FALSE CACHE BOOL "" FORCE)
-endif()
+endif ()
 
 
 # Access to local cmake scripts
@@ -55,10 +55,16 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 #=============================================================================
 # Retrieving the current Git revision
 #=============================================================================
-include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-set(FRYDOM_FLAVOR "FRyDoM-CE (Community Edition)" CACHE STRING "The FRyDoM flavor (CE or EE)")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/frydom/version.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/src/frydom/version.cpp")
+set(PRE_CONFIGURE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/frydom/version.cpp.in CACHE FILEPATH "" FORCE)
+set(POST_CONFIGURE_FILE ${CMAKE_CURRENT_BINARY_DIR}/src/frydom/version.cpp CACHE FILEPATH "" FORCE)
+set(GIT_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE FILEPATH "" FORCE)
+set(GIT_STATE_FILE ${CMAKE_CURRENT_BINARY_DIR}/git-state-hash CACHE FILEPATH "" FORCE)
+include(cmake/git_watcher.cmake)
+
+if (NOT EXISTS ${POST_CONFIGURE_FILE})
+    configure_file(${PRE_CONFIGURE_FILE} ${POST_CONFIGURE_FILE})
+endif ()
+
 
 # =============================================================================
 # FRyDoM DEPENDENCIES
@@ -72,12 +78,8 @@ if (${frydom_download_demo_data})
     DownloadData()
 endif ()
 
-# FIXME : manage by target
-## Grouping binaries and libraries
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+include(Add_mathutils)
 include(Add_Boost)
 include(Add_chrono)
 include(Add_HDB5_IO)
@@ -87,10 +89,6 @@ include(Add_TimeZone)
 include(Add_hermes)
 include(Add_json)
 include(Add_spdlog)
-
-
-
-
 
 
 #=============================================================================

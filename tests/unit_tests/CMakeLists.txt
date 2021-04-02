@@ -46,7 +46,7 @@ foreach (test ${UNIT_TESTS})
     message(STATUS "        ...add ${test}")
 
     add_executable(${test} ${test}.cpp)
-    target_link_libraries(${test} FRyDoM_Engine gtest_main)
+    target_link_libraries(${test} frydom gtest_main)
 
 #    set_target_properties( ${test}
 #            PROPERTIES
