@@ -18,7 +18,7 @@ namespace frydom {
 
   FrHydroDB::FrHydroDB(std::string h5file) {
 
-    m_HDB = HDB5_io::import_HDB(h5file);
+    m_HDB = hdb5_io::import_HDB(h5file);
 
     // Creation of the mapper object for hydrodynamic bodies.
     m_mapper = std::make_unique<FrHydroMapper>();

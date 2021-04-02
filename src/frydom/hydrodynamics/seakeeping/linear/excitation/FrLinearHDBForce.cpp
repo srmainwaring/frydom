@@ -188,10 +188,10 @@ namespace frydom {
       }
       Direction direction = dof.GetDirection();
       switch (dof.GetType()) {
-        case HDB5_io::DOF::LINEAR:
+        case hdb5_io::DOF::LINEAR:
           force += direction * tempforce;
           break;
-        case HDB5_io::DOF::ANGULAR:
+        case hdb5_io::DOF::ANGULAR:
           torque += direction * tempforce;
           break;
       }

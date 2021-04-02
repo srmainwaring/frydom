@@ -111,8 +111,8 @@ namespace frydom {
   // Radiation model with recursive convolution
   // -------------------------------------------------------------------------
 
-  using RealPoleResiduePair = HDB5_io::RealPoleResiduePair;
-  using CCPoleResiduePair = HDB5_io::CCPoleResiduePair;
+  using RealPoleResiduePair = hdb5_io::RealPoleResiduePair;
+  using CCPoleResiduePair = hdb5_io::CCPoleResiduePair;
 
   /**
    * \class FrRadiationConvolutionModel
@@ -159,11 +159,11 @@ namespace frydom {
 
     template<typename T>
     T TrapezoidaleIntegration(T previousState, double velocity, double previousVelocity,
-                              HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
+                              hdb5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
 
     template<typename T>
     T PiecewiseLinearIntegration(T previousState, double velocity, double previousVelocity,
-                                 HDB5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
+                                 hdb5_io::PoleResiduePair<T> poleResiduePair, double DeltaT);
 
 
     template<typename T>

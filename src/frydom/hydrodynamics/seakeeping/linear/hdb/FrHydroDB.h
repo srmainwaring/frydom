@@ -12,12 +12,12 @@
 #ifndef FRYDOM_FRHYDRODB_H
 #define FRYDOM_FRHYDRODB_H
 
-#include "hdb5_io/HDB5_io.h"
+#include "hdb5_io/hdb5_io.h"
 #include "FrHydroMapper.h"
 
 namespace frydom {
 
-  using FrWaveDriftPolarData = HDB5_io::WaveDrift;
+  using FrWaveDriftPolarData = hdb5_io::WaveDrift;
 
   class FrHydroDB {
 
@@ -86,7 +86,7 @@ namespace frydom {
 
    private:
 
-    std::shared_ptr<HDB5_io::HydrodynamicDataBase> m_HDB;
+    std::shared_ptr<hdb5_io::HydrodynamicDataBase> m_HDB;
     std::unique_ptr<FrHydroMapper> m_mapper;            ///< Mapper between bodies and hdb body database
 
   };

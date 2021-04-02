@@ -28,8 +28,8 @@ set(hermes_TAG v1.3.1 CACHE STRING " version")
 
 
 # HDB5_IO
-set(hdb5io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5io_TAG v1.0.2 CACHE STRING "hdb5io version")
+set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
+set(hdb5_io_TAG v2.0.1 CACHE STRING "hdb5_io version")
 
 
 # TimeZone

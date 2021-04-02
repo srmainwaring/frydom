@@ -45,7 +45,7 @@ add_dependencies(frydom check_git_${PROJECT_NAME}) # For git_watcher to fetch gi
 target_link_libraries(frydom PUBLIC
         Boost::boost
         MathUtils::MathUtils
-        hdb5io
+        hdb5_io
         GeographicLib
         fmt
         cppfs
