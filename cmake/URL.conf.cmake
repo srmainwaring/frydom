@@ -20,12 +20,12 @@ set(googletest_TAG release-1.8.1 CACHE STRING "googletest version")
 
 # hermes
 set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG v1.2 CACHE STRING " version")
+set(hermes_TAG v1.3.1 CACHE STRING " version")
 
 
 # HDB5_IO
 set(hdb5io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5io_TAG develop CACHE STRING "hdb5io version")
+set(hdb5io_TAG v1.0.2 CACHE STRING "hdb5io version")
 
 
 # TimeZone
