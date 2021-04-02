@@ -85,7 +85,6 @@ include(Add_GeographicLib)
 include(Add_cppfs)
 include(Add_TimeZone)
 include(Add_hermes)
-#include(Add_OpenMesh)
 include(Add_json)
 include(Add_spdlog)
 

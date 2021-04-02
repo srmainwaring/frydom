@@ -71,9 +71,3 @@ set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 # OpenMesh
 set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-8.0 CACHE STRING "openmesh version")
-
-
-## MeshOui.
-#set(meshoui_URL git@frydom-ce.org:ce/meshoui.git)
-#set(meshoui_TAG v1.0.2 CACHE STRING "meshoui version")
-#set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "")
