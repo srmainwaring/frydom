@@ -20,7 +20,7 @@ endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 #-----------------------------------------------------------------------------
 # Define project name and specify version information
 #-----------------------------------------------------------------------------
-project(FRyDoM)
+project(frydom)
 
 #-----------------------------------------------------------------------------
 # C++ dialect

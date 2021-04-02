@@ -71,3 +71,6 @@ set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 # OpenMesh
 set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-8.0 CACHE STRING "openmesh version")
+
+# Boost
+set(boost_TAG 1.62)
