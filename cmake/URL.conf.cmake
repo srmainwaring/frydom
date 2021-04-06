@@ -19,7 +19,7 @@ set(geographiclib_PATCH GeographicLib.patch)
 
 # GoogleTest
 set(googletest_URL https://github.com/google/googletest.git)
-set(googletest_TAG release-1.8.1 CACHE STRING "googletest version")
+set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 
 # hermes
@@ -29,7 +29,7 @@ set(hermes_TAG v1.3.1 CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.1 CACHE STRING "hdb5_io version")
+set(hdb5_io_TAG v2.2 CACHE STRING "hdb5_io version")
 
 
 # TimeZone
@@ -67,7 +67,7 @@ set(HDF5_TAG hdf5-1_8_21 CACHE STRING "HDF5 version")
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.5 CACHE STRING "mathutils version")
+set(mathutils_TAG v1.6 CACHE STRING "mathutils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
