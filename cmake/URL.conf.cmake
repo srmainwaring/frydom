@@ -19,7 +19,7 @@ set(geographiclib_PATCH GeographicLib.patch)
 
 # GoogleTest
 set(googletest_URL https://github.com/google/googletest.git)
-set(googletest_TAG release-1.8.1 CACHE STRING "googletest version")
+set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 
 # hermes
