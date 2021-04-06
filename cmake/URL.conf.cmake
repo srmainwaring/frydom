@@ -13,7 +13,7 @@ set(chrono_PATCH chrono_V4.0.0.patch)
 
 # GeographicLib
 set(geographiclib_URL git://git.code.sf.net/p/geographiclib/code)
-set(geographiclib_TAG v1.49 CACHE STRING "geographiclib")
+set(geographiclib_TAG v1.51 CACHE STRING "geographiclib")
 set(geographiclib_PATCH GeographicLib.patch)
 
 
