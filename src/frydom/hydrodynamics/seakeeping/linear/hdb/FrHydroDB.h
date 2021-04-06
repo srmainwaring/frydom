@@ -26,6 +26,8 @@ namespace frydom {
     /// Constructor of the hydrodynamic database with specified HDF5 filename
     explicit FrHydroDB(std::string h5file);
 
+    explicit FrHydroDB(const std::shared_ptr<hdb5_io::HydrodynamicDataBase>& hdb);
+
     /// Return the BEM body database
     /// \param ibody Index of the BEM body
     /// \return BEM Body database
