@@ -7,7 +7,7 @@ FetchContent_Declare(cxxopts
 
 FetchContent_GetProperties(cxxopts)
 if (NOT cxxopts_POPULATED)
-    message(STATUS "******* FETCHING cxxopts dependency from ${PROJECT_NAME} (requested version: ${ccxxopts_TAG}) *******")
+    message(STATUS "******* FETCHING cxxopts dependency from ${PROJECT_NAME} (requested version: ${cxxopts_TAG}) *******")
     FetchContent_Populate(cxxopts)
 
     #    set(cxxopts_enable_tests OFF CACHE BOOL "")
