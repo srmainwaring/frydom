@@ -12,6 +12,7 @@ test:
     - ssh-add
     # also add the known hosts so we don't have to accept when connecting to the host
     - echo "$GITLAB_CI_SSH_KNOWN_HOST" | tr -d '\r' > ~/.ssh/known_hosts
+    - which git
 
 
   script:
