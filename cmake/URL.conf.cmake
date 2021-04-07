@@ -83,5 +83,5 @@ set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
 
 # Boost
-set(boost_TAG 1.62)
+set(boost_TAG 1.66)
 
