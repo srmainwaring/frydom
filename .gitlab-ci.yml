@@ -53,10 +53,10 @@ theory:
     - echo "$GITLAB_CI_SSH_KNOWN_HOST" | tr -d '\r' > ~/.ssh/known_hosts
   script:
     - cd docs/theory
-    - tag=$(python ../../cmake/getversion.py normalized)
+    - tag=$(git describe --tags)
     - sed -i "s/GIT_TAG_VERSION/$tag/g" conf.py
     - make html
     - scp -r ./build/html/* frydomusqo@ssh.cluster027.hosting.ovh.net:/homez.363/frydomusqo/theory-guide
   only:
-    - develop
+    - tags
 
