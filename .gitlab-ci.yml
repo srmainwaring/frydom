@@ -1,4 +1,4 @@
-image: diceengineering/frydom-ce:latest
+image: diceengineering/hydro:latest
 
 test:
   before_script:
@@ -20,7 +20,7 @@ test:
     - mkdir build
     - cd build
     - cmake -Dfrydom_download_demo_data=OFF ..
-    - cmake -Dfrydom_download_demo_data=OFF ..
+    - cmake -Dfrydom_download_demo_data=OFF .. # FIXME: running cmake twice is due to timezone library
     - make all test -j4
 #    except:
 #        - master
@@ -59,4 +59,3 @@ theory:
     - scp -r ./build/html/* frydomusqo@ssh.cluster027.hosting.ovh.net:/homez.363/frydomusqo/theory-guide
   only:
     - tags
-
