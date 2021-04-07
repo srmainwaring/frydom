@@ -24,7 +24,7 @@ if (BUILD_BOOST)
                     COMMAND ./bootstrap.sh --with-libraries=${boost_LIBS_TO_BUILD}
                     WORKING_DIRECTORY "${boost_SOURCE_DIR}"
                     )
-        endif ()u
+        endif ()
 
         add_custom_target(boost
                 COMMAND ./b2 headers # TODO: si on veut build des modules, on enleve headers et la variable boost_LIBS_TO_BUILD sera utilisee
