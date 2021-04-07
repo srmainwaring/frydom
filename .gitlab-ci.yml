@@ -29,7 +29,7 @@ pages:
   #    stage: deploy
   script:
     - cd docs/api
-    - tag=$(python ../../cmake/getversion.py normalized)
+    - tag=$(git describe --tags)
     - sed -i "s/GIT_TAG_VERSION/$tag/g" Doxyfile
     - doxygen Doxyfile
     - mv build/html/ ../../public/
