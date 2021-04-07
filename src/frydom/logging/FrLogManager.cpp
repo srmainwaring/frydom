@@ -49,7 +49,7 @@ namespace frydom {
     event_logger::info("LogManager", "", "Logging into directory \"{}\".", m_log_folder);
 
     // Event Logger initialization
-    event_logger::init(system, "FRYDOM", FrFileSystem::join({m_log_folder, "events.txt"}));
+    event_logger::init(system, GetSystem()->GetName(), FrFileSystem::join({m_log_folder, "events.txt"}));
 
   }
 
