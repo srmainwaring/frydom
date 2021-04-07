@@ -26,6 +26,7 @@ RUN apt-get install -y -q doxygen
 RUN apt-get install -y -q wget
 RUN apt-get install -y -q cmake
 RUN apt-get install -y -q git
+RUN apt-get install -y -q graphviz
 
 
 # https://stackoverflow.com/questions/44331836/apt-get-install-tzdata-noninteractive
