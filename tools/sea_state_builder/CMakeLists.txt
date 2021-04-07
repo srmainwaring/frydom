@@ -1,6 +1,6 @@
 
 add_executable(generate_sea_state generate_sea_state.cpp)
-target_link_libraries(generate_sea_state FRyDoM_Engine)
+target_link_libraries(generate_sea_state frydom)
 
 add_executable(load_sea_state load_sea_state.cpp WaveLoader.cpp)
 target_link_libraries(load_sea_state nlohmann_json::nlohmann_json)
