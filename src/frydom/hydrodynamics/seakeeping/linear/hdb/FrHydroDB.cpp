@@ -101,8 +101,7 @@ namespace frydom {
     return std::make_shared<FrHydroDB>(h5file);
   }
 
-  std::shared_ptr<FrHydroDB>
-  frydom::make_hydrodynamic_database(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) {
+  std::shared_ptr<FrHydroDB> make_hydrodynamic_database(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) {
     return std::make_shared<FrHydroDB>(hdb);
   }
 
