@@ -16,8 +16,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 # #RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN apt-get install -y -q apt-utils dialog
-RUN apt-get install -y -q libboost-all-dev
-RUN apt-get install -y -q libhdf5-dev
+# RUN apt-get install -y -q libboost-all-dev
+# RUN apt-get install -y -q libhdf5-dev
 RUN apt-get install -y -q build-essential xserver-xorg-dev x11proto-xf86vidmode-dev libxxf86vm-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libxext-dev libxcursor-dev freeglut3-dev
 RUN apt-get install -y -q libirrlicht-dev libirrlicht1.8
 RUN apt-get install -y -q libcurl4-gnutls-dev

@@ -44,6 +44,7 @@ add_dependencies(frydom check_git_${PROJECT_NAME}) # For git_watcher to fetch gi
 
 target_link_libraries(frydom PUBLIC
         Boost::boost
+#        Boost::filesystem
         MathUtils::MathUtils
         hdb5_io
         GeographicLib
@@ -55,6 +56,10 @@ target_link_libraries(frydom PUBLIC
         nlohmann_json
         spdlog::spdlog_header_only
         )
+
+if (build_boost)
+    add_dependencies(frydom boost)
+endif()
 
 target_link_libraries(frydom PUBLIC ChronoEngine)
 
