@@ -15,24 +15,25 @@ if (BUILD_BOOST)
         message(STATUS "******* FETCHING boost dependency from ${PROJECT_NAME} (requested version: ${boost_TAG}) *******")
         FetchContent_Populate(boost)
 
-        set(boost_LIBS_TO_BUILD "filesystem,math") # TODO: placer dans le URL.conf
+#        set(boost_LIBS_TO_BUILD "filesystem,math") # TODO: placer dans le URL.conf
 
-        # generate b2
-        if (NOT EXISTS ${boost_SOURCE_DIR}/b2)
-            message(STATUS "Bootstrapping boost to generate b2")
-            execute_process(
-                    COMMAND ./bootstrap.sh --with-libraries=${boost_LIBS_TO_BUILD}
-                    WORKING_DIRECTORY "${boost_SOURCE_DIR}"
-                    )
-        endif ()
-
-        add_custom_target(boost
-                COMMAND ./b2 headers # TODO: si on veut build des modules, on enleve headers et la variable boost_LIBS_TO_BUILD sera utilisee
-                --build-dir=${boost_BINARY_DIR}
-                -j6
-
-                WORKING_DIRECTORY "${boost_SOURCE_DIR}"
-                )
+#        # generate b2
+#        if (NOT EXISTS ${boost_SOURCE_DIR}/b2)
+#            message(STATUS "Bootstrapping boost to generate b2")
+#            execute_process(
+##                    COMMAND ./bootstrap.sh --with-libraries=${boost_LIBS_TO_BUILD}
+#                    COMMAND ./bootstrap.sh
+#                    WORKING_DIRECTORY "${boost_SOURCE_DIR}"
+#                    )
+#        endif ()
+#
+#        add_custom_target(boost
+#                COMMAND ./b2
+#                --build-dir=${boost_BINARY_DIR}
+#                -j6
+#
+#                WORKING_DIRECTORY "${boost_SOURCE_DIR}"
+#                )
 
         set(Boost_INCLUDE_DIRS ${boost_SOURCE_DIR})
 
@@ -41,12 +42,7 @@ if (BUILD_BOOST)
 
         add_library(Boost::boost INTERFACE IMPORTED)
         target_link_libraries(Boost::boost INTERFACE Boost::headers)
-
-
-    else ()
-        message(STATUS "BOOST ALREADY POPULATED")
     endif ()
-
 
 else ()
     message(STATUS "******* FINDING BOOST dependency on the system from ${PROJECT_NAME} (requested minimal version: ${boost_TAG}) *******")
