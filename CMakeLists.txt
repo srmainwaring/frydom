@@ -25,7 +25,7 @@ project(frydom)
 #-----------------------------------------------------------------------------
 # C++ dialect
 #-----------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 #-----------------------------------------------------------------------------
 # Setting up the configuration
@@ -43,6 +43,8 @@ option(frydom_build_tools "Build the standalone tools" ON)
 
 option(frydom_use_irrlicht "Use Irrlicht" ON)
 option(frydom_build_on_LIGER "For building on LIGER supercomputer" OFF)
+
+option(BUILD_BOOST "Build boost instead of finding it on the system" ON)
 
 if (frydom_build_on_LIGER)
     set(frydom_use_irrlicht FALSE CACHE BOOL "" FORCE)

@@ -7,7 +7,7 @@ include(FetchContent)
 FetchContent_Declare(GeographicLib
         GIT_REPOSITORY ${geographiclib_URL}
         GIT_TAG ${geographiclib_TAG}
-        PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${geographiclib_PATCH}"
+#        PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${geographiclib_PATCH}"
         )
 
 FetchContent_GetProperties(GeographicLib)
@@ -24,6 +24,7 @@ if (NOT geographiclib_POPULATED)
 endif ()
 
 set(MagneticModel_URL https://sourceforge.net/projects/geographiclib/files/magnetic-distrib/emm2017.tar.bz2)
+#set(MagneticModel_URL "https://www.ngdc.noaa.gov/geomag/EMM/data/geomag/EMM2017_Sph_Linux.zip")
 FetchContent_Declare(MagneticModel
         URL ${MagneticModel_URL}
         )
@@ -32,5 +33,9 @@ FetchContent_GetProperties(MagneticModel)
 ## FIXME : erreur de chargement de magnetic model a fixer
 if (NOT magneticmodel_POPULATED)
     message(STATUS "******* FETCHING magnetic_model dependency from ${PROJECT_NAME} (requested version: ${MagneticModel_URL}) *******")
-    TARGET_COMPILE_OPTIONS(GeographicLib PUBLIC -DGEOGRAPHICLIB_MAGNETIC_PATH="${magneticmodel_SOURCE_DIR}")
+    FetchContent_Populate(MagneticModel)
+    message(STATUS "Magnetic model downloaded: ${magneticmodel_SOURCE_DIR}")
+#    set(GEOGRAPHICLIB_MAGNETIC_PATH "${magneticmodel_SOURCE_DIR}" CACHE STRING "")
+    target_compile_definitions(GeographicLib INTERFACE -DGEOGRAPHICLIB_MAGNETIC_PATH="${magneticmodel_SOURCE_DIR}")
+    # FIXME: ne peut pas fonctionner car dans ce cas le path du modele est code en dur dans l'exe...
 endif ()

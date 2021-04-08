@@ -13,7 +13,7 @@ set(chrono_PATCH chrono_V4.0.0.patch)
 
 # GeographicLib
 set(geographiclib_URL git://git.code.sf.net/p/geographiclib/code)
-set(geographiclib_TAG v1.49 CACHE STRING "geographiclib")
+set(geographiclib_TAG v1.51 CACHE STRING "geographiclib")
 set(geographiclib_PATCH GeographicLib.patch)
 
 
@@ -83,5 +83,6 @@ set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
 
 # Boost
+set(boost_URL https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz)
 set(boost_TAG 1.66)
 
