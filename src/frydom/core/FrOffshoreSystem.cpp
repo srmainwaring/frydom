@@ -1315,7 +1315,7 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::FinalizeDynamicSimulation() const {
-    event_logger::back_to_default_formatter();
+    event_logger::back_to_default_formatter(GetName());
     event_logger::info(GetTypeName(), GetName(),
                        "END OF DYNAMIC SIMULATION AT SIMULATION TIME: {} s", GetTime());
   }
