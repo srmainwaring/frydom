@@ -117,6 +117,9 @@ class pyHDB(object):
         # Solver.
         self.solver = None
 
+        # Commit hash.
+        self.commit_hash = None
+
     def set_wave_frequencies(self):
         """Frequency array of BEM computations in rad/s.
 
@@ -715,6 +718,10 @@ class pyHDB(object):
 
             # Version.
             self.write_version(writer)
+
+            # Commit hash.
+            if(self.commit_hash is not None):
+                self.write_commit_hash(writer)
 
     def write_environment(self, writer):
         """This function writes the environmental data into the *.hdb5 file.
@@ -1378,4 +1385,17 @@ class pyHDB(object):
             # Version.
             dset = writer.create_dataset('Version', data= self.version_max)
             dset.attrs['Description'] = "Version of the hdb5 output file."
+
+    def write_commit_hash(self, writer):
+            """This function writes the commit hash of the *.hdb5 file.
+
+            Parameter
+            ---------
+            Writer : string
+                *.hdb5 file.
+            """
+
+            # Version.
+            dset = writer.create_dataset('NormalizedCommitHash', data= self.commit_hash)
+            dset.attrs['Description'] = "Tag - Commit hash - Branch - Date."
 

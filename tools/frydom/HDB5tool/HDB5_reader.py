@@ -117,6 +117,15 @@ class HDB5reader():
         if(pyHDB.solver[0:2] == "b'" and pyHDB.solver[-1] == "'"):
             pyHDB.solver = pyHDB.solver[2:-1]
 
+        # Commit hash.
+        if (pyHDB.solver == "Helios"):
+            try:
+                pyHDB.commit_hash = str(np.array(reader['NormalizedCommitHash']))
+                if (pyHDB.commit_hash[0:2] == "b'" and pyHDB.commit_hash[-1] == "'"):
+                    pyHDB.commit_hash = pyHDB.commit_hash[2:-1]
+            except:
+                pass
+
     def read_discretization_v2(self, reader, pyHDB):
         """This function reads the discretization parameters of the *.hdb5 file.
 
