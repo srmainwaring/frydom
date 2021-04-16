@@ -3,7 +3,7 @@ message(STATUS "    ...tests")
 message(STATUS "Test programs for FRyDoM framework...")
 
 
-# Resource data loading / path definition
+# Resource data loading / path definition
 set(FRYDOM_DATA_FOLDER ${CMAKE_SOURCE_DIR}/data)
 
 

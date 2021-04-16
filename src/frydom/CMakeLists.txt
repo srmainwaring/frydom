@@ -56,9 +56,9 @@ target_link_libraries(frydom PUBLIC
         spdlog::spdlog_header_only
         )
 
-#if (build_boost)
-#    add_dependencies(frydom boost)
-#endif()
+if (build_boost)
+    add_dependencies(frydom boost)
+endif()
 
 target_link_libraries(frydom PUBLIC ChronoEngine)
 
