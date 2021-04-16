@@ -17,7 +17,7 @@ set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 # hermes
 set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG v1.4 CACHE STRING " version")
+set(hermes_TAG feature/FR_HDF5_visitor CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
