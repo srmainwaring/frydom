@@ -57,6 +57,10 @@ namespace frydom {
 
     void NoCSVLlog();  // TODO: permettre de ne pas logger en CSV... -> perf !
 
+    void LogCSV(bool val);
+
+    void LogHDF5(bool val);
+
     void DisableAllLogs();
 
     using LoggableList = std::list<FrLoggableBase *>;
@@ -91,6 +95,7 @@ namespace frydom {
     FrOffshoreSystem *m_system;
 
     bool m_log_CSV;
+    bool m_log_HDF5;
 
     int m_nfreq_output;
     int m_ifreq_output;

@@ -9,8 +9,6 @@ set(SRC_FILES
         catenary/FrCatenaryLine.cpp
         catenary/FrCatenaryLineSeabed.cpp
 
-        lumped/FrLumpedMassCable.cpp
-
         mooring_components/FrAnchor.cpp
         mooring_components/FrMooringBuoy.cpp
         mooring_components/FrClumpWeight.cpp

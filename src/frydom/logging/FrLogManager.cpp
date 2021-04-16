@@ -217,6 +217,10 @@ namespace frydom {
 
   void FrLogManager::NoCSVLlog() { m_log_CSV = false; }
 
+  void FrLogManager::LogCSV(bool val) { m_log_CSV = val; }
+
+  void FrLogManager::LogHDF5(bool val) { m_log_HDF5 = true; }
+
   unsigned int FrLogManager::GetNumberOfLoggables() const {
     return m_loggable_list.size();
   }

@@ -161,7 +161,7 @@ namespace frydom {
     class FrFEALinkBase;
   }
 
-  class FrLumpedMassCable;
+//  class FrLumpedMassCable;
 
   /// Main class for a FRyDoM offshore system. This class is used to represent a multibody physical system,
   /// so it acts also as a database for most items involved in simulations, most noticeably objects of FrBody and FrLink
@@ -858,13 +858,13 @@ namespace frydom {
     /// \param cable fea cable to be added
     void RemoveFEACable(std::shared_ptr<FrFEACable> cable);
 
-    /// Add a lumped mass node to the offshore system
-    void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);
-
-    /// Add a lumped mass element to the offshore system
-    void AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element);
-
-    void AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable);
+//    /// Add a lumped mass node to the offshore system
+//    void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);
+//
+//    /// Add a lumped mass element to the offshore system
+//    void AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element);
+//
+//    void AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable);
 
    private:
 

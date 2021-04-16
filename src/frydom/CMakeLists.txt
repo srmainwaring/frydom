@@ -62,6 +62,8 @@ endif()
 
 target_link_libraries(frydom PUBLIC ChronoEngine)
 
+target_compile_options(frydom PUBLIC -Wno-deprecated-declarations)
+
 
 if(frydom_use_irrlicht)
     target_link_libraries(frydom PUBLIC ChronoEngine_irrlicht)

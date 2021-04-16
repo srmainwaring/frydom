@@ -11,7 +11,6 @@ set(REFACTORING_TESTS
         test_MorisonExtFreeMotion
         test_lumped_mass_cable
         test_chrono_spring_bodies
-        test_LM_element
         test_catenary_clump_weight
         test_catenary_seabed
         test_pendulum_lumped_mass
@@ -23,6 +22,7 @@ set(REFACTORING_TESTS
         test_vertical_fea_cable_in_waves
         bench_FEACable_moored
         bench_FEACable_FOWT_moored
+        test_log_hdf5
         )
 
 foreach (test ${REFACTORING_TESTS})
