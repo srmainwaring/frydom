@@ -21,7 +21,7 @@ set(hermes_TAG feature/FR_HDF5_visitor CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.4.2 CACHE STRING "hdb5_io version")
+set(hdb5_io_TAG v2.4.3 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
@@ -53,7 +53,7 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.6.3 CACHE STRING "mathutils version")
+set(mathutils_TAG v1.6.5 CACHE STRING "mathutils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
@@ -62,6 +62,7 @@ set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-8.0 CACHE STRING "openmesh version")
 
 #Meshoui
+set(meshoui_TAG v1.3.2 CACHE STRING "meshoui version")
 set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "")
 set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
