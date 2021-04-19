@@ -9,7 +9,7 @@ set(REFACTORING_TESTS
         test_spdlog
         test_MorisonExtended
         test_MorisonExtFreeMotion
-        test_lumped_mass_cable
+#        test_lumped_mass_cable
         test_chrono_spring_bodies
         test_catenary_clump_weight
         test_catenary_seabed
@@ -37,12 +37,3 @@ foreach (test ${REFACTORING_TESTS})
             )
 
 endforeach ()
-
-#set(subdirs
-#        # add here the test source subdirectories
-#        )
-#
-#foreach (subdir ${subdirs})
-#    add_subdirectory(${subdir})
-#endforeach ()
-

@@ -7,7 +7,7 @@ function(DownloadData)
 
     set(AWS_URL https://frydom-ce-data.s3.amazonaws.com/demo)
 
-    set(DATA_FILE_CE data_v${frydom_data_version}.tar.gz)
+    set(DATA_FILE_CE data_v${FRYDOM_DEMOS_DATA_VERSION}.tar.gz)
 
     set(OUT ${CMAKE_SOURCE_DIR}/data/ce/${DATA_FILE_CE})
 

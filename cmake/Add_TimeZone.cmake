@@ -11,7 +11,7 @@ if (NOT timezone_POPULATED)
     FetchContent_Populate(TimeZone)
 
     # TimeZone BUILD OPTIONS
-    if (frydom_build_on_LIGER)
+    if (FRYDOM_BUILD_ON_LIGER)
         set(USE_SYSTEM_TZ_DB ON CACHE BOOL "Use the operating system's timezone database")
     else ()
         set(USE_SYSTEM_TZ_DB OFF CACHE BOOL "Use the operating system's timezone database")

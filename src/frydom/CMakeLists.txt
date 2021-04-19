@@ -6,22 +6,6 @@ message(STATUS "================================================================
 add_library(frydom)
 
 
-#set(FRYDOM_SRC_FILES "")
-
-# Adding a new subdirectory to the FRyDoM root source directory must be done by adding its name here
-#set(subdirs
-#        logging
-#        asset
-#        cable
-#        collision
-#        core
-#        environment
-#        hydrodynamics
-#        io
-#        mesh
-#        utils
-#        )
-
 add_subdirectory(logging)
 add_subdirectory(asset)
 add_subdirectory(cable)
@@ -33,30 +17,12 @@ add_subdirectory(io)
 add_subdirectory(mesh)
 add_subdirectory(utils)
 
-
-## TODO: reposer plutot sur target_sources()
-## voir crascit.com/2016/01/31/enhanced-source-file-handling-with-target_sources/
-#
-#set(FRYDOM_SRC_FILES "" cable/common/FrCableShapeInitializer.cpp cable/common/FrCableShapeInitializer.h cable/mooring_components/FrClumpWeight.cpp cable/mooring_components/FrClumpWeight.h cable/catenary/FrCatenaryLineSeabed.cpp cable/catenary/FrCatenaryLineSeabed.h core/contact/FrContactInc.h core/contact/FrContactSMC.cpp core/contact/FrContactSMC.h core/contact/FrContactNSC.cpp core/contact/FrContactNSC.h)
-#foreach (subdir ${subdirs})
-#
-#    add_subdirectory(${subdir})
-#    string(TOUPPER FRYDOM_${subdir}_SOURCES SOURCE_FILES)
-#    list(APPEND FRYDOM_SRC_FILES ${${SOURCE_FILES}})
-#
-#endforeach ()
-
-#list(APPEND FRYDOM_SRC_FILES "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")
 target_sources(frydom PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")
 
 
 # =============================================================================
 # FRyDoM DEPENDENCIES
 # =============================================================================
-
-#add_library(frydom)
-#target_sources(frydom PRIVATE ${FRYDOM_SRC_FILES})
-
 
 add_dependencies(frydom check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
 
@@ -83,13 +49,13 @@ target_link_libraries(frydom PUBLIC ChronoEngine)
 target_compile_options(frydom PUBLIC -Wno-deprecated-declarations)
 
 
-if (frydom_use_irrlicht)
+if (FRYDOM_USE_IRRLICHT)
     target_link_libraries(frydom PUBLIC ChronoEngine_irrlicht)
 else ()
     target_compile_definitions(frydom PUBLIC -DH5_NO_IRRLICHT)
 endif ()
 
-if (frydom_build_on_LIGER)
+if (FRYDOM_BUILD_ON_LIGER)
     target_compile_definitions(frydom PUBLIC -DH5_NO_UUID)
 endif ()
 

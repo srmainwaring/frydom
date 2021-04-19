@@ -5,7 +5,7 @@ target_sources(frydom PRIVATE
         FrConfig.cpp
         )
 
-if(frydom_use_irrlicht)
+if(FRYDOM_USE_IRRLICHT)
 
     target_sources(frydom PRIVATE
             FrIrrApp.cpp
