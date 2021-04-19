@@ -59,11 +59,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if (${FRYDOM_DOWNLOAD_DEMOS_DATA})
-    include(${CMAKE_CURRENT_SOURCE_DIR}/data/DownloadData.cmake)
-    DownloadData()
-endif ()
-
 include(Add_mathutils)
 include(Add_Boost)
 include(Add_chrono)
@@ -75,11 +70,18 @@ include(Add_hermes)
 include(Add_json)
 include(Add_spdlog)
 
-
 #=============================================================================
 # Adding the FRyDoM project sources
 #=============================================================================
 add_subdirectory(src/frydom)
+
+#=============================================================================
+# Downloading data for demos from Amazon AWS
+#=============================================================================
+if (${FRYDOM_DOWNLOAD_DEMOS_DATA})
+    include(${CMAKE_CURRENT_SOURCE_DIR}/data/DownloadData.cmake)
+    DownloadData()
+endif ()
 
 #=============================================================================
 # Adding tests
