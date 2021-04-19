@@ -3,12 +3,10 @@
 # CMake configuration file for the FRyDoM project
 #
 #=============================================================================
-
-
-#-----------------------------------------------------------------------------
-# Check backward compatibility
-#-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.13)
+
+project(frydom)
+set(CMAKE_CXX_STANDARD 17)
 
 #-----------------------------------------------------------------------------
 # Prevent in-source builds
@@ -18,18 +16,12 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 
 #-----------------------------------------------------------------------------
-# Define project name and specify version information
+# FRyDoM options
 #-----------------------------------------------------------------------------
-project(frydom)
+cmake_policy(SET CMP0077 NEW)
 
-#-----------------------------------------------------------------------------
-# C++ dialect
-#-----------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 17)
-
-#-----------------------------------------------------------------------------
-# Setting up the configuration
-#-----------------------------------------------------------------------------
+option(BUILD_SHARED_LIBS "" ON) # TODO: affiner
+message(STATUS "BUILD_SHARED_LIBS set to ${BUILD_SHARED_LIBS} in frydom")
 
 option(frydom_build_tests "Activate build tests" ON)
 option(frydom_build_unit_test "Build unit tests" ON)
@@ -80,6 +72,8 @@ if (${frydom_download_demo_data})
     DownloadData()
 endif ()
 
+
+message(STATUS "BUILD_SHARED_LIBS set to ${BUILD_SHARED_LIBS} in frydom")
 
 include(Add_mathutils)
 include(Add_Boost)

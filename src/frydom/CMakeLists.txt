@@ -39,7 +39,8 @@ list(APPEND FRYDOM_SRC_FILES "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")
 # =============================================================================
 
 # FRyDoM main shared library
-add_library(frydom SHARED ${FRYDOM_SRC_FILES})
+add_library(frydom)
+target_sources(frydom PUBLIC ${FRYDOM_SRC_FILES})
 add_dependencies(frydom check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
 
 target_link_libraries(frydom PUBLIC

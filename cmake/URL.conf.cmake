@@ -21,7 +21,7 @@ set(hermes_TAG feature/FR_HDF5_visitor CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.2 CACHE STRING "hdb5_io version")
+set(hdb5_io_TAG v2.4.2 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
@@ -67,4 +67,4 @@ set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
 # Boost
 set(boost_URL https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz)
-set(boost_TAG 1.66)
+set(boost_TAG 1.75)

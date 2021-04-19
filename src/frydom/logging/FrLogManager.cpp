@@ -94,7 +94,7 @@ namespace frydom {
     j["username@hostname"] = FrFileSystem::get_login() + "@" + FrFileSystem::get_hostname();
     j["project_name"] = GetSystem()->GetName();
     j["frydom_git_revision"] = git::GetNormalizedVersionString();
-    j["platform"] = GetPlatformName(); //##CC GetPlatformName();
+    j["platform"] = GetPlatformName();
 
 
     std::ofstream file;
@@ -153,8 +153,6 @@ namespace frydom {
   }
 
   void FrLogManager::Initialize() { // TODO : retirer la necessite d'avoir cette methode friend de FrLoggableBase
-
-//    auto path_manager = GetSystem()->GetPathManager();
 
     if (m_log_CSV) {
       event_logger::info("FrLogManager", "", "CSV logging *IS* activated");

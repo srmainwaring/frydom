@@ -14,7 +14,7 @@ if (NOT chrono_POPULATED)
     message(STATUS "******* FETCHING chrono dependency from ${PROJECT_NAME} (requested version: ${chrono_TAG}) *******")
     FetchContent_Populate(chrono)
 
-    list(APPEND CMAKE_MODULE_PATH "${chrono_SOURCE_DIR}")
+#    list(APPEND CMAKE_MODULE_PATH "${chrono_SOURCE_DIR}")
 
     # chrono BUILD OPTIONS
     set(CMAKE_SOURCE_DIR ${chrono_SOURCE_DIR})
