@@ -187,6 +187,36 @@ TEST_F(TestFrFlowForce, TestWindForce) {
   TestForce();
 };
 
+TEST_F(TestFrFlowForce, TestWindForce2) {
+  auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
+  LoadData(database, "/wind_force/");
+  auto Ship_PolarWindCoeffs = FrFileSystem::join(
+      {system.config_file().GetDataFolder(), "unit_test/Ship_PolarWindCoeffs_NED_COMEFROM.json"});
+  MakeForce(FLUID_TYPE::AIR, Ship_PolarWindCoeffs);
+  system.Initialize();
+  TestForce();
+};
+
+TEST_F(TestFrFlowForce, TestWindForce3) {
+  auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
+  LoadData(database, "/wind_force/");
+  auto Ship_PolarWindCoeffs = FrFileSystem::join(
+      {system.config_file().GetDataFolder(), "unit_test/Ship_PolarWindCoeffs_NED_GOTO.json"});
+  MakeForce(FLUID_TYPE::AIR, Ship_PolarWindCoeffs);
+  system.Initialize();
+  TestForce();
+};
+
+TEST_F(TestFrFlowForce, TestWindForce4) {
+  auto database = FrFileSystem::join({system.config_file().GetDataFolder(), "unit_test/TNR_database.h5"});
+  LoadData(database, "/wind_force/");
+  auto Ship_PolarWindCoeffs = FrFileSystem::join(
+      {system.config_file().GetDataFolder(), "unit_test/Ship_PolarWindCoeffs_NWU_GOTO.json"});
+  MakeForce(FLUID_TYPE::AIR, Ship_PolarWindCoeffs);
+  system.Initialize();
+  TestForce();
+};
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

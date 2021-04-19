@@ -311,9 +311,13 @@ namespace frydom {
     assert(mathutils::IsClose<double>(xaxis.dot(zaxis), 0.));
     assert(mathutils::IsClose<double>(yaxis.dot(zaxis), 0.));
 
+    // Verifying the directions are unit vectors
     assert(xaxis.IsUnit());
     assert(yaxis.IsUnit());
     assert(zaxis.IsUnit());
+
+    // Verifying the directions form a direct frame
+    assert((xaxis.cross(yaxis) - zaxis).isZero());
 
     mathutils::Matrix33<double> matrix;
     matrix << xaxis.Getux(), yaxis.Getux(), zaxis.Getux(),

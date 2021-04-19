@@ -39,11 +39,13 @@ list(APPEND FRYDOM_SRC_FILES "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")
 # =============================================================================
 
 # FRyDoM main shared library
-add_library(FRyDoM_Engine SHARED ${FRYDOM_SRC_FILES})
-target_link_libraries(FRyDoM_Engine
-        ChronoEngine
+add_library(frydom SHARED ${FRYDOM_SRC_FILES})
+add_dependencies(frydom check_git_${PROJECT_NAME}) # For git_watcher to fetch git informations before effective build
+
+target_link_libraries(frydom PUBLIC
+        Boost::boost
         MathUtils::MathUtils
-        hdb5io
+        hdb5_io
         GeographicLib
         fmt
         cppfs
@@ -53,25 +55,33 @@ target_link_libraries(FRyDoM_Engine
         nlohmann_json
         spdlog::spdlog_header_only
         )
+
+if (build_boost)
+    add_dependencies(frydom boost)
+endif()
+
+target_link_libraries(frydom PUBLIC ChronoEngine)
+
+
 if(frydom_use_irrlicht)
-    target_link_libraries(FRyDoM_Engine ChronoEngine_irrlicht)
+    target_link_libraries(frydom PUBLIC ChronoEngine_irrlicht)
 else()
-    target_compile_definitions(FRyDoM_Engine PUBLIC -DH5_NO_IRRLICHT)
+    target_compile_definitions(frydom PUBLIC -DH5_NO_IRRLICHT)
 endif()
 
 if (frydom_build_on_LIGER)
-    target_compile_definitions(FRyDoM_Engine PUBLIC -DH5_NO_UUID)
+    target_compile_definitions(frydom PUBLIC -DH5_NO_UUID)
 endif()
 
-target_include_directories(FRyDoM_Engine PUBLIC
+target_include_directories(frydom PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/..
         )
 
-target_compile_definitions(FRyDoM_Engine PUBLIC
+target_compile_definitions(frydom PUBLIC
         RESOURCES_VIZU_PATH="${PROJECT_SOURCE_DIR}/data/"
         )
 
-set_target_properties( FRyDoM_Engine
+set_target_properties( frydom
         PROPERTIES
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
@@ -80,7 +90,7 @@ set_target_properties( FRyDoM_Engine
 
 message(STATUS " RESOURCES_VIZU_PATH=${PROJECT_SOURCE_DIR}/data/")
 
-get_target_property(INC FRyDoM_Engine INTERFACE_LINK_LIBRARIES)
+get_target_property(INC frydom INTERFACE_LINK_LIBRARIES)
 message(STATUS "FRyDoM_INCLUDE_DIRECTORIES : ${INC}")
 
 

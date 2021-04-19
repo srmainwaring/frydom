@@ -605,7 +605,6 @@ namespace frydom {
   }
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
-    auto chronoForce = m_chronoBody->Get_Xforce();
     auto force = internal::ChVectorToVector3d<Force>(m_chronoBody->Get_Xforce());
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(force);
     return force;
@@ -1156,7 +1155,7 @@ namespace frydom {
     msg->AddField<double>("Time", "s", "Current time of the simulation", [this]() { return GetSystem()->GetTime(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-        ("Position", "m", fmt::format("body position in the world reference frame in {}", GetLogFC()),
+        ("PositionInWorld", "m", fmt::format("body position in the world reference frame in {}", GetLogFC()),
          [this]() { return GetPosition(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
@@ -1165,13 +1164,26 @@ namespace frydom {
          [this]() { return GetCOGPositionInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-        ("CardanAngles", "rad",
+        ("CardanAngles", "deg",
          fmt::format("body orientation in the world reference frame in {}", GetLogFC()),
          [this]() {
            double phi, theta, psi;
-           GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, GetLogFC());
+           GetRotation().GetCardanAngles_DEGREES(phi, theta, psi, GetLogFC());
+           phi = mathutils::Normalize__180_180(phi);
+           theta = mathutils::Normalize__180_180(theta);
+           psi = mathutils::Normalize__180_180(psi);
            return Vector3d<double>(phi, theta, psi);
          });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("VelocityInBody", "m/s",
+         fmt::format("body linear velocity in the body local frame in {}", GetLogFC()),
+         [this]() { return GetVelocityInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("COGVelocityInBody", "m/s",
+         fmt::format("COG linear velocity in the body local frame in {}", GetLogFC()),
+         [this]() { return GetCOGVelocityInBody(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("LinearVelocityInWorld", "m/s",

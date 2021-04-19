@@ -356,11 +356,11 @@ class HDB5(object):
             # Plot.
             plot_db.plot_filering(data, time, 0, coeff, ibody_force, iforce, ibody_motion, idof)
 
-            # raw_input returns the empty string for "enter".
+            # input returns the empty string for "enter".
             yes = {'yes', 'y', 'ye', ''}
             no = {'no', 'n'}
 
-            choice = raw_input("Apply scaling (y/n) ? ").lower()
+            choice = input("Apply scaling (y/n) ? ").lower()
             if choice in yes:
                 bool = True
             elif choice in no:
@@ -369,7 +369,7 @@ class HDB5(object):
                 sys.stdout.write("Please respond with 'yes' or 'no'")
 
         if bool:
-            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_force + idof, :] *= coeff
+            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + idof, :] *= coeff
 
     def Cutoff_scaling_IRF_speed(self, tc, ibody_force, iforce, ibody_motion, idof, auto_apply=False):
         """This function applies a filter to the impule response functions with forward speed and plot the result.
@@ -409,11 +409,11 @@ class HDB5(object):
             # Plot.
             plot_db.plot_filering(data, time, 1, coeff, ibody_force, iforce, ibody_motion, idof)
 
-            # raw_input returns the empty string for "enter".
+            # input returns the empty string for "enter".
             yes = {'yes', 'y', 'ye', ''}
             no = {'no', 'n'}
 
-            choice = raw_input("Apply scaling (y/n) ? ").lower()
+            choice = input("Apply scaling (y/n) ? ").lower()
             if choice in yes:
                 bool = True
             elif choice in no:
@@ -422,7 +422,7 @@ class HDB5(object):
                 sys.stdout.write("Please respond with 'yes' or 'no'")
 
         if bool:
-            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_force + iforce, :] *= coeff
+            self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + iforce, :] *= coeff
 
     def Update_radiation_mask(self):
         """This function asks the user to define the damping coefficient which should be zeroed and update the radiation mask accordingly."""

@@ -12,13 +12,13 @@
 #ifndef FRYDOM_FRBEMBODY_H
 #define FRYDOM_FRBEMBODY_H
 
-#include "hdb5_io/HDB5_io.h"
+#include "hdb5_io/hdb5_io.h"
 
 namespace frydom {
 
-  using FrBEMBody = HDB5_io::Body;
+  using FrBEMBody = hdb5_io::Body;
 
-  using FrMask = HDB5_io::Mask;
+  using FrMask = hdb5_io::Mask;
 
 }
 

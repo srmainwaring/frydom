@@ -20,7 +20,7 @@ foreach (test ${VALIDATION_CASES})
     message(STATUS "        ...add bench_${test}")
 
     add_executable(bench_${test} bench_${test}.cpp)
-    target_link_libraries(bench_${test} FRyDoM_Engine)
+    target_link_libraries(bench_${test} frydom)
 
     set_target_properties( bench_${test}
             PROPERTIES

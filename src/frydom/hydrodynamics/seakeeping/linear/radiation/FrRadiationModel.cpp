@@ -172,7 +172,7 @@ namespace frydom {
   template<typename T>
   T FrRadiationRecursiveConvolutionModel::TrapezoidaleIntegration(T previousState, double velocity,
                                                                   double previousVelocity,
-                                                                  HDB5_io::PoleResiduePair<T> poleResiduePair,
+                                                                  hdb5_io::PoleResiduePair<T> poleResiduePair,
                                                                   double DeltaT) {
     auto alpha = exp(DeltaT * poleResiduePair.pole());
     double beta = 0.5 * DeltaT;
@@ -182,7 +182,7 @@ namespace frydom {
   template<typename T>
   T FrRadiationRecursiveConvolutionModel::PiecewiseLinearIntegration(T previousState, double velocity,
                                                                      double previousVelocity,
-                                                                     HDB5_io::PoleResiduePair<T> poleResiduePair,
+                                                                     hdb5_io::PoleResiduePair<T> poleResiduePair,
                                                                      double DeltaT) {
     auto pole = poleResiduePair.pole();
     auto alpha = exp(DeltaT * pole);

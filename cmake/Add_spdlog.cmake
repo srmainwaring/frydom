@@ -8,15 +8,13 @@ FetchContent_Declare(spdlog
 
 FetchContent_GetProperties(spdlog)
 if (NOT spdlog_POPULATED)
-    message(STATUS "Downloading, Configuring and Generating 'spdlog' dependency")
+    message(STATUS "******* FETCHING spdlog dependency from ${PROJECT_NAME} (requested version: ${spdlog_TAG}) *******")
     FetchContent_Populate(spdlog)
 
     # spdlog BUILD OPTIONS
-    set(SPDLOG_MASTER_PROJECT OFF CACHE BOOL "" FORCE)
-    set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "" FORCE)
+    set(SPDLOG_MASTER_PROJECT OFF CACHE BOOL "")
+    set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "")
 
 
     add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
-else ()
-    message(STATUS "spdlog already populated")
 endif ()

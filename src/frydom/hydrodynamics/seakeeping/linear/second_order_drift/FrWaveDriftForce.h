@@ -36,7 +36,7 @@ namespace frydom {
    private:
     std::shared_ptr<FrHydroDB> m_hdb;               ///< Hydrodynamic database
 
-    double m_threshold;
+//    double m_threshold;
 
    public:
 
@@ -47,7 +47,7 @@ namespace frydom {
     /// Method to initialize the wave drift model
     void Initialize() override;
 
-    void SetThreshold(double threshold) { m_threshold = threshold; }
+//    void SetThreshold(double threshold) { m_threshold = threshold; }
 
     /// Method to be applied at the end of each time steps
     //void StepFinalize() override;

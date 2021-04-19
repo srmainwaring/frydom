@@ -27,7 +27,7 @@ set(DEMOS
 foreach (test ${DEMOS})
     message(STATUS "        ...add demo_${test}")
     add_executable(demo_${test} demo_${test}.cpp)
-    target_link_libraries(demo_${test} FRyDoM_Engine)
+    target_link_libraries(demo_${test} frydom)
 
     set_target_properties( demo_${test}
             PROPERTIES

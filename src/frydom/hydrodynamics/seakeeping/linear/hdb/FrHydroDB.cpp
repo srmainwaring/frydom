@@ -18,7 +18,7 @@ namespace frydom {
 
   FrHydroDB::FrHydroDB(std::string h5file) {
 
-    m_HDB = HDB5_io::import_HDB(h5file);
+    m_HDB = hdb5_io::import_HDB(h5file);
 
     // Creation of the mapper object for hydrodynamic bodies.
     m_mapper = std::make_unique<FrHydroMapper>();
@@ -59,6 +59,14 @@ namespace frydom {
 
   FrWaveDriftPolarData * FrHydroDB::GetWaveDrift() const {
     return m_HDB->GetWaveDrift();
+  }
+
+  double FrHydroDB::GetMinFrequency() const {
+    return m_HDB->GetMinFrequency();
+  }
+
+  double FrHydroDB::GetMaxFrequency() const {
+    return m_HDB->GetMaxFrequency();
   }
 
   FrMask FrHydroDB::GetBodyDOFMask(FrBEMBody *BEMBody) const {

@@ -238,7 +238,7 @@ namespace frydom {
     auto body = m_node->GetBody();
     auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
 
-    auto ca = Vector3d<double>(m_property.ca.x, m_property.ca.y, 0.);
+    auto ca = Vector3d<double>(m_property.ca.x, m_property.ca.y, m_property.ca.z);
 
     Position posInBody = m_node->GetNodePositionInBody(NWU) - body->GetCOG(NWU);
     Position posInFrame = m_node->GetFrameInBody().ProjectVectorParentInFrame(posInBody, NWU);
@@ -246,19 +246,27 @@ namespace frydom {
     m_AMInFrame(0, 0) = ca[0];
     m_AMInFrame(0, 4) = ca[0] * posInFrame[2];
     m_AMInFrame(0, 5) = -ca[0] * posInFrame[1];
+
     m_AMInFrame(1, 1) = ca[1];
     m_AMInFrame(1, 3) = -ca[1] * posInFrame[2];
     m_AMInFrame(1, 5) = ca[1] * posInFrame[0];
-    //m_AM(2, 2) =  ca[2]; // = 0
-    //m_AM(2, 3) =  ca[2] * posInFrame[1];  // = 0
-    //m_AM(2, 4) = -ca[2] * posInFrame[0]; // = 0
+
+    m_AMInFrame(2, 2) =  ca[2];
+    m_AMInFrame(2, 3) =  ca[2] * posInFrame[1];
+    m_AMInFrame(2, 4) = -ca[2] * posInFrame[0];
 
     m_AMInFrame(3, 1) = -ca[1] * posInFrame[2];
-    m_AMInFrame(3, 3) = ca[1] * posInFrame[2] * posInFrame[2];
+    m_AMInFrame(3, 2) = ca[2] * posInFrame[1];
+    m_AMInFrame(3, 3) = ca[1] * posInFrame[2] * posInFrame[2] + ca[2] * posInFrame[1] * posInFrame[1];
+    m_AMInFrame(3, 4) = -ca[2] * posInFrame[0] * posInFrame[1];
     m_AMInFrame(3, 5) = -ca[1] * posInFrame[0] * posInFrame[2];
+
     m_AMInFrame(4, 0) = ca[0] * posInFrame[2];
-    m_AMInFrame(4, 4) = ca[0] * posInFrame[2] * posInFrame[2];
+    m_AMInFrame(4, 2) = -ca[2] * posInFrame[0];
+    m_AMInFrame(4, 3) = -ca[2] * posInFrame[1] * posInFrame[0];
+    m_AMInFrame(4, 4) = ca[0] * posInFrame[2] * posInFrame[2] + ca[2] * posInFrame[0] * posInFrame[0];
     m_AMInFrame(4, 5) = -ca[0] * posInFrame[1] * posInFrame[2];
+
     m_AMInFrame(5, 0) = -ca[0] * posInFrame[1];
     m_AMInFrame(5, 1) = ca[1] * posInFrame[0];
     m_AMInFrame(5, 3) = -ca[1] * posInFrame[0] * posInFrame[2];
@@ -380,6 +388,7 @@ namespace frydom {
       Acceleration acceleration = GetFlowAcceleration();
       localForce.x() += rho * (m_property.ca.x + 1.) * GetVolume() * acceleration.x();
       localForce.y() += rho * (m_property.ca.y + 1.) * GetVolume() * acceleration.y();
+      localForce.z() += rho * (m_property.ca.z + 1.) * GetVolume() * acceleration.z();
     }
 
     // Project local force in world at COG
@@ -388,7 +397,7 @@ namespace frydom {
     // Part the added mass term due to the body's angular speed (in world ref frame)
     if (m_extendedModel and m_isImmerged) {
 
-      Vector3d<double> ca = {m_property.ca.x, m_property.ca.y, 0.};
+      Vector3d<double> ca = {m_property.ca.x, m_property.ca.y, m_property.ca.z};
 
       AngularVelocity omegaInWorld = body->GetAngularVelocityInWorld(NWU);
       AngularVelocity omegaInFrame = m_node->GetFrameInWorld().ProjectVectorParentInFrame(omegaInWorld, NWU);
@@ -535,9 +544,11 @@ namespace frydom {
       }
       //m_chronoPhysicsItem->Update(time, false);
     }
+
     if (m_simpleAMModel) {
       ComputeForceAddedMass();
     }
+
   }
 
   void FrMorisonCompositeElement::ComputeForceAddedMass() {

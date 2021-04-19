@@ -357,11 +357,11 @@ namespace frydom {
     xaxis.z() = 0.;
     xaxis.normalize();
 
-    Direction yaxis = GetYAxisInParent(fc);
-    yaxis.z() = 0.;
-    yaxis.normalize();
-
     Direction zaxis = Direction(0., 0., 1.);
+    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(zaxis);
+
+    Direction yaxis = zaxis.cross(xaxis);
+
     Position origin = GetPosition(fc);
 
     return FrFrame(origin, FrRotation(xaxis, yaxis, zaxis, fc), fc);

@@ -101,18 +101,17 @@ void TestFrFlowBase::TestGetFluxVelocityInWorld() {
 
 void TestFrFlowBase::TestGetFluxVelocityInFrame() {
 
-  auto velocity = flow->GetRelativeVelocityInFrame(m_frame, m_FrameVelocityInWorld, NWU);
+  auto velocity = flow->GetFluxRelativeVelocityInFrame(m_frame, m_FrameVelocityInWorld, NWU);
   EXPECT_FLOAT_EQ(velocity.GetVx(), m_RelativeVelocityInFrame.GetVx());
   EXPECT_FLOAT_EQ(velocity.GetVy(), m_RelativeVelocityInFrame.GetVy());
   EXPECT_FLOAT_EQ(velocity.GetVz(), m_RelativeVelocityInFrame.GetVz());
 
-  auto FrameVelocityInWorld_NED = Velocity(m_FrameVelocityInWorld.GetVx(),
-                                           -m_FrameVelocityInWorld.GetVy(),
-                                           -m_FrameVelocityInWorld.GetVz());
-  velocity = flow->GetRelativeVelocityInFrame(m_frame, FrameVelocityInWorld_NED, NED);
-  EXPECT_FLOAT_EQ(velocity.GetVx(), m_RelativeVelocityInFrame.GetVx());
-  EXPECT_FLOAT_EQ(velocity.GetVy(), m_RelativeVelocityInFrame.GetVy());
-  EXPECT_FLOAT_EQ(velocity.GetVz(), m_RelativeVelocityInFrame.GetVz());
+  auto FrameVelocityInWorld_NED = internal::SwapFrameConvention<Velocity>(m_FrameVelocityInWorld);
+  velocity = flow->GetFluxRelativeVelocityInFrame(m_frame, FrameVelocityInWorld_NED, NED);
+  Velocity RelativeVelocityInFrameNED = internal::SwapFrameConvention<Velocity>(m_RelativeVelocityInFrame);
+  EXPECT_FLOAT_EQ(velocity.GetVx(), RelativeVelocityInFrameNED.GetVx());
+  EXPECT_FLOAT_EQ(velocity.GetVy(), RelativeVelocityInFrameNED.GetVy());
+  EXPECT_FLOAT_EQ(velocity.GetVz(), RelativeVelocityInFrameNED.GetVz());
 }
 
 

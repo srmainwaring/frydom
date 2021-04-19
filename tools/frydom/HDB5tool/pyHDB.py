@@ -117,6 +117,9 @@ class pyHDB(object):
         # Solver.
         self.solver = None
 
+        # Commit hash.
+        self.commit_hash = None
+
     def set_wave_frequencies(self):
         """Frequency array of BEM computations in rad/s.
 
@@ -716,6 +719,10 @@ class pyHDB(object):
             # Version.
             self.write_version(writer)
 
+            # Commit hash.
+            if(self.commit_hash is not None):
+                self.write_commit_hash(writer)
+
     def write_environment(self, writer):
         """This function writes the environmental data into the *.hdb5 file.
 
@@ -1011,14 +1018,12 @@ class pyHDB(object):
 
                 # Impulse response functions without forward speed.
                 if(body.irf is not None):
-                    dset = writer.create_dataset(irf_path + "/DOF_%u" % idof,
-                                            data=body.irf[:, 6*j+idof, :])
+                    dset = writer.create_dataset(irf_path + "/DOF_%u" % idof, data=body.irf[:, 6*j+idof, :])
                     dset.attrs['Description'] = "Impulse response functions"
 
                 # Impulse response function with forward speed.
                 if(body.irf_ku is not None):
-                    dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof,
-                                            data=body.irf_ku[:, 6*j+idof, :])
+                    dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof, data=body.irf_ku[:, 6*j+idof, :])
                     dset.attrs['Description'] = "Impulse response functions Ku"
 
                 # Poles and residues.
@@ -1027,14 +1032,12 @@ class pyHDB(object):
                     for iforce in range(0, 6):
                         modal_coef_path = modal_path + "/DOF_%u/FORCE_%u" % (idof, iforce)
                         dg = writer.create_group(modal_coef_path)
-                        PR = body.poles_residues[j * self.nb_bodies + 6 * idof + iforce]
+                        PR = body.poles_residues[36 * j + 6 * idof + iforce]
 
                         # Real poles and residues.
                         if(PR.nb_real_poles() > 0):
-                            dset = writer.create_dataset(modal_coef_path + "/RealPoles",
-                                                         data=PR.real_poles())
-                            dset = writer.create_dataset(modal_coef_path + "/RealResidues",
-                                                         data=PR.real_residues())
+                            dset = writer.create_dataset(modal_coef_path + "/RealPoles", data=PR.real_poles())
+                            dset = writer.create_dataset(modal_coef_path + "/RealResidues", data=PR.real_residues())
 
                         # Complex poles and residues.
                         if(PR.nb_cc_poles() > 0):
@@ -1042,18 +1045,14 @@ class pyHDB(object):
                             # Poles.
                             cc_poles_path = modal_coef_path + "/ComplexPoles"
                             dg = writer.create_group(cc_poles_path)
-                            dset = writer.create_dataset(cc_poles_path + "/RealCoeff",
-                                                         data=PR.cc_poles().real)
-                            dset = writer.create_dataset(cc_poles_path + "/ImagCoeff",
-                                                         data=PR.cc_poles().imag)
+                            dset = writer.create_dataset(cc_poles_path + "/RealCoeff", data=PR.cc_poles().real)
+                            dset = writer.create_dataset(cc_poles_path + "/ImagCoeff", data=PR.cc_poles().imag)
 
                             # Residues.
                             cc_residues_path = modal_coef_path + "/ComplexResidues"
                             dg = writer.create_group(cc_residues_path)
-                            dset = writer.create_dataset(cc_residues_path + "/RealCoeff",
-                                                         data=PR.cc_residues().real)
-                            dset = writer.create_dataset(cc_residues_path + "/ImagCoeff",
-                                                         data=PR.cc_residues().imag)
+                            dset = writer.create_dataset(cc_residues_path + "/RealCoeff", data=PR.cc_residues().real)
+                            dset = writer.create_dataset(cc_residues_path + "/ImagCoeff", data=PR.cc_residues().imag)
 
     def write_hydrostatic(self, writer, body, hydrostatic_path="/Hydrostatic"):
 
@@ -1386,4 +1385,17 @@ class pyHDB(object):
             # Version.
             dset = writer.create_dataset('Version', data= self.version_max)
             dset.attrs['Description'] = "Version of the hdb5 output file."
+
+    def write_commit_hash(self, writer):
+            """This function writes the commit hash of the *.hdb5 file.
+
+            Parameter
+            ---------
+            Writer : string
+                *.hdb5 file.
+            """
+
+            # Version.
+            dset = writer.create_dataset('NormalizedCommitHash', data= self.commit_hash)
+            dset.attrs['Description'] = "Tag - Commit hash - Branch - Date."
 

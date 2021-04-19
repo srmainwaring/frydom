@@ -1,31 +1,18 @@
 
-find_package(hermes QUIET)
+include(FetchContent)
 
-if (NOT hermes_FOUND)
-    include(FetchContent)
+FetchContent_Declare(hermes
+        GIT_REPOSITORY ${hermes_URL}
+        GIT_TAG ${hermes_TAG}
+        )
 
-    FetchContent_Declare(hermes
-            GIT_REPOSITORY ${hermes_URL}
-            GIT_TAG ${hermes_TAG}
-            )
+FetchContent_GetProperties(hermes)
+if (NOT hermes_POPULATED)
+    message(STATUS "******* FETCHING hermes dependency from ${PROJECT_NAME} (requested version: ${hermes_TAG}) *******")
+    FetchContent_Populate(hermes)
 
-    FetchContent_GetProperties(hermes)
-    if (NOT hermes_POPULATED)
-        message(STATUS "Downloading, Configuring and Generating 'hermes' dependency")
-        FetchContent_Populate(hermes)
+    # hermes BUILD OPTIONS
+    set(HERMES_BUILD_TESTS OFF CACHE BOOL "")
 
-        # hermes BUILD OPTIONS
-        set(HERMES_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-
-        add_subdirectory(${hermes_SOURCE_DIR} ${hermes_BINARY_DIR})
-    else ()
-        message(STATUS "hermes already populated")
-    endif ()
-endif ()
-
-if (TARGET hermes)
-    get_target_property(INC hermes INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "Found hermes : ${INC}")
-else ()
-    message(STATUS "hermes target NOT FOUND")
+    add_subdirectory(${hermes_SOURCE_DIR} ${hermes_BINARY_DIR})
 endif ()

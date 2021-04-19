@@ -5,29 +5,43 @@
 # All rights reserved.
 #
 # Use of this source code is governed by a GPLv3 license that can be found
-# in the LICENSE file of FRyDoM.
+# in the LICENSE file of hydro.
 #
 # ==========================================================================
 
-FROM gvincke/inca-build:latest
+FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-#RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN apt-get install -y -q apt-utils dialog
-RUN apt-get install -y -q libboost-filesystem1.62-dev
-RUN apt-get install -y -q libhdf5-100 libhdf5-cpp-100 libhdf5-dev
-RUN apt-get install -y -q build-essential xserver-xorg-dev x11proto-xf86vidmode-dev libxxf86vm-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libxext-dev libxcursor-dev freeglut3-dev
-RUN apt-get install -y -q libirrlicht-dev libirrlicht-doc libirrlicht1.8 libirrlicht1.8-dbg
+RUN apt-get install -y -q build-essential
+RUN apt-get install -y -q xserver-xorg-dev
+RUN apt-get install -y -q x11proto-xf86vidmode-dev
+RUN apt-get install -y -q libxxf86vm-dev
+RUN apt-get install -y -q mesa-common-dev
+RUN apt-get install -y -q libgl1-mesa-dev
+RUN apt-get install -y -q libglu1-mesa-dev
+RUN apt-get install -y -q libxext-dev
+RUN apt-get install -y -q libxcursor-dev
+RUN apt-get install -y -q freeglut3-dev
 RUN apt-get install -y -q libcurl4-gnutls-dev
-RUN apt-get install -y -q python3-sphinx python3-sphinx-rtd-theme
+RUN apt-get install -y -q python3-sphinx
+RUN apt-get install -y -q python3-sphinx-rtd-theme
 RUN apt-get install -y -q doxygen
+RUN apt-get install -y -q wget
+RUN apt-get install -y -q awscli
+
+RUN apt-get install -y -q cmake
+RUN apt-get install -y -q git
+RUN apt-get install -y -q graphviz
+RUN apt-get install -y -q libirrlicht-dev
+RUN apt-get install -y -q libirrlicht1.8
 
 
 # https://stackoverflow.com/questions/44331836/apt-get-install-tzdata-noninteractive
 RUN apt-get install -y -q tzdata
-#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q tzdata
+# RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q tzdata
 
 ARG download_dir=/download
 

@@ -148,6 +148,7 @@ namespace frydom {
     // Magnetic model loaded from _deps directory
     // GEOGRAPHICLIB_MAGNETIC_PATH is a compilation variable, defined in Add_GeographicLib.cmake, for GeographicLib target only
     GeographicLib::MagneticModel magneticModel("emm2017", GEOGRAPHICLIB_MAGNETIC_PATH);
+    // FIXME: ne peut pas fonctionner car le path est alors code en dur en utilisant cette maniere de faire...
 
     // Compute the magnetic declination
     double Bx, By, Bz;

@@ -93,10 +93,10 @@ namespace frydom {
       auto year = timePtr->tm_year;
 
       // Event file header
-      spdlog::info("***************** {} ******************************", GetFrydomFlavor());
+      spdlog::info("***************** FRyDoM ******************************");
       spdlog::info("Copyright (c) D-ICE Engineering & Ecole Centrale de Nantes (2016 -- {})", year + 1900);
       spdlog::info("******************************************************************************");
-      spdlog::info("FRyDoM Git SHA1 revision: {}", GetGitSHA1());
+      spdlog::info("FRyDoM Git Version: {}", git::GetNormalizedVersionString());
       spdlog::info("SIMULATION NAME: {}", system->GetName());
       spdlog::info("******************************************************************************");
 

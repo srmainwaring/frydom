@@ -155,9 +155,9 @@ namespace frydom {
     Velocity VelocityInWorldAtCOG = body->GetCOGLinearVelocityInWorld(NWU);
 
     m_fluxVelocityInBody =
-        body->GetSystem()->GetEnvironment()->GetOcean()->GetCurrent()->GetRelativeVelocityInFrame(FrameAtCOG,
-                                                                                                  VelocityInWorldAtCOG,
-                                                                                                  NWU);
+        body->GetSystem()->GetEnvironment()->GetOcean()->GetCurrent()->GetFluxRelativeVelocityInFrame(FrameAtCOG,
+                                                                                                      VelocityInWorldAtCOG,
+                                                                                                      NWU);
     FrFlowForce::Compute(time);
   }
 
@@ -178,9 +178,9 @@ namespace frydom {
     Velocity VelocityInWorldAtCOG = body->GetCOGLinearVelocityInWorld(NWU);
 
     m_fluxVelocityInBody =
-        body->GetSystem()->GetEnvironment()->GetAtmosphere()->GetWind()->GetRelativeVelocityInFrame(FrameAtCOG,
-                                                                                                    VelocityInWorldAtCOG,
-                                                                                                    NWU);
+        body->GetSystem()->GetEnvironment()->GetAtmosphere()->GetWind()->GetFluxRelativeVelocityInFrame(FrameAtCOG,
+                                                                                                        VelocityInWorldAtCOG,
+                                                                                                        NWU);
 
     FrFlowForce::Compute(time);
   }
