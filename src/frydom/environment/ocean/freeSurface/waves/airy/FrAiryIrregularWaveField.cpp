@@ -463,9 +463,10 @@ namespace frydom {
     double dirAngle = m_meanDir;
     if (IsNED(fc)) dirAngle = -dirAngle;
     if (IsCOMEFROM(dc)) dirAngle -= MU_PI;
-    if (unit == mathutils::DEG) dirAngle *= RAD2DEG;
-
-    return mathutils::Normalize_0_360(dirAngle);
+    if (unit == mathutils::DEG)
+      return mathutils::Normalize_0_360(dirAngle*RAD2DEG);
+    else
+      return mathutils::Normalize_0_2PI(dirAngle);
   }
 
   Direction FrAiryIrregularWaveField::GetMeanWaveDirection(FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const {
