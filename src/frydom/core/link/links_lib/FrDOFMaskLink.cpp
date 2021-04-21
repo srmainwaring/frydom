@@ -150,6 +150,14 @@ namespace frydom {
     return m_linkType;
   }
 
+  void FrDOFMask::LogThis(bool log) {
+    m_log_this = log;
+  }
+
+  bool FrDOFMask::IsLogged() const {
+    return m_log_this;
+  }
+
   void FrDOFMask::SetLock(bool xLocked, bool yLocked, bool zLocked, bool rxLocked, bool ryLocked, bool rzLocked) {
     m_xLocked = xLocked;
     m_yLocked = yLocked;

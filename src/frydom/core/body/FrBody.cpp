@@ -1141,6 +1141,10 @@ namespace frydom {
     // Adding the link to the system
     GetSystem()->Add(DOFLink);
 
+    bodyNode->LogThis(m_DOFMask->IsLogged());
+    worldNode->LogThis(m_DOFMask->IsLogged());
+    DOFLink->LogThis(m_DOFMask->IsLogged());
+
   }
 
   FrDOFMask *FrBody::GetDOFMask() {

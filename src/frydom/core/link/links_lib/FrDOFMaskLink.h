@@ -36,6 +36,8 @@ namespace frydom {
     bool m_RyLocked = false;
     bool m_RzLocked = false;
 
+    bool m_log_this = true;
+
    public:
 
     // TODO : plutot utiliser ChLinkLockMaskLF en interne et faire des conversions pour les angles vers les coeffs de quaternion
@@ -116,6 +118,10 @@ namespace frydom {
     void SetLinkType(LINK_TYPE linkType);
 
     LINK_TYPE GetLinkType() const;
+
+    void LogThis(bool log);
+
+    bool IsLogged() const;
 
    private:
 
