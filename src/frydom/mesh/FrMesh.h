@@ -132,28 +132,28 @@ namespace frydom {
       /// Get the area of the triangular element fh
       /// \param fh triangular element
       /// \return area (m^2)
-      const double GetArea(const FaceHandle &fh) const;
+      double GetArea(const FaceHandle &fh) const;
 
       /// Get the area of the meshed surface
       /// \return area (m^2)
-      const double GetMeshedSurfaceArea();
+      double GetMeshedSurfaceArea();
 
       /// Get the area of the surface mesh, closed by the set of boundary polygons
       /// \return area (m^2)
-      const double GetArea();
+      double GetArea();
 
       /// Get the volume delimited by the surface mesh and the set of boundary polygons
       /// \return volume (m^3)
-      const double GetVolume();
+      double GetVolume();
 
       /// Get the position of the center of gravity of the domain delimited by the surface mesh and the set of
       /// boundary polygons, under the assumption of uniform weight distribution.
       /// \return center of gravity (m)
-      const Position GetCOG();
+      Position GetCOG();
 
-      const FrInertiaTensor GetPlainInertiaTensor(double density);
+      FrInertiaTensor GetPlainInertiaTensor(double density);
 
-      const FrInertiaTensor GetShellInertiaTensor(double density, double thickness);
+      FrInertiaTensor GetShellInertiaTensor(double density, double thickness);
 
 
       /// Check if the surface mesh has boundaries

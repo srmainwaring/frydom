@@ -17,7 +17,7 @@ set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 # hermes
 set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG feature/FR_HDF5_visitor CACHE STRING " version")
+set(hermes_TAG v1.4 CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
@@ -53,7 +53,7 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.6.5 CACHE STRING "mathutils version")
+set(mathutils_TAG v1.6.6 CACHE STRING "mathutils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
@@ -67,5 +67,5 @@ set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "")
 set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
 # Boost
-set(boost_URL https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz)
+set(boost_URL https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz)
 set(boost_TAG 1.75)

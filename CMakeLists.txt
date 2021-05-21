@@ -20,12 +20,12 @@ endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 #-----------------------------------------------------------------------------
 cmake_policy(SET CMP0077 NEW)
 
-option(BUILD_SHARED_LIBS "" ON)
+option(BUILD_SHARED_LIBS "Shared lib version" ON)
 
 option(FRYDOM_BUILD_TESTS "Activate build tests" ON)
 option(FRYDOM_BUILD_UNIT_TESTS "Build unit tests" ON)
 option(FRYDOM_BUILD_DEMOS "Build demo tests" ON)
-option(FRYDOM_BUILD_BENCHES "Build demo tests" ON)
+option(FRYDOM_BUILD_BENCHES "Build benches tests" ON)
 option(FRYDOM_BUILD_DEV_TESTS "Build dev test" ON)
 option(FRYDOM_BUILD_TOOLS "Build the standalone tools" ON)
 option(FRYDOM_USE_IRRLICHT "Use Irrlicht" ON)

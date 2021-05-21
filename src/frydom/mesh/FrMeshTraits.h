@@ -84,7 +84,7 @@ namespace frydom {
        public:
         EdgeT() {}
 
-        const double GetLength() const {
+        double GetLength() const {
           return m_length;
         }
 
@@ -134,42 +134,58 @@ namespace frydom {
         void SetCenter(const Point &center) { m_center = center; }
 
         /// This function gives the surface integral of a face.
-        const double GetSurfaceIntegral(
+        double GetSurfaceIntegral(
             IntegrandType type) const { // TODO: abandonner les enums pour les integrandes et preferer les accessors voir mieux, des fonctors...
           double val;
           switch (type) {
             case POLY_1:
               val = m_integrals.m_int_1; // This is the surface area...
+              break;
             case POLY_X:
               val = m_integrals.m_int_x;
+              break;
             case POLY_Y:
               val = m_integrals.m_int_y;
+              break;
             case POLY_Z:
               val = m_integrals.m_int_z;
+              break;
             case POLY_YZ:
               val = m_integrals.m_int_yz;
+              break;
             case POLY_XZ:
               val = m_integrals.m_int_xz;
+              break;
             case POLY_XY:
               val = m_integrals.m_int_xy;
+              break;
             case POLY_X2:
               val = m_integrals.m_int_x2;
+              break;
             case POLY_Y2:
               val = m_integrals.m_int_y2;
+              break;
             case POLY_Z2:
               val = m_integrals.m_int_z2;
+              break;
             case POLY_X3:
               val = m_integrals.m_int_x3;
+              break;
             case POLY_Y3:
               val = m_integrals.m_int_y3;
+              break;
             case POLY_Z3:
               val = m_integrals.m_int_z3;
+              break;
             case POLY_X2Y:
               val = m_integrals.m_int_x2y;
+              break;
             case POLY_Y2Z:
               val = m_integrals.m_int_y2z;
+              break;
             case POLY_Z2X:
               val = m_integrals.m_int_z2x;
+              break;
             case UNDEFINED_INTEGRAND:
               std::cerr << "Cannot return value of an UNDEFINED_INTEGRAND" << std::endl;
               break;

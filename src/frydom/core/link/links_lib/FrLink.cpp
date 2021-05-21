@@ -236,6 +236,7 @@ namespace frydom {
           break;
         case LinkType::ALIGN:
           m_mask.SetLockMask(false, false, false, false, true, true, true);
+          break;
         case LinkType::PARALLEL:
           m_mask.SetLockMask(false, false, false, false, true, true, false);
           break;
