@@ -21,7 +21,7 @@ TEST(FrTorsor, FrTorsor_FrTorsor_Test) {
   Position point;
   point.setRandom();
 
-  Torsor torsor(resultante, moment, point, fc);
+  FrTorsor torsor(resultante, moment, point, fc);
 
   Position testPos;
   testPos = point - torsor.GetPoint(fc);

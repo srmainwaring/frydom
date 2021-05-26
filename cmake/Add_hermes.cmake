@@ -12,6 +12,7 @@ if (NOT hermes_POPULATED)
     FetchContent_Populate(hermes)
 
     # hermes BUILD OPTIONS
+    set(HERMES_USE_HDF5 ON CACHE BOOL "")
     set(HERMES_BUILD_TESTS OFF CACHE BOOL "")
 
     add_subdirectory(${hermes_SOURCE_DIR} ${hermes_BINARY_DIR})

@@ -3,12 +3,10 @@
 # CMake configuration file for the FRyDoM project
 #
 #=============================================================================
-
-
-#-----------------------------------------------------------------------------
-# Check backward compatibility
-#-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.13)
+
+project(frydom)
+set(CMAKE_CXX_STANDARD 17)
 
 #-----------------------------------------------------------------------------
 # Prevent in-source builds
@@ -18,41 +16,28 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 
 #-----------------------------------------------------------------------------
-# Define project name and specify version information
+# FRyDoM options
 #-----------------------------------------------------------------------------
-project(frydom)
+cmake_policy(SET CMP0077 NEW)
 
-#-----------------------------------------------------------------------------
-# C++ dialect
-#-----------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 17)
+option(BUILD_SHARED_LIBS "Shared lib version" ON)
 
-#-----------------------------------------------------------------------------
-# Setting up the configuration
-#-----------------------------------------------------------------------------
-
-option(frydom_build_tests "Activate build tests" ON)
-option(frydom_build_unit_test "Build unit tests" ON)
-option(frydom_build_demo "Build demo tests" ON)
-option(frydom_build_validation "Build demo tests" ON)
-option(frydom_build_dev_test "Build dev test" ON)
-option(frydom_download_demo_data "Downloading demo data" ON)
-set(frydom_data_version "1.1.5" CACHE STRING "Data version")
-
-option(frydom_build_tools "Build the standalone tools" ON)
-
-option(frydom_use_irrlicht "Use Irrlicht" ON)
-option(frydom_build_on_LIGER "For building on LIGER supercomputer" OFF)
-
+option(FRYDOM_BUILD_TESTS "Activate build tests" ON)
+option(FRYDOM_BUILD_UNIT_TESTS "Build unit tests" ON)
+option(FRYDOM_BUILD_DEMOS "Build demo tests" ON)
+option(FRYDOM_BUILD_BENCHES "Build benches tests" ON)
+option(FRYDOM_BUILD_DEV_TESTS "Build dev test" ON)
+option(FRYDOM_BUILD_TOOLS "Build the standalone tools" ON)
+option(FRYDOM_USE_IRRLICHT "Use Irrlicht" ON)
+option(FRYDOM_BUILD_ON_LIGER "For building on LIGER supercomputer" OFF)
 option(BUILD_BOOST "Build boost instead of finding it on the system" ON)
 
-if (frydom_build_on_LIGER)
-    set(frydom_use_irrlicht FALSE CACHE BOOL "" FORCE)
+option(FRYDOM_DOWNLOAD_DEMOS_DATA "Downloading demo data" ON)
+set(FRYDOM_DEMOS_DATA_VERSION "1.1.5" CACHE STRING "Data version")
+
+if (FRYDOM_BUILD_ON_LIGER)
+    set(FRYDOM_USE_IRRLICHT FALSE CACHE BOOL "" FORCE)
 endif ()
-
-
-# Access to local cmake scripts
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 #=============================================================================
 # Retrieving the current Git revision
@@ -67,19 +52,12 @@ if (NOT EXISTS ${POST_CONFIGURE_FILE})
     configure_file(${PRE_CONFIGURE_FILE} ${POST_CONFIGURE_FILE})
 endif ()
 
-
 # =============================================================================
 # FRyDoM DEPENDENCIES
 # =============================================================================
-
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
-
-if (${frydom_download_demo_data})
-    include(${CMAKE_CURRENT_SOURCE_DIR}/data/DownloadData.cmake)
-    DownloadData()
-endif ()
-
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(Add_mathutils)
 include(Add_Boost)
@@ -92,27 +70,32 @@ include(Add_hermes)
 include(Add_json)
 include(Add_spdlog)
 
-
 #=============================================================================
 # Adding the FRyDoM project sources
 #=============================================================================
 add_subdirectory(src/frydom)
 
 #=============================================================================
-# Adding tests
+# Downloading data for demos from Amazon AWS
 #=============================================================================
-if (${frydom_build_tests})
-    enable_testing()
-    include(Add_googletest)
-
-    add_subdirectory(tests)
+if (${FRYDOM_DOWNLOAD_DEMOS_DATA})
+    include(${CMAKE_CURRENT_SOURCE_DIR}/data/DownloadData.cmake)
+    DownloadData()
 endif ()
 
+#=============================================================================
+# Adding tests
+#=============================================================================
+if (${FRYDOM_BUILD_TESTS})
+    enable_testing()
+    include(Add_googletest)
+    add_subdirectory(tests)
+endif ()
 
 #=============================================================================
 # Adding tools
 #=============================================================================
-if (${frydom_build_tools})
+if (${FRYDOM_BUILD_TOOLS})
     include(add_cxxopts)
     add_subdirectory(tools)
 endif ()

@@ -50,9 +50,9 @@ namespace frydom {
    public:
     FrUTCTime() : m_hours(0), m_minutes(0), m_seconds(0) {}
 
-    FrUTCTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds);
+    FrUTCTime(unsigned int hours, unsigned int minutes, unsigned int seconds);
 
-    FrUTCTime(const unsigned int hours, const unsigned int minutes);
+    FrUTCTime(unsigned int hours, unsigned int minutes);
 
     unsigned int GetH() const { return m_hours; }
 
@@ -119,14 +119,14 @@ namespace frydom {
 
     explicit FrTidal(FrFreeSurface *freeSurface);
 
-    FrTidal(FrFreeSurface *freeSurface, const FrUTCTime t1, const double h1, TIDAL_LEVEL level1, const FrUTCTime t2,
-            const double h2, TIDAL_LEVEL level2);
+    FrTidal(FrFreeSurface *freeSurface, FrUTCTime t1, double h1, TIDAL_LEVEL level1, FrUTCTime t2,
+            double h2, TIDAL_LEVEL level2);
 
     void SetNoTidal();
 
-    void Update(const double time);
+    void Update(double time);
 
-    const double GetHeight(FRAME_CONVENTION fc) const;
+    double GetHeight(FRAME_CONVENTION fc) const;
 
     const chrono::ChFrame<double> *GetTidalFrame() const;
 

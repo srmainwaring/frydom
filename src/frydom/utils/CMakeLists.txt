@@ -1,28 +1,14 @@
 message(STATUS "    ...utils")
 
-set(SRC_FILES
-#        FrIrrApp.cpp
-#        FrIrrCamera.cpp
+target_sources(frydom PRIVATE
         FrFileSystem.cpp
         FrConfig.cpp
         )
 
-set(FRYDOM_UTILS_SOURCES "")
-foreach (file ${SRC_FILES})
-    list(APPEND FRYDOM_UTILS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-endforeach ()
+if(FRYDOM_USE_IRRLICHT)
 
-if(frydom_use_irrlicht)
-
-    set(SRC_FILES
+    target_sources(frydom PRIVATE
             FrIrrApp.cpp
             FrIrrCamera.cpp
             )
-    foreach (file ${SRC_FILES})
-        list(APPEND FRYDOM_UTILS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-    endforeach ()
-
 endif()
-
-
-set(FRYDOM_UTILS_SOURCES ${FRYDOM_UTILS_SOURCES} PARENT_SCOPE)

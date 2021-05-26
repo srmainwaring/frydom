@@ -168,6 +168,7 @@ namespace frydom {
             r *= (degree - k);
           }
 
+          return DN;
         }
 
         template<unsigned int _dim>

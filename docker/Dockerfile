@@ -26,8 +26,6 @@ RUN apt-get install -y -q libxext-dev
 RUN apt-get install -y -q libxcursor-dev
 RUN apt-get install -y -q freeglut3-dev
 RUN apt-get install -y -q libcurl4-gnutls-dev
-#RUN apt-get install -y -q python3
-#RUN apt-get install -y -q python3-pip
 RUN apt-get install -y -q python3-sphinx
 RUN apt-get install -y -q python3-sphinx-rtd-theme
 RUN apt-get install -y -q doxygen
@@ -39,9 +37,6 @@ RUN apt-get install -y -q git
 RUN apt-get install -y -q graphviz
 RUN apt-get install -y -q libirrlicht-dev
 RUN apt-get install -y -q libirrlicht1.8
-
-# RUN apt-get install -y -q libboost-all-dev
-# RUN apt-get install -y -q libhdf5-dev
 
 
 # https://stackoverflow.com/questions/44331836/apt-get-install-tzdata-noninteractive
