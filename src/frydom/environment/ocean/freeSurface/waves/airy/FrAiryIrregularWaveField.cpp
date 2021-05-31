@@ -251,6 +251,24 @@ namespace frydom {
 
   }
 
+  void FrAiryIrregularWaveField::SetCastorParameters() {
+
+    json j;
+
+    j["wave_field_type"] = "AiryIrregularWaveField";
+    j["wave_frequencies_rads"] = m_waveFrequencies;
+    j["wave_numbers_m"] = m_waveNumbers;
+    j["wave_directions_rad"] = m_waveDirections;
+    j["wave_mean_direction_rad"] = m_meanDir;
+    j["wave_amplitudes_m"] = c_amplitude;
+    j["wave_phases_rad"] = m_wavePhases;
+
+    json j2;
+    j2["AiryIrregularWaveField"] = j;
+
+    m_freeSurface->GetOcean()->GetEnvironment()->GetSystem()->GetLogManager()->GetCastorParameters().Add(j2);
+  }
+
   void FrAiryIrregularWaveField::GenerateRandomWavePhases(std::mt19937 &seed) {
 
 //    m_wavePhases = std::make_unique<std::vector<std::vector<double>>>();
@@ -332,6 +350,8 @@ namespace frydom {
     }
 
     Update(0.);
+
+    SetCastorParameters();
 
   }
 

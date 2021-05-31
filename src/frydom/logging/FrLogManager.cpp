@@ -106,6 +106,11 @@ namespace frydom {
 
   }
 
+  void FrLogManager::WriteCastorFile() {
+
+    m_castor.Write(m_log_folder);
+
+  }
 
   std::string FrLogManager::now() { // TODO : voir a faire avec fmt...
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -198,6 +203,8 @@ namespace frydom {
       obj->SendLogMessages();
 
     }
+
+    WriteCastorFile();
   }
 
   void FrLogManager::StepFinalize() {

@@ -30,7 +30,7 @@ namespace frydom {
   }
 
   void FrCastorParameters::Add(const json& node) {
-    m_json_object.push_back(node);
+    m_json_object += node;
   }
 
 

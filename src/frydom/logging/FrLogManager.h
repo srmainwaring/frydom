@@ -88,6 +88,8 @@ namespace frydom {
 
     void WriteMetaDataFile() const;
 
+    void WriteCastorFile();
+
     static std::string now();
 
    private:
