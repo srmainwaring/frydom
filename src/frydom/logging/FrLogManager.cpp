@@ -25,6 +25,8 @@
 #include "FrLoggable.h"
 #include "FrEventLogger.h"
 
+#include "FrCastor.h"
+
 
 #define META_FILE_NAME "meta.json"
 #define DATE_FOLDER_FORMAT "%Y-%m-%d_%Hh%Mm%Ss"
@@ -104,6 +106,7 @@ namespace frydom {
 
   }
 
+
   std::string FrLogManager::now() { // TODO : voir a faire avec fmt...
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::string now_str = std::ctime(&now);
@@ -150,6 +153,10 @@ namespace frydom {
     strftime(format, 32, DATE_FOLDER_FORMAT, &datetime);
 
     return format;
+  }
+
+  FrCastorParameters& FrLogManager::GetCastorParameters() {
+    return m_castor;
   }
 
   void FrLogManager::Initialize() { // TODO : retirer la necessite d'avoir cette methode friend de FrLoggableBase
