@@ -22,11 +22,13 @@ namespace frydom {
 
    public:
 
-    FrCastorParameters();
+    FrCastorParameters(const std::string& folder);
 
     void Write(const std::string& path);
 
-    void Add(const json& node);
+    void Add(const std::string& tag, const json& node);
+
+    void SetDataFolder(const std::string& folder);
 
    private:
 

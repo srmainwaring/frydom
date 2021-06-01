@@ -40,7 +40,8 @@ namespace frydom {
       m_log_CSV(true),
       m_system(system),
       m_nfreq_output(1),
-      m_ifreq_output(0) { // FIXME : Du coup LogManager devrait etre un TreeNode...
+      m_ifreq_output(0),
+      m_castor(system->config_file().GetDataFolder()){ // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
     m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), logFolderName});
@@ -107,6 +108,8 @@ namespace frydom {
   }
 
   void FrLogManager::WriteCastorFile() {
+
+    m_castor.SetDataFolder(GetSystem()->config_file().GetDataFolder());
 
     m_castor.Write(m_log_folder);
 

@@ -9,13 +9,15 @@
 //
 // ==========================================================================
 
+#include <iostream>
 #include <fstream>
 #include "frydom/utils/FrFileSystem.h"
 #include "FrCastor.h"
 
 namespace frydom {
 
-  FrCastorParameters::FrCastorParameters() {
+  FrCastorParameters::FrCastorParameters(const std::string& folder) {
+    m_json_object["DataFolder"] = folder;
   }
 
   void FrCastorParameters::Write(const std::string& path) {
@@ -29,8 +31,12 @@ namespace frydom {
 
   }
 
-  void FrCastorParameters::Add(const json& node) {
-    m_json_object += node;
+  void FrCastorParameters::Add(const std::string& tag, const json& node) {
+    m_json_object[tag] = node;
+  }
+
+  void FrCastorParameters::SetDataFolder(const std::string& folder) {
+    m_json_object["DataFolder"] = folder;
   }
 
 

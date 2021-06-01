@@ -263,10 +263,8 @@ namespace frydom {
     j["wave_amplitudes_m"] = c_amplitude;
     j["wave_phases_rad"] = m_wavePhases;
 
-    json j2;
-    j2["AiryIrregularWaveField"] = j;
-
-    m_freeSurface->GetOcean()->GetEnvironment()->GetSystem()->GetLogManager()->GetCastorParameters().Add(j2);
+    m_freeSurface->GetOcean()->GetEnvironment()->GetSystem()->GetLogManager()
+        ->GetCastorParameters().Add("AiryIrregularWaveField", j);
   }
 
   void FrAiryIrregularWaveField::GenerateRandomWavePhases(std::mt19937 &seed) {

@@ -165,6 +165,9 @@ namespace frydom {
     using NodeContainer = std::vector<std::shared_ptr<FrNode>>;
     NodeContainer m_nodes;                    ///< Container of the nodes belonging to the body
 
+    std::string m_mesh_visu;
+    std::vector<double> m_mesh_offset;
+
     std::unique_ptr<FrDOFMask> m_DOFMask;
 
    public:
@@ -878,6 +881,14 @@ namespace frydom {
     /// Get the DOF Mask (degree of Freedom) for easily constraining the body motions, relatively to the world
     /// \return DOF mask
     FrDOFMask *GetDOFMask();
+
+    // =============================================================================================================
+    // VISUALIZATION
+    // =============================================================================================================
+
+    void SetMeshVisu(const std::string& filepath, const std::vector<double>& offset);
+
+    void SetCastorParameters();
 
    protected:
 

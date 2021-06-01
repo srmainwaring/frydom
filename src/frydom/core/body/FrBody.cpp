@@ -223,6 +223,7 @@ namespace frydom {
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
       m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
+      m_mesh_visu(""), m_mesh_offset(),
       m_DOFMask(std::make_unique<FrDOFMask>()) {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
@@ -320,6 +321,8 @@ namespace frydom {
     if (m_DOFMask->HasLockedDOF()) {
       InitializeLockedDOF();
     }
+
+    SetCastorParameters();
 
   }
 
@@ -1145,6 +1148,25 @@ namespace frydom {
 
   FrDOFMask *FrBody::GetDOFMask() {
     return m_DOFMask.get();
+  }
+
+  void FrBody::SetMeshVisu(const std::string& filename, const std::vector<double>& offset) {
+    m_mesh_visu = filename;
+    m_mesh_offset = offset;
+  }
+
+  void FrBody::SetCastorParameters() {
+
+    if (m_mesh_visu.size() > 0) {
+
+      json j;
+
+      j["mesh_filename"] = m_mesh_visu;
+      j["offset"] = m_mesh_offset;
+
+      GetSystem()->GetLogManager()->GetCastorParameters().Add(GetName(), j);
+    }
+
   }
 
   void FrBody::DefineLogMessages() {
