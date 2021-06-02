@@ -745,15 +745,24 @@ namespace frydom {
     SetRotation(worldFrame.GetQuaternion());
   }
 
-  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) {
+  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) const {
     FrFrame pointFrame;
     pointFrame.SetPosition(GetPointPositionInWorld(bodyPoint, fc), fc);
     pointFrame.SetRotation(GetQuaternion());
     return pointFrame;
   }
 
-  FrFrame FrBody::GetFrameAtCOG(FRAME_CONVENTION fc) {
-    return GetFrameAtPoint(GetCOG(fc), fc);
+  FrFrame FrBody::GetFrameAtCOG() const {
+    return GetFrameAtPoint(GetCOG(NWU), NWU);
+  }
+
+  FrFrame FrBody::GetHeadingFrame() const {
+    FrFrame headingFrame;
+    headingFrame.SetPosition(GetCOGPositionInWorld(NWU), NWU);
+    double phi, theta, psi;
+    GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+    headingFrame.SetRotZ_RADIANS(psi, NWU);
+    return headingFrame;
   }
 
   Position FrBody::GetPointPositionInWorld(const Position &bodyPos, FRAME_CONVENTION fc) const {
@@ -891,6 +900,10 @@ namespace frydom {
 
   Velocity FrBody::GetCOGVelocityInBody(FRAME_CONVENTION fc) const {
     return ProjectVectorInBody<Velocity>(GetCOGLinearVelocityInWorld(fc), fc);
+  }
+
+  Velocity FrBody::GetVelocityInHeadingFrame(FRAME_CONVENTION fc) const {
+    return GetHeadingFrame().ProjectVectorParentInFrame(GetCOGLinearVelocityInWorld(fc), fc);
   }
 
   void FrBody::SetAccelerationInWorldNoRotation(const Acceleration &worldAcc, FRAME_CONVENTION fc) {

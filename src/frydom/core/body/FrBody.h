@@ -413,12 +413,15 @@ namespace frydom {
     /// \param bodyPoint origin of the frame to return
     /// \param fc frame convention (NED/NWU)
     /// \return body frame
-    FrFrame GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc);
+    FrFrame GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) const;
 
     /// Get a frame object whose origin is locate at COG and orientation is that of the body reference frame
-    /// \param fc frame convention (NED/NWU)
     /// \return body frame
-    FrFrame GetFrameAtCOG(FRAME_CONVENTION fc);
+    FrFrame GetFrameAtCOG() const;
+
+    /// Get a frame object whose origin is locate at COG and orientation is that of the heading reference frame
+    /// \return body frame
+    FrFrame GetHeadingFrame() const;
 
 
     /// Get the position in world frame of a body fixed point whose position is given in body reference frame
@@ -606,6 +609,8 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return COG velocity in body reference frame
     Velocity GetCOGVelocityInBody(FRAME_CONVENTION fc) const;
+
+    Velocity GetVelocityInHeadingFrame(FRAME_CONVENTION fc) const;
 
     /// Set the acceleration of the body COG with a vector expressed in WORLD frame
     /// \param worldAcc body acceleration in world reference frame

@@ -15,6 +15,7 @@ add_subdirectory(environment)
 add_subdirectory(hydrodynamics)
 add_subdirectory(io)
 add_subdirectory(mesh)
+add_subdirectory(propulsion)
 add_subdirectory(utils)
 
 target_sources(frydom PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/version.cpp")

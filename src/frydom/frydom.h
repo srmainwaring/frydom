@@ -30,6 +30,7 @@
 #include "utils/FrUtilsInc.h"
 #include "asset/FrAssetInc.h"
 #include "collision/FrCollisionModel.h"
+#include "propulsion/FrPropulsionInc.h"
 
 //#include <H5Cpp.h>
 

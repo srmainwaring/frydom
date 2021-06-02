@@ -40,6 +40,7 @@ set(UNIT_TESTS
         #test_FrLinearHydrostaticForce
         test_FrHeightVaryingField
         test_static_friction
+        test_FrRudderForce
         )
 
 foreach (test ${UNIT_TESTS})

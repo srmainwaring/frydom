@@ -63,4 +63,16 @@ namespace frydom {
     return vect;
   }
 
+  const Direction UP(FRAME_CONVENTION fc) {
+    auto vect = mathutils::Vector3d<double>(0, 0, 1);
+    if (IsNED(fc)) { internal::SwapFrameConvention(vect); }
+    return vect;
+  }
+
+  const Direction DOWN(FRAME_CONVENTION fc) {
+    auto vect = mathutils::Vector3d<double>(0, 0, -1);
+    if (IsNED(fc)) { internal::SwapFrameConvention(vect); }
+    return vect;
+  }
+
 } // end namespace frydom

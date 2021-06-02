@@ -86,7 +86,7 @@ void TestInertia::SetUp() {
 
   system.Initialize();
 
-  body->GetFrameAtCOG(NWU);
+  body->GetFrameAtCOG();
 
 }
 

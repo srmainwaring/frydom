@@ -151,7 +151,7 @@ namespace frydom {
 
     auto body = GetBody();
 
-    FrFrame FrameAtCOG = body->GetFrameAtCOG(NWU);
+    FrFrame FrameAtCOG = body->GetFrameAtCOG();
     Velocity VelocityInWorldAtCOG = body->GetCOGLinearVelocityInWorld(NWU);
 
     m_fluxVelocityInBody =
@@ -174,7 +174,7 @@ namespace frydom {
 
     auto body = GetBody();
 
-    FrFrame FrameAtCOG = body->GetFrameAtCOG(NWU);
+    FrFrame FrameAtCOG = body->GetFrameAtCOG();
     Velocity VelocityInWorldAtCOG = body->GetCOGLinearVelocityInWorld(NWU);
 
     m_fluxVelocityInBody =
