@@ -16,6 +16,7 @@ int main() {
 
   auto rudderFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx022/flap_rudder.json"});
   auto force = std::make_shared<FrFlapRudderForce>("flapRudderForce", body.get(), rudderFile, node);
+  body->AddExternalForce(force);
 
   system.Initialize();
 

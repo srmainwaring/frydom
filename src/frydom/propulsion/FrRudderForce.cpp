@@ -48,7 +48,7 @@ namespace frydom {
   }
   void FrRudderForce::Initialize() {
     FrForce::Initialize();
-    ReadCoefficientsFile(c_fileCoefficients);
+    ReadCoefficientsFile();
 //    c_fluidDensity = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
   }
 
@@ -201,10 +201,6 @@ namespace frydom {
       kappa = 1.0;
     }
     return kappa;
-  }
-
-  void FrRudderForce::ReadCoefficientsFile(const std::string &filename) {
-
   }
 
   mathutils::Vector3d<double> FrRudderForce::GetCoefficients(double attackAngle) const {

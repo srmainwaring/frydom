@@ -22,15 +22,15 @@ namespace frydom {
             m_coefficients.Eval("torque", attackAngle, GetFlapAngle())};
   }
 
-  void FrFlapRudderForce::ReadCoefficientsFile(const std::string &filename) {
-    // This function reads the flow polar coefficients from a Json input file.
+  void FrFlapRudderForce::ReadCoefficientsFile() {
+    // This function reads the rudder polar coefficients from a Json input file.
 
     std::vector<double> flap_angle, attack_angle;
     std::vector<std::vector<double>> Cd, Cl, Cm;
 
 
     // Loader.
-    std::ifstream ifs(filename);
+    std::ifstream ifs(c_fileCoefficients);
     json j = json::parse(ifs);
 
     auto node = j["rudder"];

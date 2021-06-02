@@ -11,7 +11,7 @@
 
 namespace frydom {
 
-  class FrPropulsionForce;
+  class FrPropellerForce;
 
 //  class FrFoilForce : public FrForce {
 //
@@ -61,8 +61,6 @@ namespace frydom {
 
     double GetProjectedLateralArea() const;
 
-    virtual void ReadCoefficientsFile(const std::string& filename);
-
     virtual mathutils::Vector3d<double> GetCoefficients(double attackAngle) const;
 
     void SetRudderAngle(double angle);
@@ -101,6 +99,8 @@ namespace frydom {
 
     /// This subroutine initializes the object FrForce.
     void Initialize() override;
+
+    virtual void ReadCoefficientsFile() = 0;
 
     virtual GeneralizedForce ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const;
 

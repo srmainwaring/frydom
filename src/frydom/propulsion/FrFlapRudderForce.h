@@ -19,7 +19,7 @@ class FrFlapRudderForce : public FrRudderForce {
 
   virtual double GetFlapAngle() const;
 
-  void ReadCoefficientsFile(const std::string& filename) override;
+  void ReadCoefficientsFile() override;
 
   mathutils::Vector3d<double> GetCoefficients(double attackAngle) const override;
 
