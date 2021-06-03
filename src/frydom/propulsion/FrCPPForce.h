@@ -14,8 +14,6 @@ namespace frydom {
 
    public:
 
-    enum SCREW_DIRECTION {LEFT_HANDED, RIGHT_HANDED};
-
     FrCPPForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
                const std::string &fileCoefficients);
 
@@ -25,14 +23,10 @@ namespace frydom {
     void SetPitchRatio(double PD);
     double GetPitchRatio() const;
 
-    void SetScrewDirection(SCREW_DIRECTION dir);
-
-    signed int GetScrewDirectionSign() const;
-
     double Ct(double gamma, double PD) const;
     double Cq(double gamma, double PD) const;
 
-    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
+//    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
 
    private:
 

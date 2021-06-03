@@ -166,23 +166,4 @@ namespace frydom {
     return atan2(uPA, GetScrewDirectionSign() * vp);
   }
 
-  void FrCPPForce::SetScrewDirection(FrCPPForce::SCREW_DIRECTION dir) {
-    m_screwDirection = dir;
-  }
-
-  signed int FrCPPForce::GetScrewDirectionSign() const {
-    signed int result = 0;
-    switch (m_screwDirection) {
-      case LEFT_HANDED: {
-        result = -1;
-        break;
-      }
-      case RIGHT_HANDED: {
-        result = 1;
-        break;
-      }
-    }
-    return result;
-  }
-
 }// end namespace frydom

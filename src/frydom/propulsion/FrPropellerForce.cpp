@@ -11,7 +11,7 @@ namespace frydom {
   FrPropellerForce::FrPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody) :
       FrForce(name, "FrPropulsionName", body), m_positionInBody(propellerPositionInBody),
       m_shipLOA(0.), m_thrust_deduction_factor(0.), m_K1(4), m_wake_fraction0(0.), m_correction_factor(1.),
-      m_longitudinal_velocity(0.), m_diameter(1.0), m_rotational_velocity(0.) {
+      m_longitudinal_velocity(0.), m_diameter(1.0), m_rotational_velocity(0.), m_screwDirection(RIGHT_HANDED) {
 
   }
 
@@ -95,6 +95,25 @@ namespace frydom {
 
   void FrPropellerForce::SetRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit) {
     m_rotational_velocity = convert_frequency(omega, unit, RADS);
+  }
+
+  void FrPropellerForce::SetScrewDirection(SCREW_DIRECTION dir) {
+    m_screwDirection = dir;
+  }
+
+  signed int FrPropellerForce::GetScrewDirectionSign() const {
+    signed int result = 0;
+    switch (m_screwDirection) {
+      case LEFT_HANDED: {
+        result = -1;
+        break;
+      }
+      case RIGHT_HANDED: {
+        result = 1;
+        break;
+      }
+    }
+    return result;
   }
 
   void FrPropellerForce::Initialize() {

@@ -13,6 +13,8 @@ namespace frydom {
 
    public:
 
+    enum SCREW_DIRECTION {LEFT_HANDED, RIGHT_HANDED};
+
     FrPropellerForce(const std::string& name, FrBody *body, Position propellerPositionInBody);
 
     void SetDiameter(double D);;
@@ -45,6 +47,10 @@ namespace frydom {
 
     double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
 
+    void SetScrewDirection(SCREW_DIRECTION dir);
+
+    signed int GetScrewDirectionSign() const;
+
    protected:
 
     void Compute(double time) override;
@@ -61,6 +67,7 @@ namespace frydom {
     Position m_positionInBody;
     double m_diameter;
     double m_rotational_velocity;
+    SCREW_DIRECTION m_screwDirection;
 
     // Hull/propeller interaction coefficients
     double m_shipLOA;
