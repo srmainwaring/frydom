@@ -12,7 +12,7 @@ namespace frydom {
   FrFirstQuadrantPropellerForce::FrFirstQuadrantPropellerForce(const std::string &name, FrBody *body,
                                                                Position propellerPositionInBody,
                                                                const std::string &fileCoefficients) : FrPropellerForce(
-      name, body, propellerPositionInBody) {
+      name, body, propellerPositionInBody), c_fileCoefficients(fileCoefficients) {
 
   }
 

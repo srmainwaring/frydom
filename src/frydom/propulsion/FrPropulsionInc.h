@@ -6,6 +6,7 @@
 #define FRYDOM_FRPROPULSIONINC_H
 
 #include "FrPropellerForce.h"
+#include "FrFirstQuadrantPropellerForce.h"
 #include "FrCPPForce.h"
 #include "FrRudderForce.h"
 #include "FrFlapRudderForce.h"
