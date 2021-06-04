@@ -39,8 +39,8 @@ namespace frydom {
 //  }
 //
 
-  FrRudderForce::FrRudderForce(const std::string &name, FrBody *body,
-                               const std::string &fileCoefficients, const std::shared_ptr<FrNode> &node)
+  FrRudderForce::FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
+                               const std::string &fileCoefficients)
       : FrForce(name, "FrRudderForce", body), m_rudderAngle(0.), m_rudderNode(node), m_projectedLateralArea(1),
       m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false),
       m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
@@ -135,12 +135,12 @@ namespace frydom {
 
   void FrRudderForce::Compute(double time) {
 
-    auto foilRelativeVelocityInWorld = GetInflowVelocityInWorld();
+    auto inflowRelativeVelocityInWorld = GetInflowVelocityInWorld();
 
-    auto foilGeneralizedForceInWorld = ComputeGeneralizedForceInWorld(foilRelativeVelocityInWorld);
+    auto rudderGeneralizedForceInWorld = ComputeGeneralizedForceInWorld(inflowRelativeVelocityInWorld);
 
-    SetForceTorqueInWorldAtPointInBody(foilGeneralizedForceInWorld.GetForce(),
-                                       foilGeneralizedForceInWorld.GetTorque(),
+    SetForceTorqueInWorldAtPointInBody(rudderGeneralizedForceInWorld.GetForce(),
+                                       rudderGeneralizedForceInWorld.GetTorque(),
                                        GetPositionInBody(), NWU);
 
   }
@@ -148,27 +148,27 @@ namespace frydom {
   GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const {
     GeneralizedForce rudderForce;
     rudderForce.SetNull();
+    Velocity rudderRelativeVelocity = -inflowVelocity;
 
     if (not inflowVelocity.isZero(1E-3)) {
 
-      auto attackAngle = GetAttackAngle(inflowVelocity);
+      auto attackAngle = GetAttackAngle(rudderRelativeVelocity);
+      attackAngle = mathutils::Normalize_0_2PI(attackAngle);
 
       // projection of the rudder velocity in the body COG reference frame
-      auto rudderVelocityInBody = GetBody()->ProjectVectorInBody(inflowVelocity, NWU);
+      auto rudderVelocityInBody = GetBody()->ProjectVectorInBody(rudderRelativeVelocity, NWU);
       // vertical component in the body reference frame should not be considered
       rudderVelocityInBody.GetVz() = 0.;
       auto squaredNormVelocity = rudderVelocityInBody.norm();
       squaredNormVelocity *= squaredNormVelocity;
 
-      auto coefficients = GetCoefficients(attackAngle);
-
       auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
-      auto drag = 0.5 * density * coefficients[0] * m_projectedLateralArea * squaredNormVelocity;
-      auto lift = 0.5 * density * coefficients[1] * m_projectedLateralArea * squaredNormVelocity;
-      auto torque = 0.5 * density * coefficients[2] * m_projectedLateralArea * squaredNormVelocity;
+      auto drag = 0.5 * density * GetDragCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      auto lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      auto torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
 
-      auto inflowFrame = GetInflowFrame(inflowVelocity);
+      auto inflowFrame = GetInflowFrame(rudderRelativeVelocity);
 
       rudderForce.SetForce(inflowFrame.ProjectVectorFrameInParent(Force(drag, lift, 0.), NWU));
       rudderForce.SetTorque(inflowFrame.ProjectVectorFrameInParent(Torque(0., 0., torque), NWU));
@@ -203,8 +203,177 @@ namespace frydom {
     return kappa;
   }
 
-  mathutils::Vector3d<double> FrRudderForce::GetCoefficients(double attackAngle) const {
-    return m_coefficients.Eval("coefficients", attackAngle);
+  double FrRudderForce::GetLiftCoefficient(double attackAngle) const {
+    return m_coefficients.Eval("lift", attackAngle);
+  }
+
+  double FrRudderForce::GetDragCoefficient(double attackAngle) const {
+    return m_coefficients.Eval("drag", attackAngle);
+  }
+
+  double FrRudderForce::GetTorqueCoefficient(double attackAngle) const {
+    return m_coefficients.Eval("torque", attackAngle);
+  }
+
+  void FrRudderForce::ReadCoefficientsFile() {
+  // This function reads the rudder rudderCoeff coefficients from a Json input file.
+
+    std::vector<double> attack_angle, Cd, Cl, Cn;
+    FRAME_CONVENTION fc;
+    DIRECTION_CONVENTION dc;
+
+    // Loader.
+    std::ifstream ifs(c_fileCoefficients);
+    json j = json::parse(ifs);
+
+    auto node = j["rudder"];
+
+    try {
+      m_name = node["name"].get<json::string_t>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", GetName(), "no name in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_reference = node["reference"].get<json::string_t>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", GetName(), "no reference in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_projectedLateralArea = node["data"]["area_m2"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", GetName(), "no area in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      fc = STRING2FRAME(node["load_coefficients"]["frame_convention"].get<json::string_t>());
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", "", "no frame_convention in load_coefficients");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      dc = STRING2DIRECTION(node["load_coefficients"]["direction_convention"].get<json::string_t>());
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", "", "no direction_convention in load_coefficients");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      attack_angle = node["load_coefficients"]["flow_incidence_on_main_rudder_deg"].get<std::vector<double>>();
+      for (auto &angle:attack_angle) {
+        angle *= DEG2RAD;
+      }
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", "", "no flow_incidence_on_main_rudder_deg in load_coefficients");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      Cd = node["load_coefficients"]["Cd"].get<std::vector<double>>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", "", "no Cd in load_coefficients");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      Cl = node["load_coefficients"]["Cl"].get<std::vector<double>>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", "", "no Cl in load_coefficients");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      Cn = node["load_coefficients"]["Cn"].get<std::vector<double>>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrRudderForce", "", "no Cn in load_coefficients");
+      exit(EXIT_FAILURE);
+    }
+
+    assert(attack_angle.size() == Cd.size());
+    assert(attack_angle.size() == Cl.size());
+    assert(attack_angle.size() == Cn.size());
+    std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
+    
+    for (int i=0; i<attack_angle.size(); i++){
+      rudderCoeff.emplace_back(attack_angle[i], mathutils::Vector3d<double>(Cd[i], Cl[i], Cn[i]));
+    }
+
+    std::pair<double, mathutils::Vector3d<double>> new_element;
+    // Complete if symmetry
+    auto max_angle = rudderCoeff.back().first;
+    auto min_angle = rudderCoeff[0].first;
+
+    if (std::abs(min_angle) < 10e-2 and std::abs(max_angle - MU_PI) < 10e-2) {
+      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
+        new_element.first = 2. * MU_PI - rudderCoeff[i].first;
+        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
+        rudderCoeff.push_back(new_element);
+      }
+    } else if (std::abs(min_angle + MU_PI) < 10e-2 and std::abs(max_angle) < 10e-2) {
+      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
+        new_element.first = -rudderCoeff[i].first;
+        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
+        rudderCoeff.push_back(new_element);
+      }
+    }
+
+    // Delete double term
+    if (std::abs(rudderCoeff[0].first) < 10e-2 and std::abs(rudderCoeff.back().first - 2. * MU_PI) < 10e-2
+                                             or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
+        std::abs(rudderCoeff.back().first - MU_PI) < 10e-2) {
+      rudderCoeff.pop_back();
+    }
+
+    // Conversion to NWU if NED convention is used
+    if (fc == NED) {
+      for (auto & it : rudderCoeff) {
+        it.first = -it.first;
+        it.second = {it.second[0], -it.second[1], -it.second[2]};
+      }
+    }
+
+    // Conversion to COMEFROM if GOTO convention is used
+    if (dc == GOTO) {
+      for (auto & it : rudderCoeff) { it.first += MU_PI; }
+    }
+
+    // Normalized angle in [0, 2pi]
+    for (auto & it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
+
+    // Sort element according to increasing angles
+    std::sort(rudderCoeff.begin(), rudderCoeff.end(), [](auto const &a, auto const &b) {
+      return a.first < b.first;
+    });
+
+    // Adding last term for angle equal to 2pi
+    new_element.first = 2. * MU_PI;
+    new_element.second = rudderCoeff.begin()->second;
+    rudderCoeff.push_back(new_element);
+
+    // Complete lookup table
+    attack_angle.clear();
+    Cl.clear();
+    Cd.clear();
+    Cn.clear();
+
+    for (auto & it : rudderCoeff) {
+      attack_angle.push_back(it.first);
+      Cd.push_back(it.second[0]);
+      Cl.push_back(it.second[1]);
+      Cn.push_back(it.second[2]);
+    }
+
+    m_coefficients.SetX(attack_angle);
+    m_coefficients.AddY("drag", Cd);
+    m_coefficients.AddY("lift", Cl);
+    m_coefficients.AddY("torque", Cn);
+
+
   }
 
 } // end namespace frydom

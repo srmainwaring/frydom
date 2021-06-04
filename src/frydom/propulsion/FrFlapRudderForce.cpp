@@ -9,17 +9,24 @@
 namespace frydom {
 
   FrFlapRudderForce::FrFlapRudderForce(const std::string &name, frydom::FrBody *body,
-                                               const std::string &fileCoefficients, const std::shared_ptr<FrNode> &node)
-      : FrRudderForce(name, body, fileCoefficients, node), m_flapLaw(1.) {}
+                                       const std::shared_ptr<FrNode> &node,
+                                       const std::string &fileCoefficients)
+      : FrRudderForce(name, body, node, fileCoefficients), m_flapLaw(1.) {}
 
   double FrFlapRudderForce::GetFlapAngle() const {
     return m_flapLaw * m_rudderAngle;
   }
 
-  mathutils::Vector3d<double> FrFlapRudderForce::GetCoefficients(double attackAngle) const {
-    return {m_coefficients.Eval("drag", attackAngle, GetFlapAngle()),
-            m_coefficients.Eval("lift", attackAngle, GetFlapAngle()),
-            m_coefficients.Eval("torque", attackAngle, GetFlapAngle())};
+  double FrFlapRudderForce::GetLiftCoefficient(double attackAngle) const {
+    return m_coefficients.Eval("lift", attackAngle, GetFlapAngle());
+  }
+
+  double FrFlapRudderForce::GetDragCoefficient(double attackAngle) const {
+    return m_coefficients.Eval("drag", attackAngle, GetFlapAngle());
+  }
+
+  double FrFlapRudderForce::GetTorqueCoefficient(double attackAngle) const {
+    return m_coefficients.Eval("torque", attackAngle, GetFlapAngle());
   }
 
   void FrFlapRudderForce::ReadCoefficientsFile() {
@@ -109,7 +116,7 @@ namespace frydom {
     }
 
     try {
-      Cm = node["load_coefficients"]["Cm"].get<std::vector<std::vector<double>>>();
+      Cm = node["load_coefficients"]["Cn"].get<std::vector<std::vector<double>>>();
       Eigen::MatrixXd mat(flap_angle.size(), attack_angle.size());
       for (int i = 0; i < flap_angle.size(); i++)
         mat.row(i) = Eigen::VectorXd::Map(&Cm[i][0], Cm[i].size());
@@ -117,9 +124,13 @@ namespace frydom {
       std::vector<double> coeff = {mat.data(), mat.data() + mat.rows() * mat.cols()};
       m_coefficients.AddData("torque", coeff);
     } catch (json::parse_error &err) {
-      event_logger::error("FrFlapRudderForce", "", "no Cm in load_coefficients");
+      event_logger::error("FrFlapRudderForce", "", "no Cn in load_coefficients");
       exit(EXIT_FAILURE);
     }
+
+    //TODO : gerer les changements de conventions NWU/NED et GOT/COMEFROM,
+    //             les conventions d'angles ([pi,pi] ou [0, 2pi]
+    //             les symetries, etc.
 
   }
 

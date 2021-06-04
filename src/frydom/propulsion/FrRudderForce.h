@@ -54,14 +54,17 @@ namespace frydom {
 
    public:
 
-    FrRudderForce(const std::string& name, FrBody* body, const std::string& fileCoefficients,
-                  const std::shared_ptr<FrNode>& node);
+    FrRudderForce(const std::string& name, FrBody* body, const std::shared_ptr<FrNode>& node, const std::string& fileCoefficients);
 
     void SetProjectedLateralArea(double area);
 
     double GetProjectedLateralArea() const;
 
-    virtual mathutils::Vector3d<double> GetCoefficients(double attackAngle) const;
+    virtual double GetLiftCoefficient(double attackAngle) const;
+
+    virtual double GetDragCoefficient(double attackAngle) const;
+
+    virtual double GetTorqueCoefficient(double attackAngle) const;
 
     void SetRudderAngle(double angle);
 
@@ -100,9 +103,12 @@ namespace frydom {
     /// This subroutine initializes the object FrForce.
     void Initialize() override;
 
-    virtual void ReadCoefficientsFile() = 0;
+    virtual void ReadCoefficientsFile();
 
     virtual GeneralizedForce ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const;
+
+    std::string m_name;
+    std::string m_reference;
 
     double m_wakeFraction0;
     double m_K1;
@@ -116,7 +122,7 @@ namespace frydom {
     double m_rudderAngle;
     double m_projectedLateralArea;
 
-    mathutils::LookupTable1D<double, mathutils::Vector3d<double>> m_coefficients;
+    mathutils::LookupTable1D<double, double> m_coefficients;
 
     std::shared_ptr<FrNode> m_rudderNode;
 

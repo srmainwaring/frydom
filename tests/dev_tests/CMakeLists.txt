@@ -23,8 +23,7 @@ set(REFACTORING_TESTS
         bench_FEACable_moored
         bench_FEACable_FOWT_moored
         test_log_hdf5
-        test_FrFlapRudderForce
-        test_FrCPPForce
+        test_propulsion
         )
 
 foreach (test ${REFACTORING_TESTS})
