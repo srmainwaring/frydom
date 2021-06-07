@@ -42,11 +42,6 @@ namespace frydom {
     return m_Cm;
   }
 
-  void FrSutuloManoeuvringForce::SetManoeuvringCoefficients(std::vector<double> cy, std::vector<double> cn) {
-    m_cy = std::move(cy);
-    m_cn = std::move(cn);
-  }
-
   void FrSutuloManoeuvringForce::Compute(double time) {
 
     auto rho = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
@@ -64,27 +59,26 @@ namespace frydom {
     auto Xsecond = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cosBeta * std::abs(cosBeta) * (1. - r * r);
     Xsecond -= 2 * m_Cm * m_A22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sinBeta * r * sqrt(1 - r * r);
 
-    auto Ysecond = m_cy[0] * r;
-    Ysecond += m_cy[1] * sinBeta * sin(MU_PI * r) * signR;
-    Ysecond += m_cy[2] * sinBeta * cos(MU_PI_2 * r);
-    Ysecond += m_cy[3] * sin(2. * beta) * cos(MU_PI_2 * r);
-    Ysecond += m_cy[4] * cosBeta * sin(MU_PI * r);
-    Ysecond += m_cy[5] * cos(2. * beta) * sin(MU_PI * r);
-    Ysecond += m_cy[6] * cosBeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
-    Ysecond += m_cy[7] * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * r) * mathutils::sgn(beta);
-    Ysecond += m_cy[8] * sin(3. * beta) * cos(MU_PI_2 * r);
+    auto Ysecond = m_cy0 * r;
+    Ysecond += m_cy1 * sinBeta * sin(MU_PI * r) * signR;
+    Ysecond += m_cy2 * sinBeta * cos(MU_PI_2 * r);
+    Ysecond += m_cy3 * sin(2. * beta) * cos(MU_PI_2 * r);
+    Ysecond += m_cy4 * cosBeta * sin(MU_PI * r);
+    Ysecond += m_cy5 * cos(2. * beta) * sin(MU_PI * r);
+    Ysecond += m_cy6 * cosBeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
+    Ysecond += m_cy7 * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * r) * mathutils::sgn(beta);
+    Ysecond += m_cy8 * sin(3. * beta) * cos(MU_PI_2 * r);
 
-    auto Nsecond = m_cn[0] * r;
-    Nsecond += m_cn[1] * sin(2. * beta) * cos(MU_PI_2 * r);
-    Nsecond += m_cn[2] * sinBeta * cos(MU_PI_2 * r);
-    Nsecond += m_cn[3] * cos(2. * beta) * sin(MU_PI * r);
-    Nsecond += m_cn[4] * cosBeta * sin(MU_PI * r);
-    Nsecond += m_cn[5] * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * r);
-    Nsecond += m_cn[6] * cosBeta * (cosBeta - cos(3. * beta)) * signR;
-    Nsecond += m_cn[7] * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
-    Nsecond += m_cn[8] * sinBeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
-    Nsecond += m_cn[9] * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
-
+    auto Nsecond = m_cn0 * r;
+    Nsecond += m_cn1 * sin(2. * beta) * cos(MU_PI_2 * r);
+    Nsecond += m_cn2 * sinBeta * cos(MU_PI_2 * r);
+    Nsecond += m_cn3 * cos(2. * beta) * sin(MU_PI * r);
+    Nsecond += m_cn4 * cosBeta * sin(MU_PI * r);
+    Nsecond += m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * r);
+    Nsecond += m_cn6 * cosBeta * (cosBeta - cos(3. * beta)) * signR;
+    Nsecond += m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
+    Nsecond += m_cn8 * sinBeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
+    Nsecond += m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
     auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * r * r) * m_shipLength * m_shipDraft;
 
     auto headingFrame = GetBody()->GetHeadingFrame();
@@ -189,16 +183,135 @@ namespace frydom {
     }
 
     try {
-      m_cy = node["coefficients"]["cy"].get<std::vector<double>>();
+      m_cy0 = node["coefficients"]["cy0"].get<double>();
     } catch (json::parse_error &err) {
       event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy in json file");
       exit(EXIT_FAILURE);
     }
 
     try {
-      m_cn = node["coefficients"]["cn"].get<std::vector<double>>();
+      m_cy1 = node["coefficients"]["cy1"].get<double>();
     } catch (json::parse_error &err) {
-      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy in json file");
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy1 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy2 = node["coefficients"]["cy2"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy2 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy3 = node["coefficients"]["cy3"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy3 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy4 = node["coefficients"]["cy4"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy4 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy5 = node["coefficients"]["cy5"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy5 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy6 = node["coefficients"]["cy6"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy6 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy7 = node["coefficients"]["cy7"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy7 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cy8 = node["coefficients"]["cy8"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cy8 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn0 = node["coefficients"]["cn0"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn0 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn1 = node["coefficients"]["cn1"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn1 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn2 = node["coefficients"]["cn2"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn2 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn3 = node["coefficients"]["cn3"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn3 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn4 = node["coefficients"]["cn4"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn4 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn5 = node["coefficients"]["cn5"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn5 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn6 = node["coefficients"]["cn6"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn6 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn7 = node["coefficients"]["cn7"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn7 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn8 = node["coefficients"]["cn8"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn8 in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
+      m_cn9 = node["coefficients"]["cn9"].get<double>();
+    } catch (json::parse_error &err) {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no cn9 in json file");
       exit(EXIT_FAILURE);
     }
 
