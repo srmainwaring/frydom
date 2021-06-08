@@ -31,9 +31,6 @@ namespace frydom {
 
     std::string c_fileCoefficients;
 
-    std::string m_name;
-    std::string m_reference;
-
     mathutils::LookupTable1D<double> m_coefficients;
 
   };

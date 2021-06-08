@@ -64,6 +64,9 @@ namespace frydom {
 
     double GetWakeFraction(double sidewashAngle) const;
 
+    std::string m_name;
+    std::string m_reference;
+
     Position m_positionInBody;
     double m_diameter;
     double m_rotational_velocity;

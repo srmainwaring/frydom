@@ -5,44 +5,32 @@
 #ifndef FRYDOM_FRCPPFORCE_H
 #define FRYDOM_FRCPPFORCE_H
 
-#include "FrPropellerForce.h"
+#include "frydom/propulsion/FrFourQuadrantPropellerForce.h"
 #include "MathUtils/LookupTable2D.h"
 
 namespace frydom {
 
-  class FrCPPForce : public FrPropellerForce {
+  class FrCPPForce : public FrFourQuadrantPropellerForce {
 
    public:
 
     FrCPPForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
                const std::string &fileCoefficients);
 
-
-    GeneralizedForce ComputeGeneralizedForceInWorld() override;
-
     void SetPitchRatio(double PD);
     double GetPitchRatio() const;
 
-    double Ct(double gamma, double PD) const;
-    double Cq(double gamma, double PD) const;
+    double Ct(double gamma) const override;
+    double Cq(double gamma) const override;
 
 //    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
 
    private:
 
-    void ReadCoefficientsFile() override;
-
-    double ComputeAdvanceAngle();
-
-
-    std::string c_fileCoefficients;
-
-    std::string m_name;
-    std::string m_reference;
+    void ReadPropellerTable(const json& node) override;
 
     mathutils::LookupTable2d<double> m_coefficients;
     double m_pitchRatio;
-    SCREW_DIRECTION m_screwDirection;
 
   };
 

@@ -9,57 +9,32 @@
 namespace frydom {
 
   FrCPPForce::FrCPPForce(const std::string &name, frydom::FrBody *body, frydom::Position propellerPositionInBody,
-                         const std::string& fileCoefficients) : FrPropellerForce(name, body, propellerPositionInBody),
-                                                                c_fileCoefficients(fileCoefficients),
-                                                                m_screwDirection(RIGHT_HANDED){
+                         const std::string& fileCoefficients) :
+                         FrFourQuadrantPropellerForce(name, body, propellerPositionInBody, fileCoefficients) {
 
   }
 
-  void FrCPPForce::ReadCoefficientsFile() {
-    // This function reads the rudder polar coefficients from a Json input file.
+  double FrCPPForce::Ct(double beta) const {
+    return m_coefficients.Eval("Ct", beta, GetPitchRatio());
+  }
+
+  double FrCPPForce::Cq(double beta) const {
+    return m_coefficients.Eval("Cq", beta, GetPitchRatio());
+  }
+
+  void FrCPPForce::SetPitchRatio(double PD) {
+    m_pitchRatio = PD;
+  }
+
+  double FrCPPForce::GetPitchRatio() const {
+    return m_pitchRatio;
+  }
+
+  void frydom::FrCPPForce::ReadPropellerTable(const json &node) {
 
     std::vector<double> advanceAngle, PD;
     std::vector<std::vector<double>> Ct, Cq;
     int screwDirectionSign;
-
-
-    // Loader.
-    std::ifstream ifs(c_fileCoefficients);
-    json j = json::parse(ifs);
-
-    auto node = j["propeller"];
-
-    try {
-      m_name = node["name"].get<json::string_t>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrCPPForce", GetName(), "no name in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_reference = node["reference"].get<json::string_t>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrCPPForce", GetName(), "no reference in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      auto type = node["type"].get<json::string_t>();
-      if (type != "CPP") {
-        event_logger::error("FrCPPForce", GetName(), "file given is not a CPP propeller file coefficients");
-        exit(EXIT_FAILURE);
-      }
-    } catch (json::parse_error &err) {
-      event_logger::error("FrCPPForce", GetName(), "no reference in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_diameter = node["data"]["diameter_m"].get<double>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrCPPForce", GetName(), "no diameter in json file");
-      exit(EXIT_FAILURE);
-    }
 
     try {
       auto screwDirection = node["open_water_table"]["screw_direction"].get<std::string>();
@@ -121,49 +96,6 @@ namespace frydom {
       event_logger::error("FrCPPForce", "", "no Cq in open_water_table");
       exit(EXIT_FAILURE);
     }
-  }
-
-  GeneralizedForce FrCPPForce::ComputeGeneralizedForceInWorld() {
-
-    auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
-
-    auto uPA = ComputeLongitudinalVelocity();
-    auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
-    auto advanceAngle = atan2(uPA, GetScrewDirectionSign() * vp);
-
-    auto squaredVelocity = uPA*uPA + vp*vp;
-
-    auto T = 0.25 * density * Ct(advanceAngle, GetPitchRatio()) * squaredVelocity * MU_PI * GetDiameter();
-    auto Q = 0.25 * density * Cq(advanceAngle, GetPitchRatio()) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter();
-
-    auto force = GetBody()->ProjectVectorInWorld(Force(T, 0., 0.), NWU);
-    auto torque = GetBody()->ProjectVectorInWorld(Force(Q, 0., 0.), NWU);
-
-    return {force, torque};
-
-  }
-
-  double FrCPPForce::Ct(double beta, double PD) const {
-    return m_coefficients.Eval("Ct", beta, PD);
-  }
-
-  double FrCPPForce::Cq(double beta, double PD) const {
-    return m_coefficients.Eval("Cq", beta, PD);
-  }
-
-  void FrCPPForce::SetPitchRatio(double PD) {
-    m_pitchRatio = PD;
-  }
-
-  double FrCPPForce::GetPitchRatio() const {
-    return m_pitchRatio;
-  }
-
-  double FrCPPForce::ComputeAdvanceAngle() {
-    auto uPA = GetLongitudinalVelocity();
-    auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
-
-    return atan2(uPA, GetScrewDirectionSign() * vp);
   }
 
 }// end namespace frydom
