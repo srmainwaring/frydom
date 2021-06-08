@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   // -- Steady State Checker
 
   auto checker = FrSteadyStateChecker(20, 0.1, 10.);
-  checker.AddField<double>([body]() { return body->GetVelocityInBody(NWU).GetVx(); }, 0.01);
+  checker.AddField<double>([body]() { return body->GetVelocityInBody(NWU).GetVx(); }, 0.001);
 
   // -- Simulation
 
@@ -57,6 +57,8 @@ int main(int argc, char* argv[]) {
     time += dt;
     system.AdvanceTo(time);
     std::cout << "time = " << time << " seconds" << std::endl;
+
+    checker.Record(time); // TODO : a passer dans FrOffshoreSystem ?!
 
   }
   return 0;
