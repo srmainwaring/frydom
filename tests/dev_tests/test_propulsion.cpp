@@ -20,7 +20,7 @@ int main() {
 //  body->AddExternalForce(force);
 
   auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx022/propeller_FPP_template.json"});
-  auto fpp = std::make_shared<FrFirstQuadrantPropellerForce>("FPP", body.get(), Position(), file);
+  auto fpp = std::make_shared<FrFirstQuadrantPropellerForce>("FPP", body.get(), Position(), file, NWU);
   body->AddExternalForce(fpp);
 
   file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx022/rudder.json"});

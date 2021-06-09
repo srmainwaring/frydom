@@ -27,14 +27,17 @@ namespace frydom {
     FrPropellerRudder(const std::string &name, FrBody *body);
 
     FrFirstQuadrantPropellerForce *
-    Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename);
+    Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename,
+                               FRAME_CONVENTION fc);
 
     FrFourQuadrantPropellerForce *
-    Add_FourQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename);
+    Add_FourQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename,
+                              FRAME_CONVENTION fc);
 
     FrCPPForce *
     Add_ControllablePitchPropeller(const std::string &name, Position propellerPositionInBody,
-                                   const std::string &filename);
+                                   const std::string &filename,
+                                   FRAME_CONVENTION fc);
 
     FrRudderForce *
     Add_Rudder(const std::string &name, const std::shared_ptr<FrNode> &node, const std::string &filename);

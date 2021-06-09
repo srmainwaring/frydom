@@ -59,7 +59,7 @@ namespace frydom {
 
     virtual void ReadCoefficientsFile() = 0;
 
-    double ComputeLongitudinalVelocity();
+    double ComputeLongitudinalVelocity() const;
 
     double GetWakeFraction(double sidewashAngle) const;
 

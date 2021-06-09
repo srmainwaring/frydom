@@ -41,7 +41,7 @@ namespace frydom {
   }
 
   double FrFirstQuadrantPropellerForce::ComputeAdvanceRatio() {
-    return 60. * GetLongitudinalVelocity() / (GetRotationalVelocity(RPM) * GetDiameter());
+    return 60. * ComputeLongitudinalVelocity() / (GetRotationalVelocity(RPM) * GetDiameter());
   }
 
   void FrFirstQuadrantPropellerForce::ReadCoefficientsFile() {

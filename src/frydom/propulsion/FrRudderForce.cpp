@@ -394,7 +394,7 @@ namespace frydom {
   }
 
   std::shared_ptr<FrRudderForce>
-  frydom::make_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
+  make_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                             const std::string &fileCoefficients) {
     auto force = std::make_shared<FrRudderForce>(name, body, node, fileCoefficients);
     body->AddExternalForce(force);

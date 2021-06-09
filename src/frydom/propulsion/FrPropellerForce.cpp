@@ -26,7 +26,7 @@ namespace frydom {
   }
 
 
-  double FrPropellerForce::ComputeLongitudinalVelocity() {
+  double FrPropellerForce::ComputeLongitudinalVelocity() const {
     auto body = GetBody();
     auto environment = body->GetSystem()->GetEnvironment();
     auto propellerVelocityInWorld = body->GetVelocityInWorldAtPointInBody(GetPositionInBody(), NWU);
@@ -34,9 +34,7 @@ namespace frydom {
                                                                              NWU);
     auto propellerRelativeVelocityInBody = body->ProjectVectorInBody(propellerRelativeVelocity, NWU);
     auto sidewashAngle = propellerRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
-    m_longitudinal_velocity =
-        m_correction_factor * propellerRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
-    return m_longitudinal_velocity;
+    return m_correction_factor * propellerRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
   }
 
   double FrPropellerForce::GetWakeFraction(double sidewashAngle) const {
@@ -73,10 +71,6 @@ namespace frydom {
 
   double FrPropellerForce::GetCorrectionFactor() const {
     return m_correction_factor;
-  }
-
-  double FrPropellerForce::GetLongitudinalVelocity() const {
-    return m_longitudinal_velocity;
   }
 
   void FrPropellerForce::Compute(double time) {

@@ -55,7 +55,8 @@ namespace frydom {
 
    public:
 
-    FrRudderForce(const std::string& name, FrBody* body, const std::shared_ptr<FrNode>& node, const std::string& fileCoefficients);
+    FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
+                  const std::string &fileCoefficients);
 
     void SetProjectedLateralArea(double area);
 
@@ -101,7 +102,7 @@ namespace frydom {
 
     double ComputeSpecialSidewashAngle() const;
 
-    void ActivateHullRudderInteraction(bool interaction) { is_hullRudderInteraction = interaction;}
+    void ActivateHullRudderInteraction(bool interaction) { is_hullRudderInteraction = interaction; }
 
    protected:
 
@@ -143,7 +144,9 @@ namespace frydom {
 
   };
 
-  std::shared_ptr<FrRudderForce> make_rudder_force(const std::string& name, FrBody* body, const std::shared_ptr<FrNode>& node, const std::string& fileCoefficients);
+  std::shared_ptr<FrRudderForce>
+  make_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
+                    const std::string &fileCoefficients);
 
 } // end namespace frydom
 #endif //FRYDOM_FRRUDDERFORCE_H

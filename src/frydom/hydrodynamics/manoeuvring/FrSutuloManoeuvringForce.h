@@ -125,8 +125,8 @@ namespace frydom {
     std::string c_filepath; ///< path to the JSON file containing the manoeuvring data
 
     mathutils::Interp1dLinear<double, double> m_hullResistance;
-    double m_cy0, m_cy1, m_cy2, m_cy3, m_cy4, m_cy5, m_cy6, m_cy7, m_cy8;
-    double m_cn0, m_cn1, m_cn2, m_cn3, m_cn4, m_cn5, m_cn6, m_cn7, m_cn8, m_cn9;
+    double m_cy0{}, m_cy1{}, m_cy2{}, m_cy3{}, m_cy4{}, m_cy5{}, m_cy6{}, m_cy7{}, m_cy8{};
+    double m_cn0{}, m_cn1{}, m_cn2{}, m_cn3{}, m_cn4{}, m_cn5{}, m_cn6{}, m_cn7{}, m_cn8{}, m_cn9{};
 
 //    std::vector<double> m_cy;
 //    std::vector<double> m_cn;

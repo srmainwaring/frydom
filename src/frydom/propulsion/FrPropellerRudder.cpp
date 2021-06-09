@@ -14,25 +14,28 @@ namespace frydom {
 
   FrFirstQuadrantPropellerForce *
   FrPropellerRudder::Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody,
-                                                const std::string &filename) {
+                                                const std::string &filename,
+                                                FRAME_CONVENTION fc) {
     m_propellerForce = std::make_shared<FrFirstQuadrantPropellerForce>(name, GetBody(), propellerPositionInBody,
-                                                                       filename);
+                                                                       filename, fc);
     return dynamic_cast<FrFirstQuadrantPropellerForce *>(m_propellerForce.get());
   }
 
   FrFourQuadrantPropellerForce *
   FrPropellerRudder::Add_FourQuadrantPropeller(const std::string &name, Position propellerPositionInBody,
-                                               const std::string &filename) {
+                                               const std::string &filename,
+                                               FRAME_CONVENTION fc) {
     m_propellerForce = std::make_shared<FrFourQuadrantPropellerForce>(name, GetBody(), propellerPositionInBody,
-                                                                      filename);
+                                                                      filename, fc);
     return dynamic_cast<FrFourQuadrantPropellerForce *>(m_propellerForce.get());
   }
 
   FrCPPForce *
   FrPropellerRudder::Add_ControllablePitchPropeller(const std::string &name, Position propellerPositionInBody,
-                                                    const std::string &filename) {
+                                                    const std::string &filename,
+                                                    FRAME_CONVENTION fc) {
     m_propellerForce = std::make_shared<FrCPPForce>(name, GetBody(), propellerPositionInBody,
-                                                    filename);
+                                                    filename, fc);
     return dynamic_cast<FrCPPForce *>(m_propellerForce.get());
   }
 
@@ -73,7 +76,7 @@ namespace frydom {
     SetForceTorqueInWorldAtPointInBody(propellerForce.GetForce(), propellerForce.GetTorque(),
                                        m_propellerForce->GetPositionInBody(), NWU);
     auto T = GetBody()->ProjectVectorInBody(propellerForce.GetForce(), NWU).GetFx();
-    auto u_PA = m_propellerForce->GetLongitudinalVelocity();
+    auto u_PA = m_propellerForce->ComputeLongitudinalVelocity();
     auto propellerLoading = 2 * std::abs(T) / (rho * u_PA * u_PA * A0);
 
     // Propeller/rudder interactions
@@ -103,8 +106,10 @@ namespace frydom {
 
     auto propellerTorqueAtRudder = GetTorqueInWorldAtPointInBody(m_rudderForce->GetPositionInBody(), NWU);
 
-    auto totalTorqueAtRudder = propellerTorqueAtRudder + kd * insideSlipstreamRudderForce.GetTorque() + outsideSlipstreamRudderForce.GetTorque();
-    auto totalForce = propellerForce.GetForce() + kd*insideSlipstreamRudderForce.GetForce() + outsideSlipstreamRudderForce.GetForce();
+    auto totalTorqueAtRudder = propellerTorqueAtRudder + kd * insideSlipstreamRudderForce.GetTorque() +
+                               outsideSlipstreamRudderForce.GetTorque();
+    auto totalForce = propellerForce.GetForce() + kd * insideSlipstreamRudderForce.GetForce() +
+                      outsideSlipstreamRudderForce.GetForce();
 
     SetForceTorqueInWorldAtPointInBody(totalForce, totalTorqueAtRudder, m_rudderForce->GetPositionInBody(), NWU);
 

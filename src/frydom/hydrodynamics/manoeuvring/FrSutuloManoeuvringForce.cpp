@@ -11,8 +11,10 @@ namespace frydom {
 
   FrSutuloManoeuvringForce::FrSutuloManoeuvringForce(const std::string &name, frydom::FrBody *body,
                                                      const std::string &file)
-      : FrForce(name, "FrManoeuvringForce", body), c_filepath(file), m_Cm(0.625), m_A22(0.), m_shipDraft(0.),
-        m_shipLength(0.) {
+      : FrForce(name, "FrManoeuvringForce", body),
+        c_filepath(file), m_Cm(0.625), m_A22(0.), m_shipDraft(0.), m_shipLength(0.),
+        m_cy0(0.), m_cy1(0.), m_cy2(0.), m_cy3(0.), m_cy4(0.), m_cy5(0.), m_cy6(0.), m_cy7(0.), m_cy8(0.),
+        m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.) {
 
   }
 
@@ -83,8 +85,8 @@ namespace frydom {
 
     auto headingFrame = GetBody()->GetHeadingFrame();
 
-    Force bareHullForceInHeadingFrame(Xsecond, Ysecond, 0.);
-    auto bareHullForceInWorld = headingFrame.ProjectVectorFrameInParent(bareHullForceInHeadingFrame * mul, NWU);
+    Force bareHullForceInHeadingFrame(Xsecond * mul, Ysecond * mul, 0.);
+    auto bareHullForceInWorld = headingFrame.ProjectVectorFrameInParent(bareHullForceInHeadingFrame, NWU);
 
     auto bareHullTorqueInWorld = headingFrame.ProjectVectorFrameInParent(Torque(0., 0., Nsecond * mul), NWU);
 
@@ -128,8 +130,11 @@ namespace frydom {
     auto node = j["hull_resistance"];
 
     try {
-      u = std::make_shared<std::vector<double>>(
-          convert_velocity_unit(node["vessel_speed_kt"].get<std::vector<double>>(), KNOT, MS));
+      u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
+      for (auto &vel: *u) convert_velocity_unit(vel, KNOT, MS);
+//      u = std::make_shared<std::vector<double>>(
+//          convert_velocity_unit(node["vessel_speed_kt"].get<std::vector<double>>(), KNOT, MS));
+
     } catch (json::parse_error &err) {
       event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt in json file");
       exit(EXIT_FAILURE);
