@@ -82,12 +82,12 @@ namespace frydom {
       exit(EXIT_FAILURE);
     }
 
-    try {
-      m_diameter = node["data"]["diameter_m"].get<double>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrFirstQuadrantPropellerForce", GetName(), "no diameter in json file");
-      exit(EXIT_FAILURE);
-    }
+//    try {
+//      m_diameter = node["data"]["diameter_m"].get<double>();
+//    } catch (json::parse_error &err) {
+//      event_logger::error("FrFirstQuadrantPropellerForce", GetName(), "no diameter in json file");
+//      exit(EXIT_FAILURE);
+//    }
 
     try {
       auto screwDirection = node["open_water_table"]["screw_direction"].get<std::string>();

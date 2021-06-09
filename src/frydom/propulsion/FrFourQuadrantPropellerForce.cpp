@@ -124,7 +124,7 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
     Ct = node["open_water_table"]["ct"].get<std::vector<double>>();
     m_coefficients.AddY("Ct", Ct);
   } catch (json::parse_error &err) {
-    event_logger::error("FrCPPForce", "", "no Ct in open_water_table");
+    event_logger::error("FrCPPForce", "", "no ct in open_water_table");
     exit(EXIT_FAILURE);
   }
 
@@ -132,7 +132,7 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
     Cq = node["open_water_table"]["cq"].get<std::vector<double>>();
     m_coefficients.AddY("Cq", Cq);
   } catch (json::parse_error &err) {
-    event_logger::error("FrCPPForce", "", "no Cq in open_water_table");
+    event_logger::error("FrCPPForce", "", "no cq in open_water_table");
     exit(EXIT_FAILURE);
   }
 }

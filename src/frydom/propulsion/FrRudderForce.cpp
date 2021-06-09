@@ -260,9 +260,9 @@ namespace frydom {
     }
 
     try {
-      m_projectedLateralArea = node["data"]["area_m2"].get<double>();
+      m_rootChord = node["data"]["root_chord_m"].get<double>();
     } catch (json::parse_error &err) {
-      event_logger::error("FrRudderForce", GetName(), "no area in json file");
+      event_logger::error("FrRudderForce", GetName(), "no root_chord_m in json file");
       exit(EXIT_FAILURE);
     }
 
