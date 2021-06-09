@@ -257,7 +257,7 @@ class HDB5reader():
 
         # Only triangle meshes are considered in Helios but Meshmagick only considered quandrangular meshes.
         # The last column is duplicated.
-        if (pyHDB.solver == "Helios" or faces.shape[1] == 3):
+        if (faces.shape[1] == 3):
             faces = np.insert(faces, -1, faces[:, 2], axis=1)
 
         # Meshmagick mesh.
