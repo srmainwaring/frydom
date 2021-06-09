@@ -18,21 +18,27 @@ namespace frydom {
                const std::string &fileCoefficients);
 
     void SetPitchRatio(double PD);
+
     double GetPitchRatio() const;
 
     double Ct(double gamma) const override;
+
     double Cq(double gamma) const override;
 
 //    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
 
    private:
 
-    void ReadPropellerTable(const json& node) override;
+    void ReadPropellerTable(const json &node) override;
 
     mathutils::LookupTable2d<double> m_coefficients;
     double m_pitchRatio;
 
   };
+
+  std::shared_ptr<FrCPPForce>
+  make_controllable_pitch_propeller(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                                    const std::string &fileCoefficients);
 
 } // end namespace frydom
 

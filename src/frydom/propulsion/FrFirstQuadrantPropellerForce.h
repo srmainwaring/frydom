@@ -17,15 +17,15 @@ namespace frydom {
     FrFirstQuadrantPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
                                   const std::string &fileCoefficients);
 
-
-    GeneralizedForce ComputeGeneralizedForceInWorld() override;
-
     virtual double kt(double J) const;
+
     virtual double kq(double J) const;
 
     double ComputeAdvanceRatio();
 
    protected:
+
+    GeneralizedForce ComputeGeneralizedForceInWorld() override;
 
     void ReadCoefficientsFile() override;
 
@@ -34,6 +34,10 @@ namespace frydom {
     mathutils::LookupTable1D<double> m_coefficients;
 
   };
+
+  std::shared_ptr<FrFirstQuadrantPropellerForce>
+  make_first_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                                      const std::string &fileCoefficients);
 } // end namespace frydom
 
 #endif //FRYDOM_FRFIRSTQUADRANTPROPELLERFORCE_H

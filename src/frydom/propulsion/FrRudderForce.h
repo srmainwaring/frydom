@@ -8,6 +8,7 @@
 #include <frydom/core/common/FrNode.h>
 #include "frydom/core/force/FrForce.h"
 #include "MathUtils/Interp1d.h"
+#include "frydom/propulsion/FrPropellerRudder.h"
 
 namespace frydom {
 
@@ -60,6 +61,14 @@ namespace frydom {
 
     double GetProjectedLateralArea() const;
 
+    void SetHeight(double h);
+
+    double GetHeight() const;
+
+    void SetRootChord(double br);
+
+    double GetRootChord() const;
+
     virtual double GetLiftCoefficient(double attackAngle) const;
 
     virtual double GetDragCoefficient(double attackAngle) const;
@@ -92,9 +101,7 @@ namespace frydom {
 
     double ComputeSpecialSidewashAngle() const;
 
-    void ActivateHullRudderInteraction() { is_hullRudderInteraction = true;}
-
-    void DeactivateHullRudderInteraction() { is_hullRudderInteraction = false;}
+    void ActivateHullRudderInteraction(bool interaction) { is_hullRudderInteraction = interaction;}
 
    protected:
 
@@ -121,6 +128,8 @@ namespace frydom {
 
     double m_rudderAngle;
     double m_projectedLateralArea;
+    double m_height;
+    double m_rootChord;
 
     mathutils::LookupTable1D<double, double> m_coefficients;
 
@@ -130,7 +139,11 @@ namespace frydom {
 
     std::string c_fileCoefficients;
 
+    friend class FrPropellerRudder;
+
   };
+
+  std::shared_ptr<FrRudderForce> make_rudder_force(const std::string& name, FrBody* body, const std::shared_ptr<FrNode>& node, const std::string& fileCoefficients);
 
 } // end namespace frydom
 #endif //FRYDOM_FRRUDDERFORCE_H

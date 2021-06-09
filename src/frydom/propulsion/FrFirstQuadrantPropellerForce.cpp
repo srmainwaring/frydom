@@ -132,4 +132,11 @@ namespace frydom {
 
   }
 
+  std::shared_ptr<FrFirstQuadrantPropellerForce>
+  make_first_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                                      const std::string &fileCoefficients) {
+    auto force = std::make_shared<FrFirstQuadrantPropellerForce>(name, body, propellerPositionInBody, fileCoefficients);
+    body->AddExternalForce(force);
+    return force;
+  }
 }// end namespace frydom

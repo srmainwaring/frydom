@@ -9,6 +9,8 @@
 #include "MathUtils/LookupTable1D.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/logging/FrEventLogger.h"
+#include "FrPropellerRudder.h"
+
 
 namespace frydom {
 
@@ -17,20 +19,21 @@ namespace frydom {
    public:
 
     FrFourQuadrantPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
-               const std::string &fileCoefficients);
-
-    GeneralizedForce ComputeGeneralizedForceInWorld() override;
+                                 const std::string &fileCoefficients);
 
     virtual double Ct(double gamma) const;
+
     virtual double Cq(double gamma) const;
 
 //    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
 
    private:
 
+    GeneralizedForce ComputeGeneralizedForceInWorld() override;
+
     void ReadCoefficientsFile() override;
 
-    virtual void ReadPropellerTable(const json& node);
+    virtual void ReadPropellerTable(const json &node);
 
     double ComputeAdvanceAngle();
 
@@ -39,6 +42,10 @@ namespace frydom {
     mathutils::LookupTable1D<double> m_coefficients;
 
   };
+
+  std::shared_ptr<FrFourQuadrantPropellerForce>
+  make_four_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                                     const std::string &fileCoefficients);
 
 }// end namespace frydom
 #endif //FRYDOM_FRFOURQUADRANTPROPELLERFORCE_H

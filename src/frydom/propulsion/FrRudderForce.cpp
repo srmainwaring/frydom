@@ -42,10 +42,11 @@ namespace frydom {
   FrRudderForce::FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                                const std::string &fileCoefficients)
       : FrForce(name, "FrRudderForce", body), m_rudderAngle(0.), m_rudderNode(node), m_projectedLateralArea(1),
-      m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false),
-      m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
-      c_fileCoefficients(fileCoefficients) {
+        m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.),
+        m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
+        c_fileCoefficients(fileCoefficients) {
   }
+
   void FrRudderForce::Initialize() {
     FrForce::Initialize();
     ReadCoefficientsFile();
@@ -58,6 +59,22 @@ namespace frydom {
 
   double FrRudderForce::GetProjectedLateralArea() const {
     return m_projectedLateralArea;
+  }
+
+  void FrRudderForce::SetHeight(double h) {
+    m_height = h;
+  }
+
+  double FrRudderForce::GetHeight() const {
+    return m_height;
+  }
+
+  void FrRudderForce::SetRootChord(double br) {
+    m_rootChord = br;
+  }
+
+  double FrRudderForce::GetRootChord() const {
+    return m_rootChord;
   }
 
   Velocity FrRudderForce::GetInflowVelocityInWorld() const {
@@ -183,7 +200,7 @@ namespace frydom {
     auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
     auto x_r = GetPositionInBody().GetX();
 
-    vesselVelocity.GetVy() += + m_k * r * x_r;
+    vesselVelocity.GetVy() += +m_k * r * x_r;
 
     return vesselVelocity.GetProjectedAngleAroundZ(RAD);
   }
@@ -194,10 +211,10 @@ namespace frydom {
     if (beta < m_beta1) {
       kappa = std::min(m_K2, m_K3 * beta);
     } else if (beta <= m_beta2 and beta >= m_beta1) {
-      auto bv = 0.5/(m_beta2 - m_beta1);
-      auto av = 0.5 - bv*m_beta1;
-      kappa = av + bv*beta;
-    }else {
+      auto bv = 0.5 / (m_beta2 - m_beta1);
+      auto av = 0.5 - bv * m_beta1;
+      kappa = av + bv * beta;
+    } else {
       kappa = 1.0;
     }
     return kappa;
@@ -216,7 +233,7 @@ namespace frydom {
   }
 
   void FrRudderForce::ReadCoefficientsFile() {
-  // This function reads the rudder rudderCoeff coefficients from a Json input file.
+    // This function reads the rudder rudderCoeff coefficients from a Json input file.
 
     std::vector<double> attack_angle, Cd, Cl, Cn;
     FRAME_CONVENTION fc;
@@ -298,8 +315,8 @@ namespace frydom {
     assert(attack_angle.size() == Cl.size());
     assert(attack_angle.size() == Cn.size());
     std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
-    
-    for (int i=0; i<attack_angle.size(); i++){
+
+    for (int i = 0; i < attack_angle.size(); i++) {
       rudderCoeff.emplace_back(attack_angle[i], mathutils::Vector3d<double>(Cd[i], Cl[i], Cn[i]));
     }
 
@@ -324,14 +341,14 @@ namespace frydom {
 
     // Delete double term
     if (std::abs(rudderCoeff[0].first) < 10e-2 and std::abs(rudderCoeff.back().first - 2. * MU_PI) < 10e-2
-                                             or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
+                                                   or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
         std::abs(rudderCoeff.back().first - MU_PI) < 10e-2) {
       rudderCoeff.pop_back();
     }
 
     // Conversion to NWU if NED convention is used
     if (fc == NED) {
-      for (auto & it : rudderCoeff) {
+      for (auto &it : rudderCoeff) {
         it.first = -it.first;
         it.second = {it.second[0], -it.second[1], -it.second[2]};
       }
@@ -339,11 +356,11 @@ namespace frydom {
 
     // Conversion to COMEFROM if GOTO convention is used
     if (dc == GOTO) {
-      for (auto & it : rudderCoeff) { it.first += MU_PI; }
+      for (auto &it : rudderCoeff) { it.first += MU_PI; }
     }
 
     // Normalized angle in [0, 2pi]
-    for (auto & it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
+    for (auto &it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
 
     // Sort element according to increasing angles
     std::sort(rudderCoeff.begin(), rudderCoeff.end(), [](auto const &a, auto const &b) {
@@ -361,7 +378,7 @@ namespace frydom {
     Cd.clear();
     Cn.clear();
 
-    for (auto & it : rudderCoeff) {
+    for (auto &it : rudderCoeff) {
       attack_angle.push_back(it.first);
       Cd.push_back(it.second[0]);
       Cl.push_back(it.second[1]);
@@ -374,6 +391,14 @@ namespace frydom {
     m_coefficients.AddY("torque", Cn);
 
 
+  }
+
+  std::shared_ptr<FrRudderForce>
+  frydom::make_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
+                            const std::string &fileCoefficients) {
+    auto force = std::make_shared<FrRudderForce>(name, body, node, fileCoefficients);
+    body->AddExternalForce(force);
+    return force;
   }
 
 } // end namespace frydom

@@ -6,6 +6,9 @@
 #define FRYDOM_FRPROPELLERFORCE_H
 
 #include "frydom/core/force/FrForce.h"
+#include "frydom/propulsion/FrPropellerRudder.h"
+#include "FrRudderForce.h"
+
 
 namespace frydom {
 
@@ -41,8 +44,6 @@ namespace frydom {
 
     Position GetPositionInBody() const;
 
-    virtual GeneralizedForce ComputeGeneralizedForceInWorld() = 0;
-
     void SetRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
 
     double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
@@ -64,6 +65,8 @@ namespace frydom {
 
     double GetWakeFraction(double sidewashAngle) const;
 
+    virtual GeneralizedForce ComputeGeneralizedForceInWorld() = 0;
+
     std::string m_name;
     std::string m_reference;
 
@@ -81,6 +84,8 @@ namespace frydom {
 
     double m_longitudinal_velocity;
 //    double m_transversal_velocity;
+
+    friend class FrPropellerRudder;
   };
 
 } // end namespace frydom

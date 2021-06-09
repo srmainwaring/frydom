@@ -98,4 +98,11 @@ namespace frydom {
     }
   }
 
+  std::shared_ptr<FrCPPForce>
+  make_controllable_pitch_propeller(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                                    const std::string &fileCoefficients) {
+    auto force = std::make_shared<FrCPPForce>(name, body, propellerPositionInBody, fileCoefficients);
+    body->AddExternalForce(force);
+    return force;
+  }
 }// end namespace frydom
