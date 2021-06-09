@@ -5,6 +5,7 @@
 #include "FrSutuloManoeuvringForce.h"
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/environment/FrEnvironment.h"
+#include "frydom/utils/FrFileSystem.h"
 
 namespace frydom {
 
@@ -58,7 +59,9 @@ namespace frydom {
     auto sinBeta = sin(beta);
     auto signR = mathutils::sgn(r);
 
-    auto Xsecond = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cosBeta * std::abs(cosBeta) * (1. - r * r);
+    auto Xsecond = 0.;
+    if (u>DBL_EPSILON)
+      Xsecond = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cosBeta * std::abs(cosBeta) * (1. - r * r);
     Xsecond -= 2 * m_Cm * m_A22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sinBeta * r * sqrt(1 - r * r);
 
     auto Ysecond = m_cy0 * r;
@@ -102,7 +105,9 @@ namespace frydom {
     auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
     double u = shipVelocityInHeadingFrame.GetVx();
     double v = shipVelocityInHeadingFrame.GetVy();
-    auto beta = std::asin(v / sqrt(u * u + v * v));
+    auto beta = 0.;
+    if (std::abs(v)>DBL_EPSILON)
+       beta = std::asin(v / sqrt(u * u + v * v));
     if (u >= 0.)
       beta *= -1;
     else if (u < 0)
@@ -115,8 +120,10 @@ namespace frydom {
     auto u = shipVelocityInHeadingFrame.GetVx();
     auto v = shipVelocityInHeadingFrame.GetVy();
     auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
-
-    return r * m_shipLength / sqrt(u * u + v * v + r * r * m_shipLength * m_shipLength);
+    double r_second = 0.;
+    if (std::abs(r)>DBL_EPSILON)
+      r_second = r * m_shipLength / sqrt(u * u + v * v + r * r * m_shipLength * m_shipLength);
+    return r_second;
   }
 
   void FrSutuloManoeuvringForce::LoadResistanceCurve(const std::string &filepath) {
@@ -124,30 +131,37 @@ namespace frydom {
     std::shared_ptr<std::vector<double>> u, Rh;
 
     // Loader.
-    std::ifstream ifs(filepath);
-    json j = json::parse(ifs);
-
-    auto node = j["hull_resistance"];
-
     try {
-      u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
-      for (auto &vel: *u) convert_velocity_unit(vel, KNOT, MS);
-//      u = std::make_shared<std::vector<double>>(
-//          convert_velocity_unit(node["vessel_speed_kt"].get<std::vector<double>>(), KNOT, MS));
+      std::ifstream ifs(filepath);
+      json j = json::parse(ifs);
+
+      auto node = j["hull_resistance"];
+
+      try {
+        u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
+        for (auto &vel: *u) convert_velocity_unit(vel, KNOT, MS);
+  //      u = std::make_shared<std::vector<double>>(
+  //          convert_velocity_unit(node["vessel_speed_kt"].get<std::vector<double>>(), KNOT, MS));
+
+      } catch (json::parse_error &err) {
+        event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt in json file");
+        exit(EXIT_FAILURE);
+      }
+
+      try {
+        Rh = std::make_shared<std::vector<double>>(node["Rh_N"].get<std::vector<double>>());
+      } catch (json::parse_error &err) {
+        event_logger::error("FrSutuloManoeuvringForce", GetName(), "no Rh_N in json file");
+        exit(EXIT_FAILURE);
+      }
+
+      m_hullResistance.Initialize(u, Rh);
 
     } catch (json::parse_error &err) {
-      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt in json file");
+      std::cout<<err.what()<<std::endl;
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "resistance curve file can't be parsed");
       exit(EXIT_FAILURE);
     }
-
-    try {
-      Rh = std::make_shared<std::vector<double>>(node["Rh_N"].get<std::vector<double>>());
-    } catch (json::parse_error &err) {
-      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no Rh_N in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    m_hullResistance.Initialize(u, Rh);
 
   }
 
@@ -322,9 +336,11 @@ namespace frydom {
 
     try {
       auto hull_resistance_filepath = node["hull_resistance_filepath"].get<json::string_t>();
-      LoadResistanceCurve(hull_resistance_filepath);
+      auto test_filepath = FrFileSystem::join({filepath, "..", hull_resistance_filepath});
+      std::cout<<test_filepath<<std::endl;
+      LoadResistanceCurve(test_filepath);
     } catch (json::parse_error &err) {
-      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no A22 in json file");
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "no hull_resistance_filepath in json file");
       exit(EXIT_FAILURE);
     }
 

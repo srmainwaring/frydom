@@ -30,7 +30,7 @@ namespace frydom {
     auto body = GetBody();
     auto environment = body->GetSystem()->GetEnvironment();
     auto propellerVelocityInWorld = body->GetVelocityInWorldAtPointInBody(GetPositionInBody(), NWU);
-    auto propellerRelativeVelocity = environment->GetRelativeVelocityInFrame(FrFrame(), propellerVelocityInWorld, WATER,
+    Velocity propellerRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(), propellerVelocityInWorld, WATER,
                                                                              NWU);
     auto propellerRelativeVelocityInBody = body->ProjectVectorInBody(propellerRelativeVelocity, NWU);
     auto sidewashAngle = propellerRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
