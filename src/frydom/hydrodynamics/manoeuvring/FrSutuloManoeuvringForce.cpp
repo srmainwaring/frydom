@@ -325,4 +325,10 @@ namespace frydom {
 
   }
 
+  std::shared_ptr<FrSutuloManoeuvringForce>
+  make_Sutulo_manoeuvring_model(const std::string &name, FrBody *body, const std::string &file) {
+    auto force = std::make_shared<FrSutuloManoeuvringForce>(name, body, file);
+    body->AddExternalForce(force);
+    return force;
+  }
 } // end namespace frydom
