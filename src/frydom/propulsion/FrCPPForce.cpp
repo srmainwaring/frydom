@@ -8,9 +8,9 @@
 
 namespace frydom {
 
-  FrCPPForce::FrCPPForce(const std::string &name, frydom::FrBody *body, frydom::Position propellerPositionInBody,
-                         const std::string& fileCoefficients) :
-                         FrFourQuadrantPropellerForce(name, body, propellerPositionInBody, fileCoefficients) {
+  FrCPPForce::FrCPPForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                         const std::string &fileCoefficients, FRAME_CONVENTION fc) :
+      FrFourQuadrantPropellerForce(name, body, propellerPositionInBody, fileCoefficients, fc) {
 
   }
 
@@ -100,8 +100,8 @@ namespace frydom {
 
   std::shared_ptr<FrCPPForce>
   make_controllable_pitch_propeller(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                    const std::string &fileCoefficients) {
-    auto force = std::make_shared<FrCPPForce>(name, body, propellerPositionInBody, fileCoefficients);
+                                    const std::string &fileCoefficients, FRAME_CONVENTION fc) {
+    auto force = std::make_shared<FrCPPForce>(name, body, propellerPositionInBody, fileCoefficients, fc);
     body->AddExternalForce(force);
     return force;
   }

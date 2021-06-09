@@ -47,7 +47,7 @@ GeneralizedForce testForce::ComputeGeneralizedForceInWorld() {
 }
 
 testForce::testForce(const std::string& name, FrBody *body, Position propellerPositionInBody) :
-FrPropellerForce(name, body, propellerPositionInBody) {
+    FrPropellerForce(name, body, propellerPositionInBody, NWU) {
 
 }
 

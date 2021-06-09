@@ -15,7 +15,7 @@ namespace frydom {
    public:
 
     FrCPPForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
-               const std::string &fileCoefficients);
+               const std::string &fileCoefficients, FRAME_CONVENTION fc);
 
     void SetPitchRatio(double PD);
 
@@ -38,7 +38,7 @@ namespace frydom {
 
   std::shared_ptr<FrCPPForce>
   make_controllable_pitch_propeller(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                    const std::string &fileCoefficients);
+                                    const std::string &fileCoefficients, FRAME_CONVENTION fc);
 
 } // end namespace frydom
 

@@ -19,7 +19,7 @@ namespace frydom {
    public:
 
     FrFourQuadrantPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                 const std::string &fileCoefficients);
+                                 const std::string &fileCoefficients, FRAME_CONVENTION fc);
 
     virtual double Ct(double gamma) const;
 
@@ -45,7 +45,7 @@ namespace frydom {
 
   std::shared_ptr<FrFourQuadrantPropellerForce>
   make_four_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                     const std::string &fileCoefficients);
+                                     const std::string &fileCoefficients, FRAME_CONVENTION fc);
 
 }// end namespace frydom
 #endif //FRYDOM_FRFOURQUADRANTPROPELLERFORCE_H

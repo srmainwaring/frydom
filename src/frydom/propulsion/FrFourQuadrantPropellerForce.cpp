@@ -6,10 +6,11 @@
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/logging/FrEventLogger.h"
 
-frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::string &name, frydom::FrBody *body,
-                                                                   frydom::Position propellerPositionInBody,
-                                                                   const std::string &fileCoefficients):
-                                                                   FrPropellerForce(name, body, propellerPositionInBody){
+frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::string &name, FrBody *body,
+                                                                   Position propellerPositionInBody,
+                                                                   const std::string &fileCoefficients,
+                                                                   FRAME_CONVENTION fc) :
+    FrPropellerForce(name, body, propellerPositionInBody, fc) {
 
 }
 
@@ -22,7 +23,7 @@ double frydom::FrFourQuadrantPropellerForce::Cq(double gamma) const {
 }
 
 double frydom::FrFourQuadrantPropellerForce::ComputeAdvanceAngle() {
-  auto uPA = GetLongitudinalVelocity();
+  auto uPA = ComputeLongitudinalVelocity();
   auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
 
   return atan2(uPA, GetScrewDirectionSign() * vp);
@@ -137,10 +138,9 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
 }
 
 std::shared_ptr<frydom::FrFourQuadrantPropellerForce>
-frydom::make_four_quadrant_propeller_force(const std::string &name, frydom::FrBody *body,
-                                           frydom::Position propellerPositionInBody,
-                                           const std::string &fileCoefficients) {
-  auto force = std::make_shared<FrFourQuadrantPropellerForce>(name, body, propellerPositionInBody, fileCoefficients);
+frydom::make_four_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
+                                           const std::string &fileCoefficients, FRAME_CONVENTION fc) {
+  auto force = std::make_shared<FrFourQuadrantPropellerForce>(name, body, propellerPositionInBody, fileCoefficients, fc);
   body->AddExternalForce(force);
   return force;
 }

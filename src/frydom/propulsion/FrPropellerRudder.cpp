@@ -98,6 +98,9 @@ namespace frydom {
     auto inflowPropellerSlipstream = GetBody()->ProjectVectorInBody(Velocity(-u_RP, -v_RP, 0.), NWU);
     auto insideSlipstreamRudderForce = m_rudderForce->ComputeGeneralizedForceInWorld(inflowPropellerSlipstream);
 
+    // Re-set of total rudder area
+    m_rudderForce->SetProjectedLateralArea(A_R);
+
     auto propellerTorqueAtRudder = GetTorqueInWorldAtPointInBody(m_rudderForce->GetPositionInBody(), NWU);
 
     auto totalTorqueAtRudder = propellerTorqueAtRudder + kd * insideSlipstreamRudderForce.GetTorque() + outsideSlipstreamRudderForce.GetTorque();
