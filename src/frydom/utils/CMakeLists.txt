@@ -3,6 +3,7 @@ message(STATUS "    ...utils")
 target_sources(frydom PRIVATE
         FrFileSystem.cpp
         FrConfig.cpp
+        FrSteadyStateChecker.cpp
         )
 
 if(FRYDOM_USE_IRRLICHT)

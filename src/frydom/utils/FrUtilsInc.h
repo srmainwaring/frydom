@@ -14,5 +14,6 @@
 #endif
 
 #include "FrRecorder.h"
+#include "FrSteadyStateChecker.h"
 
 #endif //FRYDOM_FRUTILSINC_H

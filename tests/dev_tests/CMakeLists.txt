@@ -24,6 +24,7 @@ set(REFACTORING_TESTS
         bench_FEACable_FOWT_moored
         test_log_hdf5
         test_propulsion
+        test_FrSteadyStateChecker
         )
 
 foreach (test ${REFACTORING_TESTS})
