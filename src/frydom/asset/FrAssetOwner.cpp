@@ -175,33 +175,36 @@ namespace frydom {
 
     std::shared_ptr<chrono::ChPhysicsItem> GetChronoPhysicsItemFromAsset(FrAssetOwner *assetOwner) {
 
+      std::shared_ptr<chrono::ChPhysicsItem> item;
+
       if (auto body = dynamic_cast<FrBody *>(assetOwner)) {
-        return internal::GetChronoBody(body);
+        item = internal::GetChronoBody(body);
       }
 
       // Links
 
       if (auto angular_actuator = dynamic_cast<FrAngularActuator *>(assetOwner)) {
-        return internal::GetChronoActuator(angular_actuator);
+        item = internal::GetChronoActuator(angular_actuator);
       }
 
       if (auto linear_actuator = dynamic_cast<FrLinearActuator *>(assetOwner)) {
-        return internal::GetChronoActuator(linear_actuator);
+        item = internal::GetChronoActuator(linear_actuator);
       }
 
       if (auto catenary_line_base = dynamic_cast<FrCatenaryLineBase *>(assetOwner)) {
         // FIXME: voir si on a besoin de differencier catenary line & hydro_mesh
-        return internal::GetChronoPhysicsItem(catenary_line_base);
+        item = internal::GetChronoPhysicsItem(catenary_line_base);
       }
 
 //      if (auto catenary_line = dynamic_cast<FrCatenaryLineBase *>(assetOwner)) {
-//        return internal::GetChronoPhysicsItem(catenary_line);
+//        item = internal::GetChronoPhysicsItem(catenary_line);
 //      }
 //
 //      if (auto hydro_mesh = dynamic_cast<FrHydroMesh *>(assetOwner)) {
-//        return internal::GetChronoPhysicsItem(hydro_mesh);
+//        item = internal::GetChronoPhysicsItem(hydro_mesh);
 //      }
 
+    return item;
 
     }
 

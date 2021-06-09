@@ -9,12 +9,11 @@ set(REFACTORING_TESTS
         test_spdlog
         test_MorisonExtended
         test_MorisonExtFreeMotion
-        test_lumped_mass_cable
+#        test_lumped_mass_cable
         test_chrono_spring_bodies
-        test_LM_element
         test_catenary_clump_weight
         test_catenary_seabed
-        test_pendulum_lumped_mass
+#        test_pendulum_lumped_mass
         test_bspline
         test_beam_IGA
         test_fea_cable
@@ -23,6 +22,8 @@ set(REFACTORING_TESTS
         test_vertical_fea_cable_in_waves
         bench_FEACable_moored
         bench_FEACable_FOWT_moored
+        test_log_hdf5
+        test_FrSteadyStateChecker
         )
 
 foreach (test ${REFACTORING_TESTS})
@@ -37,12 +38,3 @@ foreach (test ${REFACTORING_TESTS})
             )
 
 endforeach ()
-
-#set(subdirs
-#        # add here the test source subdirectories
-#        )
-#
-#foreach (subdir ${subdirs})
-#    add_subdirectory(${subdir})
-#endforeach ()
-

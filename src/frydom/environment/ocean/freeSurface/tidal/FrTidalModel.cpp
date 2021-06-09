@@ -136,7 +136,7 @@ namespace frydom {
     m_tidalFrame->GetPos().z() = waterHeight;
   }
 
-  const double FrTidal::GetHeight(FRAME_CONVENTION fc) const {
+  double FrTidal::GetHeight(FRAME_CONVENTION fc) const {
     double ZPos = m_tidalFrame->GetPos().z();
     if (IsNED(fc)) { ZPos = -ZPos; }
     return ZPos;

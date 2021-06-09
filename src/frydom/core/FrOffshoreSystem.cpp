@@ -36,7 +36,6 @@
 #include "frydom/cable/fea/FrFEALink.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
-#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/environment/FrEnvironment.h"
 
@@ -518,17 +517,17 @@ namespace frydom {
 
   }
 
-  void FrOffshoreSystem::AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node) {
-    m_chronoSystem->AddBody(lm_node->GetBody());
-  }
-
-  void FrOffshoreSystem::AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element) {
-    m_chronoSystem->AddLink(lm_element->GetLink());
-  }
-
-  void FrOffshoreSystem::AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable) {
-    // Nothing to do ??
-  }
+//  void FrOffshoreSystem::AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node) {
+//    m_chronoSystem->AddBody(lm_node->GetBody());
+//  }
+//
+//  void FrOffshoreSystem::AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element) {
+//    m_chronoSystem->AddLink(lm_element->GetLink());
+//  }
+//
+//  void FrOffshoreSystem::AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable) {
+//    // Nothing to do ??
+//  }
 
   void FrOffshoreSystem::MonitorRealTimePerfs(bool val) {
     m_monitor_real_time = val;
@@ -1506,17 +1505,17 @@ namespace frydom {
 ////      m_pathManager->RegisterTreeNode(fea_mesh.get());
 
       // LUMPED MASS NODE
-    } else if (auto lumped_mass_node = std::dynamic_pointer_cast<internal::FrLMNode>(item)) {
-      AddLumpedMassNode(lumped_mass_node);
-
-      // LUMPED MASS ELEMENT
-    } else if (auto lumped_mass_element = std::dynamic_pointer_cast<internal::FrLMElement>(item)) {
-      AddLumpedMassElement(lumped_mass_element);
-
-      // LUMPED MASS CABLE
-    } else if (auto lumped_mass_cable = std::dynamic_pointer_cast<FrLumpedMassCable>(item)) {
-      AddLumpedMassCable(lumped_mass_cable);
-      m_pathManager->RegisterTreeNode(lumped_mass_cable.get());
+//    } else if (auto lumped_mass_node = std::dynamic_pointer_cast<internal::FrLMNode>(item)) {
+//      AddLumpedMassNode(lumped_mass_node);
+//
+//      // LUMPED MASS ELEMENT
+//    } else if (auto lumped_mass_element = std::dynamic_pointer_cast<internal::FrLMElement>(item)) {
+//      AddLumpedMassElement(lumped_mass_element);
+//
+//      // LUMPED MASS CABLE
+//    } else if (auto lumped_mass_cable = std::dynamic_pointer_cast<FrLumpedMassCable>(item)) {
+//      AddLumpedMassCable(lumped_mass_cable);
+//      m_pathManager->RegisterTreeNode(lumped_mass_cable.get());
 
       // UNKNOWN
     } else {

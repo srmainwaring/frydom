@@ -566,11 +566,11 @@ namespace frydom {
       return bbox;
     }
 
-    const double FrMesh::GetArea(const FaceHandle &fh) const {
+    double FrMesh::GetArea(const FaceHandle &fh) const {
       return data(fh).GetSurfaceIntegral(POLY_1);
     }
 
-    const double FrMesh::GetMeshedSurfaceArea() {
+    double FrMesh::GetMeshedSurfaceArea() {
 
       double area = 0;
 
@@ -581,7 +581,7 @@ namespace frydom {
 
     }
 
-    const double FrMesh::GetArea() {
+    double FrMesh::GetArea() {
 
       double area = GetMeshedSurfaceArea();
 
@@ -593,7 +593,7 @@ namespace frydom {
 
     }
 
-    const double FrMesh::GetVolume() {
+    double FrMesh::GetVolume() {
 
       auto volume = GetMeshedSurfaceIntegral(2, POLY_Z);
 
@@ -619,7 +619,7 @@ namespace frydom {
       return volume;
     }
 
-    const FrInertiaTensor FrMesh::GetPlainInertiaTensor(double density) {
+    FrInertiaTensor FrMesh::GetPlainInertiaTensor(double density) {
 
       auto mass = density * GetVolume();
       auto COG = GetCOG();
@@ -757,7 +757,7 @@ namespace frydom {
 
     }
 
-    const FrInertiaTensor FrMesh::GetShellInertiaTensor(double density, double thickness) {
+    FrInertiaTensor FrMesh::GetShellInertiaTensor(double density, double thickness) {
 
       assert(GetBoundaryPolygonSet().empty());
 
@@ -773,7 +773,7 @@ namespace frydom {
 
     }
 
-    const Position FrMesh::GetCOG() {
+    Position FrMesh::GetCOG() {
 
       auto Sux2 = GetMeshedSurfaceIntegral(0, POLY_X2);
       auto Svy2 = GetMeshedSurfaceIntegral(1, POLY_Y2);

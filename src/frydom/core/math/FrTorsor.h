@@ -1,20 +1,27 @@
+// ==========================================================================
+// FRyDoM - frydom-ce.org
 //
-// Created by lletourn on 18/10/19.
+// Copyright (c) Ecole Centrale de Nantes (LHEEA lab.) and D-ICE Engineering.
+// All rights reserved.
 //
+// Use of this source code is governed by a GPLv3 license that can be found
+// in the LICENSE file of FRyDoM.
+//
+// ==========================================================================
 
-#ifndef FRYDOM_TORSOR_H
-#define FRYDOM_TORSOR_H
+#ifndef FRYDOM_FRTORSOR_H
+#define FRYDOM_FRTORSOR_H
 
 #include "FrVector.h"
 
 namespace frydom {
 
-  class Torsor {
+  class FrTorsor {
 
    public:
 
-    Torsor(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
-           const Position &point, FRAME_CONVENTION fc);
+    FrTorsor(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
+             const Position &point, FRAME_CONVENTION fc);
 
     Position GetPoint(FRAME_CONVENTION fc) const;
 
@@ -35,13 +42,13 @@ namespace frydom {
 
    private:
 
-    friend std::ostream &operator<<(std::ostream &os, const Torsor &torsor);
+    friend std::ostream &operator<<(std::ostream &os, const FrTorsor &torsor);
 
     std::ostream &cout(std::ostream &os) const;
   };
 
 
-  class GeneralizedForceTorsor : public Torsor {
+  class GeneralizedForceTorsor : public FrTorsor {
 
    public:
 
@@ -56,7 +63,7 @@ namespace frydom {
   };
 
 
-  class GeneralizedVelocityTorsor : public Torsor {
+  class GeneralizedVelocityTorsor : public FrTorsor {
 
    public:
 
@@ -74,4 +81,4 @@ namespace frydom {
 
 } //end namespace frydom
 
-#endif //FRYDOM_TORSOR_H
+#endif //FRYDOM_FRTORSOR_H
