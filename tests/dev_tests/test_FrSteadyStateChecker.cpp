@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
 
   auto checker = FrSteadyStateChecker(20, 0.1, 10.);
   checker.AddField<double>([body]() { return body->GetVelocityInBody(NWU).GetVx(); }, 0.001);
+  checker.AddField<double>([body]() { return body->GetVelocityInBody(NWU).GetVy(); }, 0.001);
 
   // -- Simulation
 
