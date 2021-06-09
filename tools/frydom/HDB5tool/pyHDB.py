@@ -120,6 +120,14 @@ class pyHDB(object):
         # Commit hash.
         self.commit_hash = None
 
+        # Expert numerical parameters.
+        self.has_expert_parameters = False
+        self.surface_integration_order = None
+        self.green_function = None
+        self.crmax = None
+        self.wave_reference_point_x = None
+        self.wave_reference_point_y = None
+
     def set_wave_frequencies(self):
         """Frequency array of BEM computations in rad/s.
 
@@ -722,6 +730,10 @@ class pyHDB(object):
             # Commit hash.
             if(self.commit_hash is not None):
                 self.write_commit_hash(writer)
+
+            # Expert numerical parameters.
+            if(self.has_expert_parameters):
+                self.write_numerical_parameters(writer, "/ExpertParameters")
 
     def write_environment(self, writer):
         """This function writes the environmental data into the *.hdb5 file.
@@ -1368,7 +1380,7 @@ class pyHDB(object):
         dset.attrs['Description'] = "Maximum vector fitting order."
 
         dset = writer.create_dataset(VF_path + "/Relaxed", data=self.relaxed)
-        dset.attrs['Description'] = "Relaxed vector-fitting (true) or original algorithm (false);"
+        dset.attrs['Description'] = "Relaxed vector-fitting (true) or original algorithm (false)."
 
         dset = writer.create_dataset(VF_path + "/Tolerance", data=self.tolerance)
         dset.attrs['Description'] = "Least-square tolerance of the vector fitting algorithm."
@@ -1398,4 +1410,25 @@ class pyHDB(object):
             # Version.
             dset = writer.create_dataset('NormalizedCommitHash', data= self.commit_hash)
             dset.attrs['Description'] = "Tag - Commit hash - Branch - Date."
+
+    def write_numerical_parameters(self, writer, num_param_path = "/ExpertParameters"):
+        """This method writes the vector fitting parameters into the *.hdb5 file.
+
+        Parameter
+        ---------
+        Writer : string.
+            *.hdb5 file.
+        """
+        writer.create_group(num_param_path)
+
+        dset = writer.create_dataset(num_param_path + "/SurfaceIntegrationOrder", data=self.surface_integration_order)
+        dset.attrs['Description'] = "Surface integration order."
+
+        dset = writer.create_dataset(num_param_path + "/GreenFunction", data=self.green_function)
+        dset.attrs['Description'] = "Green's function."
+
+        dset = writer.create_dataset(num_param_path + "/Crmax", data=self.crmax)
+
+        dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/x", data=self.wave_reference_point_x)
+        dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/y", data=self.wave_reference_point_y)
 

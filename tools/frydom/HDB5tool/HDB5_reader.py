@@ -72,6 +72,9 @@ class HDB5reader():
             # Wave drift coefficients.
             self.read_wave_drift(reader, pyHDB, "/WaveDrift")
 
+            # Expert numerical parameters.
+            self.read_numerical_parameters(reader, pyHDB, "/ExpertParameters")
+
             # pyHDB parameters.
             pyHDB._has_infinite_added_mass = True
             pyHDB._has_froude_krylov = True
@@ -544,6 +547,31 @@ class HDB5reader():
             pyHDB.version = np.array(reader['Version'])
         except:
             pyHDB.version = 1.0
+
+    def read_numerical_parameters(self, reader, pyHDB, num_param_path):
+        """This methid reads the expert numerical parameters of the *.hdb5 file.
+
+        Parameters
+        ----------
+        reader : string
+            *.hdb5 file.
+        pyHDB : object
+            pyHDB object for storing the hydrodynamic database.
+        num_param_path : string, optional
+            Path to expert numerical parameters.
+        """
+
+        try:
+            reader[num_param_path]
+            pyHDB.surface_integration_order = np.array(reader[num_param_path + "/SurfaceIntegrationOrder"])
+            pyHDB.green_function = np.array(reader[num_param_path + "/GreenFunction"])
+            pyHDB.crmax = np.array(reader[num_param_path + "/Crmax"])
+            pyHDB.wave_reference_point_x = np.array(reader[num_param_path + "/WaveReferencePoint/x"])
+            pyHDB.wave_reference_point_y = np.array(reader[num_param_path + "/WaveReferencePoint/y"])
+            pyHDB.has_expert_parameters = True
+
+        except:
+            pass
 
 class HDB5reader_v2(HDB5reader):
     """
