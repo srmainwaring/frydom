@@ -92,7 +92,7 @@ namespace frydom {
 
     /// Add a mesh as an asset for visualization given a WaveFront .obj file name
     /// \param obj_filename filename of the asset to be added
-    void AddMeshAsset(std::string obj_filename, Position pos, FrRotation rot);
+    void AddMeshAsset(std::string obj_filename, Position pos=Position(), FrRotation rot=FrRotation());
 
     /// Add a mesh as an asset for visualization given a FrTriangleMeshConnected mesh object
     /// \param mesh mesh of the asset to be added
