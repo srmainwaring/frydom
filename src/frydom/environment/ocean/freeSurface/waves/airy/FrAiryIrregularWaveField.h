@@ -162,8 +162,6 @@ namespace frydom {
     ///Generate random wave phases
     void GenerateRandomWavePhases(int seed);
 
-    void SetCastorParameters();
-
    private:
 
     ///Generate random wave phases
