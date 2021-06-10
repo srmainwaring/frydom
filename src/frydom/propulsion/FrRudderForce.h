@@ -106,6 +106,8 @@ namespace frydom {
 
    protected:
 
+    void DefineLogMessages() override;
+
     void Compute(double time) override;
 
     /// This subroutine initializes the object FrForce.

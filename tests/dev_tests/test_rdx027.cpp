@@ -20,8 +20,15 @@ int main() {
 
   body->GetDOFMask()->LockXYPlane();
 
-  auto manFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/sutulo_manoeuvring_model.json"});
-  auto man = make_Sutulo_manoeuvring_model("manModel", body.get(), manFile);
+  auto eqFrame = make_spring_damping_equilibrium_frame("eqFrame", body, 100., 0.8);
+
+  auto hdb = make_hydrodynamic_database(FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/TPS_sym_VF.hdb5"}));
+  hdb->Map(0, body.get(), eqFrame);
+
+  auto radiationModel = make_recursive_convolution_model("radiation", &system, hdb);
+
+  auto manFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/sutulo_maneuvering_model.json"});
+//  auto man = make_Sutulo_manoeuvring_model("manModel", body.get(), manFile);
 
   auto propFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/propeller_FPP.json"});
   auto prop = make_first_quadrant_propeller_force("prop", body.get(), Position(4.83, 0., 1.), propFile, NWU);
@@ -32,8 +39,22 @@ int main() {
   prop->SetStraightRunWakeFraction(0.);
   prop->SetCorrectionFactor(1.);
 
+  auto rudderNode = body->NewNode("rudderNode");
+  rudderNode->SetPositionInBody(Position(0., 0., 0.83), NWU);
+
+//  auto rudderFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/rudder.json"});
+//  auto rudder = make_rudder_force("rudder", body.get(), rudderNode, rudderFile);
+//  rudder->SetStraightRunWakeFraction(0.);
+//  rudder->SetHeight(1.68);
+//  rudder->SetProjectedLateralArea(1.848);
+//  rudder->SetRudderAngle(0.*DEG2RAD);
+
+  body->AddBoxShape(1.1, 0.14, 1.68, rudderNode->GetNodePositionInBody(NWU), NWU);
+
   system.SetTimeStep(0.01);
 
-  system.RunInViewer();
+//  system.RunInViewer();
+
+  system.AdvanceTo(6000);
 
 }
