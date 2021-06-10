@@ -25,6 +25,13 @@ namespace frydom {
 
   }
 
+  FrHydroDB::FrHydroDB(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) : m_HDB(hdb) {
+
+    // Creation of the mapper object for hydrodynamic bodies.
+    m_mapper = std::make_unique<FrHydroMapper>();
+
+  };
+
   FrBEMBody *FrHydroDB::GetBody(FrBody *body) {
     return m_mapper->GetBEMBody(body);
   }
@@ -88,10 +95,14 @@ namespace frydom {
     auto N = (unsigned int) floor(Te / timeStep);
 
     dt = Te / double(N - 1);
-  };
+  }
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file) {
     return std::make_shared<FrHydroDB>(h5file);
+  }
+
+  std::shared_ptr<FrHydroDB> make_hydrodynamic_database(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) {
+    return std::make_shared<FrHydroDB>(hdb);
   }
 
 } //end namespace frydom

@@ -333,6 +333,8 @@ namespace frydom {
 
     Update(0.);
 
+    SetCastorParameters();
+
   }
 
   std::vector<std::vector<Complex>>

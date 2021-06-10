@@ -165,6 +165,9 @@ namespace frydom {
     using NodeContainer = std::vector<std::shared_ptr<FrNode>>;
     NodeContainer m_nodes;                    ///< Container of the nodes belonging to the body
 
+    std::string m_mesh_visu;
+    std::vector<double> m_mesh_offset;
+
     std::unique_ptr<FrDOFMask> m_DOFMask;
 
    public:
