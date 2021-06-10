@@ -28,14 +28,20 @@ namespace frydom {
     m_json_object["DataFolder"] = m_system->config_file().GetDataFolder();
 
     for (auto& body: m_system->GetBodyList()) {
-      json j;
-      j["mesh_filename"] = body->GetMeshFilename();
 
-      auto pos = body->GetMeshOffsetPosition(NWU);
-      double phi, theta, psi;
-      body->GetMeshOffsetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
-      j["mesh_offset"] = {pos.x(), pos.y(), pos.y(), phi, theta, psi};
-      m_json_object[body->GetName()] = j;
+      if (body->IsLogged()) {
+
+        json j;
+        j["mesh_filename"] = body->GetMeshFilename();
+
+        auto pos = body->GetMeshOffsetPosition(NWU);
+        double phi, theta, psi;
+        body->GetMeshOffsetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+        j["mesh_offset"] = {pos.x(), pos.y(), pos.y(), phi, theta, psi};
+        m_json_object[body->GetName()] = j;
+
+      }
+
     }
 
     auto free_surface = m_system->GetEnvironment()->GetOcean()->GetFreeSurface();
