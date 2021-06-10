@@ -55,34 +55,36 @@ namespace frydom {
     auto beta = ComputeShipDriftAngle();
     auto r = ComputeYawAdimVelocity();
 
-    auto cosBeta = cos(beta);
-    auto sinBeta = sin(beta);
+    auto cbeta = cos(beta);
+    auto sbeta = sin(beta);
     auto signR = mathutils::sgn(r);
 
-    auto Xsecond = 0.;
+    double Xsecond = 0.;
+    double resistance = 0.;
     if (u>DBL_EPSILON)
-      Xsecond = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cosBeta * std::abs(cosBeta) * (1. - r * r);
-    Xsecond -= 2 * m_Cm * m_A22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sinBeta * r * sqrt(1 - r * r);
+      resistance = Rh(u);
+    Xsecond = -2 * resistance / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - r * r);
+    Xsecond -= 2 * m_Cm * m_A22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * r * sqrt(1 - r * r);
 
     auto Ysecond = m_cy0 * r;
-    Ysecond += m_cy1 * sinBeta * sin(MU_PI * r) * signR;
-    Ysecond += m_cy2 * sinBeta * cos(MU_PI_2 * r);
+    Ysecond += m_cy1 * sbeta * sin(MU_PI * r) * signR;
+    Ysecond += m_cy2 * sbeta * cos(MU_PI_2 * r);
     Ysecond += m_cy3 * sin(2. * beta) * cos(MU_PI_2 * r);
-    Ysecond += m_cy4 * cosBeta * sin(MU_PI * r);
+    Ysecond += m_cy4 * cbeta * sin(MU_PI * r);
     Ysecond += m_cy5 * cos(2. * beta) * sin(MU_PI * r);
-    Ysecond += m_cy6 * cosBeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
+    Ysecond += m_cy6 * cbeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
     Ysecond += m_cy7 * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * r) * mathutils::sgn(beta);
     Ysecond += m_cy8 * sin(3. * beta) * cos(MU_PI_2 * r);
 
     auto Nsecond = m_cn0 * r;
     Nsecond += m_cn1 * sin(2. * beta) * cos(MU_PI_2 * r);
-    Nsecond += m_cn2 * sinBeta * cos(MU_PI_2 * r);
+    Nsecond += m_cn2 * sbeta * cos(MU_PI_2 * r);
     Nsecond += m_cn3 * cos(2. * beta) * sin(MU_PI * r);
-    Nsecond += m_cn4 * cosBeta * sin(MU_PI * r);
+    Nsecond += m_cn4 * cbeta * sin(MU_PI * r);
     Nsecond += m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * r);
-    Nsecond += m_cn6 * cosBeta * (cosBeta - cos(3. * beta)) * signR;
+    Nsecond += m_cn6 * cbeta * (cbeta - cos(3. * beta)) * signR;
     Nsecond += m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
-    Nsecond += m_cn8 * sinBeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
+    Nsecond += m_cn8 * sbeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
     Nsecond += m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
     auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * r * r) * m_shipLength * m_shipDraft;
 
@@ -139,7 +141,7 @@ namespace frydom {
 
       try {
         u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
-        for (auto &vel: *u) convert_velocity_unit(vel, KNOT, MS);
+        for (auto &vel: *u) vel = convert_velocity_unit(vel, KNOT, MS);
 
       } catch (json::parse_error &err) {
         event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt in json file");
