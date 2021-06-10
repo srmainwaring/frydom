@@ -122,6 +122,8 @@ namespace frydom {
 
     double Rh(double u) const;
 
+    void DefineLogMessages() override;
+
     std::string c_filepath; ///< path to the JSON file containing the manoeuvring data
 
     mathutils::Interp1dLinear<double, double> m_hullResistance;

@@ -140,8 +140,6 @@ namespace frydom {
       try {
         u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
         for (auto &vel: *u) convert_velocity_unit(vel, KNOT, MS);
-  //      u = std::make_shared<std::vector<double>>(
-  //          convert_velocity_unit(node["vessel_speed_kt"].get<std::vector<double>>(), KNOT, MS));
 
       } catch (json::parse_error &err) {
         event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt in json file");
@@ -337,12 +335,42 @@ namespace frydom {
     try {
       auto hull_resistance_filepath = node["hull_resistance_filepath"].get<json::string_t>();
       auto test_filepath = FrFileSystem::join({filepath, "..", hull_resistance_filepath});
-      std::cout<<test_filepath<<std::endl;
       LoadResistanceCurve(test_filepath);
     } catch (json::parse_error &err) {
       event_logger::error("FrSutuloManoeuvringForce", GetName(), "no hull_resistance_filepath in json file");
       exit(EXIT_FAILURE);
     }
+
+  }
+
+  void FrSutuloManoeuvringForce::DefineLogMessages() {
+
+    auto msg = NewMessage("FrSutuloManoeuvringForce", "Sutulo manoeuvring force message");
+
+    msg->AddField<double>("Time", "s", "Current time of the simulation",
+                          [this]() { return m_chronoForce->GetChTime(); });
+
+    msg->AddField<double>("ShipDriftAngle", "rad", "Ship drift angle",
+                          [this]() { return this->ComputeShipDriftAngle(); });
+
+    msg->AddField<double>("YawAdimVelocity", "", "Yaw non dimensional velocity",
+                          [this]() { return this->ComputeYawAdimVelocity(); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
+         [this]() { return GetForceInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInBodyAtCOG", "Nm", fmt::format("torque at COG in body reference frame in {}", GetLogFC()),
+         [this]() { return GetTorqueInBodyAtCOG(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ForceInWorld", "N", fmt::format("force in world reference frame in {}", GetLogFC()),
+         [this]() { return GetForceInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
 
   }
 
