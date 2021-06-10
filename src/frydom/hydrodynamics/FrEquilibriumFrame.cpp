@@ -297,7 +297,9 @@ namespace frydom {
     auto bodyAngularVelocity = m_bodyNode->GetAngularVelocityInWorld(NWU).GetWz();
 
     double torque;
-    torque = (bodyPsi - psi) * m_stiffness + (bodyAngularVelocity - m_angularVelocity) * m_damping;
+    auto delta_angle = (bodyPsi - psi);
+    delta_angle = Normalize__PI_PI(delta_angle);
+    torque = delta_angle * m_stiffness + (bodyAngularVelocity - m_angularVelocity) * m_damping;
 
     m_velocity += force * (time - m_prevTime);
     position += m_velocity * (time - m_prevTime);
