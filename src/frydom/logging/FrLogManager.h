@@ -18,7 +18,7 @@
 #include <string>
 #include <list>
 
-#include "FrCastor.h"
+#include "FrCastorManager.h"
 
 
 namespace frydom {
@@ -77,7 +77,7 @@ namespace frydom {
 
     static std::string GetDateFolder();
 
-    FrCastorParameters& GetCastorParameters();
+    FrCastorManager& GetCastorParameters();
 
    private:
     bool Has(FrLoggableBase *obj) const;
@@ -100,7 +100,7 @@ namespace frydom {
 
     FrOffshoreSystem *m_system;
 
-    FrCastorParameters m_castor;
+    FrCastorManager m_castor;
 
     bool m_log_CSV;
     bool m_log_HDF5;

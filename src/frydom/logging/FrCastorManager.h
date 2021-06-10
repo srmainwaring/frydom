@@ -9,8 +9,8 @@
 //
 // ==========================================================================
 
-#ifndef FRYDOM_FRCASTOR_H
-#define FRYDOM_FRCASTOR_H
+#ifndef FRYDOM_FRCASTORMANAGER_H
+#define FRYDOM_FRCASTORMANAGER_H
 
 #include <nlohmann/json.hpp>
 
@@ -18,19 +18,25 @@ using json = nlohmann::json;
 
 namespace frydom {
 
-  class FrCastorParameters {
+  // forward declaration
+  class FrOffshoreSystem;
+  class FrWaveField;
+
+  class FrCastorManager {
 
    public:
 
-    FrCastorParameters(const std::string& folder);
+    explicit FrCastorManager(FrOffshoreSystem* system);
 
     void Write(const std::string& path);
 
-    void Add(const std::string& tag, const json& node);
+   protected:
 
-    void SetDataFolder(const std::string& folder);
+    void SetParametersJSON(FrWaveField* wave);
 
    private:
+
+    FrOffshoreSystem* m_system;
 
     std::string m_filename = "castor.json";
 
@@ -40,4 +46,4 @@ namespace frydom {
 
 } // end namespace frydom
 
-#endif //FRYDOM_FRCASTOR_H
+#endif //FRYDOM_FRCASTORMANAGER_H

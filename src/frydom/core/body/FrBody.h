@@ -882,14 +882,6 @@ namespace frydom {
     /// \return DOF mask
     FrDOFMask *GetDOFMask();
 
-    // =============================================================================================================
-    // VISUALIZATION
-    // =============================================================================================================
-
-    void SetMeshVisu(const std::string& filepath, const std::vector<double>& offset);
-
-    void SetCastorParameters();
-
    protected:
 
     void DefineLogMessages() override;

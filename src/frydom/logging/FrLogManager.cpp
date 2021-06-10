@@ -25,7 +25,7 @@
 #include "FrLoggable.h"
 #include "FrEventLogger.h"
 
-#include "FrCastor.h"
+#include "FrCastorManager.h"
 
 
 #define META_FILE_NAME "meta.json"
@@ -41,7 +41,7 @@ namespace frydom {
       m_system(system),
       m_nfreq_output(1),
       m_ifreq_output(0),
-      m_castor(system->config_file().GetDataFolder()){ // FIXME : Du coup LogManager devrait etre un TreeNode...
+      m_castor(system) { // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
     m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), logFolderName});
@@ -108,11 +108,7 @@ namespace frydom {
   }
 
   void FrLogManager::WriteCastorFile() {
-
-    m_castor.SetDataFolder(GetSystem()->config_file().GetDataFolder());
-
     m_castor.Write(m_log_folder);
-
   }
 
   std::string FrLogManager::now() { // TODO : voir a faire avec fmt...
@@ -163,7 +159,7 @@ namespace frydom {
     return format;
   }
 
-  FrCastorParameters& FrLogManager::GetCastorParameters() {
+  FrCastorManager& FrLogManager::GetCastorParameters() {
     return m_castor;
   }
 
@@ -206,7 +202,6 @@ namespace frydom {
       obj->SendLogMessages();
 
     }
-
     WriteCastorFile();
   }
 

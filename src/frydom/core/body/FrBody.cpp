@@ -322,8 +322,6 @@ namespace frydom {
       InitializeLockedDOF();
     }
 
-    SetCastorParameters();
-
   }
 
   void FrBody::StepFinalize() {
@@ -1148,25 +1146,6 @@ namespace frydom {
 
   FrDOFMask *FrBody::GetDOFMask() {
     return m_DOFMask.get();
-  }
-
-  void FrBody::SetMeshVisu(const std::string& filename, const std::vector<double>& offset) {
-    m_mesh_visu = filename;
-    m_mesh_offset = offset;
-  }
-
-  void FrBody::SetCastorParameters() {
-
-    if (m_mesh_visu.size() > 0) {
-
-      json j;
-
-      j["mesh_filename"] = m_mesh_visu;
-      j["offset"] = m_mesh_offset;
-
-      GetSystem()->GetLogManager()->GetCastorParameters().Add(GetName(), j);
-    }
-
   }
 
   void FrBody::DefineLogMessages() {

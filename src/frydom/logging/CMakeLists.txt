@@ -7,5 +7,5 @@ target_sources(frydom PRIVATE
         FrLoggable.cpp
         FrTypeNames.cpp
         FrPathPolicies.cpp
-        FrCastor.cpp
+        FrCastorManager.cpp
         )

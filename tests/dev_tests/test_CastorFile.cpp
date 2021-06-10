@@ -36,7 +36,7 @@ int main() {
 
   auto ship = system.NewBody("ship");
 
-  ship->SetMeshVisu("barge/barge.obj", {0., 0., 0., 0., 0., 0.});
+  ship->AddMeshAsset("barge/barge.obj", Position(), FrRotation());
 
   ship->SetFixedInWorld(true);
 
