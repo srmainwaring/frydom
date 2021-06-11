@@ -53,7 +53,7 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.6.6 CACHE STRING "mathutils version")
+set(mathutils_TAG v1.6.11 CACHE STRING "mathutils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
