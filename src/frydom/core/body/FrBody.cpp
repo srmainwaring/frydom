@@ -1132,14 +1132,18 @@ namespace frydom {
     auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
     worldNode->SetFrameInBody(bodyNodeFrameInWorld);
 
+    // Removing already existing link
+    if (m_DOFLink)
+      GetSystem()->Remove(m_DOFLink);
+
     // Creating the link
-    auto DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
+    m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
 
     // Initializing the link with the DOFMask
-    DOFLink->SetDOFMask(m_DOFMask.get());
+    m_DOFLink->SetDOFMask(m_DOFMask.get());
 
     // Adding the link to the system
-    GetSystem()->Add(DOFLink);
+    GetSystem()->Add(m_DOFLink);
 
   }
 

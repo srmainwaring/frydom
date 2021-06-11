@@ -11,6 +11,7 @@
 
 #include "FrDOFMaskLink.h"
 #include "frydom/logging/FrTypeNames.h"
+#include "frydom/core/body/FrBody.h"
 
 namespace frydom {
 
@@ -19,34 +20,44 @@ namespace frydom {
    * FrDOFMask definitions
    */
 
+  FrDOFMask::FrDOFMask(FrBody *body) : m_body(body) {
+
+  }
+
   void FrDOFMask::SetLock_X(bool lock) {
     m_xLocked = lock;
     m_linkType = LINK_TYPE::CUSTOM;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::SetLock_Y(bool lock) {
     m_yLocked = lock;
     m_linkType = LINK_TYPE::CUSTOM;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::SetLock_Z(bool lock) {
     m_zLocked = lock;
     m_linkType = LINK_TYPE::CUSTOM;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::SetLock_Rx(bool lock) {
     m_RxLocked = lock;
     m_linkType = LINK_TYPE::CUSTOM;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::SetLock_Ry(bool lock) {
     m_RyLocked = lock;
     m_linkType = LINK_TYPE::CUSTOM;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::SetLock_Rz(bool lock) {
     m_RzLocked = lock;
     m_linkType = LINK_TYPE::CUSTOM;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::LockXZPlane() {
@@ -54,6 +65,7 @@ namespace frydom {
     SetLock_Y(true);
     SetLock_Rx(true);
     SetLock_Rz(true);
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::LockXYPlane() {
@@ -61,6 +73,7 @@ namespace frydom {
     SetLock_Z(true);
     SetLock_Rx(true);
     SetLock_Ry(true);
+    m_body->InitializeLockedDOF();
   }
 
   bool FrDOFMask::GetLock_X() const { return m_xLocked; }
@@ -91,6 +104,7 @@ namespace frydom {
     m_RyLocked = false;
     m_RzLocked = false;
     m_linkType = LINK_TYPE::FREE_LINK;
+    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::MakeItLocked() {
@@ -101,6 +115,7 @@ namespace frydom {
     m_RyLocked = true;
     m_RzLocked = true;
     m_linkType = LINK_TYPE::FIXED_LINK;
+    m_body->InitializeLockedDOF();
   }
 
   unsigned int FrDOFMask::GetNbLockedDOF() const {
