@@ -57,16 +57,35 @@ namespace frydom {
     internal::GetChronoPhysicsItemFromAsset(this)->AddAsset(internal::GetChronoAsset(shape));
   }
 
-  void FrAssetOwner::AddMeshAsset(std::string obj_filename) {
+  void FrAssetOwner::AddMeshAsset(std::string obj_filename, Position pos, FrRotation rot) {
     auto mesh = std::make_shared<FrTriangleMeshConnected>();
     mesh->LoadWavefrontMesh(obj_filename);
+    mesh->Translate(pos);
+    mesh->Rotate(rot);
     AddMeshAsset(mesh);
+    m_filename = obj_filename;
+    m_mesh_offset_position = pos;
+    m_mesh_offset_rotation = rot;
   }
 
   void FrAssetOwner::AddMeshAsset(std::shared_ptr<frydom::FrTriangleMeshConnected> mesh) {
     auto shape = std::make_shared<FrTriangleMeshShape>(mesh);
     m_meshShapes.push_back(shape);
     internal::GetChronoPhysicsItemFromAsset(this)->AddAsset(internal::GetChronoAsset(shape));
+  }
+
+  const std::string& FrAssetOwner::GetMeshFilename() const {
+    return m_filename;
+  }
+
+  const Position& FrAssetOwner::GetMeshOffsetPosition(FRAME_CONVENTION fc) const {
+    auto mesh_offset_position = m_mesh_offset_position;
+    if (IsNED(fc)) internal::SwapFrameConvention<Position>(mesh_offset_position);
+    return m_mesh_offset_position;
+  }
+
+  const FrRotation& FrAssetOwner::GetMeshOffsetRotation() const {
+    return m_mesh_offset_rotation;
   }
 
   void FrAssetOwner::AddAsset(std::shared_ptr<FrAsset> asset) {

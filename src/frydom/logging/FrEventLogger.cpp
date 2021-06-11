@@ -109,12 +109,12 @@ namespace frydom {
     }
 
     void switch_to_simulation_formatter(FrOffshoreSystem *system) {
-      auto file_logger = spdlog::get("FRYDOM");
+      auto file_logger = spdlog::get(system->GetName());
       file_logger->set_formatter(std::make_unique<internal::SimulationFormatter>(system));
     }
 
-    void back_to_default_formatter() {
-      auto file_logger = spdlog::get("FRYDOM");
+    void back_to_default_formatter(const std::string& loggerName) {
+      auto file_logger = spdlog::get(loggerName);
       file_logger->set_formatter(std::make_unique<spdlog::pattern_formatter>());
     }
 

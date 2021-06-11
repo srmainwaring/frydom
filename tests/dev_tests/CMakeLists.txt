@@ -23,6 +23,8 @@ set(REFACTORING_TESTS
         bench_FEACable_moored
         bench_FEACable_FOWT_moored
         test_log_hdf5
+        test_FrSteadyStateChecker
+        test_CastorFile
         )
 
 foreach (test ${REFACTORING_TESTS})

@@ -72,6 +72,9 @@ class HDB5reader():
             # Wave drift coefficients.
             self.read_wave_drift(reader, pyHDB, "/WaveDrift")
 
+            # Expert numerical parameters.
+            self.read_numerical_parameters(reader, pyHDB, "/ExpertParameters")
+
             # pyHDB parameters.
             pyHDB._has_infinite_added_mass = True
             pyHDB._has_froude_krylov = True
@@ -234,7 +237,7 @@ class HDB5reader():
         pyHDB.xoz_sym = np.array(reader[symmetry_path + "/xOz"])
         pyHDB.yoz_sym = np.array(reader[symmetry_path + "/yOz"])
 
-    def read_mesh(self, reader, mesh_path):
+    def read_mesh(self, reader, pyHDB, mesh_path):
 
         """This function reads the mesh quantities of the *.hdb5 file.
 
@@ -251,7 +254,15 @@ class HDB5reader():
         vertices = np.array(reader[mesh_path + "/Vertices"])
         nb_faces = np.array(reader[mesh_path + "/NbFaces"])
         faces = np.array(reader[mesh_path + "/Faces"])
-        mesh = Mesh(vertices, faces)
+
+        # Only triangle meshes are considered in Helios but Meshmagick only considered quandrangular meshes.
+        # The last column is duplicated.
+        if (faces.shape[1] == 3):
+            faces = np.insert(faces, -1, faces[:, 2], axis=1)
+
+        # Meshmagick mesh.
+        if(nb_vertices != 0 and nb_faces != 0):
+            mesh = Mesh(vertices, faces)
 
         # Verification of mesh information consistency
         assert nb_vertices == mesh.nb_vertices
@@ -536,6 +547,31 @@ class HDB5reader():
             pyHDB.version = np.array(reader['Version'])
         except:
             pyHDB.version = 1.0
+
+    def read_numerical_parameters(self, reader, pyHDB, num_param_path):
+        """This methid reads the expert numerical parameters of the *.hdb5 file.
+
+        Parameters
+        ----------
+        reader : string
+            *.hdb5 file.
+        pyHDB : object
+            pyHDB object for storing the hydrodynamic database.
+        num_param_path : string, optional
+            Path to expert numerical parameters.
+        """
+
+        try:
+            reader[num_param_path]
+            pyHDB.surface_integration_order = np.array(reader[num_param_path + "/SurfaceIntegrationOrder"])
+            pyHDB.green_function = np.array(reader[num_param_path + "/GreenFunction"])
+            pyHDB.crmax = np.array(reader[num_param_path + "/Crmax"])
+            pyHDB.wave_reference_point_x = np.array(reader[num_param_path + "/WaveReferencePoint/x"])
+            pyHDB.wave_reference_point_y = np.array(reader[num_param_path + "/WaveReferencePoint/y"])
+            pyHDB.has_expert_parameters = True
+
+        except:
+            pass
 
 class HDB5reader_v2(HDB5reader):
     """
@@ -864,13 +900,17 @@ class HDB5reader_v2(HDB5reader):
             assert ibody == id
 
             # Mesh.
-            if(pyHDB.version == 2.0):
-                mesh = self.read_mesh(reader, body_path + "/Mesh")
+            read_mesh = False
+            try:
+                mesh = self.read_mesh(reader, pyHDB, body_path + "/Mesh")
+                read_mesh = True
+            except:
+                pass
 
-                # Body definition.
+            # Body definition.
+            if(read_mesh):
                 body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir, mesh)
             else:
-                # Body definition.
                 body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir)
 
             # Body name (body mesh name until version 2).
@@ -1158,7 +1198,7 @@ class HDB5reader_v1(HDB5reader):
             assert ibody == id
 
             # Mesh.
-            mesh = self.read_mesh(reader, body_path + "/Mesh")
+            mesh = self.read_mesh(reader, pyHDB, body_path + "/Mesh")
 
             # Body definition.
             body = body_db.BodyDB(id, pyHDB.nb_bodies, pyHDB.nb_wave_freq, pyHDB.nb_wave_dir, mesh)
