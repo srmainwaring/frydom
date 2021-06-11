@@ -16,6 +16,8 @@
 
 namespace frydom {
 
+  class FrBody;
+
   /*
 * Defining a mask class to make the constraint on bodies WRT to world easier
 */
@@ -36,12 +38,16 @@ namespace frydom {
     bool m_RyLocked = false;
     bool m_RzLocked = false;
 
+    FrBody* m_body;
+
    public:
 
     // TODO : plutot utiliser ChLinkLockMaskLF en interne et faire des conversions pour les angles vers les coeffs de quaternion
     /*
      * Pour les angles, un blocage en
      */
+
+    explicit FrDOFMask(FrBody* body);
 
     ~FrDOFMask() = default;
 

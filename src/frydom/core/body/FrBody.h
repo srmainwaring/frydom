@@ -167,6 +167,8 @@ namespace frydom {
 
     std::unique_ptr<FrDOFMask> m_DOFMask;
 
+    std::shared_ptr<FrDOFMaskLink> m_DOFLink;
+
    public:
 
     /// Default constructor
@@ -992,6 +994,8 @@ namespace frydom {
     friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(std::shared_ptr<FrBody> body);
 
     friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(FrBody *body);
+
+    friend FrDOFMask;
 
   };
 
