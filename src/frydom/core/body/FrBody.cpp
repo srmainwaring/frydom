@@ -1153,7 +1153,7 @@ namespace frydom {
       worldNode->SetFrameInBody(bodyNodeFrameInWorld);
 
       // Creating the link
-      m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
+      m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), bodyNode, worldNode);
 
       // Initializing the link with the DOFMask
       m_DOFLink->SetDOFMask(m_DOFMask.get());
