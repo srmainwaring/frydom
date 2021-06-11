@@ -223,7 +223,7 @@ namespace frydom {
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
       m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
-      m_DOFMask(std::make_unique<FrDOFMask>()) {
+      m_DOFMask(std::make_unique<FrDOFMask>(this)) {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
@@ -1116,35 +1116,38 @@ namespace frydom {
 
     // TODO : voir si n'accepte pas de definir des offset sur les ddl bloques...
 
-    // Getting the markers that enter in the link
+    if (m_DOFLink) {
+      // updating the link with the new mask
+      m_DOFLink->SetDOFMask(m_DOFMask.get());
+      m_DOFLink->Initialize();
+    }
+    else {
 
-    // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
-    auto bodyNode = NewNode(GetName() + "_locking_node");
+      // Getting the markers that enter in the link
 
-    auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
-    auto bodyOrientationInWorld = GetQuaternion();
+      // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
+      auto bodyNode = NewNode(GetName() + "_locking_node");
 
-    auto bodyNodeFrameInWorld = FrFrame(cogPositionInWorld, bodyOrientationInWorld, NWU);
-    bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
+      auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
+      auto bodyOrientationInWorld = GetQuaternion();
 
-    // World Marker placed at the current COG body position
-    auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
-    auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
-    worldNode->SetFrameInBody(bodyNodeFrameInWorld);
+      auto bodyNodeFrameInWorld = FrFrame(cogPositionInWorld, bodyOrientationInWorld, NWU);
+      bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
 
-    // Removing already existing link
-    if (m_DOFLink)
-      GetSystem()->Remove(m_DOFLink);
+      // World Marker placed at the current COG body position
+      auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
+      auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
+      worldNode->SetFrameInBody(bodyNodeFrameInWorld);
 
-    // Creating the link
-    m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
+      // Creating the link
+      m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
 
-    // Initializing the link with the DOFMask
-    m_DOFLink->SetDOFMask(m_DOFMask.get());
+      // Initializing the link with the DOFMask
+      m_DOFLink->SetDOFMask(m_DOFMask.get());
 
-    // Adding the link to the system
-    GetSystem()->Add(m_DOFLink);
-
+      // Adding the link to the system
+      GetSystem()->Add(m_DOFLink);
+    }
   }
 
   FrDOFMask *FrBody::GetDOFMask() {

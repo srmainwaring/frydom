@@ -65,7 +65,6 @@ namespace frydom {
     SetLock_Y(true);
     SetLock_Rx(true);
     SetLock_Rz(true);
-    m_body->InitializeLockedDOF();
   }
 
   void FrDOFMask::LockXYPlane() {
@@ -73,7 +72,6 @@ namespace frydom {
     SetLock_Z(true);
     SetLock_Rx(true);
     SetLock_Ry(true);
-    m_body->InitializeLockedDOF();
   }
 
   bool FrDOFMask::GetLock_X() const { return m_xLocked; }
