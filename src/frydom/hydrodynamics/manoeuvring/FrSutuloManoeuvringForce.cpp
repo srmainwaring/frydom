@@ -60,10 +60,8 @@ namespace frydom {
     auto signR = mathutils::sgn(r);
 
     double Xsecond = 0.;
-    double resistance = 0.;
     if (u>DBL_EPSILON)
-      resistance = Rh(u);
-    Xsecond = -2 * resistance / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - r * r);
+      Xsecond = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - r * r);
     Xsecond -= 2 * m_Cm * m_A22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * r * sqrt(1 - r * r);
 
     auto Ysecond = m_cy0 * r;

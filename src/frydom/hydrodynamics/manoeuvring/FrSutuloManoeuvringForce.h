@@ -108,6 +108,9 @@ namespace frydom {
 
     void cn8(double cn) { m_cn8 = cn; }
 
+    double GetUMin() const { return m_hullResistance.GetXmin(); }
+    double GetUMax() const { return m_hullResistance.GetXmax(); }
+
    private:
 
     double ComputeShipDriftAngle();
