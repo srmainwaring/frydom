@@ -18,8 +18,8 @@ namespace frydom {
         m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.),
         c_Xpp0(0.), c_Xpp1(0.),
         c_Ypp0(0.), c_Ypp1(0.), c_Ypp2(0.), c_Ypp3(0.), c_Ypp4(0.), c_Ypp5(0.), c_Ypp6(0.), c_Ypp7(0.), c_Ypp8(0.),
-        c_Npp0(0.), c_Npp1(0.), c_Npp2(0.), c_Npp3(0.), c_Npp4(0.), c_Npp5(0.), c_Npp6(0.), c_Npp7(0.), c_Npp8(0.), c_Npp9(0.)
-  {}
+        c_Npp0(0.), c_Npp1(0.), c_Npp2(0.), c_Npp3(0.), c_Npp4(0.), c_Npp5(0.), c_Npp6(0.), c_Npp7(0.), c_Npp8(0.),
+        c_Npp9(0.) {}
 
   void FrSutuloManoeuvringForce::Initialize() {
     FrForce::Initialize();
@@ -114,13 +114,22 @@ namespace frydom {
     auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
     double u = shipVelocityInHeadingFrame.GetVx();
     double v = shipVelocityInHeadingFrame.GetVy();
-    auto beta = 0.;
-    if (std::abs(v) > DBL_EPSILON)
-      beta = std::asin(v / sqrt(u * u + v * v));
-    if (u >= 0.)
-      beta *= -1;
-    else if (u < 0)
-      beta -= -MU_PI * mathutils::sgn(v);
+
+    double vel = std::sqrt(u * u + v * v);
+
+    double vp;
+    if (std::abs(vel) < DBL_EPSILON) {
+      vp = 0.;
+    } else {
+      vp = v / vel;
+    }
+
+    double beta;
+    if (u >= 0.) {
+      beta = -std::asin(vp);
+    } else {
+      beta = -MU_PI * mathutils::sgn(v) + std::asin(vp);
+    }
     return beta;
   }
 
