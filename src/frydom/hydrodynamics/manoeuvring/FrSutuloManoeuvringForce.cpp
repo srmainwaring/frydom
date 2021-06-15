@@ -81,15 +81,15 @@ namespace frydom {
     double Ypp = c_Ypp0 + c_Ypp1 + c_Ypp2 + c_Ypp3 + c_Ypp4 + c_Ypp5 + c_Ypp6 + c_Ypp7 + c_Ypp8;
 
     c_Npp0 = m_cn0 * rpp;
-    c_Npp1 += m_cn1 * sin(2. * beta) * cos(MU_PI_2 * rpp);
-    c_Npp2 += m_cn2 * sbeta * cos(MU_PI_2 * rpp);
-    c_Npp3 += m_cn3 * cos(2. * beta) * sin(MU_PI * rpp);
-    c_Npp4 += m_cn4 * cbeta * sin(MU_PI * rpp);
-    c_Npp5 += m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * rpp);
-    c_Npp6 += m_cn6 * cbeta * (cbeta - cos(3. * beta)) * sign_rpp;
-    c_Npp7 += m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
-    c_Npp8 += m_cn8 * sbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
-    c_Npp9 += m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
+    c_Npp1 = m_cn1 * sin(2. * beta) * cos(MU_PI_2 * rpp);
+    c_Npp2 = m_cn2 * sbeta * cos(MU_PI_2 * rpp);
+    c_Npp3 = m_cn3 * cos(2. * beta) * sin(MU_PI * rpp);
+    c_Npp4 = m_cn4 * cbeta * sin(MU_PI * rpp);
+    c_Npp5 = m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * rpp);
+    c_Npp6 = m_cn6 * cbeta * (cbeta - cos(3. * beta)) * sign_rpp;
+    c_Npp7 = m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
+    c_Npp8 = m_cn8 * sbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
+    c_Npp9 = m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
 
     double Npp = c_Npp0 + c_Npp1 + c_Npp2 + c_Npp3 + c_Npp4 + c_Npp5 + c_Npp6 + c_Npp7 + c_Npp8 + c_Npp9;
 
