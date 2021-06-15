@@ -16,6 +16,7 @@ namespace frydom {
         c_filepath(file), m_Cm(0.625), m_mu22(0.), m_shipDraft(0.), m_shipLength(0.),
         m_cy0(0.), m_cy1(0.), m_cy2(0.), m_cy3(0.), m_cy4(0.), m_cy5(0.), m_cy6(0.), m_cy7(0.), m_cy8(0.),
         m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.),
+        c_beta(0.), c_rpp(0.),
         c_Xpp(0.), c_Xpp0(0.), c_Xpp1(0.),
         c_Ypp(0.),
         c_Ypp0(0.), c_Ypp1(0.), c_Ypp2(0.), c_Ypp3(0.), c_Ypp4(0.), c_Ypp5(0.), c_Ypp6(0.), c_Ypp7(0.), c_Ypp8(0.),
@@ -28,84 +29,66 @@ namespace frydom {
     LoadManoeuvringData(c_filepath);
   }
 
-  void FrSutuloManoeuvringForce::SetShipCharacteristics(double length, double draft) {
-    m_shipDraft = draft;
-    m_shipLength = length;
-  }
-
-  double FrSutuloManoeuvringForce::GetShipLength() const {
-    return m_shipLength;
-  }
-
-  double FrSutuloManoeuvringForce::GetShipDraft() const {
-    return m_shipDraft;
-  }
-
-  void FrSutuloManoeuvringForce::SetCorrectionFactor(double Cm) {
-    m_Cm = Cm;
-  }
-
-  double FrSutuloManoeuvringForce::GetCorrectionFactor() const {
-    return m_Cm;
-  }
-
   void FrSutuloManoeuvringForce::Compute(double time) {
 
     auto rho = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
-    auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
-    auto u = shipVelocityInHeadingFrame.GetVx();
-    auto v = shipVelocityInHeadingFrame.GetVy();
-    auto V2 = u * u + v * v;
-    auto beta = ComputeShipDriftAngle();
-    auto rpp = ComputeYawAdimVelocity();
+    auto body = GetBody();
+    auto shipVelocityInHeadingFrame = body->GetVelocityInHeadingFrame(NWU);
+    double u = shipVelocityInHeadingFrame.GetVx();
+    double v = shipVelocityInHeadingFrame.GetVy();
+    double r = body->GetAngularVelocityInWorld(NWU).GetWz();
+    double V2 = u * u + v * v;
 
-    auto cbeta = cos(beta);
-    auto sbeta = sin(beta);
-    auto sign_rpp = mathutils::sgn(rpp);
+    c_beta = ComputeShipDriftAngle(u, v);
+    c_rpp = ComputeYawAdimVelocity(u, v, r, m_shipLength);
+
+    double cbeta = cos(c_beta);
+    double sbeta = sin(c_beta);
+    int sign_rpp = mathutils::sgn(c_rpp);
 
     c_Xpp0 = 0.;
     if (u > DBL_EPSILON)
-      c_Xpp0 = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - rpp * rpp);
-    c_Xpp1 = -2 * m_Cm * m_mu22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * rpp * sqrt(1 - rpp * rpp);
+      c_Xpp0 = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - c_rpp * c_rpp);
+    c_Xpp1 = -2 * m_Cm * m_mu22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * c_rpp * sqrt(1 - c_rpp * c_rpp);
 
     c_Xpp = c_Xpp0 + c_Xpp1;
 
-    c_Ypp0 = m_cy0 * rpp;
-    c_Ypp1 = m_cy1 * sbeta * sin(MU_PI * rpp) * sign_rpp;
-    c_Ypp2 = m_cy2 * sbeta * cos(MU_PI_2 * rpp);
-    c_Ypp3 = m_cy3 * sin(2. * beta) * cos(MU_PI_2 * rpp);
-    c_Ypp4 = m_cy4 * cbeta * sin(MU_PI * rpp);
-    c_Ypp5 = m_cy5 * cos(2. * beta) * sin(MU_PI * rpp);
-    c_Ypp6 = m_cy6 * cbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
-    c_Ypp7 = m_cy7 * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * rpp) * mathutils::sgn(beta);
-    c_Ypp8 = m_cy8 * sin(3. * beta) * cos(MU_PI_2 * rpp);
+    c_Ypp0 = m_cy0 * c_rpp;
+    c_Ypp1 = m_cy1 * sbeta * sin(MU_PI * c_rpp) * sign_rpp;
+    c_Ypp2 = m_cy2 * sbeta * cos(MU_PI_2 * c_rpp);
+    c_Ypp3 = m_cy3 * sin(2. * c_beta) * cos(MU_PI_2 * c_rpp);
+    c_Ypp4 = m_cy4 * cbeta * sin(MU_PI * c_rpp);
+    c_Ypp5 = m_cy5 * cos(2. * c_beta) * sin(MU_PI * c_rpp);
+    c_Ypp6 = m_cy6 * cbeta * (cos(MU_PI_2 * c_rpp) - cos(3. * MU_PI_2 * c_rpp)) * sign_rpp;
+    c_Ypp7 = m_cy7 * (cos(2. * c_beta) - cos(4. * c_beta)) * cos(MU_PI_2 * c_rpp) * mathutils::sgn(c_beta);
+    c_Ypp8 = m_cy8 * sin(3. * c_beta) * cos(MU_PI_2 * c_rpp);
 
     c_Ypp = c_Ypp0 + c_Ypp1 + c_Ypp2 + c_Ypp3 + c_Ypp4 + c_Ypp5 + c_Ypp6 + c_Ypp7 + c_Ypp8;
 
-    c_Npp0 = m_cn0 * rpp;
-    c_Npp1 = m_cn1 * sin(2. * beta) * cos(MU_PI_2 * rpp);
-    c_Npp2 = m_cn2 * sbeta * cos(MU_PI_2 * rpp);
-    c_Npp3 = m_cn3 * cos(2. * beta) * sin(MU_PI * rpp);
-    c_Npp4 = m_cn4 * cbeta * sin(MU_PI * rpp);
-    c_Npp5 = m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * rpp);
-    c_Npp6 = m_cn6 * cbeta * (cbeta - cos(3. * beta)) * sign_rpp;
-    c_Npp7 = m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
-    c_Npp8 = m_cn8 * sbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
-    c_Npp9 = m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
+    c_Npp0 = m_cn0 * c_rpp;
+    c_Npp1 = m_cn1 * sin(2. * c_beta) * cos(MU_PI_2 * c_rpp);
+    c_Npp2 = m_cn2 * sbeta * cos(MU_PI_2 * c_rpp);
+    c_Npp3 = m_cn3 * cos(2. * c_beta) * sin(MU_PI * c_rpp);
+    c_Npp4 = m_cn4 * cbeta * sin(MU_PI * c_rpp);
+    c_Npp5 = m_cn5 * (cos(2. * c_beta) - cos(4. * c_beta)) * sin(MU_PI * c_rpp);
+    c_Npp6 = m_cn6 * cbeta * (cbeta - cos(3. * c_beta)) * sign_rpp;
+    c_Npp7 = m_cn7 * sin(2. * c_beta) * (cos(MU_PI_2 * c_rpp) - cos(3. * MU_PI_2 * c_rpp));
+    c_Npp8 = m_cn8 * sbeta * (cos(MU_PI_2 * c_rpp) - cos(3. * MU_PI_2 * c_rpp));
+    c_Npp9 = m_cn9 * sin(2. * c_beta) * (cos(MU_PI_2 * c_rpp) - cos(3. * MU_PI_2 * c_rpp)) * sign_rpp;
 
     c_Npp = c_Npp0 + c_Npp1 + c_Npp2 + c_Npp3 + c_Npp4 + c_Npp5 + c_Npp6 + c_Npp7 + c_Npp8 + c_Npp9;
 
-    auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * rpp * rpp) * m_shipLength * m_shipDraft;
+    auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * r * r) * m_shipLength * m_shipDraft;
 
     auto headingFrame = GetBody()->GetHeadingFrame();
 
-    Force bareHullForceInHeadingFrame(c_Xpp *mul, c_Ypp *mul,0.);
-    auto bareHullForceInWorld = headingFrame.ProjectVectorFrameInParent(bareHullForceInHeadingFrame, NWU);
+    Force force_in_heading_frame(c_Xpp * mul, c_Ypp * mul, 0.);
+    auto bareHullForceInWorld = headingFrame.ProjectVectorFrameInParent(force_in_heading_frame, NWU);
 
-    auto bareHullTorqueInWorld =
-        headingFrame.ProjectVectorFrameInParent(Torque(0., 0., c_Npp * mul), NWU);
+    Torque moment_in_heading_frame(0., 0., c_Npp * mul * m_shipLength);
+    auto moment_in_world = headingFrame.ProjectVectorFrameInParent(moment_in_heading_frame, NWU);
 
-    SetForceTorqueInWorldAtCOG(bareHullForceInWorld, bareHullTorqueInWorld, NWU);
+    SetForceTorqueInWorldAtCOG(bareHullForceInWorld, moment_in_world, NWU);
 
   }
 
@@ -113,10 +96,7 @@ namespace frydom {
     return m_hullResistance.Eval(u);
   }
 
-  double FrSutuloManoeuvringForce::ComputeShipDriftAngle() {
-    auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
-    double u = shipVelocityInHeadingFrame.GetVx();
-    double v = shipVelocityInHeadingFrame.GetVy();
+  double FrSutuloManoeuvringForce::ComputeShipDriftAngle(const double &u, const double &v) {
 
     double vel = std::sqrt(u * u + v * v);
 
@@ -127,7 +107,6 @@ namespace frydom {
       vp = v / vel;
     }
 
-
     double beta;
     if (u >= 0.) {
       beta = -std::asin(vp);
@@ -137,16 +116,12 @@ namespace frydom {
     return beta;
   }
 
-  double FrSutuloManoeuvringForce::ComputeYawAdimVelocity() {
-    auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
-    double r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
-
+  double FrSutuloManoeuvringForce::ComputeYawAdimVelocity(const double &u, const double &v, const double &r,
+                                                          const double &L) {
     double rpp = 0.;
     if (std::fabs(r) > 0.) {
-      double u = shipVelocityInHeadingFrame.GetVx();
-      double v = shipVelocityInHeadingFrame.GetVy();
       double v2 = u * u + v * v;
-      rpp = r * m_shipLength / std::sqrt(v2 + r * r * m_shipLength * m_shipLength);
+      rpp = r * L / std::sqrt(v2 + r * r * L * L);
     }
 
     return rpp;
@@ -376,12 +351,6 @@ namespace frydom {
     msg->AddField<double>("Time", "s", "Current time of the simulation",
                           [this]() { return m_chronoForce->GetChTime(); });
 
-    msg->AddField<double>("ShipDriftAngle", "rad", "Ship drift angle",
-                          [this]() { return this->ComputeShipDriftAngle(); });
-
-    msg->AddField<double>("YawAdimVelocity", "", "Yaw non dimensional velocity",
-                          [this]() { return this->ComputeYawAdimVelocity(); });
-
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
          [this]() { return GetForceInBody(GetLogFC()); });
@@ -397,6 +366,11 @@ namespace frydom {
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
+
+    msg->AddField<double>("beta", "deg", "Ship drift angle",
+                          [this]() { return RAD2DEG * this->c_beta; });
+
+    msg->AddField<double>("YawAdimVelocity", "", "Yaw non dimensional velocity", &c_rpp);
 
     msg->AddField<double>("Xpp", "", "", &c_Xpp);
     msg->AddField<double>("Xpp0", "", "", &c_Xpp0);

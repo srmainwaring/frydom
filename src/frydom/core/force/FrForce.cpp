@@ -118,9 +118,6 @@ namespace frydom {
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
 
-    //msg->Initialize();
-    //msg->Send();
-
   }
 
   bool FrForce::IsForceAsset() {
@@ -442,19 +439,5 @@ namespace frydom {
       SetForceTorqueInBodyAtCOG(Force(), Torque(), NWU);
 
   }
-
-//    std::string FrForce::BuildPath(const std::string &rootPath) {
-//
-////        auto objPath = fmt::format("{}/Forces", rootPath);
-////
-////        auto logPath = GetPathManager()->BuildPath(objPath, fmt::format("{}_{}.csv", GetTypeName(), GetShortenUUID()));
-////
-////        // Add a serializer
-////        m_message->AddSerializer(FrSerializerFactory::instance().Create(this, logPath));
-////
-////        return objPath;
-//
-//    }
-
 
 }  // end namespace frydom
