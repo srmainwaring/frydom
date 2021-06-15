@@ -13,11 +13,13 @@ namespace frydom {
   FrSutuloManoeuvringForce::FrSutuloManoeuvringForce(const std::string &name, frydom::FrBody *body,
                                                      const std::string &file)
       : FrForce(name, "FrManoeuvringForce", body),
-        c_filepath(file), m_Cm(0.625), m_A22(0.), m_shipDraft(0.), m_shipLength(0.),
+        c_filepath(file), m_Cm(0.625), m_mu22(0.), m_shipDraft(0.), m_shipLength(0.),
         m_cy0(0.), m_cy1(0.), m_cy2(0.), m_cy3(0.), m_cy4(0.), m_cy5(0.), m_cy6(0.), m_cy7(0.), m_cy8(0.),
-        m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.) {
-
-  }
+        m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.),
+        c_Xpp0(0.), c_Xpp1(0.),
+        c_Ypp0(0.), c_Ypp1(0.), c_Ypp2(0.), c_Ypp3(0.), c_Ypp4(0.), c_Ypp5(0.), c_Ypp6(0.), c_Ypp7(0.), c_Ypp8(0.),
+        c_Npp0(0.), c_Npp1(0.), c_Npp2(0.), c_Npp3(0.), c_Npp4(0.), c_Npp5(0.), c_Npp6(0.), c_Npp7(0.), c_Npp8(0.), c_Npp9(0.)
+  {}
 
   void FrSutuloManoeuvringForce::Initialize() {
     FrForce::Initialize();
@@ -53,45 +55,52 @@ namespace frydom {
     auto v = shipVelocityInHeadingFrame.GetVy();
     auto V2 = u * u + v * v;
     auto beta = ComputeShipDriftAngle();
-    auto r = ComputeYawAdimVelocity();
+    auto rpp = ComputeYawAdimVelocity();
 
     auto cbeta = cos(beta);
     auto sbeta = sin(beta);
-    auto signR = mathutils::sgn(r);
+    auto sign_rpp = mathutils::sgn(rpp);
 
-    double Xsecond = 0.;
-    if (u>DBL_EPSILON)
-      Xsecond = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - r * r);
-    Xsecond -= 2 * m_Cm * m_A22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * r * sqrt(1 - r * r);
+    c_Xpp0 = 0.;
+    if (u > DBL_EPSILON)
+      c_Xpp0 = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - rpp * rpp);
+    c_Xpp1 = -2 * m_Cm * m_mu22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * rpp * sqrt(1 - rpp * rpp);
 
-    auto Ysecond = m_cy0 * r;
-    Ysecond += m_cy1 * sbeta * sin(MU_PI * r) * signR;
-    Ysecond += m_cy2 * sbeta * cos(MU_PI_2 * r);
-    Ysecond += m_cy3 * sin(2. * beta) * cos(MU_PI_2 * r);
-    Ysecond += m_cy4 * cbeta * sin(MU_PI * r);
-    Ysecond += m_cy5 * cos(2. * beta) * sin(MU_PI * r);
-    Ysecond += m_cy6 * cbeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
-    Ysecond += m_cy7 * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * r) * mathutils::sgn(beta);
-    Ysecond += m_cy8 * sin(3. * beta) * cos(MU_PI_2 * r);
+    double Xpp = c_Xpp0 + c_Xpp1;
 
-    auto Nsecond = m_cn0 * r;
-    Nsecond += m_cn1 * sin(2. * beta) * cos(MU_PI_2 * r);
-    Nsecond += m_cn2 * sbeta * cos(MU_PI_2 * r);
-    Nsecond += m_cn3 * cos(2. * beta) * sin(MU_PI * r);
-    Nsecond += m_cn4 * cbeta * sin(MU_PI * r);
-    Nsecond += m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * r);
-    Nsecond += m_cn6 * cbeta * (cbeta - cos(3. * beta)) * signR;
-    Nsecond += m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
-    Nsecond += m_cn8 * sbeta * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r));
-    Nsecond += m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * r) - cos(3. * MU_PI_2 * r)) * signR;
-    auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * r * r) * m_shipLength * m_shipDraft;
+    c_Ypp0 = m_cy0 * rpp;
+    c_Ypp1 = m_cy1 * sbeta * sin(MU_PI * rpp) * sign_rpp;
+    c_Ypp2 = m_cy2 * sbeta * cos(MU_PI_2 * rpp);
+    c_Ypp3 = m_cy3 * sin(2. * beta) * cos(MU_PI_2 * rpp);
+    c_Ypp4 = m_cy4 * cbeta * sin(MU_PI * rpp);
+    c_Ypp5 = m_cy5 * cos(2. * beta) * sin(MU_PI * rpp);
+    c_Ypp6 = m_cy6 * cbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
+    c_Ypp7 = m_cy7 * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * rpp) * mathutils::sgn(beta);
+    c_Ypp8 = m_cy8 * sin(3. * beta) * cos(MU_PI_2 * rpp);
+
+    double Ypp = c_Ypp0 + c_Ypp1 + c_Ypp2 + c_Ypp3 + c_Ypp4 + c_Ypp5 + c_Ypp6 + c_Ypp7 + c_Ypp8;
+
+    c_Npp0 = m_cn0 * rpp;
+    c_Npp1 += m_cn1 * sin(2. * beta) * cos(MU_PI_2 * rpp);
+    c_Npp2 += m_cn2 * sbeta * cos(MU_PI_2 * rpp);
+    c_Npp3 += m_cn3 * cos(2. * beta) * sin(MU_PI * rpp);
+    c_Npp4 += m_cn4 * cbeta * sin(MU_PI * rpp);
+    c_Npp5 += m_cn5 * (cos(2. * beta) - cos(4. * beta)) * sin(MU_PI * rpp);
+    c_Npp6 += m_cn6 * cbeta * (cbeta - cos(3. * beta)) * sign_rpp;
+    c_Npp7 += m_cn7 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
+    c_Npp8 += m_cn8 * sbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
+    c_Npp9 += m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
+
+    double Npp = c_Npp0 + c_Npp1 + c_Npp2 + c_Npp3 + c_Npp4 + c_Npp5 + c_Npp6 + c_Npp7 + c_Npp8 + c_Npp9;
+
+    auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * rpp * rpp) * m_shipLength * m_shipDraft;
 
     auto headingFrame = GetBody()->GetHeadingFrame();
 
-    Force bareHullForceInHeadingFrame(Xsecond * mul, Ysecond * mul, 0.);
+    Force bareHullForceInHeadingFrame(Xpp * mul, Ypp * mul, 0.);
     auto bareHullForceInWorld = headingFrame.ProjectVectorFrameInParent(bareHullForceInHeadingFrame, NWU);
 
-    auto bareHullTorqueInWorld = headingFrame.ProjectVectorFrameInParent(Torque(0., 0., Nsecond * mul), NWU);
+    auto bareHullTorqueInWorld = headingFrame.ProjectVectorFrameInParent(Torque(0., 0., Npp * mul), NWU);
 
     SetForceTorqueInWorldAtCOG(bareHullForceInWorld, bareHullTorqueInWorld, NWU);
 
@@ -106,8 +115,8 @@ namespace frydom {
     double u = shipVelocityInHeadingFrame.GetVx();
     double v = shipVelocityInHeadingFrame.GetVy();
     auto beta = 0.;
-    if (std::abs(v)>DBL_EPSILON)
-       beta = std::asin(v / sqrt(u * u + v * v));
+    if (std::abs(v) > DBL_EPSILON)
+      beta = std::asin(v / sqrt(u * u + v * v));
     if (u >= 0.)
       beta *= -1;
     else if (u < 0)
@@ -117,11 +126,21 @@ namespace frydom {
 
   double FrSutuloManoeuvringForce::ComputeYawAdimVelocity() {
     auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
-    auto u = shipVelocityInHeadingFrame.GetVx();
-    auto v = shipVelocityInHeadingFrame.GetVy();
-    auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
+    double u = shipVelocityInHeadingFrame.GetVx();
+    double v = shipVelocityInHeadingFrame.GetVy();
+    double r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
+
+    double vel = u * u + v * v;
+
+    double r_prime;
+
+    if (std::fabs(vel) > 0.) {
+      r_prime = r * m_shipLength / vel;
+    }
+
+
     double r_second = 0.;
-    if (std::abs(r)>DBL_EPSILON)
+    if (std::abs(r) > DBL_EPSILON)
       r_second = r * m_shipLength / sqrt(u * u + v * v + r * r * m_shipLength * m_shipLength);
     return r_second;
   }
@@ -156,7 +175,7 @@ namespace frydom {
       m_hullResistance.Initialize(u, Rh);
 
     } catch (json::parse_error &err) {
-      std::cout<<err.what()<<std::endl;
+      std::cout << err.what() << std::endl;
       event_logger::error("FrSutuloManoeuvringForce", GetName(), "resistance curve file can't be parsed");
       exit(EXIT_FAILURE);
     }
@@ -193,7 +212,7 @@ namespace frydom {
     }
 
     try {
-      m_A22 = node["A22"].get<double>();
+      m_mu22 = node["A22"].get<double>();
     } catch (json::parse_error &err) {
       event_logger::error("FrSutuloManoeuvringForce", GetName(), "no A22 in json file");
       exit(EXIT_FAILURE);
@@ -371,6 +390,30 @@ namespace frydom {
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
+
+    msg->AddField<double>("Xpp0", "", "", &c_Xpp0);
+    msg->AddField<double>("Xpp1", "", "", &c_Xpp1);
+
+    msg->AddField<double>("Ypp0", "", "", &c_Ypp0);
+    msg->AddField<double>("Ypp1", "", "", &c_Ypp1);
+    msg->AddField<double>("Ypp2", "", "", &c_Ypp2);
+    msg->AddField<double>("Ypp3", "", "", &c_Ypp3);
+    msg->AddField<double>("Ypp4", "", "", &c_Ypp4);
+    msg->AddField<double>("Ypp5", "", "", &c_Ypp5);
+    msg->AddField<double>("Ypp6", "", "", &c_Ypp6);
+    msg->AddField<double>("Ypp7", "", "", &c_Ypp7);
+    msg->AddField<double>("Ypp8", "", "", &c_Ypp8);
+
+    msg->AddField<double>("Npp0", "", "", &c_Npp0);
+    msg->AddField<double>("Npp1", "", "", &c_Npp1);
+    msg->AddField<double>("Npp2", "", "", &c_Npp2);
+    msg->AddField<double>("Npp3", "", "", &c_Npp3);
+    msg->AddField<double>("Npp4", "", "", &c_Npp4);
+    msg->AddField<double>("Npp5", "", "", &c_Npp5);
+    msg->AddField<double>("Npp6", "", "", &c_Npp6);
+    msg->AddField<double>("Npp7", "", "", &c_Npp7);
+    msg->AddField<double>("Npp8", "", "", &c_Npp8);
+    msg->AddField<double>("Npp9", "", "", &c_Npp9);
 
   }
 
