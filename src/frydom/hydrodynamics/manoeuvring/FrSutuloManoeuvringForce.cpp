@@ -16,8 +16,10 @@ namespace frydom {
         c_filepath(file), m_Cm(0.625), m_mu22(0.), m_shipDraft(0.), m_shipLength(0.),
         m_cy0(0.), m_cy1(0.), m_cy2(0.), m_cy3(0.), m_cy4(0.), m_cy5(0.), m_cy6(0.), m_cy7(0.), m_cy8(0.),
         m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.),
-        c_Xpp0(0.), c_Xpp1(0.),
+        c_Xpp(0.), c_Xpp0(0.), c_Xpp1(0.),
+        c_Ypp(0.),
         c_Ypp0(0.), c_Ypp1(0.), c_Ypp2(0.), c_Ypp3(0.), c_Ypp4(0.), c_Ypp5(0.), c_Ypp6(0.), c_Ypp7(0.), c_Ypp8(0.),
+        c_Npp(0.),
         c_Npp0(0.), c_Npp1(0.), c_Npp2(0.), c_Npp3(0.), c_Npp4(0.), c_Npp5(0.), c_Npp6(0.), c_Npp7(0.), c_Npp8(0.),
         c_Npp9(0.) {}
 
@@ -66,7 +68,7 @@ namespace frydom {
       c_Xpp0 = -2 * Rh(u) / (rho * m_shipLength * m_shipDraft * V2) * cbeta * std::abs(cbeta) * (1. - rpp * rpp);
     c_Xpp1 = -2 * m_Cm * m_mu22 / (rho * m_shipDraft * m_shipLength * m_shipLength) * sbeta * rpp * sqrt(1 - rpp * rpp);
 
-    double Xpp = c_Xpp0 + c_Xpp1;
+    c_Xpp = c_Xpp0 + c_Xpp1;
 
     c_Ypp0 = m_cy0 * rpp;
     c_Ypp1 = m_cy1 * sbeta * sin(MU_PI * rpp) * sign_rpp;
@@ -78,7 +80,7 @@ namespace frydom {
     c_Ypp7 = m_cy7 * (cos(2. * beta) - cos(4. * beta)) * cos(MU_PI_2 * rpp) * mathutils::sgn(beta);
     c_Ypp8 = m_cy8 * sin(3. * beta) * cos(MU_PI_2 * rpp);
 
-    double Ypp = c_Ypp0 + c_Ypp1 + c_Ypp2 + c_Ypp3 + c_Ypp4 + c_Ypp5 + c_Ypp6 + c_Ypp7 + c_Ypp8;
+    c_Ypp = c_Ypp0 + c_Ypp1 + c_Ypp2 + c_Ypp3 + c_Ypp4 + c_Ypp5 + c_Ypp6 + c_Ypp7 + c_Ypp8;
 
     c_Npp0 = m_cn0 * rpp;
     c_Npp1 = m_cn1 * sin(2. * beta) * cos(MU_PI_2 * rpp);
@@ -91,16 +93,17 @@ namespace frydom {
     c_Npp8 = m_cn8 * sbeta * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp));
     c_Npp9 = m_cn9 * sin(2. * beta) * (cos(MU_PI_2 * rpp) - cos(3. * MU_PI_2 * rpp)) * sign_rpp;
 
-    double Npp = c_Npp0 + c_Npp1 + c_Npp2 + c_Npp3 + c_Npp4 + c_Npp5 + c_Npp6 + c_Npp7 + c_Npp8 + c_Npp9;
+    c_Npp = c_Npp0 + c_Npp1 + c_Npp2 + c_Npp3 + c_Npp4 + c_Npp5 + c_Npp6 + c_Npp7 + c_Npp8 + c_Npp9;
 
     auto mul = 0.5 * rho * (V2 + m_shipLength * m_shipLength * rpp * rpp) * m_shipLength * m_shipDraft;
 
     auto headingFrame = GetBody()->GetHeadingFrame();
 
-    Force bareHullForceInHeadingFrame(Xpp * mul, Ypp * mul, 0.);
+    Force bareHullForceInHeadingFrame(c_Xpp *mul, c_Ypp *mul,0.);
     auto bareHullForceInWorld = headingFrame.ProjectVectorFrameInParent(bareHullForceInHeadingFrame, NWU);
 
-    auto bareHullTorqueInWorld = headingFrame.ProjectVectorFrameInParent(Torque(0., 0., Npp * mul), NWU);
+    auto bareHullTorqueInWorld =
+        headingFrame.ProjectVectorFrameInParent(Torque(0., 0., c_Npp * mul), NWU);
 
     SetForceTorqueInWorldAtCOG(bareHullForceInWorld, bareHullTorqueInWorld, NWU);
 
@@ -124,6 +127,7 @@ namespace frydom {
       vp = v / vel;
     }
 
+
     double beta;
     if (u >= 0.) {
       beta = -std::asin(vp);
@@ -135,23 +139,17 @@ namespace frydom {
 
   double FrSutuloManoeuvringForce::ComputeYawAdimVelocity() {
     auto shipVelocityInHeadingFrame = GetBody()->GetVelocityInHeadingFrame(NWU);
-    double u = shipVelocityInHeadingFrame.GetVx();
-    double v = shipVelocityInHeadingFrame.GetVy();
     double r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
 
-    double vel = u * u + v * v;
-
-    double r_prime;
-
-    if (std::fabs(vel) > 0.) {
-      r_prime = r * m_shipLength / vel;
+    double rpp = 0.;
+    if (std::fabs(r) > 0.) {
+      double u = shipVelocityInHeadingFrame.GetVx();
+      double v = shipVelocityInHeadingFrame.GetVy();
+      double v2 = u * u + v * v;
+      rpp = r * m_shipLength / std::sqrt(v2 + r * r * m_shipLength * m_shipLength);
     }
 
-
-    double r_second = 0.;
-    if (std::abs(r) > DBL_EPSILON)
-      r_second = r * m_shipLength / sqrt(u * u + v * v + r * r * m_shipLength * m_shipLength);
-    return r_second;
+    return rpp;
   }
 
   void FrSutuloManoeuvringForce::LoadResistanceCurve(const std::string &filepath) {
@@ -400,9 +398,11 @@ namespace frydom {
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
 
+    msg->AddField<double>("Xpp", "", "", &c_Xpp);
     msg->AddField<double>("Xpp0", "", "", &c_Xpp0);
     msg->AddField<double>("Xpp1", "", "", &c_Xpp1);
 
+    msg->AddField<double>("Ypp", "", "", &c_Ypp);
     msg->AddField<double>("Ypp0", "", "", &c_Ypp0);
     msg->AddField<double>("Ypp1", "", "", &c_Ypp1);
     msg->AddField<double>("Ypp2", "", "", &c_Ypp2);
@@ -413,6 +413,7 @@ namespace frydom {
     msg->AddField<double>("Ypp7", "", "", &c_Ypp7);
     msg->AddField<double>("Ypp8", "", "", &c_Ypp8);
 
+    msg->AddField<double>("Npp", "", "", &c_Npp);
     msg->AddField<double>("Npp0", "", "", &c_Npp0);
     msg->AddField<double>("Npp1", "", "", &c_Npp1);
     msg->AddField<double>("Npp2", "", "", &c_Npp2);
