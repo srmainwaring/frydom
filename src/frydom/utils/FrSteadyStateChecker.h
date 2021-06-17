@@ -89,8 +89,6 @@ namespace frydom {
           auto denom = std::max(m_fields[i]->GetMean(), 1.);
 
           is_steady = stdev / denom < m_max_deviations[i];
-          std::cout << "** debug : stdev = " << stdev << " ; denom = " << denom << std::endl;
-          std::cout << "** debug : stdev/denom = " << stdev/denom << std::endl;
           ++i;
         }
         return is_steady;
