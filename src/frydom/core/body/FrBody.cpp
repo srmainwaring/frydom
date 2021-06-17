@@ -758,10 +758,10 @@ namespace frydom {
 
   FrFrame FrBody::GetHeadingFrame() const {
     FrFrame headingFrame;
-    headingFrame.SetPosition(GetCOGPositionInWorld(NWU), NWU);
     double phi, theta, psi;
     GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
     headingFrame.SetRotZ_RADIANS(psi, NWU);
+    headingFrame.SetPosition(GetCOGPositionInWorld(NWU), NWU);
     return headingFrame;
   }
 
