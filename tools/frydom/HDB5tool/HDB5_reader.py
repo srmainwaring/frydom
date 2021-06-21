@@ -926,9 +926,28 @@ class HDB5reader_v2(HDB5reader):
             except:
                 pass
 
-            # Position of the body.
+            # Horizontal position in world and computation point in body frame.
             try:
-                body.position = np.array(reader[body_path + "/BodyPosition"])
+                position = np.array(reader[body_path + "/BodyPosition"])
+                body.horizontal_position = np.zeros(3)
+                body.horizontal_position[0] = position[0]
+                body.horizontal_position[1] = position[1]
+                body.horizontal_position[2] = 0
+                body.computation_point = np.zeros(3)
+            except:
+                try:
+                    x = np.array(reader[body_path + "/HorizontalPosition/x"])
+                    y = np.array(reader[body_path + "/HorizontalPosition/y"])
+                    psi = np.array(reader[body_path + "/HorizontalPosition/psi"])
+                    body.horizontal_position = np.zeros(3)
+                    body.horizontal_position[0] = x
+                    body.horizontal_position[1] = y
+                    body.horizontal_position[2] = psi
+                except:
+                    pass
+
+            try:
+                body.computation_point = np.array(reader[body_path + "/ComputationPoint"])
             except:
                 pass
 
@@ -1217,9 +1236,13 @@ class HDB5reader_v1(HDB5reader):
             except:
                 pass
 
-            # Position of the body.
+            # Horizontal position in world and computation point in body frame
             try:
-                body.position = np.array(reader[body_path + "/BodyPosition"])
+                position = np.array(reader[body_path + "/BodyPosition"])
+                body.horizontal_position[0] = position[0]
+                body.horizontal_position[1] = position[1]
+                body.horizontal_position[2] = 0
+                body.computation_point = np.zeros(3)
             except:
                 pass
 

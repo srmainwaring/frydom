@@ -1204,10 +1204,16 @@ class pyHDB(object):
         dset = writer.create_dataset(body_path + "/ID", data=body.i_body)
         dset.attrs['Description'] = "Body index"
 
-        # Position of the body.
-        if(body.position is not None):
-            dset = writer.create_dataset(body_path + "/BodyPosition", data=body.position)
-            dset.attrs['Description'] = "Center of gravity of the body in the absolute frame"
+        # Horizontal position in world.
+        if(body.horizontal_position is not None):
+            dset_horizontal_position = writer.create_group(body_path + "/HorizontalPosition")
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/x", data=body.horizontal_position[0])
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/y", data=body.horizontal_position[1])
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/psi", data=body.horizontal_position[2])
+
+        # Computation point in body frame.
+        if (body.computation_point is not None):
+            dset = writer.create_dataset(body_path + "/ComputationPoint", data=body.computation_point)
 
         # Masks.
         self.write_mask(writer, body, body_path + "/Mask")

@@ -46,8 +46,11 @@ class BodyDB(object):
         # Index.
         self.i_body = i_body
 
-        # Position.
-        self.position = None
+        # Horizontal position in world.
+        self.horizontal_position = None
+
+        # Computation point in body frame.
+        self.computation_point = None
 
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
