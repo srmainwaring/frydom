@@ -1256,11 +1256,9 @@ class pyHDB(object):
 
         dg = writer.create_group(wave_field_path)
 
-    def write_kochin(self, writer, kochin_path="/WaveDrift/Kochin"):
+    def write_kochin(self, writer, dg):
 
         """This method writes the Kochin functions and their angular derivatives into the *.hdb5 file."""
-
-        dg = writer.create_group(kochin_path)
 
         nbeta = self.nb_dir_kochin # different from self.nb_wave_dir if symmetry of the hdb was done.
         nbodies = self.nb_bodies
@@ -1359,12 +1357,15 @@ class pyHDB(object):
 
         # Kochin function angular step.
         if((self.solver == "Helios" or self.has_kochin) and self.kochin_step is not None):
-            dset = dg.create_dataset("KochinStep", data=self.kochin_step)
+            dg_kochin = writer.create_group("/WaveDrift/Kochin")
+            dset = dg_kochin.create_dataset("KochinStep", data=self.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
 
         # Kochin functions.
         if(self.has_kochin):
-            self.write_kochin(writer, "/WaveDrift/Kochin")
+            if(("/WaveDrift/Kochin" in dg) is False):
+                dg_kochin = writer.create_group("/WaveDrift/Kochin")
+            self.write_kochin(writer, dg_kochin)
 
     def write_VF(self, writer, VF_path = "/VectorFitting"):
         """This function writes the vector fitting parameters into the *.hdb5 file.

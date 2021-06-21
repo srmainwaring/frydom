@@ -461,7 +461,10 @@ class HDB5reader():
             try:
                 pyHDB.kochin_step = np.array(reader[wave_drift_path + "/KochinStep"])
             except:
-                pass
+                try:
+                    pyHDB.kochin_step = np.array(reader[wave_drift_path + "/Kochin/KochinStep"])
+                except:
+                    pass
 
             # Kochin functions and their derivatives.
             try:
