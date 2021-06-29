@@ -133,7 +133,10 @@ namespace frydom {
     double phi, theta, psi;
     eqFrame->GetFrame().GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
 
-    for (auto &val: waveDir) { val -= psi; }
+    for (auto &val: waveDir) {
+      val -= psi;
+      val = mathutils::Normalize_0_2PI(val);
+    }
 
     return waveDir;
   }
