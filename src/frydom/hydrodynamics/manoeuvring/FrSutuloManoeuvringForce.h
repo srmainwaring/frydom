@@ -8,9 +8,10 @@
 #include <utility>
 
 #include "frydom/core/force/FrForce.h"
-#include "MathUtils/Interp1d.h"
 
 namespace frydom {
+
+  class FrHullResistance;
 
   class FrSutuloManoeuvringForce : public FrForce {
 
@@ -20,9 +21,9 @@ namespace frydom {
 
     void Initialize() override;
 
-    double GetUMin() const { return m_hullResistance.GetXmin(); }
+    double GetUMin() const;
 
-    double GetUMax() const { return m_hullResistance.GetXmax(); }
+    double GetUMax() const;
 
    private:
 
@@ -44,7 +45,7 @@ namespace frydom {
 
     std::string c_filepath; ///< path to the JSON file containing the manoeuvring data
 
-    mathutils::Interp1dLinear<double, double> m_hullResistance;
+    std::shared_ptr<FrHullResistance> m_hullResistance;
     double m_cy0, m_cy1, m_cy2, m_cy3, m_cy4, m_cy5, m_cy6, m_cy7, m_cy8;
     double m_cn0, m_cn1, m_cn2, m_cn3, m_cn4, m_cn5, m_cn6, m_cn7, m_cn8, m_cn9;
 

@@ -6,6 +6,7 @@
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/utils/FrFileSystem.h"
+#include "frydom/hydrodynamics/manoeuvring/FrHullResistance.h"
 
 namespace frydom {
 
@@ -93,7 +94,7 @@ namespace frydom {
   }
 
   double FrSutuloManoeuvringForce::Rh(double u) const {
-    return m_hullResistance.Eval(u);
+    return m_hullResistance->Rh(u);
   }
 
   double FrSutuloManoeuvringForce::ComputeShipDriftAngle(const double &u, const double &v) {
@@ -129,8 +130,7 @@ namespace frydom {
 
   void FrSutuloManoeuvringForce::LoadResistanceCurve(const std::string &filepath) {
 
-    std::shared_ptr<std::vector<double>> u, Rh;
-
+    bool interp_hull_resistance = false;
     // Loader.
     try {
       std::ifstream ifs(filepath);
@@ -139,26 +139,32 @@ namespace frydom {
       auto node = j["hull_resistance"];
 
       try {
-        u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
+        auto u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
         for (auto &vel: *u) vel = convert_velocity_unit(vel, KNOT, MS);
-
+        auto Rh = std::make_shared<std::vector<double>>(node["Rh_N"].get<std::vector<double>>());
+        m_hullResistance = std::make_shared<FrInterpHullResistance>(u, Rh);
+        interp_hull_resistance = true;
       } catch (json::parse_error &err) {
-        event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt in json file");
-        exit(EXIT_FAILURE);
+//        event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt or Rh_N in json file");
+//        exit(EXIT_FAILURE);
       }
 
-      try {
-        Rh = std::make_shared<std::vector<double>>(node["Rh_N"].get<std::vector<double>>());
-      } catch (json::parse_error &err) {
-        event_logger::error("FrSutuloManoeuvringForce", GetName(), "no Rh_N in json file");
-        exit(EXIT_FAILURE);
+      if (!interp_hull_resistance) {
+        try {
+          auto a_pos = node["a+"].get<double>();
+          auto a_neg = node["a-"].get<double>();
+          auto b_pos = node["b+"].get<double>();
+          auto b_neg = node["b-"].get<double>();
+          m_hullResistance = std::make_shared<FrQuadHullResistance>(a_pos, a_neg, b_pos, b_neg);
+        } catch (json::parse_error &err) {
+          event_logger::error("FrSutuloManoeuvringForce", GetName(), "wrong data format in hull resistance json file");
+          exit(EXIT_FAILURE);
+        }
       }
-
-      m_hullResistance.Initialize(u, Rh);
 
     } catch (json::parse_error &err) {
       std::cout << err.what() << std::endl;
-      event_logger::error("FrSutuloManoeuvringForce", GetName(), "resistance curve file can't be parsed");
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "hull resistance curve file can't be parsed");
       exit(EXIT_FAILURE);
     }
 
@@ -399,6 +405,32 @@ namespace frydom {
     msg->AddField<double>("Npp8", "", "", &c_Npp8);
     msg->AddField<double>("Npp9", "", "", &c_Npp9);
 
+  }
+
+  double FrSutuloManoeuvringForce::GetUMin() const {
+    double Umin;
+    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistance.get())) {
+      Umin = m_hullResistance->GetUMin();
+    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistance.get())) {
+      Umin =  - 0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_shipLength);
+    } else {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "wrong hull resistance model");
+      Umin = 0;
+    }
+    return Umin;
+  }
+
+  double FrSutuloManoeuvringForce::GetUMax() const {
+    double Umax;
+    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistance.get())) {
+      Umax = m_hullResistance->GetUMax();
+    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistance.get())) {
+      Umax = 0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_shipLength);
+    } else {
+      event_logger::error("FrSutuloManoeuvringForce", GetName(), "wrong hull resistance model");
+      Umax = 0;
+    }
+    return Umax;
   }
 
   std::shared_ptr<FrSutuloManoeuvringForce>
