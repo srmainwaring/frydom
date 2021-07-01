@@ -147,6 +147,8 @@ namespace frydom {
       } catch (json::parse_error &err) {
 //        event_logger::error("FrSutuloManoeuvringForce", GetName(), "no vessel_speed_kt or Rh_N in json file");
 //        exit(EXIT_FAILURE);
+      } catch (nlohmann::detail::type_error &error) {
+
       }
 
       if (!interp_hull_resistance) {
