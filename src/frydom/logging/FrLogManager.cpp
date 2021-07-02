@@ -25,6 +25,8 @@
 #include "FrLoggable.h"
 #include "FrEventLogger.h"
 
+#include "FrCastorManager.h"
+
 
 #define META_FILE_NAME "meta.json"
 #define DATE_FOLDER_FORMAT "%Y-%m-%d_%Hh%Mm%Ss"
@@ -38,7 +40,8 @@ namespace frydom {
       m_log_CSV(true),
       m_system(system),
       m_nfreq_output(1),
-      m_ifreq_output(0) { // FIXME : Du coup LogManager devrait etre un TreeNode...
+      m_ifreq_output(0),
+      m_castor(system) { // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
     m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), logFolderName});
@@ -49,7 +52,7 @@ namespace frydom {
     event_logger::info("LogManager", "", "Logging into directory \"{}\".", m_log_folder);
 
     // Event Logger initialization
-    event_logger::init(system, "FRYDOM", FrFileSystem::join({m_log_folder, "events.txt"}));
+    event_logger::init(system, GetSystem()->GetName(), FrFileSystem::join({m_log_folder, "events.txt"}));
 
   }
 
@@ -104,6 +107,10 @@ namespace frydom {
 
   }
 
+  void FrLogManager::WriteCastorFile() {
+    m_castor.Write(m_log_folder);
+  }
+
   std::string FrLogManager::now() { // TODO : voir a faire avec fmt...
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::string now_str = std::ctime(&now);
@@ -152,6 +159,10 @@ namespace frydom {
     return format;
   }
 
+  FrCastorManager& FrLogManager::GetCastorParameters() {
+    return m_castor;
+  }
+
   void FrLogManager::Initialize() { // TODO : retirer la necessite d'avoir cette methode friend de FrLoggableBase
 
     if (m_log_CSV) {
@@ -191,6 +202,7 @@ namespace frydom {
       obj->SendLogMessages();
 
     }
+    WriteCastorFile();
   }
 
   void FrLogManager::StepFinalize() {

@@ -120,6 +120,14 @@ class pyHDB(object):
         # Commit hash.
         self.commit_hash = None
 
+        # Expert numerical parameters.
+        self.has_expert_parameters = False
+        self.surface_integration_order = None
+        self.green_function = None
+        self.crmax = None
+        self.wave_reference_point_x = None
+        self.wave_reference_point_y = None
+
     def set_wave_frequencies(self):
         """Frequency array of BEM computations in rad/s.
 
@@ -723,6 +731,10 @@ class pyHDB(object):
             if(self.commit_hash is not None):
                 self.write_commit_hash(writer)
 
+            # Expert numerical parameters.
+            if(self.has_expert_parameters):
+                self.write_numerical_parameters(writer, "/ExpertParameters")
+
     def write_environment(self, writer):
         """This function writes the environmental data into the *.hdb5 file.
 
@@ -1192,10 +1204,16 @@ class pyHDB(object):
         dset = writer.create_dataset(body_path + "/ID", data=body.i_body)
         dset.attrs['Description'] = "Body index"
 
-        # Position of the body.
-        if(body.position is not None):
-            dset = writer.create_dataset(body_path + "/BodyPosition", data=body.position)
-            dset.attrs['Description'] = "Center of gravity of the body in the absolute frame"
+        # Horizontal position in world.
+        if(body.horizontal_position is not None):
+            dset_horizontal_position = writer.create_group(body_path + "/HorizontalPosition")
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/x", data=body.horizontal_position[0])
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/y", data=body.horizontal_position[1])
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/psi", data=body.horizontal_position[2])
+
+        # Computation point in body frame.
+        if (body.computation_point is not None):
+            dset = writer.create_dataset(body_path + "/ComputationPoint", data=body.computation_point)
 
         # Masks.
         self.write_mask(writer, body, body_path + "/Mask")
@@ -1244,11 +1262,9 @@ class pyHDB(object):
 
         dg = writer.create_group(wave_field_path)
 
-    def write_kochin(self, writer, kochin_path="/WaveDrift/Kochin"):
+    def write_kochin(self, writer, dg):
 
         """This method writes the Kochin functions and their angular derivatives into the *.hdb5 file."""
-
-        dg = writer.create_group(kochin_path)
 
         nbeta = self.nb_dir_kochin # different from self.nb_wave_dir if symmetry of the hdb was done.
         nbodies = self.nb_bodies
@@ -1347,12 +1363,15 @@ class pyHDB(object):
 
         # Kochin function angular step.
         if((self.solver == "Helios" or self.has_kochin) and self.kochin_step is not None):
-            dset = dg.create_dataset("KochinStep", data=self.kochin_step)
+            dg_kochin = writer.create_group("/WaveDrift/Kochin")
+            dset = dg_kochin.create_dataset("KochinStep", data=self.kochin_step)
             dset.attrs['Description'] = "Kochin function angular step"
 
         # Kochin functions.
         if(self.has_kochin):
-            self.write_kochin(writer, "/WaveDrift/Kochin")
+            if(("/WaveDrift/Kochin" in dg) is False):
+                dg_kochin = writer.create_group("/WaveDrift/Kochin")
+            self.write_kochin(writer, dg_kochin)
 
     def write_VF(self, writer, VF_path = "/VectorFitting"):
         """This function writes the vector fitting parameters into the *.hdb5 file.
@@ -1368,7 +1387,7 @@ class pyHDB(object):
         dset.attrs['Description'] = "Maximum vector fitting order."
 
         dset = writer.create_dataset(VF_path + "/Relaxed", data=self.relaxed)
-        dset.attrs['Description'] = "Relaxed vector-fitting (true) or original algorithm (false);"
+        dset.attrs['Description'] = "Relaxed vector-fitting (true) or original algorithm (false)."
 
         dset = writer.create_dataset(VF_path + "/Tolerance", data=self.tolerance)
         dset.attrs['Description'] = "Least-square tolerance of the vector fitting algorithm."
@@ -1398,4 +1417,25 @@ class pyHDB(object):
             # Version.
             dset = writer.create_dataset('NormalizedCommitHash', data= self.commit_hash)
             dset.attrs['Description'] = "Tag - Commit hash - Branch - Date."
+
+    def write_numerical_parameters(self, writer, num_param_path = "/ExpertParameters"):
+        """This method writes the vector fitting parameters into the *.hdb5 file.
+
+        Parameter
+        ---------
+        Writer : string.
+            *.hdb5 file.
+        """
+        writer.create_group(num_param_path)
+
+        dset = writer.create_dataset(num_param_path + "/SurfaceIntegrationOrder", data=self.surface_integration_order)
+        dset.attrs['Description'] = "Surface integration order."
+
+        dset = writer.create_dataset(num_param_path + "/GreenFunction", data=self.green_function)
+        dset.attrs['Description'] = "Green's function."
+
+        dset = writer.create_dataset(num_param_path + "/Crmax", data=self.crmax)
+
+        dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/x", data=self.wave_reference_point_x)
+        dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/y", data=self.wave_reference_point_y)
 

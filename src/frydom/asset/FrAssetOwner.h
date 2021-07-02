@@ -19,6 +19,7 @@
 
 #include "frydom/core/misc/FrColors.h"
 #include "frydom/core/math/FrVector.h"
+#include "frydom/core/common/FrRotation.h"
 
 namespace chrono {
 
@@ -91,11 +92,17 @@ namespace frydom {
 
     /// Add a mesh as an asset for visualization given a WaveFront .obj file name
     /// \param obj_filename filename of the asset to be added
-    void AddMeshAsset(std::string obj_filename);
+    void AddMeshAsset(std::string obj_filename, Position pos=Position(), FrRotation rot=FrRotation());
 
     /// Add a mesh as an asset for visualization given a FrTriangleMeshConnected mesh object
     /// \param mesh mesh of the asset to be added
     void AddMeshAsset(std::shared_ptr<FrTriangleMeshConnected> mesh);
+
+    const std::string& GetMeshFilename() const;
+
+    const Position& GetMeshOffsetPosition(FRAME_CONVENTION fc) const;
+
+    const FrRotation& GetMeshOffsetRotation() const;
 
     BoxShapeConstContainer GetBoxShapes() const;
 
@@ -139,6 +146,10 @@ namespace frydom {
     CylinderShapeContainer m_cylinderShapes;
     SphereShapeContainer m_sphereShapes;
     TriangleMeshShapeContainer m_meshShapes;
+
+    std::string m_filename;
+    Position m_mesh_offset_position;
+    FrRotation m_mesh_offset_rotation;
 
   };
 
