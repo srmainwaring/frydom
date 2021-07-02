@@ -223,7 +223,6 @@ namespace frydom {
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
       m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
-      m_mesh_visu(""), m_mesh_offset(),
       m_DOFMask(std::make_unique<FrDOFMask>(this)) {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
