@@ -926,30 +926,26 @@ class HDB5reader_v2(HDB5reader):
             except:
                 pass
 
-            # Horizontal position in world and computation point in body frame.
+            # Horizontal position in world.
             try:
-                position = np.array(reader[body_path + "/BodyPosition"])
+                x = np.array(reader[body_path + "/HorizontalPosition/x"])  # m.
+                y = np.array(reader[body_path + "/HorizontalPosition/y"])  # m.
+                psi = np.array(reader[body_path + "/HorizontalPosition/psi"])  # deg.
                 body.horizontal_position = np.zeros(3)
-                body.horizontal_position[0] = position[0]
-                body.horizontal_position[1] = position[1]
-                body.horizontal_position[2] = 0
-                body.computation_point = np.zeros(3)
-            except:
-                try:
-                    x = np.array(reader[body_path + "/HorizontalPosition/x"])
-                    y = np.array(reader[body_path + "/HorizontalPosition/y"])
-                    psi = np.array(reader[body_path + "/HorizontalPosition/psi"])
-                    body.horizontal_position = np.zeros(3)
-                    body.horizontal_position[0] = x
-                    body.horizontal_position[1] = y
-                    body.horizontal_position[2] = psi
-                except:
-                    pass
-
-            try:
-                body.computation_point = np.array(reader[body_path + "/ComputationPoint"])
+                body.horizontal_position[0] = x  # m.
+                body.horizontal_position[1] = y  # m.
+                body.horizontal_position[2] = psi  # deg.
             except:
                 pass
+
+            # Computation point in body frame.
+            try:
+                body.computation_point = np.array(reader[body_path + "/BodyPosition"])
+            except:
+                try:
+                    body.computation_point = np.array(reader[body_path + "/ComputationPoint"])
+                except:
+                    pass
 
             # if (pyHDB.version == 2.0):
             #     # Force modes.
