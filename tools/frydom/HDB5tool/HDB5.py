@@ -142,7 +142,7 @@ class HDB5(object):
         self._pyHDB.eval_impulse_response_function_Ku()
 
         # Interpolations with respect to the wave directions and the wave frequencies.
-        self._pyHDB.interpolation(self.discretization)
+        # self._pyHDB.interpolation(self.discretization)
 
         # Initialization done.
         self._is_initialized = True
