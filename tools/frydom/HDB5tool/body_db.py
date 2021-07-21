@@ -46,7 +46,7 @@ class BodyDB(object):
         # Index.
         self.i_body = i_body
 
-        # Horizontal position in world.
+        # Horizontal position in world (m, m, deg).
         self.horizontal_position = None
 
         # Computation point in body frame.

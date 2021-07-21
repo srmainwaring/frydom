@@ -1207,9 +1207,9 @@ class pyHDB(object):
         # Horizontal position in world.
         if(body.horizontal_position is not None):
             dset_horizontal_position = writer.create_group(body_path + "/HorizontalPosition")
-            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/x", data=body.horizontal_position[0])
-            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/y", data=body.horizontal_position[1])
-            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/psi", data=body.horizontal_position[2])
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/x", data=body.horizontal_position[0]) # m.
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/y", data=body.horizontal_position[1]) # m.
+            dset_horizontal_position = writer.create_dataset(body_path + "/HorizontalPosition/psi", data=body.horizontal_position[2]) # deg.
 
         # Computation point in body frame.
         if (body.computation_point is not None):
