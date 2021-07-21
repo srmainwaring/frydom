@@ -33,7 +33,7 @@ option(FRYDOM_BUILD_ON_LIGER "For building on LIGER supercomputer" OFF)
 option(BUILD_BOOST "Build boost instead of finding it on the system" ON)
 
 option(FRYDOM_DOWNLOAD_DEMOS_DATA "Downloading demo data" ON)
-set(FRYDOM_DEMOS_DATA_VERSION "1.1.5" CACHE STRING "Data version")
+set(FRYDOM_DEMOS_DATA_VERSION "1.1.6" CACHE STRING "Data version")
 
 if (FRYDOM_BUILD_ON_LIGER)
     set(FRYDOM_USE_IRRLICHT FALSE CACHE BOOL "" FORCE)
