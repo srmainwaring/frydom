@@ -1226,14 +1226,29 @@ namespace frydom {
          [this]() { return GetLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("LinearAccelerationInBody", "m/s2",
+         fmt::format("body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("COGLinearAccelerationInWorld", "m/s2",
          fmt::format("COG body linear acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetCOGLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("COGLinearAccelerationInBody", "m/s2",
+         fmt::format("COG body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetCOGAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("AngularAccelerationInWorld", "rad/s2",
          fmt::format("body angular acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetAngularAccelerationInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("AngularAccelerationInBody", "rad/s2",
+         fmt::format("body angular acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAngularAccelerationInBody(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TotalExtForceInBody", "N",
