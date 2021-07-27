@@ -112,7 +112,43 @@ namespace frydom {
     return result;
   }
 
+  double FrPropellerForce::GetPower() const {
+    return GetRotationalVelocity(RADS) * GetTorqueInBodyAtPointInBody(GetPositionInBody(), NWU).GetMx();
+  }
+
   void FrPropellerForce::Initialize() {
     ReadCoefficientsFile();
+  }
+
+  void FrPropellerForce::DefineLogMessages() {
+    auto msg = NewMessage("FrForce", "Force message");
+
+    msg->AddField<double>("Time", "s", "Current time of the simulation",
+                          [this]() { return m_chronoForce->GetChTime(); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
+         [this]() { return GetForceInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInBodyAtCOG", "Nm", fmt::format("torque at COG in body reference frame in {}", GetLogFC()),
+         [this]() { return GetTorqueInBodyAtCOG(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ForceInWorld", "N", fmt::format("force in world reference frame in {}", GetLogFC()),
+         [this]() { return GetForceInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
+         [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
+
+    msg->AddField<double>("RotationalVelocity", "RPM", "Rotational velocity of the propeller",
+                          [this]() { return GetRotationalVelocity(RPM); });
+
+    msg->AddField<double>("Power", "W", "Power delivered by the propeller",
+                          [this]() { return GetPower(); });
+
+
+
   }
 }

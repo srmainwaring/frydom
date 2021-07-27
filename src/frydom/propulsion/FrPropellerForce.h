@@ -50,6 +50,8 @@ namespace frydom {
 
     signed int GetScrewDirectionSign() const;
 
+    double GetPower() const;
+
    protected:
 
     void Compute(double time) override;
@@ -64,6 +66,8 @@ namespace frydom {
     double GetWakeFraction(double sidewashAngle) const;
 
     virtual GeneralizedForce ComputeGeneralizedForceInWorld() = 0;
+
+    void DefineLogMessages() override;
 
     std::string m_name;
     std::string m_reference;
