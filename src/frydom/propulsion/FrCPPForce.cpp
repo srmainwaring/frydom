@@ -32,6 +32,19 @@ namespace frydom {
 
   void frydom::FrCPPForce::ReadPropellerTable(const json &node) {
 
+    try {
+      auto type = node["type"].get<json::string_t>();
+      //FIXME : verification du type necessite une convention de nommage des types
+      if (type != "CPP") {
+        event_logger::error("FrCPPForce", GetName(),
+                            "file given is not a CPP propeller file coefficients");
+        exit(EXIT_FAILURE);
+      }
+    } catch (json::parse_error &err) {
+      event_logger::error("FrCPPForce", GetName(), "no reference in json file");
+      exit(EXIT_FAILURE);
+    }
+
     std::vector<double> advanceAngle, PD;
     std::vector<std::vector<double>> Ct, Cq;
     int screwDirectionSign;
@@ -43,7 +56,8 @@ namespace frydom {
       else if (screwDirection == "LEFT_HANDED")
         screwDirectionSign = -1;
       else {
-        event_logger::error("FrCPPForce", "", "wrong screw_direction value in open_water_table : RIGHT_HANDED or LEFT_HANDED");
+        event_logger::error("FrCPPForce", "",
+                            "wrong screw_direction value in open_water_table : RIGHT_HANDED or LEFT_HANDED");
         exit(EXIT_FAILURE);
       }
     } catch (json::parse_error &err) {

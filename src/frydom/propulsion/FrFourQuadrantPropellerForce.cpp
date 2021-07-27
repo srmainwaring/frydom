@@ -10,7 +10,7 @@ frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::st
                                                                    Position propellerPositionInBody,
                                                                    const std::string &fileCoefficients,
                                                                    FRAME_CONVENTION fc) :
-    FrPropellerForce(name, body, propellerPositionInBody, fc) {
+    FrPropellerForce(name, body, propellerPositionInBody, fc), c_fileCoefficients(fileCoefficients) {
 
 }
 
@@ -36,10 +36,11 @@ frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralize
   auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
   auto advanceAngle = atan2(uPA, GetScrewDirectionSign() * vp);
 
-  auto squaredVelocity = uPA*uPA + vp*vp;
+  auto squaredVelocity = uPA * uPA + vp * vp;
 
   auto T = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * GetDiameter();
-  auto Q = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter() * GetScrewDirectionSign();
+  auto Q = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter() *
+           GetScrewDirectionSign();
 
   auto force = GetBody()->ProjectVectorInWorld(Force(T, 0., 0.), NWU);
   auto torque = GetBody()->ProjectVectorInWorld(Force(Q, 0., 0.), NWU);
@@ -70,28 +71,24 @@ void frydom::FrFourQuadrantPropellerForce::ReadCoefficientsFile() {
     exit(EXIT_FAILURE);
   }
 
-  try {
-    auto type = node["type"].get<json::string_t>();
-    //FIXME : verification du type necessite une convention de nommage des types
-//    if (type != "CPP") {
-//      event_logger::error("FrCPPForce", GetName(), "file given is not a CPP propeller file coefficients");
-//      exit(EXIT_FAILURE);
-//    }
-  } catch (json::parse_error &err) {
-    event_logger::error("FrFourQuadrantPropellerForce", GetName(), "no reference in json file");
-    exit(EXIT_FAILURE);
-  }
-
-  try {
-    m_diameter = node["data"]["diameter_m"].get<double>();
-  } catch (json::parse_error &err) {
-    event_logger::error("FrFourQuadrantPropellerForce", GetName(), "no diameter in json file");
-    exit(EXIT_FAILURE);
-  }
+  ReadPropellerTable(node);
 
 }
 
 void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) {
+
+  try {
+    auto type = node["type"].get<json::string_t>();
+    //FIXME : verification du type necessite une convention de nommage des types
+    if (type != "FPP_FOUR_QUADRANTS") {
+      event_logger::error("FrFourQuadrantPropellerForce", GetName(),
+                          "file given is not a FPP Four Quadrants propeller file coefficients");
+      exit(EXIT_FAILURE);
+    }
+  } catch (json::parse_error &err) {
+    event_logger::error("FrFourQuadrantPropellerForce", GetName(), "no reference in json file");
+    exit(EXIT_FAILURE);
+  }
 
   std::vector<double> advanceAngle, PD, Ct, Cq;
   int screwDirectionSign;
@@ -103,7 +100,8 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
     else if (screwDirection == "LEFT_HANDED")
       screwDirectionSign = -1;
     else {
-      event_logger::error("FrCPPForce", "", "wrong screw_direction value in open_water_table : RIGHT_HANDED or LEFT_HANDED");
+      event_logger::error("FrCPPForce", "",
+                          "wrong screw_direction value in open_water_table : RIGHT_HANDED or LEFT_HANDED");
       exit(EXIT_FAILURE);
     }
   } catch (json::parse_error &err) {
@@ -130,6 +128,7 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
 
   try {
     Cq = node["open_water_table"]["cq"].get<std::vector<double>>();
+    for (auto &coeff:Cq) coeff *= screwDirectionSign;
     m_coefficients.AddY("Cq", Cq);
   } catch (json::parse_error &err) {
     event_logger::error("FrCPPForce", "", "no cq in open_water_table");
@@ -140,7 +139,8 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
 std::shared_ptr<frydom::FrFourQuadrantPropellerForce>
 frydom::make_four_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
                                            const std::string &fileCoefficients, FRAME_CONVENTION fc) {
-  auto force = std::make_shared<FrFourQuadrantPropellerForce>(name, body, propellerPositionInBody, fileCoefficients, fc);
+  auto force = std::make_shared<FrFourQuadrantPropellerForce>(name, body, propellerPositionInBody, fileCoefficients,
+                                                              fc);
   body->AddExternalForce(force);
   return force;
 }
