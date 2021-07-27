@@ -10,7 +10,7 @@ namespace frydom {
 
   FrPropellerForce::FrPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
                                      FRAME_CONVENTION fc) :
-      FrForce(name, "FrPropulsionName", body),
+      FrForce(name, "FrPropulsionName", body), m_name(name),
       m_positionInBody(propellerPositionInBody),
       m_thrust_deduction_factor(0.), m_K1(4), m_wake_fraction0(0.), m_correction_factor(1.),
       m_diameter(1.0), m_rotational_velocity(0.), m_screwDirection(RIGHT_HANDED) {

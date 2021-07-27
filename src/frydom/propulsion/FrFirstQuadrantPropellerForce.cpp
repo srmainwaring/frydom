@@ -56,12 +56,12 @@ namespace frydom {
 
     auto node = j["propeller"];
 
-    try {
-      m_name = node["name"].get<json::string_t>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrFirstQuadrantPropellerForce", GetName(), "no name in json file");
-      exit(EXIT_FAILURE);
-    }
+//    try {
+//      m_name = node["name"].get<json::string_t>();
+//    } catch (json::parse_error &err) {
+//      event_logger::error("FrFirstQuadrantPropellerForce", GetName(), "no name in json file");
+//      exit(EXIT_FAILURE);
+//    }
 
     try {
       m_reference = node["reference"].get<json::string_t>();
