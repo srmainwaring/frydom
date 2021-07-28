@@ -34,6 +34,8 @@ namespace frydom {
 
     std::vector<double> flap_angle, attack_angle;
     std::vector<std::vector<double>> Cd, Cl, Cm;
+    FRAME_CONVENTION fc;
+    DIRECTION_CONVENTION dc;
 
 
     // Loader.
@@ -43,13 +45,6 @@ namespace frydom {
     auto node = j["rudder"];
 
     try {
-      m_name = node["name"].get<json::string_t>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrFlapRudderForce", GetName(), "no name in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
       m_reference = node["reference"].get<json::string_t>();
     } catch (json::parse_error &err) {
       event_logger::error("FrFlapRudderForce", GetName(), "no reference in json file");
@@ -57,16 +52,16 @@ namespace frydom {
     }
 
     try {
-      m_flapLaw = node["flap_law"]["coeff"].get<double>();
+      fc = STRING2FRAME(node["load_coefficients"]["frame_convention"].get<json::string_t>());
     } catch (json::parse_error &err) {
-      event_logger::error("FrFlapRudderForce", GetName(), "no flap law coefficient in json file");
+      event_logger::error("FrFlapRudderForce", "", "no frame_convention in load_coefficients");
       exit(EXIT_FAILURE);
     }
 
     try {
-      m_projectedLateralArea = node["data"]["area_m2"].get<double>();
+      dc = STRING2DIRECTION(node["load_coefficients"]["direction_convention"].get<json::string_t>());
     } catch (json::parse_error &err) {
-      event_logger::error("FrFlapRudderForce", GetName(), "no area in json file");
+      event_logger::error("FrFlapRudderForce", "", "no direction_convention in load_coefficients");
       exit(EXIT_FAILURE);
     }
 

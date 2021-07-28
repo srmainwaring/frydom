@@ -117,7 +117,6 @@ namespace frydom {
 
     virtual GeneralizedForce ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const;
 
-    std::string m_name;
     std::string m_reference;
 
     double m_wakeFraction0;

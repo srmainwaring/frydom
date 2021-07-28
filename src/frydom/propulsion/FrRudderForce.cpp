@@ -249,25 +249,18 @@ namespace frydom {
     auto node = j["rudder"];
 
     try {
-      m_name = node["name"].get<json::string_t>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrRudderForce", GetName(), "no name in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
       m_reference = node["reference"].get<json::string_t>();
     } catch (json::parse_error &err) {
       event_logger::error("FrRudderForce", GetName(), "no reference in json file");
       exit(EXIT_FAILURE);
     }
-
-    try {
-      m_rootChord = node["data"]["chord_length_m"].get<double>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrRudderForce", GetName(), "no chord_length_m in json file");
-      exit(EXIT_FAILURE);
-    }
+//
+//    try {
+//      m_rootChord = node["data"]["chord_length_m"].get<double>();
+//    } catch (json::parse_error &err) {
+//      event_logger::error("FrRudderForce", GetName(), "no chord_length_m in json file");
+//      exit(EXIT_FAILURE);
+//    }
 
     try {
       fc = STRING2FRAME(node["load_coefficients"]["frame_convention"].get<json::string_t>());
