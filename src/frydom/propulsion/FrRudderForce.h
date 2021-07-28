@@ -76,7 +76,7 @@ namespace frydom {
 
     virtual double GetTorqueCoefficient(double attackAngle) const;
 
-    void SetRudderAngle(double angle);
+    void SetRudderAngle(double angle, ANGLE_UNIT unit);
 
     double GetRudderAngle() const;
 

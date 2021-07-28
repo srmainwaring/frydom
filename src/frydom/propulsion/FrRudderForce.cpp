@@ -100,7 +100,8 @@ namespace frydom {
     return m_wakeFraction0 * exp(-m_K1 * sidewashAngle * sidewashAngle);
   }
 
-  void FrRudderForce::SetRudderAngle(double angle) {
+  void FrRudderForce::SetRudderAngle(double angle, ANGLE_UNIT unit) {
+    if (unit==DEG) angle *= DEG2RAD;
     m_rudderAngle = angle;
   }
 

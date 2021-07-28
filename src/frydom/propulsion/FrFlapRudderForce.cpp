@@ -52,14 +52,14 @@ namespace frydom {
     }
 
     try {
-      fc = STRING2FRAME(node["load_coefficients"]["frame_convention"].get<json::string_t>());
+      fc = STRING2FRAME(node["frame_convention"].get<json::string_t>());
     } catch (json::parse_error &err) {
       event_logger::error("FrFlapRudderForce", "", "no frame_convention in load_coefficients");
       exit(EXIT_FAILURE);
     }
 
     try {
-      dc = STRING2DIRECTION(node["load_coefficients"]["direction_convention"].get<json::string_t>());
+      dc = STRING2DIRECTION(node["direction_convention"].get<json::string_t>());
     } catch (json::parse_error &err) {
       event_logger::error("FrFlapRudderForce", "", "no direction_convention in load_coefficients");
       exit(EXIT_FAILURE);
