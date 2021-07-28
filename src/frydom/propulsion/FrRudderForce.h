@@ -9,6 +9,7 @@
 #include "frydom/core/force/FrForce.h"
 #include "MathUtils/Interp1d.h"
 #include "frydom/propulsion/FrPropellerRudder.h"
+#include "frydom/core/math/functions/FrFunctionsInc.h"
 
 namespace frydom {
 
@@ -70,6 +71,10 @@ namespace frydom {
 
     double GetRootChord() const;
 
+    void SetRampSlope(double value, FREQUENCY_UNIT unit);
+
+    double GetRampSlope(FREQUENCY_UNIT unit) const;
+
     virtual double GetLiftCoefficient(double attackAngle) const;
 
     virtual double GetDragCoefficient(double attackAngle) const;
@@ -78,7 +83,7 @@ namespace frydom {
 
     void SetRudderAngle(double angle, ANGLE_UNIT unit);
 
-    double GetRudderAngle() const;
+    double GetRudderAngle(ANGLE_UNIT unit) const;
 
     void SetStraightRunWakeFraction(double w0);
 
@@ -128,7 +133,9 @@ namespace frydom {
     double m_K2;
     double m_K3;
 
-    double m_rudderAngle;
+    double m_ramp_slope;
+    FrLinearRampFunction m_rudderAngle;
+
     double m_projectedLateralArea;
     double m_height;
     double m_rootChord;

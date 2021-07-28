@@ -77,6 +77,14 @@ namespace frydom {
     return m_rootChord;
   }
 
+  void FrRudderForce::SetRampSlope(double value, FREQUENCY_UNIT unit) {
+    m_ramp_slope = convert_frequency(value, unit, RADS);
+  }
+
+  double FrRudderForce::GetRampSlope(FREQUENCY_UNIT unit) const {
+    return convert_frequency(m_ramp_slope, RADS, unit);
+  }
+
   Velocity FrRudderForce::GetInflowVelocityInWorld() const {
 
     auto body = GetBody();
@@ -102,11 +110,17 @@ namespace frydom {
 
   void FrRudderForce::SetRudderAngle(double angle, ANGLE_UNIT unit) {
     if (unit==DEG) angle *= DEG2RAD;
-    m_rudderAngle = angle;
+
+    double actualRudderAngle = GetRudderAngle();
+
+    m_rudderAngle = FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
+                                         (angle - actualRudderAngle) / m_ramp_slope, actualRudderAngle);
   }
 
-  double FrRudderForce::GetRudderAngle() const {
-    return m_rudderAngle;
+  double FrRudderForce::GetRudderAngle(ANGLE_UNIT unit) const {
+    auto angle = m_rudderAngle.Get_y(GetSystem()->GetTime());
+    if (unit == DEG) angle *= RAD2DEG;
+    return angle;
   }
 
   void FrRudderForce::SetStraightRunWakeFraction(double w0) {
