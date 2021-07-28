@@ -41,8 +41,8 @@ namespace frydom {
 
   FrRudderForce::FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                                const std::string &fileCoefficients)
-      : FrForce(name, "FrRudderForce", body), m_rudderAngle(0.), m_rudderNode(node), m_projectedLateralArea(1),
-        m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.),
+      : FrForce(name, "FrRudderForce", body), m_rudderNode(node), m_projectedLateralArea(1),
+        m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.), m_ramp_slope(1.*DEG2RAD),
         m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
         c_fileCoefficients(fileCoefficients) {
   }
@@ -111,7 +111,7 @@ namespace frydom {
   void FrRudderForce::SetRudderAngle(double angle, ANGLE_UNIT unit) {
     if (unit==DEG) angle *= DEG2RAD;
 
-    double actualRudderAngle = GetRudderAngle();
+    double actualRudderAngle = GetRudderAngle(RAD);
 
     m_rudderAngle = FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
                                          (angle - actualRudderAngle) / m_ramp_slope, actualRudderAngle);
@@ -161,7 +161,7 @@ namespace frydom {
   }
 
   double FrRudderForce::GetAttackAngle(Velocity inflowVelocity) const {
-    return GetRudderAngle() - GetDriftAngle(inflowVelocity);
+    return GetRudderAngle(RAD) - GetDriftAngle(inflowVelocity);
   }
 
   double FrRudderForce::GetDriftAngle(Velocity inflowVelocity) const {
@@ -412,7 +412,7 @@ namespace frydom {
                           [this]() { return m_chronoForce->GetChTime(); });
 
     msg->AddField<double>("RudderAngle", "rad", "Rudder angle",
-                          [this]() { return this->GetRudderAngle(); });
+                          [this]() { return this->GetRudderAngle(RAD); });
 
     msg->AddField<double>("DriftAngle", "rad", "Drift angle",
                           [this]() { return this->GetDriftAngle(-GetInflowVelocityInWorld()); });
