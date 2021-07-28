@@ -14,7 +14,7 @@ namespace frydom {
       : FrRudderForce(name, body, node, fileCoefficients), m_flapLaw(1.) {}
 
   double FrFlapRudderForce::GetFlapAngle() const {
-    return m_flapLaw * m_rudderAngle;
+    return m_flapLaw * GetRudderAngle(RAD);
   }
 
   double FrFlapRudderForce::GetLiftCoefficient(double attackAngle) const {
