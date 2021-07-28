@@ -129,6 +129,14 @@ namespace frydom {
 
   }
 
+  void FrFlapRudderForce::SetFlapLaw(double coefficient) {
+    m_flapLaw = coefficient;
+  }
+
+  double FrFlapRudderForce::GetFlapLawCoefficient() const {
+    return m_flapLaw;
+  }
+
   std::shared_ptr<FrFlapRudderForce>
   make_flap_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                          const std::string &fileCoefficients) {

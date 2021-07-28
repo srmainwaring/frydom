@@ -19,6 +19,10 @@ namespace frydom{
 
     virtual double GetFlapAngle() const;
 
+    void SetFlapLaw( double coefficient);
+
+    double GetFlapLawCoefficient() const;
+
     void ReadCoefficientsFile() override;
 
     double GetLiftCoefficient(double attackAngle) const override;
@@ -31,7 +35,7 @@ namespace frydom{
 
    private:
 
-    double m_flapLaw{};
+    double m_flapLaw;
 
     mathutils::LookupTable2d<double> m_coefficients;
 
