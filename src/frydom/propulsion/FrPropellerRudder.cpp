@@ -68,7 +68,7 @@ namespace frydom {
                                                                                             NWU);
     auto u0 = vesselApparentVelocity.GetVx();
 
-    auto inflowRelativeVelocityInWorld = m_rudderForce->GetInflowVelocityInWorld();
+    const auto inflowRelativeVelocityInWorld = m_rudderForce->GetInflowVelocityInWorld();
     auto u_RA = -GetBody()->ProjectVectorInBody(inflowRelativeVelocityInWorld, NWU).GetVx();
 
     // Propeller force

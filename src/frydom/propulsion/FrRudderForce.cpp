@@ -186,7 +186,7 @@ namespace frydom {
 
   }
 
-  GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const {
+  GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(const Velocity &inflowVelocity) const {
     GeneralizedForce rudderForce;
     rudderForce.SetNull();
     const Velocity rudderRelativeVelocity = -inflowVelocity;
