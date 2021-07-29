@@ -45,18 +45,15 @@ namespace frydom {
 
     double Rh(double u) const override;
 
-    double GetUMin() const override {};
+    double GetUMin() const override;
 
-    double GetUMax() const override {};
+    double GetUMax() const override;
 
    private:
 
     double m_a_pos, m_a_neg, m_b_pos, m_b_neg;
 
   };
-
-
-
 
 } // end namespace frydom
 #endif //FRYDOM_FRHULLRESISTANCE_H

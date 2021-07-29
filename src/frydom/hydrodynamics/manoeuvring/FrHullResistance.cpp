@@ -3,6 +3,9 @@
 //
 
 #include "FrHullResistance.h"
+#include "MathUtils/Unit.h"
+
+#define VESSEL_WORLD_RECORD_SPEED_KT 80
 
 namespace frydom {
 
@@ -22,6 +25,14 @@ namespace frydom {
     return rh;
   }
 
+  double FrQuadHullResistance::GetUMin() const {
+    return - 80 * MU_KNOT;
+  }
+
+  double FrQuadHullResistance::GetUMax() const {
+    return 80 * MU_KNOT;
+  }
+
   FrInterpHullResistance::FrInterpHullResistance(const std::shared_ptr<std::vector<double>> &u,
                                                  const std::shared_ptr<std::vector<double>> &Rh) {
     m_data.Initialize(u, Rh);
@@ -38,4 +49,5 @@ namespace frydom {
   double FrInterpHullResistance::GetUMax() const {
     return m_data.GetXmax();
   }
+
 }

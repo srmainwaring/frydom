@@ -28,7 +28,7 @@ int main() {
 //  auto radiationModel = make_recursive_convolution_model("radiation", &system, hdb);
 
   auto manFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/sutulo_maneuvering_model.json"});
-  auto man = make_Sutulo_manoeuvring_model("manModel", body.get(), manFile);
+  auto man = make_sutulo_manoeuvring_model("manModel", body, manFile);
 
   auto propFile = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/propeller_FPP.json"});
   auto prop = make_first_quadrant_propeller_force("prop", body.get(), Position(4.83, 0., 1.), propFile, NWU);
