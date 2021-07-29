@@ -45,6 +45,7 @@ namespace frydom {
         m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.), m_ramp_slope(1.*DEG2RAD),
         m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
         c_fileCoefficients(fileCoefficients) {
+    m_rudderAngle = new FrConstantFunction(0.);
   }
 
   void FrRudderForce::Initialize() {
@@ -113,12 +114,17 @@ namespace frydom {
 
     double actualRudderAngle = GetRudderAngle(RAD);
 
-    m_rudderAngle = FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
-                                         (angle - actualRudderAngle) / m_ramp_slope, actualRudderAngle);
+    if (angle - GetRudderAngle(RAD) <= 0)
+      m_rudderAngle = new FrConstantFunction(angle);
+    else {
+      auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
+      m_rudderAngle = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
+                                               GetSystem()->GetTime() + t_ramp, angle);
+    }
   }
 
   double FrRudderForce::GetRudderAngle(ANGLE_UNIT unit) const {
-    auto angle = m_rudderAngle.Get_y(GetSystem()->GetTime());
+    auto angle = m_rudderAngle->Get_y(GetSystem()->GetTime());
     if (unit == DEG) angle *= RAD2DEG;
     return angle;
   }

@@ -134,7 +134,7 @@ namespace frydom {
     double m_K3;
 
     double m_ramp_slope;
-    FrLinearRampFunction m_rudderAngle;
+    FrFunctionBase* m_rudderAngle;
 
     double m_projectedLateralArea;
     double m_height;
