@@ -8,18 +8,18 @@
 #include "frydom/propulsion/FrRudderForce.h"
 #include "MathUtils/LookupTable2D.h"
 
-namespace frydom{
+namespace frydom {
 
   class FrFlapRudderForce : public FrRudderForce {
 
    public:
 
-    FrFlapRudderForce(const std::string& name, FrBody* body,
-                      const std::shared_ptr<FrNode>& node, const std::string& fileCoefficients);
+    FrFlapRudderForce(const std::string &name, FrBody *body,
+                      const std::shared_ptr<FrNode> &node, const std::string &fileCoefficients);
 
     virtual double GetFlapAngle() const;
 
-    void SetFlapLaw( double coefficient);
+    void SetFlapLaw(double coefficient);
 
     double GetFlapLawCoefficient() const;
 
@@ -31,8 +31,6 @@ namespace frydom{
 
     double GetTorqueCoefficient(double attackAngle) const override;
 
-  //  mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
-
    private:
 
     double m_flapLaw;
@@ -41,8 +39,10 @@ namespace frydom{
 
   };
 
-  std::shared_ptr<FrFlapRudderForce> make_flap_rudder_force(const std::string& name, FrBody* body,
-                      const std::shared_ptr<FrNode>& node, const std::string& fileCoefficients);
+  std::shared_ptr<FrFlapRudderForce> make_flap_rudder_force(const std::string &name,
+                                                            const std::shared_ptr<FrBody> &body,
+                                                            const std::shared_ptr<FrNode> &node,
+                                                            const std::string &fileCoefficients);
 
 } // end namespace frydom
 #endif //FRYDOM_FRFLAPRUDDERFORCE_H

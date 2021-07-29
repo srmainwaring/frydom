@@ -119,13 +119,14 @@ namespace frydom {
     FrForce::Initialize();
     m_propellerForce->Initialize();
     m_rudderForce->Initialize();
+    m_rudderForce->ActivateHullRudderInteraction(true);
 
     m_longitudinalDistancePropellerRudder =
         m_propellerForce->GetPositionInBody().GetX() - m_rudderForce->GetPositionInBody().GetX();
   }
 
-  std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, FrBody *body) {
-    auto force = std::make_shared<FrPropellerRudder>(name, body);
+  std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, const std::shared_ptr<FrBody> &body) {
+    auto force = std::make_shared<FrPropellerRudder>(name, body.get());
     body->AddExternalForce(force);
     return force;
   }

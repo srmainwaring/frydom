@@ -36,8 +36,11 @@ namespace frydom {
   };
 
   std::shared_ptr<FrFirstQuadrantPropellerForce>
-  make_first_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                      const std::string &fileCoefficients, FRAME_CONVENTION fc);
+  make_first_quadrant_propeller_force(const std::string &name,
+                                      const std::shared_ptr<FrBody> &body,
+                                      Position propellerPositionInBody,
+                                      const std::string &fileCoefficients,
+                                      FRAME_CONVENTION fc);
 } // end namespace frydom
 
 #endif //FRYDOM_FRFIRSTQUADRANTPROPELLERFORCE_H

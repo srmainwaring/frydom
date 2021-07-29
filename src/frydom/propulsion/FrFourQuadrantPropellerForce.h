@@ -44,8 +44,11 @@ namespace frydom {
   };
 
   std::shared_ptr<FrFourQuadrantPropellerForce>
-  make_four_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                     const std::string &fileCoefficients, FRAME_CONVENTION fc);
+  make_four_quadrant_propeller_force(const std::string &name,
+                                     const std::shared_ptr<FrBody> &body,
+                                     Position propellerPositionInBody,
+                                     const std::string &fileCoefficients,
+                                     FRAME_CONVENTION fc);
 
 }// end namespace frydom
 #endif //FRYDOM_FRFOURQUADRANTPROPELLERFORCE_H

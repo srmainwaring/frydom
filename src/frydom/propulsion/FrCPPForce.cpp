@@ -113,9 +113,12 @@ namespace frydom {
   }
 
   std::shared_ptr<FrCPPForce>
-  make_controllable_pitch_propeller(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                    const std::string &fileCoefficients, FRAME_CONVENTION fc) {
-    auto force = std::make_shared<FrCPPForce>(name, body, propellerPositionInBody, fileCoefficients, fc);
+  make_controllable_pitch_propeller(const std::string &name,
+                                    const std::shared_ptr<FrBody> &body,
+                                    Position propellerPositionInBody,
+                                    const std::string &fileCoefficients,
+                                    FRAME_CONVENTION fc) {
+    auto force = std::make_shared<FrCPPForce>(name, body.get(), propellerPositionInBody, fileCoefficients, fc);
     body->AddExternalForce(force);
     return force;
   }

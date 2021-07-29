@@ -153,7 +153,7 @@ namespace frydom {
   };
 
   std::shared_ptr<FrRudderForce>
-  make_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
+  make_rudder_force(const std::string &name, const std::shared_ptr<FrBody> &body, const std::shared_ptr<FrNode> &node,
                     const std::string &fileCoefficients);
 
 } // end namespace frydom

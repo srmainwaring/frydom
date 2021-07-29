@@ -137,10 +137,13 @@ void frydom::FrFourQuadrantPropellerForce::ReadPropellerTable(const json &node) 
 }
 
 std::shared_ptr<frydom::FrFourQuadrantPropellerForce>
-frydom::make_four_quadrant_propeller_force(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                           const std::string &fileCoefficients, FRAME_CONVENTION fc) {
-  auto force = std::make_shared<FrFourQuadrantPropellerForce>(name, body, propellerPositionInBody, fileCoefficients,
-                                                              fc);
+frydom::make_four_quadrant_propeller_force(const std::string &name,
+                                           const std::shared_ptr<FrBody> &body,
+                                           Position propellerPositionInBody,
+                                           const std::string &fileCoefficients,
+                                           FRAME_CONVENTION fc) {
+  auto force = std::make_shared<FrFourQuadrantPropellerForce>(name, body.get(), propellerPositionInBody,
+                                                              fileCoefficients, fc);
   body->AddExternalForce(force);
   return force;
 }

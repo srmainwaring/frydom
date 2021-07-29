@@ -42,7 +42,8 @@ namespace frydom {
   FrRudderForce::FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                                const std::string &fileCoefficients)
       : FrForce(name, "FrRudderForce", body), m_rudderNode(node), m_projectedLateralArea(1),
-        m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.), m_ramp_slope(1.*DEG2RAD),
+        m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.),
+        m_ramp_slope(1. * DEG2RAD),
         m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
         c_fileCoefficients(fileCoefficients) {
     m_rudderAngle = new FrConstantFunction(0.);
@@ -110,7 +111,7 @@ namespace frydom {
   }
 
   void FrRudderForce::SetRudderAngle(double angle, ANGLE_UNIT unit) {
-    if (unit==DEG) angle *= DEG2RAD;
+    if (unit == DEG) angle *= DEG2RAD;
 
     double actualRudderAngle = GetRudderAngle(RAD);
 
@@ -449,9 +450,9 @@ namespace frydom {
   }
 
   std::shared_ptr<FrRudderForce>
-  make_rudder_force(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
-                            const std::string &fileCoefficients) {
-    auto force = std::make_shared<FrRudderForce>(name, body, node, fileCoefficients);
+  make_rudder_force(const std::string &name, const std::shared_ptr<FrBody> &body, const std::shared_ptr<FrNode> &node,
+                    const std::string &fileCoefficients) {
+    auto force = std::make_shared<FrRudderForce>(name, body.get(), node, fileCoefficients);
     body->AddExternalForce(force);
     return force;
   }

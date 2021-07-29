@@ -58,7 +58,7 @@ namespace frydom {
 
   };
 
-  std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, FrBody *body);
+  std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, const std::shared_ptr<FrBody> &body);
 
 } // end namespace frydom
 #endif //FRYDOM_FRPROPELLERRUDDER_H
