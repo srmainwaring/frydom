@@ -95,11 +95,11 @@ namespace frydom {
 
     Velocity GetInflowVelocityInWorld() const;
 
-    FrFrame GetInflowFrame(Velocity inflowVelocity) const;
+    FrFrame GetInflowFrame(const Velocity &inflowVelocity) const;
 
-    double GetAttackAngle(Velocity inflowVelocity) const;
+    double GetAttackAngle(const Velocity &inflowVelocity) const;
 
-    double GetDriftAngle(Velocity inflowVelocity) const;
+    double GetDriftAngle(const Velocity &inflowVelocity) const;
 
     double GetWakeFraction(double sidewashAngle) const;
 

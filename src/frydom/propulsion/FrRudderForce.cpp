@@ -145,7 +145,7 @@ namespace frydom {
     return m_rudderNode->GetNodePositionInBody(NWU);
   }
 
-  FrFrame FrRudderForce::GetInflowFrame(Velocity inflowVelocity) const {
+  FrFrame FrRudderForce::GetInflowFrame(const Velocity &inflowVelocity) const {
 
     auto x = inflowVelocity;
     x.normalize();
@@ -166,11 +166,11 @@ namespace frydom {
     return inflowFrame;
   }
 
-  double FrRudderForce::GetAttackAngle(Velocity inflowVelocity) const {
+  double FrRudderForce::GetAttackAngle(const Velocity &inflowVelocity) const {
     return GetRudderAngle(RAD) - GetDriftAngle(inflowVelocity);
   }
 
-  double FrRudderForce::GetDriftAngle(Velocity inflowVelocity) const {
+  double FrRudderForce::GetDriftAngle(const Velocity &inflowVelocity) const {
     return GetBody()->ProjectVectorInBody(inflowVelocity, NWU).GetProjectedAngleAroundZ(RAD);
   }
 
@@ -189,7 +189,7 @@ namespace frydom {
   GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const {
     GeneralizedForce rudderForce;
     rudderForce.SetNull();
-    Velocity rudderRelativeVelocity = -inflowVelocity;
+    const Velocity rudderRelativeVelocity = -inflowVelocity;
 
     if (not inflowVelocity.isZero(1E-3)) {
 
