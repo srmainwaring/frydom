@@ -7,6 +7,7 @@
 
 #include "frydom/core/force/FrForce.h"
 #include "frydom/propulsion/FrPropellerRudder.h"
+#include "FrPropellerType.h"
 #include "FrRudderForce.h"
 
 
@@ -15,8 +16,6 @@ namespace frydom {
   class FrPropellerForce : public FrForce {
 
    public:
-
-    enum SCREW_DIRECTION {LEFT_HANDED, RIGHT_HANDED};
 
     FrPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody, FRAME_CONVENTION fc);
 
