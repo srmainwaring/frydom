@@ -93,6 +93,10 @@ namespace frydom {
     m_rotational_velocity = convert_frequency(omega, unit, RADS);
   }
 
+  void FrPropellerForce::SetRPM(double rpm) {
+    SetRotationalVelocity(rpm, RPM);
+  }
+
   void FrPropellerForce::SetScrewDirection(SCREW_DIRECTION dir) {
     m_screwDirection = dir;
   }

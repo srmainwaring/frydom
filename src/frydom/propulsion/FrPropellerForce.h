@@ -43,6 +43,8 @@ namespace frydom {
 
     void SetRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
 
+    void SetRPM(double rpm);
+
     double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
 
     void SetScrewDirection(SCREW_DIRECTION dir);
