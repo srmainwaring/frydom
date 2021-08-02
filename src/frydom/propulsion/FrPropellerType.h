@@ -8,9 +8,9 @@
 namespace frydom {
 
   enum PROPELLER_TYPE {
-    FPP_1Q,  // Fixed Propeller Pitch with one quadrant model
-    FPP_4Q,  // Fixed Propeller Pitch with four quadrant model
-    CPP      // Controllable Pitch Propeller (always four quadrant model extended with pitch ratio dependency)
+    FPP_1Q,  /// Fixed Propeller Pitch with one quadrant model
+    FPP_4Q,  /// Fixed Propeller Pitch with four quadrant model
+    CPP      /// Controllable Pitch Propeller (always four quadrant model extended with pitch ratio dependency)
   };
 
   enum SCREW_DIRECTION {

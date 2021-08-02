@@ -8,8 +8,11 @@
 
 namespace frydom {
 
-  FrCPPForce::FrCPPForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                         const std::string &fileCoefficients, FRAME_CONVENTION fc) :
+  FrCPPForce::FrCPPForce(const std::string &name,
+                         FrBody *body,
+                         Position propellerPositionInBody,
+                         const std::string &fileCoefficients,
+                         FRAME_CONVENTION fc) :
       FrFourQuadrantPropellerForce(name, body, propellerPositionInBody, fileCoefficients, fc) {
 
   }
@@ -22,8 +25,8 @@ namespace frydom {
     return m_coefficients.Eval("Cq", beta, GetPitchRatio());
   }
 
-  void FrCPPForce::SetPitchRatio(double PD) {
-    m_pitchRatio = PD;
+  void FrCPPForce::SetPitchRatio(double P_D) {
+    m_pitchRatio = P_D;
   }
 
   double FrCPPForce::GetPitchRatio() const {

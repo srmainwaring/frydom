@@ -21,6 +21,10 @@ namespace frydom {
 
     virtual double kq(double J) const;
 
+    void SetPitchRatio(double P_D) override {};
+
+    double GetPitchRatio() const override { return 0.; };
+
     double ComputeAdvanceRatio();
 
    protected:

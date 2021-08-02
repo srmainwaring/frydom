@@ -10,7 +10,8 @@ frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::st
                                                                    Position propellerPositionInBody,
                                                                    const std::string &fileCoefficients,
                                                                    FRAME_CONVENTION fc) :
-    FrPropellerForce(name, body, propellerPositionInBody, fc), c_fileCoefficients(fileCoefficients) {
+    FrPropellerForce(name, body, propellerPositionInBody, fc),
+    c_fileCoefficients(fileCoefficients) {
 
 }
 
@@ -26,7 +27,7 @@ double frydom::FrFourQuadrantPropellerForce::ComputeAdvanceAngle() {
   auto uPA = ComputeLongitudinalVelocity();
   auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
 
-  return atan2(uPA, GetScrewDirectionSign() * vp);
+  return atan2(uPA, m_screwDirection * vp);
 }
 
 frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralizedForceInWorld() {
@@ -34,13 +35,12 @@ frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralize
 
   auto uPA = ComputeLongitudinalVelocity();
   auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
-  auto advanceAngle = atan2(uPA, GetScrewDirectionSign() * vp);
+  auto advanceAngle = atan2(uPA, m_screwDirection * vp);
 
   auto squaredVelocity = uPA * uPA + vp * vp;
 
-  auto T = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * GetDiameter();
-  auto Q = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter() *
-           GetScrewDirectionSign();
+  auto T = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * m_diameter;
+  auto Q = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * m_diameter * m_diameter * m_screwDirection;
 
   auto force = GetBody()->ProjectVectorInWorld(Force(T, 0., 0.), NWU);
   auto torque = GetBody()->ProjectVectorInWorld(Force(Q, 0., 0.), NWU);

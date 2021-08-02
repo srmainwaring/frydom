@@ -43,15 +43,23 @@ namespace frydom {
 
     void SetRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
 
+    double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
+
     void SetRPM(double rpm);
 
     double GetRPM() const;
 
-    double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
+    virtual void SetPitchRatio(double P_D) = 0;
+
+    virtual double GetPitchRatio() const = 0;
 
     void SetScrewDirection(SCREW_DIRECTION dir);
 
+    SCREW_DIRECTION GetScrewDirection() const;
+
     signed int GetScrewDirectionSign() const;
+
+//    signed int GetScrewDirectionSign() const;
 
     double GetPower() const;
 
@@ -78,10 +86,10 @@ namespace frydom {
     Position m_positionInBody;
     double m_diameter;
     double m_rotational_velocity;
-    SCREW_DIRECTION m_screwDirection;
+    signed int m_screwDirection; // TODO: stocker plutot le signe plutot que l'enum
 
     // Hull/propeller interaction coefficients
-    double m_K1;
+    double m_K1; // TODO: Donner les definitions de chacun de ces parametres
     double m_correction_factor;
     double m_wake_fraction0;
     double m_thrust_deduction_factor;
