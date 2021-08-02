@@ -92,7 +92,7 @@ namespace frydom {
     auto body = GetBody();
     auto environment = body->GetSystem()->GetEnvironment();
     auto rudderVelocityInWorld = body->GetVelocityInWorldAtPointInBody(GetPositionInBody(), NWU);
-    auto rudderRelativeVelocity = environment->GetRelativeVelocityInFrame(FrFrame(), rudderVelocityInWorld, WATER,
+    Velocity rudderRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(), rudderVelocityInWorld, WATER,
                                                                           NWU);
 
     if (is_hullRudderInteraction) {
@@ -187,12 +187,11 @@ namespace frydom {
 
   }
 
-  GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(const Velocity &inflowVelocity) const {
+  GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(const Velocity &rudderRelativeVelocity) const {
     GeneralizedForce rudderForce;
     rudderForce.SetNull();
-    const Velocity rudderRelativeVelocity = -inflowVelocity;
 
-    if (not inflowVelocity.isZero(1E-3)) {
+    if (not rudderRelativeVelocity.isZero(1E-3)) {
 
       auto attackAngle = GetAttackAngle(rudderRelativeVelocity);
       attackAngle = mathutils::Normalize_0_2PI(attackAngle);
@@ -422,14 +421,14 @@ namespace frydom {
                           [this]() { return this->GetRudderAngle(RAD); });
 
     msg->AddField<double>("DriftAngle", "rad", "Drift angle",
-                          [this]() { return this->GetDriftAngle(-GetInflowVelocityInWorld()); });
+                          [this]() { return this->GetDriftAngle(GetInflowVelocityInWorld()); });
 
     msg->AddField<double>("AttackAngle", "rad", "Attack angle",
-                          [this]() { return this->GetAttackAngle(-GetInflowVelocityInWorld()); });
+                          [this]() { return this->GetAttackAngle(GetInflowVelocityInWorld()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),
-         [this]() { return GetInflowVelocityInWorld(); });
+         [this]() { return -GetInflowVelocityInWorld(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),

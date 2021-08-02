@@ -120,7 +120,7 @@ namespace frydom {
 
     virtual void ReadCoefficientsFile();
 
-    virtual GeneralizedForce ComputeGeneralizedForceInWorld(const Velocity &inflowVelocity) const;
+    virtual GeneralizedForce ComputeGeneralizedForceInWorld(const Velocity &rudderRelativeVelocity) const;
 
     std::string m_reference;
 

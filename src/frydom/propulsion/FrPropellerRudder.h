@@ -26,6 +26,10 @@ namespace frydom {
    public:
     FrPropellerRudder(const std::string &name, FrBody *body);
 
+    void SetRudderAngle(double angle, ANGLE_UNIT unit);
+
+    void SetPropellerRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
+
     FrFirstQuadrantPropellerForce *
     Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename,
                                FRAME_CONVENTION fc);
@@ -45,16 +49,49 @@ namespace frydom {
     FrFlapRudderForce *
     Add_FlapRudder(const std::string &name, const std::shared_ptr<FrNode> &node, const std::string &filename);
 
+    // Propeller Force
+
+    Force GetPropellerForceInWorld(FRAME_CONVENTION fc) const;
+
+    Force GetPropellerForceInBody(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInWorldAtPropeller(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInBodyAtPropeller(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInWorldAtCOG(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
+
+    // Rudder Force
+
+    Force GetRudderForceInWorld(FRAME_CONVENTION fc) const;
+
+    Force GetRudderForceInBody(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInWorldAtRudder(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInBodyAtRudder(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInWorldAtCOG(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
+
    private:
 
     void Initialize() override;
 
     void Compute(double time) override;
 
+    void DefineLogMessages() override;
+
     std::shared_ptr<FrPropellerForce> m_propellerForce;
     std::shared_ptr<FrRudderForce> m_rudderForce;
 
     double m_longitudinalDistancePropellerRudder;
+
+    GeneralizedForceTorsor c_propellerForce;
+    GeneralizedForceTorsor c_rudderForce;
 
   };
 

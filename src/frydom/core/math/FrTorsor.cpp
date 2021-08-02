@@ -15,12 +15,12 @@ namespace frydom {
 
 
   FrTorsor::FrTorsor(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
-                 const Position &point, FRAME_CONVENTION fc) {
+                     const Position &point, FRAME_CONVENTION fc) {
     Set(resultant, moment, point, fc);
   }
 
   void FrTorsor::Set(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
-                   const Position &point, FRAME_CONVENTION fc) {
+                     const Position &point, FRAME_CONVENTION fc) {
     m_resultant = resultant;
     m_moment = moment;
     m_point = point;
@@ -71,6 +71,11 @@ namespace frydom {
   GeneralizedForceTorsor::GeneralizedForceTorsor(const Force &force, const Torque &torque, const Position &point,
                                                  FRAME_CONVENTION fc) :
       FrTorsor(force, torque, point, fc) {}
+
+  GeneralizedForceTorsor::GeneralizedForceTorsor(const GeneralizedForce generalizedForce, const Position &point,
+                                                 FRAME_CONVENTION fc) :
+      FrTorsor(generalizedForce.GetForce(), generalizedForce.GetTorque(), point, fc) {
+  }
 
   Force GeneralizedForceTorsor::GetForce() const {
     return m_resultant;

@@ -54,6 +54,8 @@ namespace frydom {
 
     GeneralizedForceTorsor(const Force &force, const Torque &torque, const Position &point, FRAME_CONVENTION fc);
 
+    GeneralizedForceTorsor(const GeneralizedForce generalizedForce, const Position &point, FRAME_CONVENTION fc);
+
     void Set(const Force &force, const Torque &torque, const Position &point, FRAME_CONVENTION fc);
 
     Force GetForce() const;
