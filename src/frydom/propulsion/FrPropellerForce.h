@@ -45,6 +45,8 @@ namespace frydom {
 
     void SetRPM(double rpm);
 
+    double GetRPM() const;
+
     double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
 
     void SetScrewDirection(SCREW_DIRECTION dir);

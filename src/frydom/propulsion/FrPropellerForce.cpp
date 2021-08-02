@@ -97,6 +97,10 @@ namespace frydom {
     SetRotationalVelocity(rpm, RPM);
   }
 
+  double FrPropellerForce::GetRPM() const {
+    return GetRotationalVelocity(RPM);
+  }
+
   void FrPropellerForce::SetScrewDirection(SCREW_DIRECTION dir) {
     m_screwDirection = dir;
   }
