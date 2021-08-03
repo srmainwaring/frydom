@@ -18,6 +18,11 @@ namespace frydom {
     RIGHT_HANDED
   };
 
+  enum RUDDER_TYPE {
+    SINGLE,
+    FLAP
+  };
+
 }  // end namespace frydom
 
 
