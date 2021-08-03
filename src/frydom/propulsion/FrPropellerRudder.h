@@ -87,6 +87,8 @@ namespace frydom {
 
     void Compute(double time) override;
 
+    void ComputeVelocityInSlipStream(double u_ra, double u_pa, double thrust, double &u_rp, double &A_rp, double &kd);
+
     void DefineLogMessages() override;
 
     std::shared_ptr<FrPropellerForce> m_propellerForce;

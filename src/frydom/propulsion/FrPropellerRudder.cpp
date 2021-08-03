@@ -9,8 +9,8 @@ namespace frydom {
 
   FrPropellerRudder::FrPropellerRudder(const std::string &name, frydom::FrBody *body) :
       FrPropulsionActuator(name, "FrPropellerRudder", body), is_interactions(true),
-          c_propellerForceInBody(Force(), Torque(), Position(), NWU),
-          c_rudderForceInWorld(Force(), Torque(), Position(), NWU){
+      c_propellerForceInBody(Force(), Torque(), Position(), NWU),
+      c_rudderForceInWorld(Force(), Torque(), Position(), NWU) {
 
   }
 
@@ -82,66 +82,64 @@ namespace frydom {
     // Propeller force
     auto propellerForce = m_propellerForce->ComputeGeneralizedForceInBody();
     c_propellerForceInBody = {propellerForce, m_propellerForce->GetPositionInBody(), NWU};
-    SetForceTorqueInBodyAtPointInBody(c_propellerForceInBody.GetForce(),
-                                      c_propellerForceInBody.GetTorqueAtPoint(m_propellerForce->GetPositionInBody(), NWU),
+    SetForceTorqueInBodyAtPointInBody(propellerForce.GetForce(), propellerForce.GetTorque(),
                                       m_propellerForce->GetPositionInBody(), NWU);
     auto u_PA = m_propellerForce->ComputeLongitudinalVelocity();
 
     // Rudder force
-    const auto inflowRelativeVelocityInWorld = m_rudderForce->GetRudderRelativeVelocityInWorld();
-
-    c_rudderForceInWorld = {m_rudderForce->ComputeGeneralizedForceInWorld(inflowRelativeVelocityInWorld),
-                            m_rudderForce->GetPositionInBody(), NWU};
-
-    Force totalForce = GetForceInWorld(NWU) + c_rudderForceInWorld.GetForce();
-    Torque temp = GetTorqueInWorldAtPointInBody(m_rudderForce->GetPositionInBody(), NWU);
-    Torque totalTorqueAtRudder = temp + //c_propellerForce.GetTorqueAtPoint(m_rudderForce->GetPositionInBody(), NWU) +
-                                 c_rudderForceInWorld.GetTorqueAtPoint(m_rudderForce->GetPositionInBody(), NWU);
+    const auto rudderRelativeVelocityInWorld = m_rudderForce->GetRudderRelativeVelocityInWorld();
+    auto rudderForceInWorld = m_rudderForce->ComputeGeneralizedForceInWorld(rudderRelativeVelocityInWorld);
 
     // Propeller - Rudder interactions
-    if (u_PA != 0. and false) {
-      auto u_RA = -GetBody()->ProjectVectorInBody(inflowRelativeVelocityInWorld, NWU).GetVx();
+    if (u_PA != 0. and is_interactions) {
+      auto rudderRelativeVelocityInBody = GetBody()->ProjectVectorInBody(rudderRelativeVelocityInWorld, NWU);
+      auto u_RA = rudderRelativeVelocityInBody.GetVx();
 
-      auto rho = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
-      auto Dp = m_propellerForce->GetDiameter();
-      auto A0 = 0.25 * MU_PI * Dp * Dp;
-      auto xrp = m_longitudinalDistancePropellerRudder;
-      auto A_R = m_rudderForce->GetProjectedLateralArea();
-      auto br = m_rudderForce->GetRootChord();
-
-      auto vesselVelocityInBody = GetBody()->GetVelocityInBody(NWU);
-      auto vesselApparentVelocity = GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(
-          GetBody()->GetFrameAtCOG(),
-          vesselVelocityInBody, WATER,
-          NWU);
-      auto u0 = vesselApparentVelocity.GetVx();
-
-      auto T = GetBody()->ProjectVectorInBody(c_propellerForceInBody.GetForce(), NWU).GetFx();
-      auto propellerLoading = 2 * std::abs(T) / (rho * u_PA * u_PA * A0);
-
-      auto w_ainf = u_PA * (std::sqrt(1 + propellerLoading) - 1);
-      auto Kappa = [](double T, double xrp) { if (xrp * T >= 0) return 1.; else return 0.7; };
-      auto w_a = 0.34 * (1 + xrp / std::sqrt(1 + xrp * xrp) * Kappa(T, xrp)) * mathutils::sgn(T) * w_ainf;
-      auto u_RP = u_PA + w_a;
-      auto v_RP = -GetBody()->ProjectVectorInBody(inflowRelativeVelocityInWorld, NWU).GetVy();
-
-      auto r_RP = 0.5 * Dp * std::sqrt(std::abs(u0 / u_RP));
-
-      auto kd = std::pow(std::abs(u_RA / u_RP), 2. * std::pow(2. / (2. + std::sqrt(MU_PI) * r_RP / (2 * br)), 8));
-
-      auto A_RP = 2. * r_RP / m_rudderForce->GetHeight() * A_R;
+      double u_RP, A_RP, kd;
+      double v_RP = rudderRelativeVelocityInBody.GetVy();
+      ComputeVelocityInSlipStream(u_RA, u_PA, m_propellerForce->GetThrust(), u_RP, A_RP, kd);
+      double area_ratio = A_RP / m_rudderForce->GetProjectedLateralArea();
 
       // Inside slipstream rudder force
-      auto inflowPropellerSlipstream = GetBody()->ProjectVectorInBody(Velocity(-u_RP, -v_RP, 0.), NWU);
-      auto insideSlipstreamRudderForce = m_rudderForce->ComputeGeneralizedForceInWorld(inflowPropellerSlipstream);
+      auto propellerVelocityInSlipstream = GetBody()->ProjectVectorInWorld(Velocity(u_RP, v_RP, 0.), NWU);
+      auto insideSlipstreamRudderForce = m_rudderForce->ComputeGeneralizedForceInWorld(propellerVelocityInSlipstream);
 
-      totalTorqueAtRudder += A_RP / A_R * (kd * insideSlipstreamRudderForce.GetTorque()
-                                           - c_rudderForceInWorld.GetTorqueAtPoint(m_rudderForce->GetPositionInBody(), NWU));
-      totalForce += A_RP / A_R * (kd * insideSlipstreamRudderForce.GetForce()
-                                  - c_rudderForceInWorld.GetForce());
+      rudderForceInWorld *= (1. - area_ratio);
+      rudderForceInWorld += area_ratio * kd * insideSlipstreamRudderForce;
     }
 
+    c_rudderForceInWorld = {rudderForceInWorld, m_rudderForce->GetPositionInBody(), NWU};
+
+    Force totalForce = GetForceInWorld(NWU) + rudderForceInWorld.GetForce();
+    Torque totalTorqueAtRudder = GetTorqueInWorldAtPointInBody(m_rudderForce->GetPositionInBody(), NWU) +
+                                 rudderForceInWorld.GetTorque();
+
     SetForceTorqueInWorldAtPointInBody(totalForce, totalTorqueAtRudder, m_rudderForce->GetPositionInBody(), NWU);
+
+  }
+
+
+  void
+  FrPropellerRudder::ComputeVelocityInSlipStream(double u_ra, double u_pa, double thrust, double &u_rp, double &A_rp,
+                                                 double &kd) {
+
+    auto rho = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
+    auto Dp = m_propellerForce->GetDiameter();
+    auto A0 = 0.25 * MU_PI * Dp * Dp;
+    auto xrp = m_longitudinalDistancePropellerRudder;
+    auto br = m_rudderForce->GetRootChord();
+    auto propellerLoading = 2 * std::abs(thrust) / (rho * u_pa * u_pa * A0);
+
+    auto w_ainf = u_pa * (std::sqrt(1 + propellerLoading) - 1);
+    auto Kappa = [](double T, double xrp) { if (xrp * T >= 0) return 1.; else return 0.7; };
+    auto w_a = 0.34 * (1 + xrp / std::sqrt(1 + xrp * xrp) * Kappa(thrust, xrp)) * mathutils::sgn(thrust) * w_ainf;
+    u_rp = u_pa + w_a;
+
+    auto r_rp = 0.5 * Dp * std::sqrt(std::abs(0.5 * w_ainf / w_a));
+
+    kd = std::pow(std::abs(u_ra / u_rp), 2. * std::pow(2. / (2. + std::sqrt(MU_PI) * r_rp / (2 * br)), 8));
+
+    A_rp = 2. * r_rp / m_rudderForce->GetHeight() * m_rudderForce->GetProjectedLateralArea();
 
   }
 
@@ -181,19 +179,19 @@ namespace frydom {
                                [this]() { return m_chronoForce->GetChTime(); });
 
     prop_msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
-                          [this]() { return m_propellerForce->GetThrust(); });
+                               [this]() { return m_propellerForce->GetThrust(); });
 
     prop_msg->AddField<double>("Torque", "Nm", "Torque delivered by the propeller",
-                          [this]() { return m_propellerForce->GetTorque(); });
+                               [this]() { return m_propellerForce->GetTorque(); });
 
     prop_msg->AddField<double>("Power", "W", "Power delivered by the propeller",
-                          [this]() { return m_propellerForce->GetPower(); });
+                               [this]() { return m_propellerForce->GetPower(); });
 
     prop_msg->AddField<double>("uPA", "m/s", "Longitudinal velocity at the rudder position, in body reference frame",
-                                 [this]() { return m_propellerForce->ComputeLongitudinalVelocity(); });
+                               [this]() { return m_propellerForce->ComputeLongitudinalVelocity(); });
 
     prop_msg->AddField<double>("RotationalVelocity", "rad/s", "Rotational velocity",
-                          [this]() { return m_propellerForce->GetRotationalVelocity(RADS); });
+                               [this]() { return m_propellerForce->GetRotationalVelocity(RADS); });
 
     prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
@@ -227,28 +225,34 @@ namespace frydom {
                                  [this]() { return m_chronoForce->GetChTime(); });
 
     rudder_msg->AddField<double>("RudderAngle", "rad", "Rudder angle",
-                          [this]() { return m_rudderForce->GetRudderAngle(RAD); });
+                                 [this]() { return m_rudderForce->GetRudderAngle(RAD); });
 
     rudder_msg->AddField<double>("DriftAngle", "rad", "Drift angle",
-                          [this]() { return m_rudderForce->GetDriftAngle(
-                              m_rudderForce->GetRudderRelativeVelocityInWorld()); });
+                                 [this]() {
+                                   return m_rudderForce->GetDriftAngle(
+                                       m_rudderForce->GetRudderRelativeVelocityInWorld());
+                                 });
 
     rudder_msg->AddField<double>("AttackAngle", "rad", "Attack angle",
-                          [this]() { return m_rudderForce->GetAttackAngle(
-                              m_rudderForce->GetRudderRelativeVelocityInWorld()); });
+                                 [this]() {
+                                   return m_rudderForce->GetAttackAngle(
+                                       m_rudderForce->GetRudderRelativeVelocityInWorld());
+                                 });
 
     rudder_msg->AddField<double>("uRA", "m/s", "Longitudinal velocity",
-                               [this]() { return -GetBody()->ProjectVectorInBody(
-                                   m_rudderForce->GetRudderRelativeVelocityInWorld(), NWU).GetVx(); });
+                                 [this]() {
+                                   return -GetBody()->ProjectVectorInBody(
+                                       m_rudderForce->GetRudderRelativeVelocityInWorld(), NWU).GetVx();
+                                 });
 
     rudder_msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
-                          [this]() { return m_rudderForce->GetDrag(); });
+                                 [this]() { return m_rudderForce->GetDrag(); });
 
     rudder_msg->AddField<double>("Lift", "N", "Lift delivered by the rudder",
-                          [this]() { return m_rudderForce->GetLift(); });
+                                 [this]() { return m_rudderForce->GetLift(); });
 
     rudder_msg->AddField<double>("Torque", "Nm", "Torque delivered by the rudder",
-                          [this]() { return m_rudderForce->GetTorque(); });
+                                 [this]() { return m_rudderForce->GetTorque(); });
 
     rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),

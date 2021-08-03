@@ -76,21 +76,11 @@ namespace frydom {
                                                                                NWU);
 
     if (is_hullRudderInteraction) {
-      Velocity temp = rudderRelativeVelocity;
       auto rudderRelativeVelocityInBody = body->ProjectVectorInBody(rudderRelativeVelocity, NWU);
       auto sidewashAngle = rudderRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
       auto uRA = rudderRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
       auto specialSidewashAngle = ComputeSpecialSidewashAngle();
       auto vRA = rudderRelativeVelocityInBody.GetVy() * Kappa(specialSidewashAngle);
-//      std::cout<<"rudderRelativeVelocity : "<<temp<<std::endl
-//      <<", with hull/rudder interaction : "<<body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU)
-//      <<std::endl;
-
-//      Velocity rudderVelocityInBody = {uRA, vRA, 0.};
-//      std::cout<< "uRA = " << uRA << ", vRA = " << vRA << std::endl;
-//      std::cout<<"rudder drift angle corr = "<<rudderVelocityInBody.GetProjectedAngleAroundZ(DEG)<<std::endl;
-//      std::cout<<"rudder drift angle orig = "<<rudderRelativeVelocityInBody.GetProjectedAngleAroundZ(DEG)<<std::endl;
-
       rudderRelativeVelocity = body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU);
     }
 
