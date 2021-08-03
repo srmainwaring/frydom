@@ -131,7 +131,7 @@ TEST_F(TestFrRudderForce, Kappa) {
 TEST_F(TestFrRudderForce, GetInflowVelocityInWorld) {
 
   // Init, without hull/rudder interaction and body/current velocity
-  ASSERT_FLOAT_EQ(force->GetInflowVelocityInWorld().norm(), 0.);
+  ASSERT_FLOAT_EQ(force->GetRudderRelativeVelocityInWorld().norm(), 0.);
 
   // with current velocity
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
@@ -140,17 +140,17 @@ TEST_F(TestFrRudderForce, GetInflowVelocityInWorld) {
   Velocity currentVel = 2.*NORTH(NWU);
   currentField->Set(currentVel, NWU, COMEFROM);
 
-  ASSERT_TRUE(force->GetInflowVelocityInWorld() == -currentVel);
+  ASSERT_TRUE(force->GetRudderRelativeVelocityInWorld() == -currentVel);
 
   // with current and body linear velocity
   body->SetVelocityInWorldNoRotation(-currentVel, NWU);
-  ASSERT_FLOAT_EQ(force->GetInflowVelocityInWorld().norm(), 0.);
+  ASSERT_FLOAT_EQ(force->GetRudderRelativeVelocityInWorld().norm(), 0.);
 
   // with body generalized velocity
   AngularVelocity bodyAngVel(0., 0., 1.);
   body->SetGeneralizedVelocityInWorld(Velocity(), bodyAngVel, NWU);
   Velocity rudderRelativeVelocity = -(currentVel + bodyAngVel.cross(Position(-10, 0, 0)));
-  ASSERT_TRUE(force->GetInflowVelocityInWorld() == rudderRelativeVelocity);
+  ASSERT_TRUE(force->GetRudderRelativeVelocityInWorld() == rudderRelativeVelocity);
 
   // With hull/rudder interaction
   force->ActivateHullRudderInteraction();
@@ -159,7 +159,7 @@ TEST_F(TestFrRudderForce, GetInflowVelocityInWorld) {
   auto uRA = rudderRelativeVelocityInBody.GetVx() * (1. - force->GetWakeFraction(sidewashAngle));
   auto specialSidewashAngle = force->ComputeSpecialSidewashAngle();
   auto vRA = rudderRelativeVelocityInBody.GetVy() * force->Kappa(specialSidewashAngle);
-  ASSERT_TRUE(force->GetInflowVelocityInWorld() == body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU));
+  ASSERT_TRUE(force->GetRudderRelativeVelocityInWorld() == body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU));
 
 }
 

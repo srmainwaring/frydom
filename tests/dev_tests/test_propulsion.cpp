@@ -45,7 +45,7 @@ int main() {
 
 //  std::cout << "kt = " << fpp->kt(1.) << ", kq = " << fpp->kq(1.) << std::endl;
 //
-  auto inflowVelocity = rudder->GetInflowVelocityInWorld();
+  auto inflowVelocity = rudder->GetRudderRelativeVelocityInWorld();
   auto attack_angle = rudder->GetAttackAngle(-inflowVelocity);
   std::cout << "rudder inflow velocity : " << inflowVelocity << std::endl;
   std::cout << "rudder angle : " << rudder->GetRudderAngle(DEG) << std::endl;

@@ -67,7 +67,7 @@ namespace frydom {
     return convert_frequency(m_ramp_slope, RADS, unit);
   }
 
-  Velocity FrRudderForce::GetInflowVelocityInWorld() const {
+  Velocity FrRudderForce::GetRudderRelativeVelocityInWorld() const {
 
     auto body = GetBody();
     auto environment = body->GetSystem()->GetEnvironment();
@@ -76,14 +76,25 @@ namespace frydom {
                                                                                NWU);
 
     if (is_hullRudderInteraction) {
+      Velocity temp = rudderRelativeVelocity;
       auto rudderRelativeVelocityInBody = body->ProjectVectorInBody(rudderRelativeVelocity, NWU);
       auto sidewashAngle = rudderRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
       auto uRA = rudderRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
       auto specialSidewashAngle = ComputeSpecialSidewashAngle();
       auto vRA = rudderRelativeVelocityInBody.GetVy() * Kappa(specialSidewashAngle);
-      return body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU);
-    } else
-      return rudderRelativeVelocity;
+//      std::cout<<"rudderRelativeVelocity : "<<temp<<std::endl
+//      <<", with hull/rudder interaction : "<<body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU)
+//      <<std::endl;
+
+//      Velocity rudderVelocityInBody = {uRA, vRA, 0.};
+//      std::cout<< "uRA = " << uRA << ", vRA = " << vRA << std::endl;
+//      std::cout<<"rudder drift angle corr = "<<rudderVelocityInBody.GetProjectedAngleAroundZ(DEG)<<std::endl;
+//      std::cout<<"rudder drift angle orig = "<<rudderRelativeVelocityInBody.GetProjectedAngleAroundZ(DEG)<<std::endl;
+
+      rudderRelativeVelocity = body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU);
+    }
+
+    return rudderRelativeVelocity;
   }
 
   double FrRudderForce::GetWakeFraction(double sidewashAngle) const {
@@ -157,7 +168,7 @@ namespace frydom {
 
   void FrRudderForce::Compute(double time) {
 
-    auto inflowRelativeVelocityInWorld = GetInflowVelocityInWorld();
+    auto inflowRelativeVelocityInWorld = GetRudderRelativeVelocityInWorld();
 
     auto rudderGeneralizedForceInWorld = ComputeGeneralizedForceInWorld(inflowRelativeVelocityInWorld);
 
@@ -413,10 +424,10 @@ namespace frydom {
                           [this]() { return this->GetRudderAngle(RAD); });
 
     msg->AddField<double>("DriftAngle", "rad", "Drift angle",
-                          [this]() { return this->GetDriftAngle(GetInflowVelocityInWorld()); });
+                          [this]() { return this->GetDriftAngle(GetRudderRelativeVelocityInWorld()); });
 
     msg->AddField<double>("AttackAngle", "rad", "Attack angle",
-                          [this]() { return this->GetAttackAngle(GetInflowVelocityInWorld()); });
+                          [this]() { return this->GetAttackAngle(GetRudderRelativeVelocityInWorld()); });
 
     msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
                           [this]() { return this->GetDrag(); });
@@ -429,7 +440,7 @@ namespace frydom {
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),
-         [this]() { return GetInflowVelocityInWorld(); });
+         [this]() { return GetRudderRelativeVelocityInWorld(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),

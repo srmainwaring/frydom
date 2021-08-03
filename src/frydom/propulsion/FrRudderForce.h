@@ -58,7 +58,7 @@ namespace frydom {
 
     Position GetPositionInBody() const;
 
-    Velocity GetInflowVelocityInWorld() const;
+    Velocity GetRudderRelativeVelocityInWorld() const;
 
     FrFrame GetInflowFrame(const Velocity &inflowVelocity) const;
 

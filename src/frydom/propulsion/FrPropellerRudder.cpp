@@ -8,15 +8,9 @@
 namespace frydom {
 
   FrPropellerRudder::FrPropellerRudder(const std::string &name, frydom::FrBody *body) :
-//<<<<<<< HEAD
-//      FrForce(name, "FrPropellerRudder", body), is_interactions(true),
-//      c_propellerForceInBody(Force(), Torque(), Position(), NWU),
-//      c_rudderForceInWorld(Force(), Torque(), Position(), NWU) {
-//=======
       FrPropulsionActuator(name, "FrPropellerRudder", body), is_interactions(true),
           c_propellerForceInBody(Force(), Torque(), Position(), NWU),
           c_rudderForceInWorld(Force(), Torque(), Position(), NWU){
-//>>>>>>> 51f01566b5fcbfc4c3ed848506cc97fbeabc8e77
 
   }
 
@@ -94,7 +88,7 @@ namespace frydom {
     auto u_PA = m_propellerForce->ComputeLongitudinalVelocity();
 
     // Rudder force
-    const auto inflowRelativeVelocityInWorld = m_rudderForce->GetInflowVelocityInWorld();
+    const auto inflowRelativeVelocityInWorld = m_rudderForce->GetRudderRelativeVelocityInWorld();
 
     c_rudderForceInWorld = {m_rudderForce->ComputeGeneralizedForceInWorld(inflowRelativeVelocityInWorld),
                             m_rudderForce->GetPositionInBody(), NWU};
@@ -236,13 +230,16 @@ namespace frydom {
                           [this]() { return m_rudderForce->GetRudderAngle(RAD); });
 
     rudder_msg->AddField<double>("DriftAngle", "rad", "Drift angle",
-                          [this]() { return m_rudderForce->GetDriftAngle(m_rudderForce->GetInflowVelocityInWorld()); });
+                          [this]() { return m_rudderForce->GetDriftAngle(
+                              m_rudderForce->GetRudderRelativeVelocityInWorld()); });
 
     rudder_msg->AddField<double>("AttackAngle", "rad", "Attack angle",
-                          [this]() { return m_rudderForce->GetAttackAngle(m_rudderForce->GetInflowVelocityInWorld()); });
+                          [this]() { return m_rudderForce->GetAttackAngle(
+                              m_rudderForce->GetRudderRelativeVelocityInWorld()); });
 
     rudder_msg->AddField<double>("uRA", "m/s", "Longitudinal velocity",
-                               [this]() { return -GetBody()->ProjectVectorInBody(m_rudderForce->GetInflowVelocityInWorld(), NWU).GetVx(); });
+                               [this]() { return -GetBody()->ProjectVectorInBody(
+                                   m_rudderForce->GetRudderRelativeVelocityInWorld(), NWU).GetVx(); });
 
     rudder_msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
                           [this]() { return m_rudderForce->GetDrag(); });
@@ -255,7 +252,7 @@ namespace frydom {
 
     rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),
-         [this]() { return m_rudderForce->GetInflowVelocityInWorld(); });
+         [this]() { return m_rudderForce->GetRudderRelativeVelocityInWorld(); });
 
     rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),

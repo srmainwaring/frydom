@@ -831,7 +831,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in body reference frame
     template<class Vector>
-    Vector &ProjectVectorInBody(Vector &worldVector, FRAME_CONVENTION fc) const {
+    Vector ProjectVectorInBody(Vector &worldVector, FRAME_CONVENTION fc) const {
       worldVector = GetQuaternion().GetInverse().Rotate<Vector>(worldVector, fc);
       return worldVector;
     }
@@ -842,7 +842,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in world reference frame
     template<class Vector>
-    Vector ProjectGenerallizedVectorInWorld(const Vector &bodyVector, FRAME_CONVENTION fc) const {
+    Vector ProjectGeneralizedVectorInWorld(const Vector &bodyVector, FRAME_CONVENTION fc) const {
       return GetQuaternion().Rotate<Vector>(bodyVector, fc);
     }
 
@@ -852,7 +852,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in world reference frame
     template<class Vector>
-    Vector &ProjectGenerallizedVectorInWorld(Vector &bodyVector, FRAME_CONVENTION fc) const {
+    Vector &ProjectGeneralizedVectorInWorld(Vector &bodyVector, FRAME_CONVENTION fc) const {
       bodyVector = GetQuaternion().Rotate<Vector>(bodyVector, fc);
       return bodyVector;
     }
@@ -863,7 +863,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in body reference frame
     template<class Vector>
-    Vector ProjectGenerallizedVectorInBody(const Vector &worldVector, FRAME_CONVENTION fc) const {
+    Vector ProjectGeneralizedVectorInBody(const Vector &worldVector, FRAME_CONVENTION fc) const {
       return GetQuaternion().GetInverse().Rotate<Vector>(worldVector, fc);
     }
 
