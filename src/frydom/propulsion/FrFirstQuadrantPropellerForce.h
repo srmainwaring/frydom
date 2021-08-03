@@ -25,7 +25,7 @@ namespace frydom {
 
    protected:
 
-    GeneralizedForce ComputeGeneralizedForceInWorld() override;
+    GeneralizedForce ComputeGeneralizedForceInBody() override;
 
     void ReadCoefficientsFile() override;
 

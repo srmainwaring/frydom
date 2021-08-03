@@ -26,7 +26,7 @@ namespace frydom {
 //
 //    auto foilRelativeVelocityInWorld = GetInflowVelocityInWorld();
 //
-//    auto foilGeneralizedForceInWorld = ComputeGeneralizedForceInWorld(foilRelativeVelocityInWorld);
+//    auto foilGeneralizedForceInWorld = ComputeGeneralizedForceInBody(foilRelativeVelocityInWorld);
 //
 //    SetForceTorqueInWorldAtPointInBody(foilGeneralizedForceInWorld.GetForce(),
 //                                       foilGeneralizedForceInWorld.GetTorque(),
@@ -205,14 +205,14 @@ namespace frydom {
 
       auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
-      auto drag = 0.5 * density * GetDragCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
-      auto lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
-      auto torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      c_drag = 0.5 * density * GetDragCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      c_lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      c_torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
 
       auto inflowFrame = GetInflowFrame(rudderRelativeVelocity);
 
-      rudderForce.SetForce(inflowFrame.ProjectVectorFrameInParent(Force(drag, lift, 0.), NWU));
-      rudderForce.SetTorque(inflowFrame.ProjectVectorFrameInParent(Torque(0., 0., torque), NWU));
+      rudderForce.SetForce(inflowFrame.ProjectVectorFrameInParent(Force(c_drag, c_lift, 0.), NWU));
+      rudderForce.SetTorque(inflowFrame.ProjectVectorFrameInParent(Torque(0., 0., c_torque), NWU));
 
     }
     return rudderForce;
@@ -254,6 +254,18 @@ namespace frydom {
 
   double FrRudderForce::GetTorqueCoefficient(double attackAngle) const {
     return m_coefficients.Eval("torque", attackAngle);
+  }
+
+  double FrRudderForce::GetDrag() const {
+    return c_drag;
+  }
+
+  double FrRudderForce::GetLift() const {
+    return c_lift;
+  }
+
+  double FrRudderForce::GetTorque() const {
+    return c_torque;
   }
 
   void FrRudderForce::ReadCoefficientsFile() {
@@ -426,9 +438,18 @@ namespace frydom {
     msg->AddField<double>("AttackAngle", "rad", "Attack angle",
                           [this]() { return this->GetAttackAngle(GetInflowVelocityInWorld()); });
 
+    msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
+                          [this]() { return this->GetDrag(); });
+
+    msg->AddField<double>("Lift", "N", "Lift delivered by the rudder",
+                          [this]() { return this->GetLift(); });
+
+    msg->AddField<double>("Torque", "Nm", "Torque delivered by the rudder",
+                          [this]() { return this->GetTorque(); });
+
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),
-         [this]() { return -GetInflowVelocityInWorld(); });
+         [this]() { return GetInflowVelocityInWorld(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),

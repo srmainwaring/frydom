@@ -38,7 +38,7 @@ namespace frydom {
 //
 //    mathutils::Vector3d<double> GetCoefficients(double attackAngle) const;
 //
-//    virtual GeneralizedForce ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const = 0;
+//    virtual GeneralizedForce ComputeGeneralizedForceInBody(Velocity inflowVelocity) const = 0;
 //
 //    void Compute(double time) override;
 //
@@ -111,6 +111,10 @@ namespace frydom {
 
    protected:
 
+    double GetDrag() const;
+    double GetLift() const;
+    double GetTorque() const;
+
     void DefineLogMessages() override;
 
     void Compute(double time) override;
@@ -147,6 +151,8 @@ namespace frydom {
     bool is_hullRudderInteraction;
 
     std::string c_fileCoefficients;
+
+    mutable double c_drag, c_lift, c_torque;
 
     friend class FrPropellerRudder;
 

@@ -52,6 +52,10 @@ namespace frydom {
 
     double GetPower() const;
 
+    double GetThrust() const;
+
+    double GetTorque() const;
+
    protected:
 
     void Compute(double time) override;
@@ -65,7 +69,7 @@ namespace frydom {
 
     double GetWakeFraction(double sidewashAngle) const;
 
-    virtual GeneralizedForce ComputeGeneralizedForceInWorld() = 0;
+    virtual GeneralizedForce ComputeGeneralizedForceInBody() = 0;
 
     void DefineLogMessages() override;
 
@@ -82,6 +86,10 @@ namespace frydom {
     double m_correction_factor;
     double m_wake_fraction0;
     double m_thrust_deduction_factor;
+
+    // cached
+    double c_thrust;
+    double c_torque;
 
     friend class FrPropellerRudder;
   };

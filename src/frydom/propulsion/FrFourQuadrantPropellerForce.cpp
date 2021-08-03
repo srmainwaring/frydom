@@ -29,7 +29,7 @@ double frydom::FrFourQuadrantPropellerForce::ComputeAdvanceAngle() {
   return atan2(uPA, GetScrewDirectionSign() * vp);
 }
 
-frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralizedForceInWorld() {
+frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralizedForceInBody() {
   auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
   auto uPA = ComputeLongitudinalVelocity();
@@ -38,14 +38,11 @@ frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralize
 
   auto squaredVelocity = uPA * uPA + vp * vp;
 
-  auto T = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * GetDiameter();
-  auto Q = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter() *
+  c_thrust = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * GetDiameter();
+  c_torque = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter() *
            GetScrewDirectionSign();
 
-  auto force = GetBody()->ProjectVectorInWorld(Force(T, 0., 0.), NWU);
-  auto torque = GetBody()->ProjectVectorInWorld(Force(Q, 0., 0.), NWU);
-
-  return {force, torque};
+  return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
 }
 
 void frydom::FrFourQuadrantPropellerForce::ReadCoefficientsFile() {

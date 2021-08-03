@@ -75,8 +75,8 @@ namespace frydom {
 
   void FrPropellerForce::Compute(double time) {
 
-    auto generalizedForce = ComputeGeneralizedForceInWorld();
-    SetForceTorqueInWorldAtPointInBody(generalizedForce.GetForce(), generalizedForce.GetTorque(), m_positionInBody,
+    auto generalizedForce = ComputeGeneralizedForceInBody();
+    SetForceTorqueInBodyAtPointInBody(generalizedForce.GetForce(), generalizedForce.GetTorque(), m_positionInBody,
                                        NWU);
 
   }
@@ -116,6 +116,14 @@ namespace frydom {
     return GetRotationalVelocity(RADS) * GetTorqueInBodyAtPointInBody(GetPositionInBody(), NWU).GetMx();
   }
 
+  double FrPropellerForce::GetThrust() const {
+    return c_thrust;
+  }
+
+  double FrPropellerForce::GetTorque() const {
+    return c_torque;
+  }
+
   void FrPropellerForce::Initialize() {
     ReadCoefficientsFile();
   }
@@ -125,6 +133,21 @@ namespace frydom {
 
     msg->AddField<double>("Time", "s", "Current time of the simulation",
                           [this]() { return m_chronoForce->GetChTime(); });
+
+    msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
+                          [this]() { return GetThrust(); });
+
+    msg->AddField<double>("Torque", "Nm", "Torque delivered by the propeller",
+                          [this]() { return GetTorque(); });
+
+    msg->AddField<double>("Power", "W", "Power delivered by the propeller",
+                          [this]() { return GetPower(); });
+
+    msg->AddField<double>("uPA", "m/s", "Longitudinal velocity at the rudder position, in body reference frame",
+                          [this]() { return ComputeLongitudinalVelocity(); });
+
+    msg->AddField<double>("RotationalVelocity", "rad/s", "Rotational velocity",
+                          [this]() { return GetRotationalVelocity(RADS); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
@@ -141,12 +164,6 @@ namespace frydom {
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
-
-    msg->AddField<double>("RotationalVelocity", "RPM", "Rotational velocity of the propeller",
-                          [this]() { return GetRotationalVelocity(RPM); });
-
-    msg->AddField<double>("Power", "W", "Power delivered by the propeller",
-                          [this]() { return GetPower(); });
 
 
 

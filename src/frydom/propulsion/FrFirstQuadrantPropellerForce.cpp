@@ -24,20 +24,17 @@ namespace frydom {
     return m_coefficients.Eval("kq", J);
   }
 
-  GeneralizedForce FrFirstQuadrantPropellerForce::ComputeGeneralizedForceInWorld() {
+  GeneralizedForce FrFirstQuadrantPropellerForce::ComputeGeneralizedForceInBody() {
 
     auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
     auto J = ComputeAdvanceRatio();
     auto n2 = GetRotationalVelocity(RPM) / 60.;
     n2 *= n2;
-    auto T = density * std::pow(GetDiameter(), 4) * kt(J) * n2;
-    auto Q = density * std::pow(GetDiameter(), 5) * kq(J) * n2 * GetScrewDirectionSign();
+    c_thrust = density * std::pow(GetDiameter(), 4) * kt(J) * n2;
+    c_torque = density * std::pow(GetDiameter(), 5) * kq(J) * n2 * GetScrewDirectionSign();
 
-    auto forceInWorld = GetBody()->ProjectVectorInWorld(Force(T, 0., 0.), NWU);
-    auto torqueInWorld = GetBody()->ProjectVectorInWorld(Torque(Q, 0., 0.), NWU);
-
-    return {forceInWorld, torqueInWorld};
+    return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
   }
 
   double FrFirstQuadrantPropellerForce::ComputeAdvanceRatio() {

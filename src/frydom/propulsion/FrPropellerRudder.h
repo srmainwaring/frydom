@@ -30,6 +30,10 @@ namespace frydom {
 
     void SetPropellerRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
 
+    void ActivateInteractions(bool val);
+
+    bool IsInteractions() const;
+
     FrFirstQuadrantPropellerForce *
     Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename,
                                FRAME_CONVENTION fc);
@@ -90,8 +94,10 @@ namespace frydom {
 
     double m_longitudinalDistancePropellerRudder;
 
-    GeneralizedForceTorsor c_propellerForce;
-    GeneralizedForceTorsor c_rudderForce;
+    GeneralizedForceTorsor c_propellerForceInBody;
+    GeneralizedForceTorsor c_rudderForceInWorld;
+
+    bool is_interactions;
 
   };
 
