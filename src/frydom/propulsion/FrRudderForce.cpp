@@ -8,51 +8,31 @@
 
 namespace frydom {
 
-//  FrFoilForce::FrFoilForce(const std::string &name, FrBody *body, const std::string &fileCoefficients) :
-//      FrForce(name, "FrFoilForce", body),
-//      m_projectedLateralArea(1.0), c_fluidDensity(1025.) {
-//    ReadCoefficientsFile(fileCoefficients);
-//  }
-//
-//  void FrFoilForce::SetProjectedLateralArea(double area) {
-//    m_projectedLateralArea = area;
-//  }
-//
-//  double FrFoilForce::GetProjectedLateralArea() const {
-//    return m_projectedLateralArea;
-//  }
-//
-//  void FrFoilForce::Compute(double time) {
-//
-//    auto foilRelativeVelocityInWorld = GetInflowVelocityInWorld();
-//
-//    auto foilGeneralizedForceInWorld = ComputeGeneralizedForceInBody(foilRelativeVelocityInWorld);
-//
-//    SetForceTorqueInWorldAtPointInBody(foilGeneralizedForceInWorld.GetForce(),
-//                                       foilGeneralizedForceInWorld.GetTorque(),
-//                                       GetPositionInBody(), NWU);
-//
-//  }
-//
-//  mathutils::Vector3d<double> FrFoilForce::GetCoefficients(double attackAngle) const {
-//    return m_coefficients.Eval("coefficients", attackAngle);
-//  }
-//
-
   FrRudderForce::FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                                const std::string &fileCoefficients)
-      : FrForce(name, "FrRudderForce", body), m_rudderNode(node), m_projectedLateralArea(1),
-        m_wakeFraction0(0.4), m_K1(4), is_hullRudderInteraction(false), m_rootChord(0.), m_height(0.),
+      : FrPropulsionActuator(name, "FrRudderForce", body),
+        m_rudderNode(node),
+        m_projectedLateralArea(1),
+        m_wakeFraction0(0.4),
+        m_K1(4),
+        is_hullRudderInteraction(false),
+        m_rootChord(0.),
+        m_height(0.),
         m_ramp_slope(1. * DEG2RAD),
-        m_k(2.), m_beta1(1.3), m_beta2(MU_PI_2), m_K2(0.5), m_K3(0.45),
+        m_k(2.),
+        m_beta1(1.3),
+        m_beta2(MU_PI_2),
+        m_K2(0.5),
+        m_K3(0.45),
         c_fileCoefficients(fileCoefficients) {
+
     m_rudderAngle = new FrConstantFunction(0.);
+
   }
 
   void FrRudderForce::Initialize() {
     FrForce::Initialize();
     ReadCoefficientsFile();
-//    c_fluidDensity = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
   }
 
   void FrRudderForce::SetProjectedLateralArea(double area) {
@@ -93,7 +73,7 @@ namespace frydom {
     auto environment = body->GetSystem()->GetEnvironment();
     auto rudderVelocityInWorld = body->GetVelocityInWorldAtPointInBody(GetPositionInBody(), NWU);
     Velocity rudderRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(), rudderVelocityInWorld, WATER,
-                                                                          NWU);
+                                                                               NWU);
 
     if (is_hullRudderInteraction) {
       auto rudderRelativeVelocityInBody = body->ProjectVectorInBody(rudderRelativeVelocity, NWU);

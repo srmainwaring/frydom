@@ -26,7 +26,7 @@ class testForce : public FrPropellerForce {
 
   void ReadCoefficientsFile() override;
 
-  GeneralizedForce ComputeGeneralizedForceInWorld() override;
+  GeneralizedForce ComputeGeneralizedForceInBody() override;
 
 };
 
@@ -42,7 +42,7 @@ void testForce::ReadCoefficientsFile() {
 
 }
 
-GeneralizedForce testForce::ComputeGeneralizedForceInWorld() {
+GeneralizedForce testForce::ComputeGeneralizedForceInBody() {
   return GeneralizedForce();
 }
 

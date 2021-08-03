@@ -1,6 +1,7 @@
 message(STATUS "    ...propulsion")
 
 target_sources(frydom PRIVATE
+        FrPropulsionActuator.cpp
         FrPropellerForce.cpp
         FrFirstQuadrantPropellerForce.cpp
         FrFourQuadrantPropellerForce.cpp

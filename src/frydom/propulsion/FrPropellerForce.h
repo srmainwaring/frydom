@@ -5,18 +5,17 @@
 #ifndef FRYDOM_FRPROPELLERFORCE_H
 #define FRYDOM_FRPROPELLERFORCE_H
 
-#include "frydom/core/force/FrForce.h"
 #include "frydom/propulsion/FrPropellerRudder.h"
+#include "FrPropulsionActuator.h"
+#include "FrPropellerType.h"
 #include "FrRudderForce.h"
 
 
 namespace frydom {
 
-  class FrPropellerForce : public FrForce {
+  class FrPropellerForce : public FrPropulsionActuator {
 
    public:
-
-    enum SCREW_DIRECTION {LEFT_HANDED, RIGHT_HANDED};
 
     FrPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody, FRAME_CONVENTION fc);
 
@@ -46,7 +45,17 @@ namespace frydom {
 
     double GetRotationalVelocity(FREQUENCY_UNIT unit) const;
 
+    void SetRPM(double rpm);
+
+    double GetRPM() const;
+
+    virtual void SetPitchRatio(double P_D) = 0;
+
+    virtual double GetPitchRatio() const = 0;
+
     void SetScrewDirection(SCREW_DIRECTION dir);
+
+    SCREW_DIRECTION GetScrewDirection() const;
 
     signed int GetScrewDirectionSign() const;
 
@@ -79,10 +88,10 @@ namespace frydom {
     Position m_positionInBody;
     double m_diameter;
     double m_rotational_velocity;
-    SCREW_DIRECTION m_screwDirection;
+    signed int m_screwDirection; // TODO: stocker plutot le signe plutot que l'enum
 
     // Hull/propeller interaction coefficients
-    double m_K1;
+    double m_K1; // TODO: Donner les definitions de chacun de ces parametres
     double m_correction_factor;
     double m_wake_fraction0;
     double m_thrust_deduction_factor;
@@ -92,7 +101,9 @@ namespace frydom {
     double c_torque;
 
     friend class FrPropellerRudder;
+
   };
 
 } // end namespace frydom
+
 #endif //FRYDOM_FRPROPELLERFORCE_H

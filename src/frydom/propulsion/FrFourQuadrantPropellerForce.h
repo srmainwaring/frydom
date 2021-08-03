@@ -25,6 +25,10 @@ namespace frydom {
 
     virtual double Cq(double gamma) const;
 
+    void SetPitchRatio(double P_D) override {};
+
+    double GetPitchRatio() const override { return 0.; };
+
 //    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
 
    private:

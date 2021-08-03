@@ -292,14 +292,14 @@ namespace frydom {
 
     /// Add an external force to the body
     /// \param force force to be added to the body
-    void AddExternalForce(std::shared_ptr<FrForce> force);
+    virtual void AddExternalForce(std::shared_ptr<FrForce> force);
 
     /// Remove an external force to the body
     /// \param force force to be removed to the body
-    void RemoveExternalForce(std::shared_ptr<FrForce> force);
+    virtual void RemoveExternalForce(std::shared_ptr<FrForce> force);
 
     /// Remove all forces from the body
-    void RemoveAllForces();
+    virtual void RemoveAllForces();
 
     /// Remove a node from the body
     void RemoveNode(std::shared_ptr<FrNode> node);

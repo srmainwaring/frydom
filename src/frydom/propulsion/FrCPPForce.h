@@ -14,12 +14,15 @@ namespace frydom {
 
    public:
 
-    FrCPPForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
-               const std::string &fileCoefficients, FRAME_CONVENTION fc);
+    FrCPPForce(const std::string &name,
+               FrBody *body,
+               Position propellerPositionInBody,
+               const std::string &fileCoefficients,
+               FRAME_CONVENTION fc);
 
-    void SetPitchRatio(double PD);
+    void SetPitchRatio(double P_D) override;
 
-    double GetPitchRatio() const;
+    double GetPitchRatio() const override;
 
     double Ct(double gamma) const override;
 

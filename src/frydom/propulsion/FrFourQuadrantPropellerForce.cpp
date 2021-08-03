@@ -10,7 +10,8 @@ frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::st
                                                                    Position propellerPositionInBody,
                                                                    const std::string &fileCoefficients,
                                                                    FRAME_CONVENTION fc) :
-    FrPropellerForce(name, body, propellerPositionInBody, fc), c_fileCoefficients(fileCoefficients) {
+    FrPropellerForce(name, body, propellerPositionInBody, fc),
+    c_fileCoefficients(fileCoefficients) {
 
 }
 
@@ -24,23 +25,22 @@ double frydom::FrFourQuadrantPropellerForce::Cq(double gamma) const {
 
 double frydom::FrFourQuadrantPropellerForce::ComputeAdvanceAngle() {
   auto uPA = ComputeLongitudinalVelocity();
-  auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
+  auto vp = 0.35 * m_diameter * m_rotational_velocity;
 
-  return atan2(uPA, GetScrewDirectionSign() * vp);
+  return atan2(uPA, m_screwDirection * vp);
 }
 
 frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralizedForceInBody() {
   auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
   auto uPA = ComputeLongitudinalVelocity();
-  auto vp = 0.35 * GetDiameter() * GetRotationalVelocity(RADS);
-  auto advanceAngle = atan2(uPA, GetScrewDirectionSign() * vp);
+  auto vp = 0.35 * m_diameter * m_rotational_velocity;
+  auto advanceAngle = atan2(uPA, m_screwDirection * vp);
 
   auto squaredVelocity = uPA * uPA + vp * vp;
 
-  c_thrust = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * GetDiameter();
-  c_torque = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * GetDiameter() * GetDiameter() *
-           GetScrewDirectionSign();
+  c_thrust = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * m_diameter;
+  c_torque = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * m_diameter * m_diameter * m_screwDirection;
 
   return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
 }

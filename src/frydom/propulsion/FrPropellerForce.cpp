@@ -8,13 +8,22 @@
 
 namespace frydom {
 
-  FrPropellerForce::FrPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
+  FrPropellerForce::FrPropellerForce(const std::string &name,
+                                     FrBody *body,
+                                     Position propellerPositionInBody,
                                      FRAME_CONVENTION fc) :
-      FrForce(name, "FrPropulsionName", body), m_name(name),
+      FrPropulsionActuator(name, "FrPropulsionName", body), m_name(name),
       m_positionInBody(propellerPositionInBody),
-      m_thrust_deduction_factor(0.), m_K1(4), m_wake_fraction0(0.), m_correction_factor(1.),
-      m_diameter(1.0), m_rotational_velocity(0.), m_screwDirection(RIGHT_HANDED) {
-      if (IsNED(fc)) internal::SwapFrameConvention(m_positionInBody);
+      m_thrust_deduction_factor(0.),
+      m_K1(4),
+      m_wake_fraction0(0.),
+      m_correction_factor(1.),
+      m_diameter(1.0),
+      m_rotational_velocity(0.),
+      m_screwDirection(RIGHT_HANDED) {
+
+    if (IsNED(fc)) internal::SwapFrameConvention(m_positionInBody);
+
   }
 
   void FrPropellerForce::SetDiameter(double D) {
@@ -30,8 +39,9 @@ namespace frydom {
     auto body = GetBody();
     auto environment = body->GetSystem()->GetEnvironment();
     auto propellerVelocityInWorld = body->GetVelocityInWorldAtPointInBody(GetPositionInBody(), NWU);
-    const Velocity propellerRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(), propellerVelocityInWorld, WATER,
-                                                                             NWU);
+    const Velocity propellerRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(),
+                                                                                        propellerVelocityInWorld, WATER,
+                                                                                        NWU);
     auto propellerRelativeVelocityInBody = body->ProjectVectorInBody(propellerRelativeVelocity, NWU);
     auto sidewashAngle = propellerRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
     return m_correction_factor * propellerRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
@@ -93,24 +103,42 @@ namespace frydom {
     m_rotational_velocity = convert_frequency(omega, unit, RADS);
   }
 
+  void FrPropellerForce::SetRPM(double rpm) {
+    SetRotationalVelocity(rpm, RPM);
+  }
+
+  double FrPropellerForce::GetRPM() const {
+    return GetRotationalVelocity(RPM);
+  }
+
   void FrPropellerForce::SetScrewDirection(SCREW_DIRECTION dir) {
-    m_screwDirection = dir;
+    m_screwDirection = (dir == RIGHT_HANDED ? 1 : -1);
+//    m_screwDirection = dir;
+  }
+
+  SCREW_DIRECTION FrPropellerForce::GetScrewDirection() const {
+    return m_screwDirection == 1 ? RIGHT_HANDED : LEFT_HANDED;
   }
 
   signed int FrPropellerForce::GetScrewDirectionSign() const {
-    signed int result = 0;
-    switch (m_screwDirection) {
-      case LEFT_HANDED: {
-        result = -1;
-        break;
-      }
-      case RIGHT_HANDED: {
-        result = 1;
-        break;
-      }
-    }
-    return result;
+    return m_screwDirection;
   }
+
+//  signed int FrPropellerForce::GetScrewDirectionSign() const {
+//    return m_screwDirection == RIGHT_HANDED ? 1 : -1;
+////    signed int result = 0;
+////    switch (m_screwDirection) {
+////      case LEFT_HANDED: {
+////        result = -1;
+////        break;
+////      }
+////      case RIGHT_HANDED: {
+////        result = 1;
+////        break;
+////      }
+////    }
+////    return result;
+//  }
 
   double FrPropellerForce::GetPower() const {
     return GetRotationalVelocity(RADS) * GetTorqueInBodyAtPointInBody(GetPositionInBody(), NWU).GetMx();
@@ -164,7 +192,6 @@ namespace frydom {
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
-
 
 
   }
