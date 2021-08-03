@@ -8,13 +8,22 @@
 
 namespace frydom {
 
-  FrPropellerForce::FrPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
+  FrPropellerForce::FrPropellerForce(const std::string &name,
+                                     FrBody *body,
+                                     Position propellerPositionInBody,
                                      FRAME_CONVENTION fc) :
-      FrForce(name, "FrPropulsionName", body), m_name(name),
+      FrPropulsionActuator(name, "FrPropulsionName", body), m_name(name),
       m_positionInBody(propellerPositionInBody),
-      m_thrust_deduction_factor(0.), m_K1(4), m_wake_fraction0(0.), m_correction_factor(1.),
-      m_diameter(1.0), m_rotational_velocity(0.), m_screwDirection(RIGHT_HANDED) {
-      if (IsNED(fc)) internal::SwapFrameConvention(m_positionInBody);
+      m_thrust_deduction_factor(0.),
+      m_K1(4),
+      m_wake_fraction0(0.),
+      m_correction_factor(1.),
+      m_diameter(1.0),
+      m_rotational_velocity(0.),
+      m_screwDirection(RIGHT_HANDED) {
+
+    if (IsNED(fc)) internal::SwapFrameConvention(m_positionInBody);
+
   }
 
   void FrPropellerForce::SetDiameter(double D) {
@@ -30,8 +39,9 @@ namespace frydom {
     auto body = GetBody();
     auto environment = body->GetSystem()->GetEnvironment();
     auto propellerVelocityInWorld = body->GetVelocityInWorldAtPointInBody(GetPositionInBody(), NWU);
-    const Velocity propellerRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(), propellerVelocityInWorld, WATER,
-                                                                             NWU);
+    const Velocity propellerRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(),
+                                                                                        propellerVelocityInWorld, WATER,
+                                                                                        NWU);
     auto propellerRelativeVelocityInBody = body->ProjectVectorInBody(propellerRelativeVelocity, NWU);
     auto sidewashAngle = propellerRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
     return m_correction_factor * propellerRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
@@ -165,7 +175,6 @@ namespace frydom {
 
     msg->AddField<double>("Power", "W", "Power delivered by the propeller",
                           [this]() { return GetPower(); });
-
 
 
   }

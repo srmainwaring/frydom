@@ -5,7 +5,7 @@
 #ifndef FRYDOM_FRPROPELLERRUDDER_H
 #define FRYDOM_FRPROPELLERRUDDER_H
 
-#include "frydom/core/force/FrForce.h"
+#include "FrPropulsionActuator.h"
 
 namespace frydom {
 
@@ -21,7 +21,7 @@ namespace frydom {
 
   class FrCPPForce;
 
-  class FrPropellerRudder : public FrForce {
+  class FrPropellerRudder : public FrPropulsionActuator {
 
    public:
     FrPropellerRudder(const std::string &name, FrBody *body);
@@ -98,4 +98,5 @@ namespace frydom {
   std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, const std::shared_ptr<FrBody> &body);
 
 } // end namespace frydom
+
 #endif //FRYDOM_FRPROPELLERRUDDER_H

@@ -8,49 +8,73 @@
 namespace frydom {
 
   FrPropellerRudder::FrPropellerRudder(const std::string &name, frydom::FrBody *body) :
-      FrForce(name, "FrPropellerRudder", body),
+      FrPropulsionActuator(name, "FrPropellerRudder", body),
       c_propellerForce(Force(), Torque(), Position(), NWU),
       c_rudderForce(Force(), Torque(), Position(), NWU){
 
   }
 
   FrFirstQuadrantPropellerForce *
-  FrPropellerRudder::Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody,
+  FrPropellerRudder::Add_FirstQuadrantPropeller(const std::string &name,
+                                                Position propellerPositionInBody,
                                                 const std::string &filename,
                                                 FRAME_CONVENTION fc) {
-    m_propellerForce = std::make_shared<FrFirstQuadrantPropellerForce>(name, GetBody(), propellerPositionInBody,
-                                                                       filename, fc);
+
+    m_propellerForce = std::make_shared<FrFirstQuadrantPropellerForce>(name,
+                                                                       GetBody(),
+                                                                       propellerPositionInBody,
+                                                                       filename,
+                                                                       fc);
     return dynamic_cast<FrFirstQuadrantPropellerForce *>(m_propellerForce.get());
+
   }
 
   FrFourQuadrantPropellerForce *
-  FrPropellerRudder::Add_FourQuadrantPropeller(const std::string &name, Position propellerPositionInBody,
+  FrPropellerRudder::Add_FourQuadrantPropeller(const std::string &name,
+                                               Position propellerPositionInBody,
                                                const std::string &filename,
                                                FRAME_CONVENTION fc) {
-    m_propellerForce = std::make_shared<FrFourQuadrantPropellerForce>(name, GetBody(), propellerPositionInBody,
-                                                                      filename, fc);
+
+    m_propellerForce = std::make_shared<FrFourQuadrantPropellerForce>(name,
+                                                                      GetBody(),
+                                                                      propellerPositionInBody,
+                                                                      filename,
+                                                                      fc);
     return dynamic_cast<FrFourQuadrantPropellerForce *>(m_propellerForce.get());
+
   }
 
   FrCPPForce *
-  FrPropellerRudder::Add_ControllablePitchPropeller(const std::string &name, Position propellerPositionInBody,
+  FrPropellerRudder::Add_ControllablePitchPropeller(const std::string &name,
+                                                    Position propellerPositionInBody,
                                                     const std::string &filename,
                                                     FRAME_CONVENTION fc) {
-    m_propellerForce = std::make_shared<FrCPPForce>(name, GetBody(), propellerPositionInBody,
-                                                    filename, fc);
+
+    m_propellerForce = std::make_shared<FrCPPForce>(name,
+                                                    GetBody(),
+                                                    propellerPositionInBody,
+                                                    filename,
+                                                    fc);
     return dynamic_cast<FrCPPForce *>(m_propellerForce.get());
+
   }
 
-  FrRudderForce *FrPropellerRudder::Add_Rudder(const std::string &name, const std::shared_ptr<FrNode> &node,
+  FrRudderForce *FrPropellerRudder::Add_Rudder(const std::string &name,
+                                               const std::shared_ptr<FrNode> &node,
                                                const std::string &filename) {
+
     m_rudderForce = std::make_shared<FrRudderForce>(name, GetBody(), node, filename);
     return m_rudderForce.get();
+
   }
 
-  FrFlapRudderForce *FrPropellerRudder::Add_FlapRudder(const std::string &name, const std::shared_ptr<FrNode> &node,
+  FrFlapRudderForce *FrPropellerRudder::Add_FlapRudder(const std::string &name,
+                                                       const std::shared_ptr<FrNode> &node,
                                                        const std::string &filename) {
+
     m_rudderForce = std::make_shared<FrFlapRudderForce>(name, GetBody(), node, filename);
     return dynamic_cast<FrFlapRudderForce *>(m_rudderForce.get());
+
   }
 
   void FrPropellerRudder::Compute(double time) {

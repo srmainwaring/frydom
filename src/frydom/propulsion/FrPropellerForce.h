@@ -5,15 +5,15 @@
 #ifndef FRYDOM_FRPROPELLERFORCE_H
 #define FRYDOM_FRPROPELLERFORCE_H
 
-#include "frydom/core/force/FrForce.h"
 #include "frydom/propulsion/FrPropellerRudder.h"
+#include "FrPropulsionActuator.h"
 #include "FrPropellerType.h"
 #include "FrRudderForce.h"
 
 
 namespace frydom {
 
-  class FrPropellerForce : public FrForce {
+  class FrPropellerForce : public FrPropulsionActuator {
 
    public:
 
@@ -59,8 +59,6 @@ namespace frydom {
 
     signed int GetScrewDirectionSign() const;
 
-//    signed int GetScrewDirectionSign() const;
-
     double GetPower() const;
 
    protected:
@@ -95,7 +93,9 @@ namespace frydom {
     double m_thrust_deduction_factor;
 
     friend class FrPropellerRudder;
+
   };
 
 } // end namespace frydom
+
 #endif //FRYDOM_FRPROPELLERFORCE_H

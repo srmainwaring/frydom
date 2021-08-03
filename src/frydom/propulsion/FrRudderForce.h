@@ -6,53 +6,18 @@
 #define FRYDOM_FRRUDDERFORCE_H
 
 #include <frydom/core/common/FrNode.h>
-#include "frydom/core/force/FrForce.h"
+#include "FrPropulsionActuator.h"
 #include "MathUtils/Interp1d.h"
 #include "frydom/propulsion/FrPropellerRudder.h"
 #include "frydom/core/math/functions/FrFunctionsInc.h"
 
 namespace frydom {
 
+  // Forward declaration
   class FrPropellerForce;
 
-//  class FrFoilForce : public FrForce {
-//
-//   public:
-//    FrFoilForce(const std::string& name, FrBody* body, const std::string& fileCoefficients);
-//
-//    void SetProjectedLateralArea(double area);
-//
-//    double GetProjectedLateralArea() const;
-//
-//   protected:
-//
-//    virtual Velocity GetInflowVelocityInWorld() const = 0;
-//
-//    virtual FrFrame GetInflowFrame(Velocity inflowVelocity) const = 0;
-//
-//    virtual double GetAttackAngle(Velocity inflowVelocity) const = 0;
-//
-//    virtual Position GetPositionInBody() const = 0;
-//
-//    virtual void ReadCoefficientsFile(const std::string& filename) = 0;
-//
-//    mathutils::Vector3d<double> GetCoefficients(double attackAngle) const;
-//
-//    virtual GeneralizedForce ComputeGeneralizedForceInWorld(Velocity inflowVelocity) const = 0;
-//
-//    void Compute(double time) override;
-//
-//    /// This subroutine initializes the object FrForce.
-//    void Initialize() override;
-//
-//    mathutils::LookupTable1D<double, mathutils::Vector3d<double>> m_coefficients;
-//    double m_projectedLateralArea;
-//    double c_fluidDensity;
-//
-//  };
 
-//  class FrRudderForce : public FrFoilForce {
-  class FrRudderForce : public FrForce {
+  class FrRudderForce : public FrPropulsionActuator {
 
    public:
 
@@ -115,7 +80,6 @@ namespace frydom {
 
     void Compute(double time) override;
 
-    /// This subroutine initializes the object FrForce.
     void Initialize() override;
 
     virtual void ReadCoefficientsFile();
@@ -134,7 +98,7 @@ namespace frydom {
     double m_K3;
 
     double m_ramp_slope;
-    FrFunctionBase* m_rudderAngle;
+    FrFunctionBase *m_rudderAngle;
 
     double m_projectedLateralArea;
     double m_height;
