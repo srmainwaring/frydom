@@ -456,9 +456,7 @@ index 3a278f3..aa597b1 100644
    public:
      ChVariablesBodyOwnMass();
 -    virtual ~ChVariablesBodyOwnMass() {}
-+    virtual ~ChVariablesBodyOwnMass() {
-+        std::cout << "Deallocate body own mass of mass " << mass << std::endl;
-+    }
- 
++    virtual ~ChVariablesBodyOwnMass() {}
+
      /// Assignment operator: copy from other object
      ChVariablesBodyOwnMass& operator=(const ChVariablesBodyOwnMass& other);
