@@ -96,7 +96,7 @@ namespace frydom {
 
     double actualRudderAngle = GetRudderAngle(RAD);
 
-    if (angle - GetRudderAngle(RAD) <= 0)
+    if (std::abs(angle - GetRudderAngle(RAD)) <= 0)
       m_rudderAngle = new FrConstantFunction(angle);
     else {
       auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
