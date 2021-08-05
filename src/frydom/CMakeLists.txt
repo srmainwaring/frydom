@@ -39,6 +39,7 @@ target_link_libraries(frydom PUBLIC
         OpenMeshCore
         nlohmann_json
         spdlog::spdlog_header_only
+        acme
         )
 
 if (build_boost)
