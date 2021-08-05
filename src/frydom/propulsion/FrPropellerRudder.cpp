@@ -8,7 +8,7 @@
 namespace frydom {
 
   FrPropellerRudder::FrPropellerRudder(const std::string &name, frydom::FrBody *body) :
-      FrPropulsionActuator(name, "FrPropellerRudder", body), is_interactions(true),
+      FrActuatorForceBase(name, "FrPropellerRudder", body), is_interactions(true),
       c_propellerForceInBody(Force(), Torque(), Position(), NWU),
       c_rudderForceInWorld(Force(), Torque(), Position(), NWU) {
 

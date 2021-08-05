@@ -6,14 +6,14 @@
 #define FRYDOM_FRPROPELLERFORCE_H
 
 #include "frydom/propulsion/FrPropellerRudder.h"
-#include "FrPropulsionActuator.h"
+#include "FrActuatorForceBase.h"
 #include "FrPropellerType.h"
 #include "FrRudderForce.h"
 
 
 namespace frydom {
 
-  class FrPropellerForce : public FrPropulsionActuator {
+  class FrPropellerForce : public FrActuatorForceBase {
 
    public:
 

@@ -5,7 +5,7 @@
 #ifndef FRYDOM_FRPROPELLERRUDDER_H
 #define FRYDOM_FRPROPELLERRUDDER_H
 
-#include "FrPropulsionActuator.h"
+#include "FrActuatorForceBase.h"
 
 namespace frydom {
 
@@ -21,7 +21,7 @@ namespace frydom {
 
   class FrCPPForce;
 
-  class FrPropellerRudder : public FrPropulsionActuator {
+  class FrPropellerRudder : public FrActuatorForceBase {
 
    public:
     FrPropellerRudder(const std::string &name, FrBody *body);

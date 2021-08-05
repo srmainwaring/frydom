@@ -32,7 +32,7 @@ namespace frydom {
     auto n2 = GetRotationalVelocity(RPM) / 60.;
     n2 *= n2;
     c_thrust = density * std::pow(GetDiameter(), 4) * kt(J) * n2;
-    c_torque = density * std::pow(GetDiameter(), 5) * kq(J) * n2 * GetScrewDirectionSign();
+    c_torque = density * std::pow(GetDiameter(), 5) * kq(J) * n2 * GetScrewDirectionSign(); // FIXME: en realite, est-ce qu'on veut avoir un torque signe ??
 
     return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
   }

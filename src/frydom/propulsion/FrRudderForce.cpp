@@ -10,7 +10,7 @@ namespace frydom {
 
   FrRudderForce::FrRudderForce(const std::string &name, FrBody *body, const std::shared_ptr<FrNode> &node,
                                const std::string &fileCoefficients)
-      : FrPropulsionActuator(name, "FrRudderForce", body),
+      : FrActuatorForceBase(name, "FrRudderForce", body),
         m_rudderNode(node),
         m_projectedLateralArea(1),
         m_wakeFraction0(0.4),
