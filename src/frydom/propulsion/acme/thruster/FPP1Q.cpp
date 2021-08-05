@@ -13,40 +13,57 @@ using json = nlohmann::json;
 namespace acme {
 
   FPP1Q::FPP1Q(const ThrusterBaseParams &params, const std::string &kt_kq_json_string) :
-      ThrusterBaseModel(params) {
-    LoadFPP1Q_params(kt_kq_json_string);
+      ThrusterBaseModel(params, kt_kq_json_string) {
   }
 
-  double
-  FPP1Q::ComputeThrust(const double &water_density, const double &advance_velocity_ms, const double &rpm) const {
-    // FIXME: Attention: advance_velocity n'est pas la bonne mesure !!!
-
-    double J = ComputeAdvanceRatio(advance_velocity_ms, rpm);
-    return water_density * std::pow(m_params.m_diameter_m, 4) * kt(J) * rpm * rpm;
+  void FPP1Q::Initialize() {
+    ThrusterBaseModel::Initialize();
   }
 
-  double
-  FPP1Q::ComputeShaftTorque(const double &water_density, const double &advance_velocity_ms, const double &rpm) const {
-    double J = ComputeAdvanceRatio(advance_velocity_ms, rpm);
-    return water_density * std::pow(m_params.m_diameter_m, 5) * kq(J) * rpm * rpm * GetScrewDirectionSign();
+  void FPP1Q::Compute(const double &water_density,
+                      const double &u_NWU,
+                      const double &v_NWU,
+                      const double &rpm,
+                      const double &pitch_ratio) const {
+
+    if (!m_is_initialized) {
+      std::cerr << "Propulsion model MUST be initialized before being used." << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    // Propeller advance velocity
+    double uPA = GetPropellerAdvanceVelocity(u_NWU, v_NWU);
+
+    // propeller rotation frequency in rps
+    double n = rpm / 60.;
+
+    // Advance ratio
+    double J = uPA / (n * m_params.m_diameter_m);
+
+    // Propeller Thrust
+    double n2 = n * n;
+    double _kt = kt(J) + m_params.m_thrust_corr;
+    double propeller_thrust = water_density * n2 * std::pow(m_params.m_diameter_m, 4) * _kt;
+
+    // Effective propeller thrust
+    c_thrust = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
+
+    // Torque
+    double _kq = kq(J) + m_params.m_torque_corr;
+    c_torque = water_density * n2 * std::pow(m_params.m_diameter_m, 5) * _kq * GetScrewDirectionSign();
+
+    // Efficiency
+    c_efficiency = J * _kt / (MU_2PI * _kq);
+
+    // Power
+    c_power = n * c_torque;
+
   }
 
-  void
-  FPP1Q::ComputeThrustAndTorque(const double &water_density,
-                                const double &advance_velocity_ms,
-                                const double &rpm,
-                                double &thrust,
-                                double &torque) const {
-    thrust = ComputeThrust(water_density, advance_velocity_ms, rpm);
-    torque = ComputeShaftTorque(water_density, advance_velocity_ms, rpm);
-  }
-
-  double FPP1Q::ComputeAdvanceRatio(const double &advance_velocity_ms, const double &rpm) const {
-    return 60. * advance_velocity_ms / (rpm * m_params.m_diameter_m);
-  }
-
-  void FPP1Q::LoadFPP1Q_params(const std::string &kt_kq_json_string) {
-    auto jnode = json::parse(kt_kq_json_string);
+  void FPP1Q::ParsePropellerPerformanceCurveJsonString() {
+    // TODO: terminer, pas fini !!!
+    auto jnode = json::parse(m_perf_data_json_string);
+    m_perf_data_json_string.clear();
 
     auto j = jnode["j"].get<std::vector<double>>();
     auto kt = jnode["kt"].get<std::vector<double>>();

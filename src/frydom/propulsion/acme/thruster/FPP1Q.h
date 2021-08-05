@@ -18,32 +18,24 @@ namespace acme {
    public:
     FPP1Q(const ThrusterBaseParams &params, const std::string &kt_kq_json_string);
 
-    double ComputeThrust(const double &water_density,
-                         const double &advance_velocity_ms,
-                         const double &rpm) const override;
+    void Compute(const double &water_density,
+                 const double &u_NWU,
+                 const double &v_NWU,
+                 const double &rpm,
+                 const double &pitch_ratio) const override; // pitch ratio not used in this model, may be any value
 
-    double ComputeShaftTorque(const double &water_density,
-                              const double &advance_velocity_ms,
-                              const double &rpm) const override;
-
-    void ComputeThrustAndTorque(const double &water_density,
-                                const double &advance_velocity_ms,
-                                const double &rpm,
-                                double &thrust,
-                                double &torque) const override;
+    void Initialize() override;
 
    private:
-    inline double ComputeAdvanceRatio(const double &advance_velocity_ms, const double &rpm) const;
 
     inline double kt(const double &J) const;
+
     inline double kq(const double &J) const;
 
-    void LoadFPP1Q_params(const std::string &kt_kq_json_string);
+    void ParsePropellerPerformanceCurveJsonString() override;
 
    private:
     mathutils::LookupTable1D<double> m_kt_kq_coeffs;
-//    bool m_is_right_handed;
-
 
   };
 

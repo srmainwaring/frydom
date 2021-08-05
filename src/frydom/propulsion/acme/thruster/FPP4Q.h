@@ -16,7 +16,26 @@ namespace acme {
   class FPP4Q : public ThrusterBaseModel {
 
    public:
-    FPP4Q(const ThrusterBaseParams &params, const std::string &kt_kq_file_json)
+    FPP4Q(const ThrusterBaseParams &params, const std::string &ct_cq_json_string);
+
+    void Compute(const double &water_density,
+                 const double &u_NWU,
+                 const double &v_NWU,
+                 const double &rpm,
+                 const double &pitch_ratio) const override; // pitch ratio not used in this model, may be any value
+
+    void Initialize() override;
+
+   private:
+
+    virtual inline double ct(const double &gamma, const double &pitch_ratio) const;
+
+    virtual inline double cq(const double &gamma, const double &pitch_ratio) const;
+
+    void ParsePropellerPerformanceCurveJsonString() override;
+
+   private:
+    mathutils::LookupTable1D<double> m_ct_ct_coeffs;
 
   };
 

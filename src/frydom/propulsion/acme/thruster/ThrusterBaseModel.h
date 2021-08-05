@@ -18,46 +18,53 @@ namespace acme {
     double m_diameter_m;
     SCREW_DIRECTION m_screw_direction;
 
-    double m_k1;
-    double m_correction_factor;
-    double m_hull_wake_fraction;
-    double m_thrust_deduction_factor;
+    double m_hull_wake_fraction_0;
+    double m_thrust_deduction_factor_0;
+
+    // TODO: Donnees a ajouter dans le json
+    bool m_use_advance_velocity_correction_factor = false;
+    double m_propeller_design_rpm;
+    double m_vessel_design_speed_ms;
+
+    double m_thrust_corr = 0.;
+    double m_torque_corr = 0.;
+
   };
 
 
   class ThrusterBaseModel {
 
    public:
-    explicit ThrusterBaseModel(const ThrusterBaseParams params) :
-        m_params(params) {}
+    ThrusterBaseModel(const ThrusterBaseParams params, const std::string &perf_data_json_string);
 
-//    virtual ~ThrusterBaseModel() = default; // Making it polymorphic
+    virtual void Initialize();
 
     /// Compute the models with the specified data
     /// \param water_density in kg/m3
-    /// \param propeller_advance_velocity_ms propeller velocity with respect to water (current included) along the local
-    ///        x-axis of the vessel (in m/s)
+    /// \param u propeller velocity with respect to water (current included) expressed along x-axis of the vessel (in m/s)
+    /// \param v  propeller velocity with respect to water (current included) expressed along x-axis of the vessel (in m/s)
     /// \param rpm shaft rotational velocity in round per minutes
+    /// \param pitch_ratio the propeller pitch ratio. Only used for CPP
     virtual void Compute(const double &water_density,
-                         const mathutils::Vector3d<double> &propeller_velocity_through_water,
-                         const double &rpm) = 0;
+                         const double &u_NWU,
+                         const double &v_NWU,
+                         const double &rpm,
+                         const double &pitch_ratio) const = 0;
 
-//    virtual double ComputeThrust(const double &water_density,
-//                                 const double &advance_velocity_ms,
-//                                 const double &rpm) const = 0;
-//
-//    virtual double ComputeShaftTorque(const double &water_density,
-//                                      const double &advance_velocity_ms,
-//                                      const double &rpm) const = 0;
-//
-//    virtual void ComputeThrustAndTorque(const double &water_density,
-//                                        const double &advance_velocity_ms,
-//                                        const double &rpm,
-//                                        double &thrust,
-//                                        double &torque) const = 0;
+    double GetThrust() const;
+
+    double GetTorque() const;
+
+    double GetPropellerEfficiency() const;
+
+    double GetPower() const;
 
 
    protected:
+
+    double GetPropellerAdvanceVelocity(const double &u_NWU,
+                                       const double &v_NWU) const;
+
     SCREW_DIRECTION GetScrewDirection() const {
       return m_params.m_screw_direction;
     }
@@ -66,12 +73,24 @@ namespace acme {
       return m_params.m_screw_direction == RIGHT_HANDED ? 1 : -1;
     }
 
+   private:
+    virtual void ParsePropellerPerformanceCurveJsonString() = 0;
+
+    void ComputeAdvanceVelocityCorrectionFactor();
+
 
    protected:
-    ThrusterBaseParams m_params;
+    bool m_is_initialized;
+    std::string m_perf_data_json_string;
 
-    double c_thrust;
-    double c_torque;
+    ThrusterBaseParams m_params;
+    double m_ku;
+
+    mutable double c_sidewash_angle;
+    mutable double c_thrust;
+    mutable double c_torque;
+    mutable double c_efficiency;
+    mutable double c_power;
 
   };
 
