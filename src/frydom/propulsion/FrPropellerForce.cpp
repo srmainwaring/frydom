@@ -141,7 +141,7 @@ namespace frydom {
 //  }
 
   double FrPropellerForce::GetPower() const {
-    return GetRotationalVelocity(RADS) * GetTorqueInBodyAtPointInBody(GetPositionInBody(), NWU).GetMx();
+    return GetRotationalVelocity(RADS) * c_torque;
   }
 
   double FrPropellerForce::GetThrust() const {
