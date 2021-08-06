@@ -87,7 +87,7 @@ namespace frydom {
 
     void Compute(double time) override;
 
-    void ComputeVelocityInSlipStream(double u_ra, double u_pa, double thrust, double &u_rp, double &A_rp, double &kd);
+    void ComputeVelocityInSlipStream(double u_0, double u_ra, double u_pa, double thrust, double &u_rp, double &A_rp, double &kd);
 
     void DefineLogMessages() override;
 
@@ -99,7 +99,12 @@ namespace frydom {
     GeneralizedForceTorsor c_propellerForceInBody;
     GeneralizedForceTorsor c_rudderForceInWorld;
 
-    bool is_interactions;
+    bool has_interactions;
+
+    double c_uPA, c_vPA;
+    double c_uRA, c_vRA;
+    double c_uRP, c_vRP;
+    double c_kd, c_A_RP;
 
   };
 

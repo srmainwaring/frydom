@@ -15,7 +15,7 @@ namespace frydom {
         m_projectedLateralArea(1),
         m_wakeFraction0(0.4),
         m_K1(4),
-        is_hullRudderInteraction(false),
+        has_hullRudderInteraction(false),
         m_rootChord(0.),
         m_height(0.),
         m_ramp_slope(1. * DEG2RAD),
@@ -75,12 +75,13 @@ namespace frydom {
     Velocity rudderRelativeVelocity = -environment->GetRelativeVelocityInFrame(FrFrame(), rudderVelocityInWorld, WATER,
                                                                                NWU);
 
-    if (is_hullRudderInteraction) {
+    if (has_hullRudderInteraction) {
       auto rudderRelativeVelocityInBody = body->ProjectVectorInBody(rudderRelativeVelocity, NWU);
       auto sidewashAngle = rudderRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
       auto uRA = rudderRelativeVelocityInBody.GetVx() * (1. - GetWakeFraction(sidewashAngle));
-      auto specialSidewashAngle = ComputeSpecialSidewashAngle();
-      auto vRA = rudderRelativeVelocityInBody.GetVy() * Kappa(specialSidewashAngle);
+      auto vRA = rudderRelativeVelocityInBody.GetVy();
+      if (has_hull_influence_transverse_velocity)
+        vRA *= Kappa(ComputeSpecialSidewashAngle());
       rudderRelativeVelocity = body->ProjectVectorInWorld(Velocity(uRA, vRA, 0.0), NWU);
     }
 
@@ -203,7 +204,7 @@ namespace frydom {
     auto vesselVelocity = GetBody()->GetVelocityInHeadingFrame(NWU);
 
     auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
-    auto x_r = GetPositionInBody().GetX();
+    auto x_r = GetPositionInBody().GetX() + GetBody()->GetCOG(NWU).GetX();
 
     vesselVelocity.GetVy() += +m_k * r * x_r;
 
@@ -217,7 +218,7 @@ namespace frydom {
       kappa = std::min(m_K2, m_K3 * beta);
     } else if (beta <= m_beta2 and beta >= m_beta1) {
       auto bv = 0.5 / (m_beta2 - m_beta1);
-      auto av = 0.5 - bv * m_beta1;
+      auto av = m_K2 - bv * m_beta1;
       kappa = av + bv * beta;
     } else {
       kappa = 1.0;

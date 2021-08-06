@@ -72,7 +72,9 @@ namespace frydom {
 
     double ComputeSpecialSidewashAngle() const;
 
-    void ActivateHullRudderInteraction(bool interaction) { is_hullRudderInteraction = interaction; }
+    void ActivateHullRudderInteraction(bool interaction) { has_hullRudderInteraction = interaction; }
+
+    void ActivateHullInfluenceOnTransverseVelocity(bool val) {has_hull_influence_transverse_velocity = val;}
 
    protected:
 
@@ -112,7 +114,8 @@ namespace frydom {
 
     std::shared_ptr<FrNode> m_rudderNode;
 
-    bool is_hullRudderInteraction;
+    bool has_hullRudderInteraction;
+    bool has_hull_influence_transverse_velocity;
 
     std::string c_fileCoefficients;
 
