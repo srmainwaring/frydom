@@ -16,9 +16,9 @@ namespace acme {
       ThrusterBaseModel(params, kt_kq_json_string) {
   }
 
-  void FPP1Q::Initialize() {
-    ThrusterBaseModel::Initialize();
-  }
+//  void FPP1Q::Initialize() {
+//    ThrusterBaseModel::Initialize();
+//  }
 
   void FPP1Q::Compute(const double &water_density,
                       const double &u_NWU,
@@ -31,10 +31,15 @@ namespace acme {
       exit(EXIT_FAILURE);
     }
 
+    if (u_NWU < 0.) {
+      std::cerr << "This first quadrant model is only applicable for positive vessel forward speed" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
     // Propeller advance velocity
     double uPA = GetPropellerAdvanceVelocity(u_NWU, v_NWU);
 
-    // propeller rotation frequency in rps
+    // propeller rotation frequency in Hz
     double n = rpm / 60.;
 
     // Advance ratio
@@ -42,15 +47,17 @@ namespace acme {
 
     // Propeller Thrust
     double n2 = n * n;
-    double _kt = kt(J) + m_params.m_thrust_corr;
-    double propeller_thrust = water_density * n2 * std::pow(m_params.m_diameter_m, 4) * _kt;
+    double D4 = std::pow(m_params.m_diameter_m, 4);
+    double _kt = kt(J) + m_params.m_thrust_coefficient_correction;
+    double propeller_thrust = water_density * n2 * D4 * _kt;
 
     // Effective propeller thrust
     c_thrust = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
 
     // Torque
-    double _kq = kq(J) + m_params.m_torque_corr;
-    c_torque = water_density * n2 * std::pow(m_params.m_diameter_m, 5) * _kq * GetScrewDirectionSign();
+    double _kq = kq(J) + m_params.m_torque_coefficient_correction;
+//    c_torque = water_density * n2 * std::pow(m_params.m_diameter_m, 5) * _kq * GetScrewDirectionSign();
+    c_torque = water_density * n2 * D4 * m_params.m_diameter_m * _kq;
 
     // Efficiency
     c_efficiency = J * _kt / (MU_2PI * _kq);
@@ -61,27 +68,45 @@ namespace acme {
   }
 
   void FPP1Q::ParsePropellerPerformanceCurveJsonString() {
-    // TODO: terminer, pas fini !!!
-    auto jnode = json::parse(m_perf_data_json_string);
-    m_perf_data_json_string.clear();
+
+    /**
+     * ATTENTION. Note aux developpeurs
+     *
+     * Si un json ne passe pas, ne changez pas ce code pour le faire fonctionner mais plutot en parler car c'est ce
+     * code de parsing json qui fait foi en terme de convention sur le formattage des json. On peut faire evoluer le
+     * format mais il est necessaire d'avoir une discussion prealable.
+     *
+     * Merci :)
+     *
+     * On remarquera en outre que le choix a ete fait de faire une lazy initialisation en stockant temporairement non
+     * pas le path vers le fichier json mais la chaine de caractere json a la place. C'est un choix delibere qui pourra
+     * etre etendu en tant que pattern a toutes nos classes necessitant la lecture de parametres sous format json.
+     * La raison est que cela permet de preparer l'instantiation a la volee d'objets en utilisant json comme format
+     * de serialisation des parametres. Cela rend possible la creation a distance de ces objets sans avoir a rendre
+     * disponible un fichier sur le disque (sans IO disque donc). Cela sera utilise plus tard.
+     *
+     */
+
+    std::cout << m_temp_perf_data_json_string << std::endl;
+
+    auto jnode = json::parse(m_temp_perf_data_json_string);
+    m_temp_perf_data_json_string.clear();
 
     auto j = jnode["j"].get<std::vector<double>>();
     auto kt = jnode["kt"].get<std::vector<double>>();
     auto kq = jnode["kq"].get<std::vector<double>>();
 
-    auto screw_direction = jnode["screw_direction"].get<std::string>();
-
-    // Only one
-    if (screw_direction == "LEFT_HANDED") {
-      for (auto &c : kq) {
-        c = -c;
-      }
-    } else if (screw_direction == "RIGHT_HANDED") {
-      // Nothing
-    } else {
-      std::cerr << "Unknown screw direction " << screw_direction << std::endl;
-      exit(EXIT_FAILURE);
-    }
+//    // Only one
+//    if (screw_direction == "LEFT_HANDED") {
+//      for (auto &c : kq) {
+//        c = -c;
+//      }
+//    } else if (screw_direction == "RIGHT_HANDED") {
+//      // Nothing
+//    } else {
+//      std::cerr << "Unknown screw direction " << screw_direction << std::endl;
+//      exit(EXIT_FAILURE);
+//    }
 
     m_kt_kq_coeffs.SetX(j);
     m_kt_kq_coeffs.AddY("kt", kt);

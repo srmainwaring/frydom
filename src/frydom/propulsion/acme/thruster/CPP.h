@@ -17,7 +17,7 @@ namespace acme {
    public:
     CPP(const ThrusterBaseParams &params, const std::string &ct_cq_json_string);
 
-    void Initialize() override;
+//    void Initialize() override;
 
    private:
 

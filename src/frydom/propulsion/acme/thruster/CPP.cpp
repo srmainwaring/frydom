@@ -11,9 +11,9 @@ namespace acme {
 
   }
 
-  void CPP::Initialize() {
-    FPP4Q::Initialize();
-  }
+//  void CPP::Initialize() {
+//    FPP4Q::Initialize();
+//  }
 
   double CPP::ct(const double &gamma, const double &pitch_ratio) const {
     return m_ct_ct_coeffs.Eval("ct", gamma, pitch_ratio);

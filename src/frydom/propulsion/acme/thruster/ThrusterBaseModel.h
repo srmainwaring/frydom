@@ -26,8 +26,8 @@ namespace acme {
     double m_propeller_design_rpm;
     double m_vessel_design_speed_ms;
 
-    double m_thrust_corr = 0.;
-    double m_torque_corr = 0.;
+    double m_thrust_coefficient_correction = 0.;
+    double m_torque_coefficient_correction = 0.;
 
   };
 
@@ -81,7 +81,7 @@ namespace acme {
 
    protected:
     bool m_is_initialized;
-    std::string m_perf_data_json_string;
+    std::string m_temp_perf_data_json_string; // Populated at instantiation and cleared at Initialization (lazy)
 
     ThrusterBaseParams m_params;
     double m_ku;

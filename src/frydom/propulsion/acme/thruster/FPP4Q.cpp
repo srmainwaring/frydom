@@ -40,14 +40,14 @@ namespace acme {
     double Ad = MU_PI * m_params.m_diameter_m * m_params.m_diameter_m / 4.;
 
     // Propeller Thrust
-    double _ct = ct(gamma, pitch_ratio) + m_params.m_thrust_corr;
+    double _ct = ct(gamma, pitch_ratio) + m_params.m_thrust_coefficient_correction;
     double propeller_thrust = 0.5 * water_density * vB2 * Ad * _ct;
 
     // Effective propeller thrust
     c_thrust = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
 
     // Torque
-    double _cq = cq(gamma, pitch_ratio) + m_params.m_torque_corr;
+    double _cq = cq(gamma, pitch_ratio) + m_params.m_torque_coefficient_correction;
     c_torque = 0.5 * water_density * vB2 * Ad * m_params.m_diameter_m * _cq;
 
     // Efficiency
@@ -63,9 +63,9 @@ namespace acme {
 
   }
 
-  void FPP4Q::Initialize() {
-    ThrusterBaseModel::Initialize();
-  }
+//  void FPP4Q::Initialize() {
+//    ThrusterBaseModel::Initialize();
+//  }
 
   double FPP4Q::ct(const double &gamma, const double &pitch_ratio) const {
     return m_ct_ct_coeffs.Eval("ct", gamma);

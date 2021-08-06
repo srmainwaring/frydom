@@ -24,7 +24,7 @@ namespace acme {
                  const double &rpm,
                  const double &pitch_ratio) const override; // pitch ratio not used in this model, may be any value
 
-    void Initialize() override;
+//    void Initialize() override;
 
    private:
 
