@@ -60,11 +60,11 @@ namespace frydom {
 
     Velocity GetRudderRelativeVelocityInWorld() const;
 
-    FrFrame GetInflowFrame(const Velocity &inflowVelocity) const;
+    FrFrame GetRudderFlowFrame(const Velocity &rudderFlowVelocity) const;
 
-    double GetAttackAngle(const Velocity &inflowVelocity) const;
+    double GetAttackAngle(const Velocity &rudderVelocity) const;
 
-    double GetDriftAngle(const Velocity &inflowVelocity) const;
+    double GetDriftAngle(const Velocity &rudderVelocity) const;
 
     double GetWakeFraction(double sidewashAngle) const;
 
