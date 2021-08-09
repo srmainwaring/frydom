@@ -128,40 +128,40 @@ namespace frydom {
     return m_rudderNode->GetNodePositionInBody(NWU);
   }
 
-  FrFrame FrRudderForce::GetInflowFrame(const Velocity &inflowVelocity) const {
+  FrFrame FrRudderForce::GetRudderFlowFrame(const Velocity &rudderFlowVelocity) const {
 
-    auto x = inflowVelocity;
+    auto x = rudderFlowVelocity;
     x.normalize();
     auto z = m_rudderNode->GetFrameInWorld().GetZAxisInParent(NWU);
     z.normalize();
     auto y = z.cross(x);
     if (y.isZero(1E-3)) {
-      event_logger::error("FrRudderForce", GetName(), "inflowVelocity is along Rudder axis");
+      event_logger::error("FrRudderForce", GetName(), "rudderFlowVelocity is along Rudder axis");
       return FrFrame();
     }
     y.normalize();
     x = y.cross(z);
     x.normalize();
 
-    FrFrame inflowFrame;
-    inflowFrame.Set(Position(), x, y, z, NWU);
+    FrFrame rudderFlowFrame;
+    rudderFlowFrame.Set(Position(), x, y, z, NWU);
 
-    return inflowFrame;
+    return rudderFlowFrame;
   }
 
-  double FrRudderForce::GetAttackAngle(const Velocity &inflowVelocity) const {
-    return GetRudderAngle(RAD) - GetDriftAngle(inflowVelocity);
+  double FrRudderForce::GetAttackAngle(const Velocity &rudderVelocity) const {
+    return GetRudderAngle(RAD) - GetDriftAngle(rudderVelocity);
   }
 
-  double FrRudderForce::GetDriftAngle(const Velocity &inflowVelocity) const {
-    return GetBody()->ProjectVectorInBody(inflowVelocity, NWU).GetProjectedAngleAroundZ(RAD);
+  double FrRudderForce::GetDriftAngle(const Velocity &rudderVelocity) const {
+    return GetBody()->ProjectVectorInBody(rudderVelocity, NWU).GetProjectedAngleAroundZ(RAD);
   }
 
   void FrRudderForce::Compute(double time) {
 
-    auto inflowRelativeVelocityInWorld = GetRudderRelativeVelocityInWorld();
+    auto rudderRelativeVelocityInWorld = GetRudderRelativeVelocityInWorld();
 
-    auto rudderGeneralizedForceInWorld = ComputeGeneralizedForceInWorld(inflowRelativeVelocityInWorld);
+    auto rudderGeneralizedForceInWorld = ComputeGeneralizedForceInWorld(rudderRelativeVelocityInWorld);
 
     SetForceTorqueInWorldAtPointInBody(rudderGeneralizedForceInWorld.GetForce(),
                                        rudderGeneralizedForceInWorld.GetTorque(),
@@ -191,10 +191,10 @@ namespace frydom {
       c_lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
       c_torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
 
-      auto inflowFrame = GetInflowFrame(rudderRelativeVelocity);
+      auto rudderFlowFrame = GetRudderFlowFrame(rudderRelativeVelocity);
 
-      rudderForce.SetForce(inflowFrame.ProjectVectorFrameInParent(Force(c_drag, c_lift, 0.), NWU));
-      rudderForce.SetTorque(inflowFrame.ProjectVectorFrameInParent(Torque(0., 0., c_torque), NWU));
+      rudderForce.SetForce(rudderFlowFrame.ProjectVectorFrameInParent(Force(c_drag, c_lift, 0.), NWU));
+      rudderForce.SetTorque(rudderFlowFrame.ProjectVectorFrameInParent(Torque(0., 0., c_torque), NWU));
 
     }
     return rudderForce;
@@ -430,7 +430,7 @@ namespace frydom {
                           [this]() { return this->GetTorque(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
-        ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),
+        ("RudderRelativeVelocityInWorld", "m/s", fmt::format("rudder velocity relative to the surrounding flow, in the World reference frame in {}", GetLogFC()),
          [this]() { return GetRudderRelativeVelocityInWorld(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>

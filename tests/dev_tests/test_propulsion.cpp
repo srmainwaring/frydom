@@ -24,7 +24,7 @@ int main() {
 //  body->AddExternalForce(fpp);
 
   auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx022/flap_rudder.json"});
-  auto rudder = make_flap_rudder_force("rudder", body.get(), node, file);
+  auto rudder = make_flap_rudder_force("rudder", body, node, file);
   rudder->SetFlapLaw(0.8);
   rudder->SetRampSlope(1, DEGS);
   rudder->SetProjectedLateralArea(15.061);
