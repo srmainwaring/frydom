@@ -32,6 +32,7 @@ double frydom::FrFourQuadrantPropellerForce::ComputeAdvanceAngle() {
 
 frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralizedForceInBody() {
   auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
+  auto radius = 0.5 * m_diameter;
 
   auto uPA = ComputeLongitudinalVelocity();
   auto vp = 0.35 * m_diameter * m_rotational_velocity;
@@ -39,8 +40,10 @@ frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralize
 
   auto squaredVelocity = uPA * uPA + vp * vp;
 
-  c_thrust = 0.25 * density * Ct(advanceAngle) * squaredVelocity * MU_PI * m_diameter;
-  c_torque = 0.25 * density * Cq(advanceAngle) * squaredVelocity * MU_PI * m_diameter * m_diameter * m_screwDirection;
+  auto coeff = 0.25 * density * squaredVelocity * MU_PI * radius * radius;
+
+  c_thrust = coeff * (1 - m_thrust_deduction_factor) * Ct(advanceAngle);
+  c_torque = coeff * Cq(advanceAngle) * m_diameter * m_screwDirection;
 
   return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
 }
