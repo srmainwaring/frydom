@@ -67,7 +67,7 @@ namespace acme {
     c_efficiency = J * _kt / (MU_2PI * _kq);
 
     // Power
-    c_power_W = n * c_torque_Nm;
+    c_power_W =  MU_2PI * n * c_torque_Nm;
 
   }
 
@@ -99,7 +99,6 @@ namespace acme {
     auto j = jnode["j"].get<std::vector<double>>();
     auto kt = jnode["kt"].get<std::vector<double>>();
     auto kq = jnode["kq"].get<std::vector<double>>();
-
 
 //    // Only one
 //    if (screw_direction == "LEFT_HANDED") {
