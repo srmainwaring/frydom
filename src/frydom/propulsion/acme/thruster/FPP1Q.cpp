@@ -13,7 +13,7 @@ using json = nlohmann::json;
 namespace acme {
 
   FPP1Q::FPP1Q(const ThrusterParams &params, const std::string &kt_kq_json_string) :
-      ThrusterBaseModel(params, kt_kq_json_string) {
+      ThrusterBaseModel(params, kt_kq_json_string, ThrusterModelType::E_FPP1Q) {
   }
 
 //  void FPP1Q::Initialize() {

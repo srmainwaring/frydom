@@ -6,10 +6,13 @@
 
 namespace acme {
 
-  ThrusterBaseModel::ThrusterBaseModel(const ThrusterParams params, const std::string &perf_data_json_string) :
+  ThrusterBaseModel::ThrusterBaseModel(const ThrusterParams params,
+                                       const std::string &perf_data_json_string,
+                                       ThrusterModelType type) :
       m_params(params),
       m_temp_perf_data_json_string(perf_data_json_string),
       m_is_initialized(false),
+      m_type(type),
       m_ku(1.),
       c_sidewash_angle_rad(0.),
       c_thrust_N(0.),
@@ -24,7 +27,11 @@ namespace acme {
     m_is_initialized = true;
   }
 
-  double acme::ThrusterBaseModel::GetThrust() const {
+  ThrusterModelType ThrusterBaseModel::GetThrusterModelType() const {
+    return m_type;
+  }
+
+  double ThrusterBaseModel::GetThrust() const {
     return c_thrust_N;
   }
 

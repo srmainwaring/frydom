@@ -9,7 +9,7 @@ namespace acme {
 
   FlapRudderModel::FlapRudderModel(const RudderParams params, const std::string &perf_data_json_string)
       : SimpleRudderModel(params, perf_data_json_string) {
-
+    m_type = RudderModelType::E_FLAP_RUDDER;  // Overrides the E_SIMPLE_RUDDER
   }
 
   void FlapRudderModel::GetClCdCn(const double &attack_angle_rad,

@@ -9,6 +9,7 @@
 
 #include "MathUtils/LookupTable1D.h"
 
+#include "RudderModelType.h"
 
 namespace acme {
 
@@ -36,6 +37,8 @@ namespace acme {
                          const double &v_NWU,
                          const double &rudder_angle_deg) const;
 
+    RudderModelType GetRudderModelType() const;
+
    private:
 
     virtual inline void GetClCdCn(const double &attack_angle_rad,
@@ -52,6 +55,8 @@ namespace acme {
     std::string m_temp_perf_data_json_string;
 
     RudderParams m_params;
+
+    RudderModelType m_type;
 
    private:
     mathutils::LookupTable1D<double, double> m_cl_cd_cn_coeffs;

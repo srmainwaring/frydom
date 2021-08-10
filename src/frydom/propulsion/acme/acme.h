@@ -7,6 +7,8 @@
 
 #include "thruster/thruster.h"
 #include "rudder/rudder.h"
+#include "propeller_rudder/PropellerRudder.h"
 #include "sail/sail.h"
+
 
 #endif //ACME_ACME_H

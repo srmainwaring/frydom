@@ -14,7 +14,8 @@ namespace acme {
   SimpleRudderModel::SimpleRudderModel(const RudderParams params, const std::string &perf_data_json_string) :
       m_params(params),
       m_temp_perf_data_json_string(perf_data_json_string),
-      m_is_initialized(false) {
+      m_is_initialized(false),
+      m_type(RudderModelType::E_SIMPLE_RUDDER) {
 
   }
 
@@ -75,6 +76,10 @@ namespace acme {
     c_fx_N = Cbeta * c_drag_N - Sbeta * c_lift_N;
     c_fy_N = Sbeta * c_drag_N + Cbeta * c_lift_N;
 
+  }
+
+  RudderModelType SimpleRudderModel::GetRudderModelType() const {
+    return m_type;
   }
 
   void SimpleRudderModel::GetClCdCn(const double &attack_angle_rad,

@@ -6,6 +6,8 @@
 #define ACME_THRUSTERBASEMODEL_H
 
 #include "MathUtils/Vector3d.h"
+#include "ThrusterModelType.h"
+
 
 namespace acme {
 
@@ -35,7 +37,9 @@ namespace acme {
   class ThrusterBaseModel {
 
    public:
-    ThrusterBaseModel(const ThrusterParams params, const std::string &perf_data_json_string);
+    ThrusterBaseModel(const ThrusterParams params,
+                      const std::string &perf_data_json_string,
+                      ThrusterModelType type);
 
     virtual void Initialize();
 
@@ -50,6 +54,8 @@ namespace acme {
                          const double &v_NWU,
                          const double &rpm,
                          const double &pitch_ratio) const = 0;
+
+    ThrusterModelType GetThrusterModelType() const;
 
     double GetThrust() const;
 
@@ -82,6 +88,8 @@ namespace acme {
    protected:
     bool m_is_initialized;
     std::string m_temp_perf_data_json_string; // Populated at instantiation and cleared at Initialization (lazy)
+
+    ThrusterModelType m_type;
 
     ThrusterParams m_params;
     double m_ku;
