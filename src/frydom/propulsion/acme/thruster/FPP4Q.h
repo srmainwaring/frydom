@@ -35,7 +35,7 @@ namespace acme {
     void ParsePropellerPerformanceCurveJsonString() override;
 
    private:
-    mathutils::LookupTable1D<double> m_ct_ct_coeffs;
+    mathutils::LookupTable1D<double, double> m_ct_ct_coeffs;
 
   };
 

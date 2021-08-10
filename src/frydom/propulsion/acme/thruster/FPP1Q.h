@@ -6,6 +6,7 @@
 #define ACME_FPP1Q_H
 
 #include <string>
+
 #include "MathUtils/LookupTable1D.h"
 
 #include "ThrusterBaseModel.h"
@@ -28,14 +29,14 @@ namespace acme {
 
    private:
 
-    inline double kt(const double &J) const;
+    inline double kt(const double &J) const;  // FIXME: le inline doit etre fait dans le .h !!
 
     inline double kq(const double &J) const;
 
     void ParsePropellerPerformanceCurveJsonString() override;
 
    private:
-    mathutils::LookupTable1D<double> m_kt_kq_coeffs;
+    mathutils::LookupTable1D<double, double> m_kt_kq_coeffs;
 
   };
 

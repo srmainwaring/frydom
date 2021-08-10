@@ -9,8 +9,8 @@ namespace acme {
   ThrusterBaseModel::ThrusterBaseModel(const ThrusterBaseParams params, const std::string &perf_data_json_string) :
       m_params(params),
       m_temp_perf_data_json_string(perf_data_json_string),
-      m_ku(1.),
       m_is_initialized(false),
+      m_ku(1.),
       c_sidewash_angle(0.),
       c_thrust(0.),
       c_torque(0.),
