@@ -26,6 +26,10 @@ class testForce : public FrPropellerForce {
 
   void ReadCoefficientsFile() override;
 
+  void SetPitchRatio(double P_D) override {};
+
+  double GetPitchRatio() const override {};
+
   GeneralizedForce ComputeGeneralizedForceInBody() override;
 
 };

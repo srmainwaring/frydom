@@ -48,7 +48,7 @@ void TestFrRudderForce::SetUp() {
 
   auto rudderCoeffFile = FrFileSystem::join({system.config_file().GetDataFolder(), m_coeffFilePath});
 
-  force = std::make_shared<FrRudderForce>("rudderForce", body.get(), rudderCoeffFile, node);
+  force = make_rudder_force("rudderForce", body, node, rudderCoeffFile);
 
   system.Initialize();
 }
@@ -153,7 +153,7 @@ TEST_F(TestFrRudderForce, GetInflowVelocityInWorld) {
   ASSERT_TRUE(force->GetRudderRelativeVelocityInWorld() == rudderRelativeVelocity);
 
   // With hull/rudder interaction
-  force->ActivateHullRudderInteraction();
+  force->ActivateHullRudderInteraction(true);
   auto rudderRelativeVelocityInBody = body->ProjectVectorInBody(rudderRelativeVelocity, NWU);
   auto sidewashAngle = rudderRelativeVelocityInBody.GetProjectedAngleAroundZ(RAD);
   auto uRA = rudderRelativeVelocityInBody.GetVx() * (1. - force->GetWakeFraction(sidewashAngle));

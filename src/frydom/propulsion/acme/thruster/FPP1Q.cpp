@@ -63,7 +63,7 @@ namespace acme {
     c_efficiency = J * _kt / (MU_2PI * _kq);
 
     // Power
-    c_power = n * c_torque;
+    c_power =  MU_2PI * n * c_torque;
 
   }
 
