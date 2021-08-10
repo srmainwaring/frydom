@@ -12,7 +12,7 @@ using json = nlohmann::json;
 
 namespace acme {
 
-  FPP1Q::FPP1Q(const ThrusterBaseParams &params, const std::string &kt_kq_json_string) :
+  FPP1Q::FPP1Q(const ThrusterParams &params, const std::string &kt_kq_json_string) :
       ThrusterBaseModel(params, kt_kq_json_string) {
   }
 
@@ -45,25 +45,29 @@ namespace acme {
     // Advance ratio
     double J = uPA / (n * m_params.m_diameter_m);
 
+    // Get Coefficients
+    double kt, kq;
+    GetKtKq(J, kt, kq);
+
     // Propeller Thrust
     double n2 = n * n;
     double D4 = std::pow(m_params.m_diameter_m, 4);
-    double _kt = kt(J) + m_params.m_thrust_coefficient_correction;
+    double _kt = kt + m_params.m_thrust_coefficient_correction;
     double propeller_thrust = water_density * n2 * D4 * _kt;
 
     // Effective propeller thrust
-    c_thrust = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
+    c_thrust_N = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
 
     // Torque
-    double _kq = kq(J) + m_params.m_torque_coefficient_correction;
-//    c_torque = water_density * n2 * std::pow(m_params.m_diameter_m, 5) * _kq * GetScrewDirectionSign();
-    c_torque = water_density * n2 * D4 * m_params.m_diameter_m * _kq;
+    double _kq = kq + m_params.m_torque_coefficient_correction;
+//    c_torque_Nm = water_density * n2 * std::pow(m_params.m_diameter_m, 5) * _kq * GetScrewDirectionSign();
+    c_torque_Nm = water_density * n2 * D4 * m_params.m_diameter_m * _kq;
 
     // Efficiency
     c_efficiency = J * _kt / (MU_2PI * _kq);
 
     // Power
-    c_power = n * c_torque;
+    c_power_W = n * c_torque_Nm;
 
   }
 
@@ -96,6 +100,7 @@ namespace acme {
     auto kt = jnode["kt"].get<std::vector<double>>();
     auto kq = jnode["kq"].get<std::vector<double>>();
 
+
 //    // Only one
 //    if (screw_direction == "LEFT_HANDED") {
 //      for (auto &c : kq) {
@@ -113,13 +118,9 @@ namespace acme {
     m_kt_kq_coeffs.AddY("kq", kq);
   }
 
-  double FPP1Q::kt(const double &J) const {
-    return m_kt_kq_coeffs.Eval("kt", J);
+  inline void FPP1Q::GetKtKq(const double &J, double &kt, double &kq) const {
+    kt = m_kt_kq_coeffs.Eval("kt", J);
+    kq = m_kt_kq_coeffs.Eval("kq", J);
   }
-
-  double FPP1Q::kq(const double &J) const {
-    return m_kt_kq_coeffs.Eval("kq", J);
-  }
-
 
 }  // end namespace acme

@@ -17,7 +17,7 @@ namespace acme {
   class FPP1Q : public ThrusterBaseModel {
 
    public:
-    FPP1Q(const ThrusterBaseParams &params, const std::string &kt_kq_json_string);
+    FPP1Q(const ThrusterParams &params, const std::string &kt_kq_json_string);
 
     void Compute(const double &water_density,
                  const double &u_NWU,
@@ -25,13 +25,9 @@ namespace acme {
                  const double &rpm,
                  const double &pitch_ratio) const override; // pitch ratio not used in this model, may be any value
 
-//    void Initialize() override;
-
    private:
 
-    inline double kt(const double &J) const;  // FIXME: le inline doit etre fait dans le .h !!
-
-    inline double kq(const double &J) const;
+    inline void GetKtKq(const double &J, double &kt, double &kq) const;
 
     void ParsePropellerPerformanceCurveJsonString() override;
 

@@ -6,7 +6,7 @@
 
 namespace acme {
 
-  FPP4Q::FPP4Q(const acme::ThrusterBaseParams &params, const std::string &ct_cq_json_string) :
+  FPP4Q::FPP4Q(const acme::ThrusterParams &params, const std::string &ct_cq_json_string) :
       ThrusterBaseModel(params, ct_cq_json_string) {
   }
 
@@ -39,19 +39,23 @@ namespace acme {
     // Propeller disk area
     double Ad = MU_PI * m_params.m_diameter_m * m_params.m_diameter_m / 4.;
 
+    // Get Coefficients
+    double ct, cq;
+    GetCtCq(gamma, pitch_ratio, ct, cq);
+
     // Propeller Thrust
-    double _ct = ct(gamma, pitch_ratio) + m_params.m_thrust_coefficient_correction;
+    double _ct = ct + m_params.m_thrust_coefficient_correction;
     double propeller_thrust = 0.5 * water_density * vB2 * Ad * _ct;
 
     // Effective propeller thrust
-    c_thrust = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
+    c_thrust_N = propeller_thrust * (1 - m_params.m_thrust_deduction_factor_0);
 
     // Torque
-    double _cq = cq(gamma, pitch_ratio) + m_params.m_torque_coefficient_correction;
-    c_torque = 0.5 * water_density * vB2 * Ad * m_params.m_diameter_m * _cq;
+    double _cq = cq + m_params.m_torque_coefficient_correction;
+    c_torque_Nm = 0.5 * water_density * vB2 * Ad * m_params.m_diameter_m * _cq;
 
     // Efficiency
-    if (n!=0.) {
+    if (n != 0.) {
       double J = uPA / (n * m_params.m_diameter_m);
       c_efficiency = J * _ct / (MU_2PI * _cq);
     } else {
@@ -59,20 +63,17 @@ namespace acme {
     }
 
     // Power
-    c_power = n * c_torque;
+    c_power_W = n * c_torque_Nm;
 
   }
 
-//  void FPP4Q::Initialize() {
-//    ThrusterBaseModel::Initialize();
-//  }
+  void FPP4Q::GetCtCq(const double &gamma,
+                      const double &pitch_ratio,
+                      double &ct,
+                      double &cq) const {
 
-  double FPP4Q::ct(const double &gamma, const double &pitch_ratio) const {
-    return m_ct_ct_coeffs.Eval("ct", gamma);
-  }
-
-  double FPP4Q::cq(const double &gamma, const double &pitch_ratio) const {
-    return m_ct_ct_coeffs.Eval("cq", gamma);
+    ct = m_ct_ct_coeffs.Eval("ct", gamma);
+    cq = m_ct_ct_coeffs.Eval("cq", gamma);
   }
 
   void FPP4Q::ParsePropellerPerformanceCurveJsonString() {

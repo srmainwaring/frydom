@@ -14,7 +14,7 @@ namespace acme {
     LEFT_HANDED
   };
 
-  struct ThrusterBaseParams {
+  struct ThrusterParams {
     double m_diameter_m;
     SCREW_DIRECTION m_screw_direction;
 
@@ -35,7 +35,7 @@ namespace acme {
   class ThrusterBaseModel {
 
    public:
-    ThrusterBaseModel(const ThrusterBaseParams params, const std::string &perf_data_json_string);
+    ThrusterBaseModel(const ThrusterParams params, const std::string &perf_data_json_string);
 
     virtual void Initialize();
 
@@ -83,14 +83,14 @@ namespace acme {
     bool m_is_initialized;
     std::string m_temp_perf_data_json_string; // Populated at instantiation and cleared at Initialization (lazy)
 
-    ThrusterBaseParams m_params;
+    ThrusterParams m_params;
     double m_ku;
 
-    mutable double c_sidewash_angle;
-    mutable double c_thrust;
-    mutable double c_torque;
+    mutable double c_sidewash_angle_rad;
+    mutable double c_thrust_N;
+    mutable double c_torque_Nm;
     mutable double c_efficiency;
-    mutable double c_power;
+    mutable double c_power_W;
 
   };
 

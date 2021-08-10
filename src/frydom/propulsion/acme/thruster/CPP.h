@@ -15,15 +15,14 @@ namespace acme {
   class CPP : public FPP4Q {
 
    public:
-    CPP(const ThrusterBaseParams &params, const std::string &ct_cq_json_string);
-
-//    void Initialize() override;
+    CPP(const ThrusterParams &params, const std::string &ct_cq_json_string);
 
    private:
 
-    inline double ct(const double &gamma, const double &pitch_ratio) const;
-
-    inline double cq(const double &gamma, const double &pitch_ratio) const;
+    inline void GetCtCq(const double &gamma,
+                        const double &pitch_ratio,
+                        double &ct,
+                        double &cq) const override;
 
     void ParsePropellerPerformanceCurveJsonString() override;
 

@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 int main() {
 
-  ThrusterBaseParams params;
+  ThrusterParams params;
   params.m_diameter_m = 5.;
   params.m_screw_direction = RIGHT_HANDED;
 

@@ -6,16 +6,16 @@
 
 namespace acme {
 
-  ThrusterBaseModel::ThrusterBaseModel(const ThrusterBaseParams params, const std::string &perf_data_json_string) :
+  ThrusterBaseModel::ThrusterBaseModel(const ThrusterParams params, const std::string &perf_data_json_string) :
       m_params(params),
       m_temp_perf_data_json_string(perf_data_json_string),
       m_is_initialized(false),
       m_ku(1.),
-      c_sidewash_angle(0.),
-      c_thrust(0.),
-      c_torque(0.),
+      c_sidewash_angle_rad(0.),
+      c_thrust_N(0.),
+      c_torque_Nm(0.),
       c_efficiency(0.),
-      c_power(0.) {
+      c_power_W(0.) {
   }
 
   void ThrusterBaseModel::Initialize() {
@@ -25,11 +25,11 @@ namespace acme {
   }
 
   double acme::ThrusterBaseModel::GetThrust() const {
-    return c_thrust;
+    return c_thrust_N;
   }
 
   double ThrusterBaseModel::GetTorque() const {
-    return c_torque;
+    return c_torque_Nm;
   }
 
   double ThrusterBaseModel::GetPropellerEfficiency() const {
@@ -37,18 +37,18 @@ namespace acme {
   }
 
   double ThrusterBaseModel::GetPower() const {
-    return c_power;
+    return c_power_W;
   }
 
   double ThrusterBaseModel::GetPropellerAdvanceVelocity(const double &u_NWU,
                                                         const double &v_NWU) const {
     // sidewash angle
-    c_sidewash_angle = std::atan2(v_NWU, u_NWU);
+    c_sidewash_angle_rad = std::atan2(v_NWU, u_NWU);
 
     // estimated wake_fraction taken into account the sidewash angle (0 when the absolute value of the sidewash
     // angle exeeds 90°)
-    double wp = (std::abs(c_sidewash_angle) > MU_PI_2) ? 0. :
-                m_params.m_hull_wake_fraction_0 * std::exp(-4. * c_sidewash_angle * c_sidewash_angle);
+    double wp = (std::abs(c_sidewash_angle_rad) > MU_PI_2) ? 0. :
+                m_params.m_hull_wake_fraction_0 * std::exp(-4. * c_sidewash_angle_rad * c_sidewash_angle_rad);
 
     // Propeller advance velocity
     return m_ku * u_NWU * (1 - wp);
