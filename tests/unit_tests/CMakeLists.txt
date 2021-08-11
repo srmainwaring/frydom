@@ -59,6 +59,7 @@ endforeach ()
 set(UNIT_TESTS
         test_acme_FPP1Q
         test_acme_FPP4Q
+        test_acme_CPP
         )
 
 foreach (test ${UNIT_TESTS})

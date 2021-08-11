@@ -31,6 +31,12 @@ namespace acme {
 
   };
 
+  void ParseCPPJsonString(const std::string& json_string,
+                                                std::vector<double>& beta,
+                                                std::vector<double>& pitch_ratio,
+                                                std::vector<double>& ct,
+                                                std::vector<double>& cq);
+
 }  // end namespace acme
 
 #endif //ACME_CPP_H
