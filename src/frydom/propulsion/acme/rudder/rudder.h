@@ -5,6 +5,7 @@
 #ifndef ACME_RUDDER_H
 #define ACME_RUDDER_H
 
+#include "RudderModelType.h"
 #include "SimpleRudderModel.h"
 #include "FlapRudderModel.h"
 

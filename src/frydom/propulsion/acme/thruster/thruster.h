@@ -5,6 +5,7 @@
 #ifndef ACME_THRUSTER_H
 #define ACME_THRUSTER_H
 
+#include "ThrusterModelType.h"
 #include "FPP1Q.h"
 #include "FPP4Q.h"
 #include "CPP.h"
