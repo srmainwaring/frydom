@@ -44,6 +44,7 @@ namespace acme {
 
     // Advance ratio
     double J = uPA / (n * m_params.m_diameter_m);
+    if (isinfl(J) or isnanl(J)) J = m_kt_kq_coeffs.GetX().back();
 
     // Propeller Thrust
     double n2 = n * n;

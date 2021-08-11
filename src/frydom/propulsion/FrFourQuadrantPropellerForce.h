@@ -31,6 +31,8 @@ namespace frydom {
 
 //    mathutils::LookupTable2d<double>& GetCoeff() { return m_coefficients;}
 
+    double ComputeAdvanceAngle();
+
    private:
 
     GeneralizedForce ComputeGeneralizedForceInBody() override;
@@ -38,8 +40,6 @@ namespace frydom {
     void ReadCoefficientsFile() override;
 
     virtual void ReadPropellerTable(const json &node);
-
-    double ComputeAdvanceAngle();
 
     std::string c_fileCoefficients;
 

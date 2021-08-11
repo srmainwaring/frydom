@@ -3,6 +3,9 @@
 //
 
 #include "FPP4Q.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace acme {
 
@@ -59,7 +62,7 @@ namespace acme {
     }
 
     // Power
-    c_power = n * c_torque;
+    c_power = MU_2PI * n * c_torque;
 
   }
 
@@ -76,7 +79,51 @@ namespace acme {
   }
 
   void FPP4Q::ParsePropellerPerformanceCurveJsonString() {
-    // TODO
+
+    /**
+     * ATTENTION. Note aux developpeurs
+     *
+     * Si un json ne passe pas, ne changez pas ce code pour le faire fonctionner mais plutot en parler car c'est ce
+     * code de parsing json qui fait foi en terme de convention sur le formattage des json. On peut faire evoluer le
+     * format mais il est necessaire d'avoir une discussion prealable.
+     *
+     * Merci :)
+     *
+     * On remarquera en outre que le choix a ete fait de faire une lazy initialisation en stockant temporairement non
+     * pas le path vers le fichier json mais la chaine de caractere json a la place. C'est un choix delibere qui pourra
+     * etre etendu en tant que pattern a toutes nos classes necessitant la lecture de parametres sous format json.
+     * La raison est que cela permet de preparer l'instantiation a la volee d'objets en utilisant json comme format
+     * de serialisation des parametres. Cela rend possible la creation a distance de ces objets sans avoir a rendre
+     * disponible un fichier sur le disque (sans IO disque donc). Cela sera utilise plus tard.
+     *
+     */
+
+    std::cout << m_temp_perf_data_json_string << std::endl;
+
+    auto jnode = json::parse(m_temp_perf_data_json_string);
+    m_temp_perf_data_json_string.clear();
+
+    auto beta = jnode["beta_deg"].get<std::vector<double>>();
+    auto ct = jnode["ct"].get<std::vector<double>>();
+    auto cq = jnode["cq"].get<std::vector<double>>();
+
+    for (auto& b : beta) b *= DEG2RAD;
+
+//    // Only one
+//    if (screw_direction == "LEFT_HANDED") {
+//      for (auto &c : kq) {
+//        c = -c;
+//      }
+//    } else if (screw_direction == "RIGHT_HANDED") {
+//      // Nothing
+//    } else {
+//      std::cerr << "Unknown screw direction " << screw_direction << std::endl;
+//      exit(EXIT_FAILURE);
+//    }
+
+    m_ct_ct_coeffs.SetX(beta);
+    m_ct_ct_coeffs.AddY("ct", ct);
+    m_ct_ct_coeffs.AddY("cq", cq);
   }
 
 }  // end namespace acme
