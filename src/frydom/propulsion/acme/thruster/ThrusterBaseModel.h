@@ -31,8 +31,8 @@ namespace acme {
     double m_thrust_coefficient_correction = 0.;
     double m_torque_coefficient_correction = 0.;
 
-    ThrusterBaseParams();
-    ThrusterBaseParams( double diameter_m, double hull_wake_fraction_0, double thrust_deduction_factor_0,
+    ThrusterParams();
+    ThrusterParams( double diameter_m, double hull_wake_fraction_0, double thrust_deduction_factor_0,
                         SCREW_DIRECTION sd);
 
   };
