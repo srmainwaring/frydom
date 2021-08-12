@@ -53,13 +53,13 @@ void TestFrRudderForce::SetUp() {
   system.Initialize();
 }
 
-TEST_F(TestFrRudderForce, ReadCoefficientsFile) {
-  //TODO
-}
-
-TEST_F(TestFrRudderForce, ComputeGeneralizedForceInWorld) {
-  //TODO
-}
+//TEST_F(TestFrRudderForce, ReadCoefficientsFile) {
+  TODO
+//}
+//
+//TEST_F(TestFrRudderForce, ComputeGeneralizedForceInWorld) {
+  TODO
+//}
 
 TEST_F(TestFrRudderForce, GetDriftAngle) {
 

@@ -39,6 +39,10 @@ namespace acme {
 
     RudderModelType GetRudderModelType() const;
 
+    double GetFx() const { return c_fx_N;}
+    double GetFy() const { return c_fy_N;}
+    double GetMz() const { return c_torque_Nm;}
+
    private:
 
     virtual inline void GetClCdCn(const double &attack_angle_rad,
@@ -69,6 +73,12 @@ namespace acme {
     mutable double c_fy_N;
 
   };
+
+  void ParseRudderJsonString(const std::string& json_string,
+                             std::vector<double> &attack_angle_rad,
+                             std::vector<double> &cd,
+                             std::vector<double> &cl,
+                             std::vector<double> &cn);
 
 
 }  // end namespace acme

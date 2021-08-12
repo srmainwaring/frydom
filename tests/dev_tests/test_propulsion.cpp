@@ -7,6 +7,21 @@
 
 using namespace frydom;
 
+template<typename T>
+std::string str(T begin, T end) {
+  std::stringstream ss;
+  bool first = true;
+  ss << "[";
+  for (; begin != end; begin++) {
+    if (!first)
+      ss << ", ";
+    ss << *begin;
+    first = false;
+  }
+  ss << "]";
+  return ss.str();
+}
+
 int test_FPP1Q() {
 
   FrOffshoreSystem system("test_FPP1Q");
@@ -277,10 +292,10 @@ int test_CPP() {
 
 
   json CPP_json = {{"propeller", {
-                                       {"reference", "test"},
-                                       {"type", "CPP"},
-                                       {"open_water_table", json::parse(open_water_data_table)}
-                                   }}
+                                     {"reference", "test"},
+                                     {"type", "CPP"},
+                                     {"open_water_table", json::parse(open_water_data_table)}
+                                 }}
   };
 
   std::string filename = "temp.json";
@@ -337,7 +352,162 @@ int test_CPP() {
 
 }
 
+int test_rudder() {
+
+  FrOffshoreSystem system("test_rudder");
+  auto rho = 1025;
+  system.GetEnvironment()->GetOcean()->SetDensity(rho);
+
+  system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
+  auto current = system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform();
+  current->SetNorth(1.0, MS, COMEFROM);
+//  current->Set(20, 1, DEG, MS, NWU, COMEFROM);
+  double rudder_angle_deg = 20;
+
+  auto body = system.NewBody("body");
+  body->SetFixedInWorld(true);
+//  body->SetVelocityInBodyNoRotation(Velocity(-1.0, 0., 0.), NWU);
+
+  auto node = body->NewNode("node");
+
+  double hull_wake_fraction_0 = 0.;
+  double rudder_lateral_area_m2 = 4;
+  double height_m = 2;
+  double chord_length_m = 2;
+  double ramp_slope_degs = 4;
+
+  std::vector<double> flow_incidence_on_main_rudder_deg = {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5,
+                                                           6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0,
+                                                           11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0,
+                                                           16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0,
+                                                           21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, 25.0, 25.5, 26.0,
+                                                           26.5, 27.0, 27.5, 28.0, 28.5, 29.0, 29.5};
+  std::vector<double> cd = {0.005242994520813227, 0.0052593122236430645, 0.005304524675011635, 0.005369383841753006,
+                            0.00546258594840765, 0.0055971271358430386, 0.00574638182297349, 0.005926867946982384,
+                            0.006130721885710955, 0.006336485501378775, 0.0065806470811367035, 0.006838607136160135,
+                            0.007111922837793827, 0.007392291445285082, 0.007715026382356882, 0.008049878291785717,
+                            0.008432770147919655, 0.00883609801530838, 0.009282747283577919, 0.009774694219231606,
+                            0.01028597541153431, 0.010809185914695263, 0.011343667283654213, 0.011870898306369781,
+                            0.012423327192664146, 0.013044223189353943, 0.013721778057515621, 0.014402270317077637,
+                            0.015245308168232441, 0.01603054814040661, 0.016893569380044937, 0.01791793294250965,
+                            0.019129594787955284, 0.020396528765559196, 0.021983785554766655, 0.024000244215130806,
+                            0.026631886139512062, 0.030220331624150276, 0.03397292643785477, 0.038746144622564316,
+                            0.04477076604962349, 0.05246672034263611, 0.062327273190021515, 0.07487718015909195,
+                            0.09083189815282822, 0.11012575030326843, 0.1333516240119934, 0.15840455889701843,
+                            0.18181930482387543, 0.20162251591682434, 0.21787510812282562, 0.23202237486839294,
+                            0.24202793836593628, 0.2515665888786316, 0.26081714034080505, 0.2699928879737854,
+                            0.2778935134410858, 0.28736990690231323, 0.29664015769958496, 0.3049744665622711};
+  std::vector<double> cl = {2.668157685548067e-05, 0.056529708206653595, 0.11289309710264206, 0.169301375746727,
+                            0.2255769968032837, 0.281568706035614, 0.3373677134513855, 0.393011212348938,
+                            0.4484163820743561, 0.5037611126899719, 0.5587046146392822, 0.6134940981864929,
+                            0.6680029630661011, 0.722169816493988, 0.7754526734352112, 0.8278083801269531,
+                            0.8795303702354431, 0.9344491958618164, 0.9938867092132568, 1.0560576915740967,
+                            1.1179311275482178, 1.1796830892562866, 1.231227159500122, 1.2728246450424194,
+                            1.316851258277893, 1.3624404668807983, 1.4079769849777222, 1.4532296657562256,
+                            1.4956920146942139, 1.537797212600708, 1.5771914720535278, 1.607789158821106,
+                            1.6346718072891235, 1.662453293800354, 1.6868847608566284, 1.7074735164642334,
+                            1.7230695486068726, 1.7313636541366577, 1.7421339750289917, 1.746456503868103,
+                            1.742898941040039, 1.728914737701416, 1.701988935470581, 1.6592025756835938,
+                            1.5970512628555298, 1.5180244445800781, 1.4223109483718872, 1.326967477798462,
+                            1.2516950368881226, 1.2011876106262207, 1.1712603569030762, 1.152787446975708,
+                            1.1501551866531372, 1.1494742631912231, 1.1498548984527588, 1.1509875059127808,
+                            1.1561044454574585, 1.1574681997299194, 1.1599279642105103, 1.1648073196411133};
+  std::vector<double> cn = {-3.3430785606469726e-06, -5.317179602570832e-05, -8.336490282090381e-05,
+                            -0.00011663855548249558, -0.00012940994929522276, -9.632209548726678e-05,
+                            -2.6935964342555963e-05, 7.319641736103222e-05, 0.00022130433353595436, 0.00039575484697707,
+                            0.0006507532671093941, 0.0009445527102798223, 0.0013044830411672592, 0.0017436686903238297,
+                            0.002357420977205038, 0.0031629421282559633, 0.004063922446221113, 0.004182320553809404,
+                            0.0032044483814388514, 0.0015387135790660977, -0.00010325611947337165,
+                            -0.0017648303182795644, -0.0012634268496185541, 0.0013515892205759883,
+                            0.0033826581202447414, 0.004945983644574881, 0.006401467137038708, 0.007820602506399155,
+                            0.009575597010552883, 0.011331445537507534, 0.01341791357845068, 0.01689978316426277,
+                            0.0205577053129673, 0.023595251142978668, 0.02647152543067932, 0.029054125770926476,
+                            0.03119639679789543, 0.032685786485672, 0.03315171226859093, 0.032772988080978394,
+                            0.03142339736223221, 0.028911132365465164, 0.02496742643415928, 0.01936887949705124,
+                            0.011721551418304443, 0.0018627981189638376, -0.011114194057881832, -0.026692386716604233,
+                            -0.04257682338356972, -0.056737612932920456, -0.06870502978563309, -0.07934681326150894,
+                            -0.08721555024385452, -0.09486888349056244, -0.10244198888540268, -0.11000050604343414,
+                            -0.11684787273406982, -0.12461866438388824, -0.13228511810302734, -0.1394384354352951};
+
+  std::stringstream ss;
+  ss << R"({"flow_incidence_on_main_rudder_deg": )"
+     << str(flow_incidence_on_main_rudder_deg.begin(), flow_incidence_on_main_rudder_deg.end())
+     << R"(, "Cd": )" << str(cd.begin(), cd.end())
+     << R"(, "Cl": )" << str(cl.begin(), cl.end())
+     << R"(, "Cn": )" << str(cn.begin(), cn.end())
+     << R"(, "frame_convention": "NWU", "direction_convention": "COMEFROM")"
+     << "}";
+//  std::cout<<ss.str()<<std::endl;
+
+
+  Velocity rudder_relative_velocity = -system.GetEnvironment()->GetRelativeVelocityInFrame(node->GetFrameInWorld(),
+                                                                                         node->GetVelocityInWorld(NWU),
+                                                                                         WATER,
+                                                                                         NWU);
+  auto u_NWU = rudder_relative_velocity.GetVx();
+  auto v_NWU = rudder_relative_velocity.GetVy();
+  std::cout << "u_NWU :" << u_NWU << std::endl;
+  std::cout << "v_NWU :" << v_NWU << std::endl;
+
+  {
+    acme::RudderParams params;
+    params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
+    params.m_chord_m = chord_length_m;
+    params.m_lateral_area_m2 = rudder_lateral_area_m2;
+    params.m_flap_slope = 0.; //NA
+
+    auto acme_rudder = acme::SimpleRudderModel (params, ss.str());
+    acme_rudder.Initialize();
+
+    acme_rudder.Compute(rho, u_NWU, v_NWU, rudder_angle_deg);
+
+    std::cout << "acme Fx = " << acme_rudder.GetFx()<<std::endl;
+    std::cout << "acme Fy = " << acme_rudder.GetFy()<<std::endl;
+    std::cout << "acme Mz = " << acme_rudder.GetMz()<<std::endl;
+
+  }
+
+
+  { // Old FRyDoM model
+    json rudder_json = {{"rudder", {
+                                       {"reference", "test"},
+                                       {"load_coefficients", json::parse(ss.str())}
+                                   }}
+    };
+
+    std::string filename = "temp.json";
+    std::ofstream file;
+    file.open(filename, std::ios::trunc);
+    file << rudder_json.dump(2);
+    file.close();
+
+    auto frydom_rudder = make_rudder_force("frydom_rudder", body, node, filename);
+
+    frydom_rudder->SetStraightRunWakeFraction(hull_wake_fraction_0);
+    frydom_rudder->SetProjectedLateralArea(rudder_lateral_area_m2);
+    frydom_rudder->SetHeight(height_m);
+    frydom_rudder->SetRampSlope(ramp_slope_degs, DEGS);
+    frydom_rudder->SetRootChord(chord_length_m);
+
+    frydom_rudder->SetRudderAngle(rudder_angle_deg, DEG);
+
+    system.Initialize();
+
+    system.AdvanceTo(30);
+
+    auto forceInBody = frydom_rudder->GetForceInBody(NWU);
+
+    std::cout << "rudder angle = " << frydom_rudder->GetRudderAngle(DEG) << std::endl;
+    std::cout << "FRyDoM Fx = " << forceInBody.GetFx() << std::endl;
+    std::cout << "FRyDoM Fy = " << forceInBody.GetFy() << std::endl;
+    std::cout << "FRyDoM Mz = "
+              << frydom_rudder->GetTorqueInBodyAtPointInBody(node->GetNodePositionInBody(NWU), NWU).GetMz()
+              << std::endl;
+  }
+
+  return 0.;
+}
 
 int main() {
-  return test_CPP();
+  return test_rudder();
 }
