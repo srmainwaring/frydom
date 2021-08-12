@@ -189,7 +189,7 @@ namespace frydom {
 
       c_drag = 0.5 * density * GetDragCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
       c_lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
-      c_torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      c_torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * m_rootChord * squaredNormVelocity;
 
       auto rudderFlowFrame = GetRudderFlowFrame(rudderRelativeVelocity);
 

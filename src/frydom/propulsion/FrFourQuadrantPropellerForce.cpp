@@ -16,11 +16,11 @@ frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::st
 }
 
 double frydom::FrFourQuadrantPropellerForce::Ct(double gamma) const {
-  return m_coefficients.Eval("ct", gamma);
+  return m_coefficients.Eval("Ct", gamma);
 }
 
 double frydom::FrFourQuadrantPropellerForce::Cq(double gamma) const {
-  return m_coefficients.Eval("cq", gamma);
+  return m_coefficients.Eval("Cq", gamma);
 }
 
 double frydom::FrFourQuadrantPropellerForce::ComputeAdvanceAngle() {
@@ -40,7 +40,7 @@ frydom::GeneralizedForce frydom::FrFourQuadrantPropellerForce::ComputeGeneralize
 
   auto squaredVelocity = uPA * uPA + vp * vp;
 
-  auto coeff = 0.25 * density * squaredVelocity * MU_PI * radius * radius;
+  auto coeff = 0.5 * density * squaredVelocity * MU_PI * radius * radius;
 
   c_thrust = coeff * (1 - m_thrust_deduction_factor) * Ct(advanceAngle);
   c_torque = coeff * Cq(advanceAngle) * m_diameter * m_screwDirection;

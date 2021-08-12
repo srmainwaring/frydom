@@ -53,7 +53,7 @@ namespace acme {
     c_sidewash_angle_rad = std::atan2(v_NWU, u_NWU);
 
     // estimated wake_fraction taken into account the sidewash angle (0 when the absolute value of the sidewash
-    // angle exeeds 90°)
+    // angle exceeds 90°)
     double wp = (std::abs(c_sidewash_angle_rad) > MU_PI_2) ? 0. :
                 m_params.m_hull_wake_fraction_0 * std::exp(-4. * c_sidewash_angle_rad * c_sidewash_angle_rad);
 
@@ -79,4 +79,17 @@ namespace acme {
   }
 
 
+  ThrusterParams::ThrusterParams(double diameter_m, double hull_wake_fraction_0,
+                                         double thrust_deduction_factor_0, SCREW_DIRECTION sd) :
+      m_diameter_m(diameter_m), m_hull_wake_fraction_0(hull_wake_fraction_0),
+      m_thrust_deduction_factor_0(thrust_deduction_factor_0),
+      m_screw_direction(sd) {
+
+  }
+
+  ThrusterParams::ThrusterParams() : m_diameter_m(0.), m_hull_wake_fraction_0(0.),
+                                             m_thrust_deduction_factor_0(0.),
+                                             m_screw_direction(RIGHT_HANDED) {
+
+  }
 }  // end namespace acme
