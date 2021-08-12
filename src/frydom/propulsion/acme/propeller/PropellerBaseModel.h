@@ -64,6 +64,10 @@ namespace acme {
 
     PropellerModelType GetThrusterModelType() const;
 
+    const PropellerParams &GetParameters() const;
+
+    double GetAdvanceVelocity() const;
+
     double GetThrust() const;
 
     double GetTorque() const;
@@ -101,6 +105,7 @@ namespace acme {
     PropellerParams m_params;
     double m_ku;
 
+    mutable double c_uPA; // Propeller advance velocity
     mutable double c_sidewash_angle_rad;
     mutable double c_thrust_N;
     mutable double c_torque_Nm;

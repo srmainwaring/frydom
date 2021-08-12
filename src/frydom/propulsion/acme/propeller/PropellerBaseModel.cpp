@@ -4,6 +4,8 @@
 
 #include "PropellerBaseModel.h"
 
+#include "MathUtils/Angles.h"
+
 namespace acme {
 
   PropellerBaseModel::PropellerBaseModel(const PropellerParams params,
@@ -23,12 +25,23 @@ namespace acme {
 
   void PropellerBaseModel::Initialize() {
     ParsePropellerPerformanceCurveJsonString();
+    m_temp_perf_data_json_string.clear();
+
     if (m_params.m_use_advance_velocity_correction_factor) ComputeAdvanceVelocityCorrectionFactor();
+
     m_is_initialized = true;
   }
 
   PropellerModelType PropellerBaseModel::GetThrusterModelType() const {
     return m_type;
+  }
+
+  const PropellerParams &PropellerBaseModel::GetParameters() const {
+    return m_params;
+  }
+
+  double PropellerBaseModel::GetAdvanceVelocity() const {
+    return c_uPA;
   }
 
   double PropellerBaseModel::GetThrust() const {
@@ -50,7 +63,7 @@ namespace acme {
   double PropellerBaseModel::GetPropellerAdvanceVelocity(const double &u_NWU,
                                                          const double &v_NWU) const {
     // sidewash angle
-    c_sidewash_angle_rad = std::atan2(v_NWU, u_NWU);
+    c_sidewash_angle_rad = mathutils::Normalize__PI_PI(std::atan2(v_NWU, u_NWU));
 
     // estimated wake_fraction taken into account the sidewash angle (0 when the absolute value of the sidewash
     // angle exceeds 90°)
@@ -58,7 +71,8 @@ namespace acme {
                 m_params.m_hull_wake_fraction_0 * std::exp(-4. * c_sidewash_angle_rad * c_sidewash_angle_rad);
 
     // Propeller advance velocity
-    return m_ku * u_NWU * (1 - wp);
+    c_uPA = m_ku * u_NWU * (1 - wp);
+    return c_uPA;
   }
 
   void PropellerBaseModel::ComputeAdvanceVelocityCorrectionFactor() {

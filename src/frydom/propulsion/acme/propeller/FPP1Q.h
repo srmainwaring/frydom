@@ -27,7 +27,7 @@ namespace acme {
 
    private:
 
-    inline void GetKtKq(const double &J, double &kt, double &kq) const;
+    void GetKtKq(const double &J, double &kt, double &kq) const;
 
     void ParsePropellerPerformanceCurveJsonString() override;
 

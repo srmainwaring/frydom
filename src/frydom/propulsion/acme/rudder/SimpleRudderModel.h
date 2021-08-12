@@ -14,8 +14,9 @@
 namespace acme {
 
   struct RudderParams {
-    double m_lateral_area_m2;
-    double m_chord_m;
+    double m_lateral_area_m2; // Rudder lateral projected area (m**2)
+    double m_chord_m; // Rudder chord length at its half height
+    double m_height_m;
 
     double m_hull_wake_fraction_0 = 0.;
 
@@ -39,17 +40,21 @@ namespace acme {
 
     RudderModelType GetRudderModelType() const;
 
-    double GetFx() const { return c_fx_N;}
-    double GetFy() const { return c_fy_N;}
-    double GetMz() const { return c_torque_Nm;}
+    const RudderParams &GetParameters() const;
+
+    double GetFx() const { return c_fx_N; }
+
+    double GetFy() const { return c_fy_N; }
+
+    double GetMz() const { return c_torque_Nm; }
+
+    virtual void GetClCdCn(const double &attack_angle_rad,
+                           const double &rudder_angle_rad,
+                           double &cl,
+                           double &cd,
+                           double &cn) const;
 
    private:
-
-    virtual inline void GetClCdCn(const double &attack_angle_rad,
-                                  const double &rudder_angle_rad,
-                                  double &cl,
-                                  double &cd,
-                                  double &cn) const;
 
     virtual void ParseRudderPerformanceCurveJsonString();
 
@@ -74,7 +79,7 @@ namespace acme {
 
   };
 
-  void ParseRudderJsonString(const std::string& json_string,
+  void ParseRudderJsonString(const std::string &json_string,
                              std::vector<double> &attack_angle_rad,
                              std::vector<double> &cd,
                              std::vector<double> &cl,

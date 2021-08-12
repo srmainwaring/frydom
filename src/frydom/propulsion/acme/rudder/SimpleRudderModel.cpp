@@ -25,6 +25,7 @@ namespace acme {
 
   void SimpleRudderModel::Initialize() {
     ParseRudderPerformanceCurveJsonString();
+    m_temp_perf_data_json_string.clear();
     // TODO: initialiser ici le cache des quantites optionnelles
 
 
@@ -68,9 +69,11 @@ namespace acme {
 
     // Forces in flow frame
     double q = 0.5 * water_density * uRA * uRA + vRA * vRA; // stagnation pressure at rudder position
-    c_lift_N = q * cl * m_params.m_lateral_area_m2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
+    c_lift_N = q * cl *
+               m_params.m_lateral_area_m2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
     c_drag_N = q * cd * m_params.m_lateral_area_m2; // FIXME: les tables prevoient des coeffs cd negatifs ?
-    c_torque_Nm = q * cn * m_params.m_lateral_area_m2 * m_params.m_chord_m; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
+    c_torque_Nm = q * cn * m_params.m_lateral_area_m2 *
+                  m_params.m_chord_m; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
 
     // Forces in rudder frame
     double Cbeta = std::cos(beta_R);
@@ -83,6 +86,10 @@ namespace acme {
 
   RudderModelType SimpleRudderModel::GetRudderModelType() const {
     return m_type;
+  }
+
+  const RudderParams &SimpleRudderModel::GetParameters() const {
+    return m_params;
   }
 
   void SimpleRudderModel::GetClCdCn(const double &attack_angle_rad,
@@ -108,9 +115,10 @@ namespace acme {
 
   }
 
-  void
-  ParseRudderJsonString(const std::string &json_string, std::vector<double> &attack_angle_rad, std::vector<double> &cd,
-                        std::vector<double> &cl, std::vector<double> &cn) {
+  void ParseRudderJsonString(const std::string &json_string,
+                             std::vector<double> &attack_angle_rad,
+                             std::vector<double> &cd,
+                             std::vector<double> &cl, std::vector<double> &cn) {
 
     std::string fc, dc;
 
@@ -123,10 +131,10 @@ namespace acme {
       if (fc != "NWU" and fc != "NED")
         throw std::runtime_error("SimpleRudderModel parser : frame convention should be : NWU or NED");
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no frame_convention in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no frame_convention in load_coefficients";
       exit(EXIT_FAILURE);
-    } catch (const std::exception&d) {
-      std::cerr<<d.what();
+    } catch (const std::exception &d) {
+      std::cerr << d.what();
       exit(EXIT_FAILURE);
     }
 
@@ -135,10 +143,10 @@ namespace acme {
       if (dc != "GOTO" and dc != "COMEFROM")
         throw std::runtime_error("SimpleRudderModel parser : frame convention should be : GOTO or COMEFROM");
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no direction_convention in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no direction_convention in load_coefficients";
       exit(EXIT_FAILURE);
-    } catch (const std::exception&d) {
-      std::cerr<<d.what();
+    } catch (const std::exception &d) {
+      std::cerr << d.what();
       exit(EXIT_FAILURE);
     }
 
@@ -148,38 +156,38 @@ namespace acme {
         angle *= DEG2RAD;
       }
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no flow_incidence_on_main_rudder_deg in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no flow_incidence_on_main_rudder_deg in load_coefficients";
       exit(EXIT_FAILURE);
     }
 
     try {
       cd = node["Cd"].get<std::vector<double>>();
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no Cd in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no Cd in load_coefficients";
       exit(EXIT_FAILURE);
     }
 
     try {
       cl = node["Cl"].get<std::vector<double>>();
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no Cl in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no Cl in load_coefficients";
       exit(EXIT_FAILURE);
     }
 
     try {
       cn = node["Cn"].get<std::vector<double>>();
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no Cn in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no Cn in load_coefficients";
       exit(EXIT_FAILURE);
     }
 
-    assert( attack_angle_rad.size() == cd.size());
-    assert( attack_angle_rad.size() == cl.size());
-    assert( attack_angle_rad.size() == cn.size());
+    assert(attack_angle_rad.size() == cd.size());
+    assert(attack_angle_rad.size() == cl.size());
+    assert(attack_angle_rad.size() == cn.size());
     std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
 
-    for (int i = 0; i <  attack_angle_rad.size(); i++) {
-      rudderCoeff.emplace_back( attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
+    for (int i = 0; i < attack_angle_rad.size(); i++) {
+      rudderCoeff.emplace_back(attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
     }
 
     std::pair<double, mathutils::Vector3d<double>> new_element;
@@ -235,17 +243,18 @@ namespace acme {
     rudderCoeff.push_back(new_element);
 
     // Complete lookup table
-     attack_angle_rad.clear();
+    attack_angle_rad.clear();
     cl.clear();
     cd.clear();
     cn.clear();
 
     for (auto &it : rudderCoeff) {
-       attack_angle_rad.push_back(it.first);
+      attack_angle_rad.push_back(it.first);
       cd.push_back(it.second[0]);
       cl.push_back(it.second[1]);
       cn.push_back(it.second[2]);
     }
 
   }
+
 }  // end namespace acme

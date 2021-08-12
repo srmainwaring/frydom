@@ -92,7 +92,7 @@ int test_FPP1Q() {
   frydom_FPP1Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
   acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
-                              acme::SCREW_DIRECTION::RIGHT_HANDED);
+                               acme::SCREW_DIRECTION::RIGHT_HANDED);
 //  acme::ThrusterBaseParams params;
 //  params.m_diameter_m = diameter_m;
 //  params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
@@ -232,7 +232,7 @@ int test_FPP4Q() {
   frydom_FPP4Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
   acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
-                              acme::SCREW_DIRECTION::RIGHT_HANDED);
+                               acme::SCREW_DIRECTION::RIGHT_HANDED);
 
   auto acme_FPP4Q = acme::FPP4Q(params, open_water_data_table);
 
@@ -331,7 +331,7 @@ int test_CPP() {
   frydom_CPP->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
   acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
-                              acme::SCREW_DIRECTION::RIGHT_HANDED);
+                               acme::SCREW_DIRECTION::RIGHT_HANDED);
 
   auto acme_CPP = acme::CPP(params, open_water_data_table);
 
@@ -441,9 +441,10 @@ int test_rudder() {
 
 
   Velocity rudder_relative_velocity = -system.GetEnvironment()->GetRelativeVelocityInFrame(node->GetFrameInWorld(),
-                                                                                         node->GetVelocityInWorld(NWU),
-                                                                                         WATER,
-                                                                                         NWU);
+                                                                                           node->GetVelocityInWorld(
+                                                                                               NWU),
+                                                                                           WATER,
+                                                                                           NWU);
   auto u_NWU = rudder_relative_velocity.GetVx();
   auto v_NWU = rudder_relative_velocity.GetVy();
   std::cout << "u_NWU :" << u_NWU << std::endl;
@@ -456,14 +457,14 @@ int test_rudder() {
     params.m_lateral_area_m2 = rudder_lateral_area_m2;
     params.m_flap_slope = 0.; //NA
 
-    auto acme_rudder = acme::SimpleRudderModel (params, ss.str());
+    auto acme_rudder = acme::SimpleRudderModel(params, ss.str());
     acme_rudder.Initialize();
 
     acme_rudder.Compute(rho, u_NWU, v_NWU, rudder_angle_deg);
 
-    std::cout << "acme Fx = " << acme_rudder.GetFx()<<std::endl;
-    std::cout << "acme Fy = " << acme_rudder.GetFy()<<std::endl;
-    std::cout << "acme Mz = " << acme_rudder.GetMz()<<std::endl;
+    std::cout << "acme Fx = " << acme_rudder.GetFx() << std::endl;
+    std::cout << "acme Fy = " << acme_rudder.GetFy() << std::endl;
+    std::cout << "acme Mz = " << acme_rudder.GetMz() << std::endl;
 
   }
 

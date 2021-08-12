@@ -16,6 +16,12 @@ namespace acme {
       m_rudder(std::make_unique<Rudder>(rudder_params, rudder_perf_data_json_string)) {}
 
   template<class Propeller, class Rudder>
+  void PropellerRudder<Propeller, Rudder>::Initialize() {
+    m_propeller->Initialize();
+    m_rudder->Initialize();
+  }
+
+  template<class Propeller, class Rudder>
   void PropellerRudder<Propeller, Rudder>::Compute(const double &water_density,
                                                    const double &u_NWU_propeller, // u_P0
                                                    const double &v_NWU_propeller, // v_P0
@@ -34,10 +40,13 @@ namespace acme {
                          rpm,
                          pitch_ratio);
 
+    PropellerParams propeller_params = m_propeller->GetParameters();
+    RudderParams rudder_params = m_rudder->GetParameters();
+
     /*
      * Computing velocities seen by the rudder outside the slipstream but taking into account the wake fraction
      */
-    double wr0; // TODO: rudder wake fraction in straight line
+    double wr0 = rudder_params.m_hull_wake_fraction_0; // rudder wake fraction in straight line
 
     double u_R0 = u_NWU_propeller;
     double v_R0 = v_NWU_propeller - r * xr;  // Transport of the propeller velocity to the rudder position
@@ -50,24 +59,20 @@ namespace acme {
     double uRA = u_R0 * (1 - wR);
     double vRA = v_R0;
 
-
-//    double uRA; // TODO avec le wake fraction
-//    double vRA = v_NWU_rudder;
     double rudder_angle_rad = rudder_angle_deg * MU_PI_180;
 
-
-
     // TODO: Quantites a recuperer
-    double uPA; // Mean axial speed of inflow to the propeller (with wake fraction correction included)
-    double vPA; // Mean radial speed of inflow to the propeller
-    double Ap; // Propeller disk area
-    double r0; // Half the propeller diameter
-//    double propeller_thrust; // As calculated byt the propeller model
-//    double xr; // Position of the rudder behind the propeller (positive)
-    double hR;  // Rudder height
-    double A_R; // Rudder total area
-    double c; // Rudder chord length at its half height
+    double uPA = m_propeller->GetAdvanceVelocity(); // Mean axial speed of inflow to the propeller (with wake fraction correction included)
+//    double vPA; // Mean radial speed of inflow to the propeller
 
+    // Propeller data
+    double r0 = propeller_params.m_diameter_m;  // Propeller radius
+    double Ap = MU_PI * r0 * r0;  // Propeller disk area
+
+    // Rudder data
+    double hR = rudder_params.m_height_m;// Rudder height
+    double A_R = rudder_params.m_lateral_area_m2;// Rudder total area
+    double c = rudder_params.m_chord_m;// Rudder chord length at its half height
 
     /**
      * Dealing with rudder forces INSIDE the slipstream of the propeller (RP)

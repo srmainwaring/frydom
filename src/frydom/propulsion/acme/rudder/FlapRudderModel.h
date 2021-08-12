@@ -18,14 +18,13 @@ namespace acme {
    public:
     FlapRudderModel(const RudderParams params, const std::string &perf_data_json_string);
 
+    void GetClCdCn(const double &attack_angle_rad,
+                   const double &rudder_angle_rad,
+                   double &cl,
+                   double &cd,
+                   double &cn) const override;
+
    private:
-
-    inline void GetClCdCn(const double &attack_angle_rad,
-                          const double &rudder_angle_rad,
-                          double &cl,
-                          double &cd,
-                          double &cn) const override;
-
     void ParseRudderPerformanceCurveJsonString() override;
 
    private:

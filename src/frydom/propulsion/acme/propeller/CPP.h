@@ -19,10 +19,10 @@ namespace acme {
 
    private:
 
-    inline void GetCtCq(const double &gamma,
-                        const double &pitch_ratio,
-                        double &ct,
-                        double &cq) const override;
+    void GetCtCq(const double &gamma,
+                 const double &pitch_ratio,
+                 double &ct,
+                 double &cq) const override;
 
     void ParsePropellerPerformanceCurveJsonString() override;
 
@@ -31,11 +31,11 @@ namespace acme {
 
   };
 
-  void ParseCPPJsonString(const std::string& json_string,
-                                                std::vector<double>& beta,
-                                                std::vector<double>& pitch_ratio,
-                                                std::vector<double>& ct,
-                                                std::vector<double>& cq);
+  void ParseCPPJsonString(const std::string &json_string,
+                          std::vector<double> &beta,
+                          std::vector<double> &pitch_ratio,
+                          std::vector<double> &ct,
+                          std::vector<double> &cq);
 
 }  // end namespace acme
 

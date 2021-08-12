@@ -44,11 +44,12 @@ namespace acme {
 
     // Advance ratio
     double J = uPA / (n * m_params.m_diameter_m);
-    if (isinfl(J) or isnanl(J)) J = m_kt_kq_coeffs.GetX().back();
+    if (isinfl(J) or isnanl(J))
+      J = m_kt_kq_coeffs.GetX().back(); // FIXME: encore une fois bof... plutot saturer proprement si n=0 !!
 
     // Get Coefficients
     double kt, kq;
-    GetKtKq(J, kt, kq);
+    GetKtKq(J, kt, kq);  // FIXME: renvoie des valeurs negatives pour kt et kq...
 
     // Propeller Thrust
     double n2 = n * n;
@@ -68,7 +69,7 @@ namespace acme {
     c_efficiency = J * _kt / (MU_2PI * _kq);
 
     // Power
-    c_power_W =  MU_2PI * n * c_torque_Nm;
+    c_power_W = MU_2PI * n * c_torque_Nm;
 
   }
 
@@ -92,10 +93,7 @@ namespace acme {
      *
      */
 
-    std::cout << m_temp_perf_data_json_string << std::endl;
-
     auto jnode = json::parse(m_temp_perf_data_json_string);
-    m_temp_perf_data_json_string.clear();
 
     auto j = jnode["j"].get<std::vector<double>>();
     auto kt = jnode["kt"].get<std::vector<double>>();
@@ -118,7 +116,7 @@ namespace acme {
     m_kt_kq_coeffs.AddY("kq", kq);
   }
 
-  inline void FPP1Q::GetKtKq(const double &J, double &kt, double &kq) const {
+  void FPP1Q::GetKtKq(const double &J, double &kt, double &kq) const {
     kt = m_kt_kq_coeffs.Eval("kt", J);
     kq = m_kt_kq_coeffs.Eval("kq", J);
   }

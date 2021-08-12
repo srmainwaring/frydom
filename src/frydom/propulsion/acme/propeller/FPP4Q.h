@@ -26,10 +26,10 @@ namespace acme {
 
    private:
 
-    virtual inline void GetCtCq(const double &gamma,
-                                const double &pitch_ratio,
-                                double &ct,
-                                double &cq) const;
+    virtual void GetCtCq(const double &gamma,
+                         const double &pitch_ratio,
+                         double &ct,
+                         double &cq) const;
 
     void ParsePropellerPerformanceCurveJsonString() override;
 
