@@ -188,7 +188,7 @@ namespace acme {
 
     double fx_R = fx_RA + fx_RP;
     double fy_R = fy_RA + fy_RP;
-    double torque_R = torque_RA + torque_RP;
+    double torque_R = (torque_RA + torque_RP) - xr * fy_R;  // Transport of the torque to the propeller
     // TODO: doit etre mise en cache
 
   }

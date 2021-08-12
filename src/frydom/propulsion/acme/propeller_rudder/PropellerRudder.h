@@ -58,18 +58,12 @@ namespace acme {
   };
 
 
-  std::shared_ptr<PropellerRudderBase>
-  build_pr() {
-
-    PropellerModelType prop_type(E_FPP1Q);
-    RudderModelType rudder_type(E_SIMPLE_RUDDER);
-
-    PropellerParams thruster_params;
-    std::string thruster_perf_data_json_string;
-
-    RudderParams rudder_params;
-    std::string rudder_perf_data_json_string;
-
+  std::shared_ptr<PropellerRudderBase> build_pr(PropellerModelType prop_type,
+                                                PropellerParams prop_params,
+                                                const std::string &prop_perf_data_string,
+                                                RudderModelType rudder_type,
+                                                RudderParams rudder_params,
+                                                const std::string &rudder_perf_data_string) {
 
     std::shared_ptr<PropellerRudderBase> pr;
 
@@ -77,29 +71,49 @@ namespace acme {
       case E_FPP1Q:
         switch (rudder_type) {
           case E_SIMPLE_RUDDER:
-            pr = std::make_shared<PropellerRudder<FPP1Q, SimpleRudderModel>>(thruster_params,
-                                                                             thruster_perf_data_json_string,
+            pr = std::make_shared<PropellerRudder<FPP1Q, SimpleRudderModel>>(prop_params,
+                                                                             prop_perf_data_string,
                                                                              rudder_params,
-                                                                             rudder_perf_data_json_string);
+                                                                             rudder_perf_data_string);
 
             break;
           case E_FLAP_RUDDER:
+            pr = std::make_shared<PropellerRudder<FPP1Q, FlapRudderModel>>(prop_params,
+                                                                           prop_perf_data_string,
+                                                                           rudder_params,
+                                                                           rudder_perf_data_string);
             break;
         }
         break;
       case E_FPP4Q:
         switch (rudder_type) {
           case E_SIMPLE_RUDDER:
+            pr = std::make_shared<PropellerRudder<FPP4Q, SimpleRudderModel>>(prop_params,
+                                                                             prop_perf_data_string,
+                                                                             rudder_params,
+                                                                             rudder_perf_data_string);
             break;
           case E_FLAP_RUDDER:
+            pr = std::make_shared<PropellerRudder<FPP4Q, FlapRudderModel>>(prop_params,
+                                                                           prop_perf_data_string,
+                                                                           rudder_params,
+                                                                           rudder_perf_data_string);
             break;
         }
         break;
       case E_CPP:
         switch (rudder_type) {
           case E_SIMPLE_RUDDER:
+            pr = std::make_shared<PropellerRudder<CPP, SimpleRudderModel>>(prop_params,
+                                                                           prop_perf_data_string,
+                                                                           rudder_params,
+                                                                           rudder_perf_data_string);
             break;
           case E_FLAP_RUDDER:
+            pr = std::make_shared<PropellerRudder<CPP, FlapRudderModel>>(prop_params,
+                                                                         prop_perf_data_string,
+                                                                         rudder_params,
+                                                                         rudder_perf_data_string);
             break;
         }
         break;
