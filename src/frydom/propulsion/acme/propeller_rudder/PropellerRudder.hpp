@@ -8,7 +8,7 @@
 namespace acme {
 
   template<class Propeller, class Rudder>
-  PropellerRudder<Propeller, Rudder>::PropellerRudder(const ThrusterParams &thruster_params,
+  PropellerRudder<Propeller, Rudder>::PropellerRudder(const PropellerParams &thruster_params,
                                                       const std::string &thruster_perf_data_json_string,
                                                       const RudderParams &rudder_params,
                                                       const std::string &rudder_perf_data_json_string) :

@@ -8,15 +8,15 @@
 #include <string>
 #include "MathUtils/LookupTable1D.h"
 
-#include "ThrusterBaseModel.h"
+#include "PropellerBaseModel.h"
 
 namespace acme {
 
   /// Four Quadrant model for Fixed Pitch Propeller
-  class FPP4Q : public ThrusterBaseModel {
+  class FPP4Q : public PropellerBaseModel {
 
    public:
-    FPP4Q(const ThrusterParams &params, const std::string &ct_cq_json_string);
+    FPP4Q(const PropellerParams &params, const std::string &ct_cq_json_string);
 
     void Compute(const double &water_density,
                  const double &u_NWU,

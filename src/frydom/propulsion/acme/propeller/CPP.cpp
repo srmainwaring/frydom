@@ -6,9 +6,9 @@
 
 namespace acme {
 
-  CPP::CPP(const ThrusterParams &params, const std::string &ct_cq_json_string) :
+  CPP::CPP(const PropellerParams &params, const std::string &ct_cq_json_string) :
       FPP4Q(params, ct_cq_json_string) {
-    m_type = ThrusterModelType::E_CPP;  // Overrides the type E_FPP4Q
+    m_type = PropellerModelType::E_CPP;  // Overrides the type E_FPP4Q
   }
 
   void CPP::GetCtCq(const double &gamma,

@@ -2,12 +2,12 @@
 // Created by frongere on 10/08/2021.
 //
 
-#ifndef ACME_THRUSTERMODELTYPE_H
-#define ACME_THRUSTERMODELTYPE_H
+#ifndef ACME_PROPELLERMODELTYPE_H
+#define ACME_PROPELLERMODELTYPE_H
 
 namespace acme {
 
-  enum ThrusterModelType {
+  enum PropellerModelType {
     E_FPP1Q,
     E_FPP4Q,
     E_CPP
@@ -15,4 +15,4 @@ namespace acme {
 
 }  // end namespace acme
 
-#endif //ACME_THRUSTERMODELTYPE_H
+#endif //ACME_PROPELLERMODELTYPE_H

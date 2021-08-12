@@ -9,15 +9,15 @@
 
 #include "MathUtils/LookupTable1D.h"
 
-#include "ThrusterBaseModel.h"
+#include "PropellerBaseModel.h"
 
 namespace acme {
 
   /// First quadrant model for Fixed Pitch Propeller
-  class FPP1Q : public ThrusterBaseModel {
+  class FPP1Q : public PropellerBaseModel {
 
    public:
-    FPP1Q(const ThrusterParams &params, const std::string &kt_kq_json_string);
+    FPP1Q(const PropellerParams &params, const std::string &kt_kq_json_string);
 
     void Compute(const double &water_density,
                  const double &u_NWU,

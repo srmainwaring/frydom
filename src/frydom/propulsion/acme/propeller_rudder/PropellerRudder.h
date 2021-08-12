@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "acme/thruster/ThrusterBaseModel.h"
+#include "acme/propeller/PropellerBaseModel.h"
 #include "acme/rudder/SimpleRudderModel.h"
 
 namespace acme {
@@ -20,7 +20,7 @@ namespace acme {
   class PropellerRudder : public PropellerRudderBase {
 
    public:
-    PropellerRudder(const ThrusterParams &thruster_params,
+    PropellerRudder(const PropellerParams &thruster_params,
                     const std::string &thruster_perf_data_json_string,
                     const RudderParams &rudder_params,
                     const std::string &rudder_perf_data_json_string);
@@ -61,10 +61,10 @@ namespace acme {
   std::shared_ptr<PropellerRudderBase>
   build_pr() {
 
-    ThrusterModelType prop_type(E_FPP1Q);
+    PropellerModelType prop_type(E_FPP1Q);
     RudderModelType rudder_type(E_SIMPLE_RUDDER);
 
-    ThrusterParams thruster_params;
+    PropellerParams thruster_params;
     std::string thruster_perf_data_json_string;
 
     RudderParams rudder_params;

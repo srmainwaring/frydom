@@ -1,6 +1,6 @@
 
 target_sources(acme PRIVATE
-        ThrusterBaseModel.cpp
+        PropellerBaseModel.cpp
         FPP1Q.cpp
         FPP4Q.cpp
         CPP.cpp

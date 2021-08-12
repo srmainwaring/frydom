@@ -2,11 +2,11 @@
 // Created by frongere on 04/08/2021.
 //
 
-#ifndef ACME_THRUSTERBASEMODEL_H
-#define ACME_THRUSTERBASEMODEL_H
+#ifndef ACME_PROPELLERBASEMODEL_H
+#define ACME_PROPELLERBASEMODEL_H
 
 #include "MathUtils/Vector3d.h"
-#include "ThrusterModelType.h"
+#include "PropellerModelType.h"
 
 
 namespace acme {
@@ -16,7 +16,7 @@ namespace acme {
     LEFT_HANDED
   };
 
-  struct ThrusterParams {
+  struct PropellerParams {
     double m_diameter_m;
     SCREW_DIRECTION m_screw_direction;
 
@@ -34,12 +34,12 @@ namespace acme {
   };
 
 
-  class ThrusterBaseModel {
+  class PropellerBaseModel {
 
    public:
-    ThrusterBaseModel(const ThrusterParams params,
-                      const std::string &perf_data_json_string,
-                      ThrusterModelType type);
+    PropellerBaseModel(const PropellerParams params,
+                       const std::string &perf_data_json_string,
+                       PropellerModelType type);
 
     virtual void Initialize();
 
@@ -55,7 +55,7 @@ namespace acme {
                          const double &rpm,
                          const double &pitch_ratio) const = 0;
 
-    ThrusterModelType GetThrusterModelType() const;
+    PropellerModelType GetThrusterModelType() const;
 
     double GetThrust() const;
 
@@ -89,9 +89,9 @@ namespace acme {
     bool m_is_initialized;
     std::string m_temp_perf_data_json_string; // Populated at instantiation and cleared at Initialization (lazy)
 
-    ThrusterModelType m_type;
+    PropellerModelType m_type;
 
-    ThrusterParams m_params;
+    PropellerParams m_params;
     double m_ku;
 
     mutable double c_sidewash_angle_rad;
@@ -104,4 +104,4 @@ namespace acme {
 
 }
 
-#endif //ACME_THRUSTERBASEMODEL_H
+#endif //ACME_PROPELLERBASEMODEL_H

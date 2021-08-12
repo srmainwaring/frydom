@@ -15,7 +15,7 @@ namespace acme {
   class CPP : public FPP4Q {
 
    public:
-    CPP(const ThrusterParams &params, const std::string &ct_cq_json_string);
+    CPP(const PropellerParams &params, const std::string &ct_cq_json_string);
 
    private:
 
