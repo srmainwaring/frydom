@@ -51,8 +51,6 @@ namespace acme {
 //      vRA *= kappa;
 //    }
 
-    double V2 = uRA * uRA + vRA * vRA;
-
     // Drift angle
     double beta_R = std::atan2(vRA, uRA);
 
@@ -65,9 +63,10 @@ namespace acme {
     GetClCdCn(c_alpha_R_rad, rudder_angle_rad, cl, cd, cn);
 
     // Forces in flow frame
-    c_lift_N = 0.5 * water_density * cl * m_params.m_lateral_area_m2 * V2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
-    c_drag_N = 0.5 * water_density * cd * m_params.m_lateral_area_m2 * V2; // FIXME: les tables prevoient des coeffs cd negatifs ?
-    c_torque_Nm = 0.5 * water_density * cn * m_params.m_lateral_area_m2 * m_params.m_chord_m * V2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
+    double q = 0.5 * water_density * uRA * uRA + vRA * vRA; // stagnation pressure at rudder position
+    c_lift_N = q * cl * m_params.m_lateral_area_m2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
+    c_drag_N = q * cd * m_params.m_lateral_area_m2; // FIXME: les tables prevoient des coeffs cd negatifs ?
+    c_torque_Nm = q * cn * m_params.m_lateral_area_m2 * m_params.m_chord_m; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
 
     // Forces in rudder frame
     double Cbeta = std::cos(beta_R);

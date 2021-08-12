@@ -25,13 +25,29 @@ namespace acme {
                     const RudderParams &rudder_params,
                     const std::string &rudder_perf_data_json_string);
 
+    /// Perform the model calculations
+    /// \param water_density in kg/m**3
+    /// \param u_NWU_propeller axial velocity with respect to water at the propeller location as obtained from rigid
+    ///        body motion of the vessel eventually (including current and waves orbital velocities) in m/s
+    /// \param v_NWU_propeller radial velocity with respect to water at the propeller location as obtained from rigid
+    ///        body motion of the vessel eventually (including current and waves orbital velocities) in m/s
+    /// \param r vessel rotation velocity around its local z-axis (rad/s)
+    /// \param xr distance between the propeller and the rudder in m. Accounted positive when the rudder is behind the
+    ///           propeller
+    /// \param rpm Propeller screw rate of rotation (round per minute)
+    /// \param pitch_ratio Propeller pitch ratio. Only used if the chosen propeller model is a CPP.
+    /// \param rudder_angle_deg rudder angle (in deg) between the vessel x axis and the rudder chord.
+    ///
+    /// \note In this implementation, it is considered that the rudder stock is collinear to the vessel z axis and
+    ///       directed upwards. As such, u_NWU_propeller and v_NWU_propeller are lying in the Oxy plane of the vessel.
+    ///       Propeller rotation axis is also collinear to the vessel x axis.
     void Compute(const double &water_density,
                  const double &u_NWU_propeller,
                  const double &v_NWU_propeller,
+                 const double &r,
+                 const double &xr,
                  const double &rpm,
                  const double &pitch_ratio,
-                 const double &u_NWU_rudder,
-                 const double &v_NWU_rudder,
                  const double &rudder_angle_deg) const;
 
 
