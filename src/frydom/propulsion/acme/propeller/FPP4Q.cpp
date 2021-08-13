@@ -9,8 +9,8 @@ using json = nlohmann::json;
 
 namespace acme {
 
-  FPP4Q::FPP4Q(const acme::ThrusterParams &params, const std::string &ct_cq_json_string) :
-      ThrusterBaseModel(params, ct_cq_json_string, ThrusterModelType::E_FPP4Q) {
+  FPP4Q::FPP4Q(const acme::PropellerParams &params, const std::string &ct_cq_json_string) :
+      PropellerBaseModel(params, ct_cq_json_string, PropellerModelType::E_FPP4Q) {
   }
 
   void FPP4Q::Compute(const double &water_density,

@@ -2,13 +2,15 @@
 // Created by frongere on 04/08/2021.
 //
 
-#include "ThrusterBaseModel.h"
+#include "PropellerBaseModel.h"
+
+#include "MathUtils/Angles.h"
 
 namespace acme {
 
-  ThrusterBaseModel::ThrusterBaseModel(const ThrusterParams params,
-                                       const std::string &perf_data_json_string,
-                                       ThrusterModelType type) :
+  PropellerBaseModel::PropellerBaseModel(const PropellerParams params,
+                                         const std::string &perf_data_json_string,
+                                         PropellerModelType type) :
       m_params(params),
       m_temp_perf_data_json_string(perf_data_json_string),
       m_is_initialized(false),
@@ -21,36 +23,47 @@ namespace acme {
       c_power_W(0.) {
   }
 
-  void ThrusterBaseModel::Initialize() {
+  void PropellerBaseModel::Initialize() {
     ParsePropellerPerformanceCurveJsonString();
+    m_temp_perf_data_json_string.clear();
+
     if (m_params.m_use_advance_velocity_correction_factor) ComputeAdvanceVelocityCorrectionFactor();
+
     m_is_initialized = true;
   }
 
-  ThrusterModelType ThrusterBaseModel::GetThrusterModelType() const {
+  PropellerModelType PropellerBaseModel::GetThrusterModelType() const {
     return m_type;
   }
 
-  double ThrusterBaseModel::GetThrust() const {
+  const PropellerParams &PropellerBaseModel::GetParameters() const {
+    return m_params;
+  }
+
+  double PropellerBaseModel::GetAdvanceVelocity() const {
+    return c_uPA;
+  }
+
+  double PropellerBaseModel::GetThrust() const {
     return c_thrust_N;
   }
 
-  double ThrusterBaseModel::GetTorque() const {
+  double PropellerBaseModel::GetTorque() const {
     return c_torque_Nm;
   }
 
-  double ThrusterBaseModel::GetPropellerEfficiency() const {
+  double PropellerBaseModel::GetPropellerEfficiency() const {
     return c_efficiency;
   }
 
-  double ThrusterBaseModel::GetPower() const {
+  double PropellerBaseModel::GetPower() const {
     return c_power_W;
   }
 
-  double ThrusterBaseModel::GetPropellerAdvanceVelocity(const double &u_NWU,
-                                                        const double &v_NWU) const {
+  double PropellerBaseModel::GetPropellerAdvanceVelocity(const double &u_NWU,
+                                                         const double &v_NWU) const {
     // sidewash angle
-    c_sidewash_angle_rad = std::atan2(v_NWU, u_NWU);
+    c_sidewash_angle_rad = mathutils::Normalize__PI_PI(std::atan2(v_NWU, u_NWU));
 
     // estimated wake_fraction taken into account the sidewash angle (0 when the absolute value of the sidewash
     // angle exceeds 90°)
@@ -58,10 +71,11 @@ namespace acme {
                 m_params.m_hull_wake_fraction_0 * std::exp(-4. * c_sidewash_angle_rad * c_sidewash_angle_rad);
 
     // Propeller advance velocity
-    return m_ku * u_NWU * (1 - wp);
+    c_uPA = m_ku * u_NWU * (1 - wp);
+    return c_uPA;
   }
 
-  void ThrusterBaseModel::ComputeAdvanceVelocityCorrectionFactor() {
+  void PropellerBaseModel::ComputeAdvanceVelocityCorrectionFactor() {
     /*
      * Jopt is the maximum efficiency advance ratio for the used propeller model
      */
@@ -79,17 +93,17 @@ namespace acme {
   }
 
 
-  ThrusterParams::ThrusterParams(double diameter_m, double hull_wake_fraction_0,
-                                         double thrust_deduction_factor_0, SCREW_DIRECTION sd) :
+  PropellerParams::PropellerParams(double diameter_m, double hull_wake_fraction_0,
+                                   double thrust_deduction_factor_0, SCREW_DIRECTION sd) :
       m_diameter_m(diameter_m), m_hull_wake_fraction_0(hull_wake_fraction_0),
       m_thrust_deduction_factor_0(thrust_deduction_factor_0),
       m_screw_direction(sd) {
 
   }
 
-  ThrusterParams::ThrusterParams() : m_diameter_m(0.), m_hull_wake_fraction_0(0.),
-                                             m_thrust_deduction_factor_0(0.),
-                                             m_screw_direction(RIGHT_HANDED) {
+  PropellerParams::PropellerParams() : m_diameter_m(0.), m_hull_wake_fraction_0(0.),
+                                       m_thrust_deduction_factor_0(0.),
+                                       m_screw_direction(RIGHT_HANDED) {
 
   }
 }  // end namespace acme

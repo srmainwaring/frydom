@@ -5,7 +5,7 @@
 #ifndef ACME_ACME_H
 #define ACME_ACME_H
 
-#include "thruster/thruster.h"
+#include "propeller/propeller.h"
 #include "rudder/rudder.h"
 #include "propeller_rudder/PropellerRudder.h"
 #include "sail/sail.h"

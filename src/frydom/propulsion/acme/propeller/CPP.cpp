@@ -9,9 +9,9 @@ using json = nlohmann::json;
 
 namespace acme {
 
-  CPP::CPP(const ThrusterParams &params, const std::string &ct_cq_json_string) :
+  CPP::CPP(const PropellerParams &params, const std::string &ct_cq_json_string) :
       FPP4Q(params, ct_cq_json_string) {
-    m_type = ThrusterModelType::E_CPP;  // Overrides the type E_FPP4Q
+    m_type = PropellerModelType::E_CPP;  // Overrides the type E_FPP4Q
   }
 
   void CPP::GetCtCq(const double &gamma,
@@ -34,8 +34,8 @@ namespace acme {
   }
 
   void ParseCPPJsonString(const std::string &json_string, std::vector<double> &beta,
-                                                std::vector<double> &pitch_ratio, std::vector<double> &ct,
-                                                std::vector<double> &cq) {
+                          std::vector<double> &pitch_ratio, std::vector<double> &ct,
+                          std::vector<double> &cq) {
 
     auto jnode = json::parse(json_string);
 
@@ -44,7 +44,7 @@ namespace acme {
     auto ct_tmp = jnode["ct"].get<std::vector<std::vector<double>>>();
     auto cq_tmp = jnode["cq"].get<std::vector<std::vector<double>>>();
 
-    for (auto& b : beta) b *= DEG2RAD;
+    for (auto &b : beta) b *= DEG2RAD;
 
     //FIXME
 //    // Only one
@@ -64,7 +64,7 @@ namespace acme {
     for (int i = 0; i < pitch_ratio.size(); i++) {
       mat.row(i) = Eigen::VectorXd::Map(&ct_tmp[i][0], ct_tmp[i].size());
     }
-    ct =  {mat.data(), mat.data() + mat.rows() * mat.cols()};
+    ct = {mat.data(), mat.data() + mat.rows() * mat.cols()};
 
     // Transform cq to fit in AddData
     for (int i = 0; i < pitch_ratio.size(); i++) {

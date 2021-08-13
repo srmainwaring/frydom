@@ -25,6 +25,7 @@ namespace acme {
 
   void SimpleRudderModel::Initialize() {
     ParseRudderPerformanceCurveJsonString();
+    m_temp_perf_data_json_string.clear();
     // TODO: initialiser ici le cache des quantites optionnelles
 
 
@@ -55,8 +56,6 @@ namespace acme {
 //      vRA *= kappa;
 //    }
 
-    double V2 = uRA * uRA + vRA * vRA;
-
     // Drift angle
     double beta_R = std::atan2(vRA, uRA);
 
@@ -70,9 +69,12 @@ namespace acme {
     GetClCdCn(c_alpha_R_rad, rudder_angle_rad, cl, cd, cn);
 
     // Forces in flow frame
-    c_lift_N = 0.5 * water_density * cl * m_params.m_lateral_area_m2 * V2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
-    c_drag_N = 0.5 * water_density * cd * m_params.m_lateral_area_m2 * V2; // FIXME: les tables prevoient des coeffs cd negatifs ?
-    c_torque_Nm = 0.5 * water_density * cn * m_params.m_lateral_area_m2 * m_params.m_chord_m * V2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
+    double q = 0.5 * water_density * uRA * uRA + vRA * vRA; // stagnation pressure at rudder position
+    c_lift_N = q * cl *
+               m_params.m_lateral_area_m2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
+    c_drag_N = q * cd * m_params.m_lateral_area_m2; // FIXME: les tables prevoient des coeffs cd negatifs ?
+    c_torque_Nm = q * cn * m_params.m_lateral_area_m2 *
+                  m_params.m_chord_m; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
 
     // Forces in rudder frame
     double Cbeta = std::cos(beta_R);
@@ -85,6 +87,10 @@ namespace acme {
 
   RudderModelType SimpleRudderModel::GetRudderModelType() const {
     return m_type;
+  }
+
+  const RudderParams &SimpleRudderModel::GetParameters() const {
+    return m_params;
   }
 
   void SimpleRudderModel::GetClCdCn(const double &attack_angle_rad,
@@ -118,9 +124,10 @@ namespace acme {
 
   }
 
-  void
-  ParseRudderJsonString(const std::string &json_string, std::vector<double> &attack_angle_rad, std::vector<double> &cd,
-                        std::vector<double> &cl, std::vector<double> &cn) {
+  void ParseRudderJsonString(const std::string &json_string,
+                             std::vector<double> &attack_angle_rad,
+                             std::vector<double> &cd,
+                             std::vector<double> &cl, std::vector<double> &cn) {
 
     std::string fc, dc;
 
@@ -134,10 +141,10 @@ namespace acme {
       if (fc != "NWU" and fc != "NED")
         throw std::runtime_error("SimpleRudderModel parser : frame convention should be : NWU or NED");
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no frame_convention in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no frame_convention in load_coefficients";
       exit(EXIT_FAILURE);
-    } catch (const std::exception&d) {
-      std::cerr<<d.what();
+    } catch (const std::exception &d) {
+      std::cerr << d.what();
       exit(EXIT_FAILURE);
     }
 
@@ -146,10 +153,10 @@ namespace acme {
       if (dc != "GOTO" and dc != "COMEFROM")
         throw std::runtime_error("SimpleRudderModel parser : frame convention should be : GOTO or COMEFROM");
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no direction_convention in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no direction_convention in load_coefficients";
       exit(EXIT_FAILURE);
-    } catch (const std::exception&d) {
-      std::cerr<<d.what();
+    } catch (const std::exception &d) {
+      std::cerr << d.what();
       exit(EXIT_FAILURE);
     }
 
@@ -167,7 +174,7 @@ namespace acme {
           angle = mathutils::Normalize__PI_PI(angle);
         }
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no flow_incidence_on_main_rudder_deg in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no flow_incidence_on_main_rudder_deg in load_coefficients";
       exit(EXIT_FAILURE);
     } catch (const std::exception&d) {
       std::cerr<<d.what();
@@ -179,7 +186,7 @@ namespace acme {
       if (cd.size()!=n)
         throw std::runtime_error("SimpleRudderModel parser : Cd not covering all flow_incidence_on_main_rudder_deg range");
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no Cd in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no Cd in load_coefficients";
       exit(EXIT_FAILURE);
     } catch (const std::exception&d) {
       std::cerr<<d.what();
@@ -191,7 +198,7 @@ namespace acme {
       if (cl.size()!=n)
         throw std::runtime_error("SimpleRudderModel parser : Cd not covering all flow_incidence_on_main_rudder_deg range");
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no Cl in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no Cl in load_coefficients";
       exit(EXIT_FAILURE);
     } catch (const std::exception&d) {
       std::cerr<<d.what();
@@ -207,19 +214,26 @@ namespace acme {
           coeff *= -1;
         }
     } catch (json::parse_error &err) {
-      std::cerr<<"SimpleRudderModel parser : no Cn in load_coefficients";
+      std::cerr << "SimpleRudderModel parser : no Cn in load_coefficients";
       exit(EXIT_FAILURE);
     } catch (const std::exception&d) {
       std::cerr<<d.what();
       exit(EXIT_FAILURE);
     }
 
+<<<<<<< HEAD
+=======
+    assert(attack_angle_rad.size() == cd.size());
+    assert(attack_angle_rad.size() == cl.size());
+    assert(attack_angle_rad.size() == cn.size());
+>>>>>>> a9e3b6a6e64d23f6d7d2704a671040b4fcd8648f
     std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
 
-    for (int i = 0; i <  attack_angle_rad.size(); i++) {
-      rudderCoeff.emplace_back( attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
+    for (int i = 0; i < attack_angle_rad.size(); i++) {
+      rudderCoeff.emplace_back(attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
     }
 
+<<<<<<< HEAD
 //    std::pair<double, mathutils::Vector3d<double>> new_element;
 //    // Complete if symmetry
 //    auto max_angle = rudderCoeff.back().first;
@@ -284,6 +298,73 @@ namespace acme {
 //      cl.push_back(it.second[1]);
 //      cn.push_back(it.second[2]);
 //    }
+=======
+    std::pair<double, mathutils::Vector3d<double>> new_element;
+    // Complete if symmetry
+    auto max_angle = rudderCoeff.back().first;
+    auto min_angle = rudderCoeff[0].first;
+
+    if (std::abs(min_angle) < 10e-2 and std::abs(max_angle - MU_PI) < 10e-2) {
+      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
+        new_element.first = 2. * MU_PI - rudderCoeff[i].first;
+        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
+        rudderCoeff.push_back(new_element);
+      }
+    } else if (std::abs(min_angle + MU_PI) < 10e-2 and std::abs(max_angle) < 10e-2) {
+      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
+        new_element.first = -rudderCoeff[i].first;
+        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
+        rudderCoeff.push_back(new_element);
+      }
+    }
+
+    // Delete double term
+    if (std::abs(rudderCoeff[0].first) < 10e-2 and std::abs(rudderCoeff.back().first - 2. * MU_PI) < 10e-2
+                                                   or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
+        std::abs(rudderCoeff.back().first - MU_PI) < 10e-2) {
+      rudderCoeff.pop_back();
+    }
+
+    // Conversion to NWU if NED convention is used
+    if (fc == "NED") {
+      for (auto &it : rudderCoeff) {
+        it.first = -it.first;
+        it.second = {it.second[0], -it.second[1], -it.second[2]};
+      }
+    }
+
+    // Conversion to COMEFROM if GOTO convention is used
+    if (dc == "GOTO") {
+      for (auto &it : rudderCoeff) { it.first += MU_PI; }
+    }
+
+    // Normalized angle in [0, 2pi]
+    for (auto &it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
+
+    // Sort element according to increasing angles
+    std::sort(rudderCoeff.begin(), rudderCoeff.end(), [](auto const &a, auto const &b) {
+      return a.first < b.first;
+    });
+
+    // Adding last term for angle equal to 2pi
+    new_element.first = 2. * MU_PI;
+    new_element.second = rudderCoeff.begin()->second;
+    rudderCoeff.push_back(new_element);
+
+    // Complete lookup table
+    attack_angle_rad.clear();
+    cl.clear();
+    cd.clear();
+    cn.clear();
+
+    for (auto &it : rudderCoeff) {
+      attack_angle_rad.push_back(it.first);
+      cd.push_back(it.second[0]);
+      cl.push_back(it.second[1]);
+      cn.push_back(it.second[2]);
+    }
+>>>>>>> a9e3b6a6e64d23f6d7d2704a671040b4fcd8648f
 
   }
+
 }  // end namespace acme
