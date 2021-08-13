@@ -69,7 +69,7 @@ namespace acme {
     GetClCdCn(c_alpha_R_rad, rudder_angle_rad, cl, cd, cn);
 
     // Forces in flow frame
-    double q = 0.5 * water_density * uRA * uRA + vRA * vRA; // stagnation pressure at rudder position
+    double q = 0.5 * water_density * (uRA * uRA + vRA * vRA); // stagnation pressure at rudder position
     c_lift_N = q * cl *
                m_params.m_lateral_area_m2; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
     c_drag_N = q * cd * m_params.m_lateral_area_m2; // FIXME: les tables prevoient des coeffs cd negatifs ?

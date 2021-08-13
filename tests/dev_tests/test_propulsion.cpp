@@ -360,9 +360,9 @@ int test_rudder() {
 
   system.GetEnvironment()->GetOcean()->GetCurrent()->MakeFieldUniform();
   auto current = system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform();
-//  current->SetNorth(1.0, MS, COMEFROM);
-  current->Set(20, 1, DEG, MS, NWU, COMEFROM);
-  double rudder_angle_deg = 0;
+  current->SetNorth(1.0, MS, COMEFROM);
+//  current->Set(-20, 1, DEG, MS, NWU, COMEFROM);
+  double rudder_angle_deg = 20;
 
   auto body = system.NewBody("body");
   body->SetFixedInWorld(true);
@@ -371,9 +371,9 @@ int test_rudder() {
   auto node = body->NewNode("node");
 
   double hull_wake_fraction_0 = 0.;
-  double rudder_lateral_area_m2 = 4;
-  double height_m = 2;
-  double chord_length_m = 2;
+  double height_m = 3;
+  double chord_length_m = 3;
+  double rudder_lateral_area_m2 = 15;
   double ramp_slope_degs = 4;
 
   std::vector<double> flow_incidence_on_main_rudder_deg = {-28, -26, -24.0, -22.0, -20.0, -18.0, -16.0, -14.0, -12.0,
@@ -465,6 +465,8 @@ int test_rudder() {
     frydom_rudder->SetHeight(height_m);
     frydom_rudder->SetRampSlope(ramp_slope_degs, DEGS);
     frydom_rudder->SetRootChord(chord_length_m);
+    frydom_rudder->ActivateHullRudderInteraction(true);
+    frydom_rudder->ActivateHullInfluenceOnTransverseVelocity(false);
 
     frydom_rudder->SetRudderAngle(rudder_angle_deg, DEG);
 

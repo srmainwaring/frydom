@@ -36,6 +36,7 @@ TEST(TestRudder, without_interactions) {
   std::vector<double> flow_incidence_on_main_rudder_deg = {-28, -26, -24.0, -22.0, -20.0, -18.0, -16.0, -14.0, -12.0,
                                                            -10.0, -8.0, -6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0, 8.0, 10.0,
                                                            12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0};
+  // FIXME all cd should be negative...
   std::vector<double> cd = {0.2778935134410858, 0.24202793836593628, 0.18181930482387543, 0.09083189815282822,
                             0.04477076604962349, 0.026631886139512062, 0.019129594787955284, 0.015245308168232441,
                             0.012423327192664146, 0.01028597541153431, 0.008432770147919655, 0.007111922837793827,
@@ -105,14 +106,68 @@ TEST(TestRudder, without_interactions) {
   EXPECT_NEAR(acme_rudder.GetFy(), -3572.94, 1E-2);
   EXPECT_NEAR(acme_rudder.GetMz(), -128.836, 1E-3);
 
+  // u = 2, v = 0, delta = 20
+  acme_rudder.Compute(1025, 2., 0., 20.);
+  EXPECT_NEAR(acme_rudder.GetFx(), 367.121, 1E-3);
+  EXPECT_NEAR(acme_rudder.GetFy(), 14291.8, 1E-1);
+  EXPECT_NEAR(acme_rudder.GetMz(), 515.344, 1E-3);
+
   // Intepolators evaluated outside of their range
   EXPECT_EXIT(acme_rudder.Compute(1025, 1., 0., 30), testing::ExitedWithCode(1),"");
 
-  // u = cos(20), v = sin(20), delta = 0
-  acme_rudder.Compute(1025, std::cos(20*DEG2RAD), std::sin(20*DEG2RAD), 0.);
+  // u = cos(-20), v = sin(-20), delta = 0
+  acme_rudder.Compute(1025, std::cos(-20*DEG2RAD), std::sin(-20*DEG2RAD), 0.);
   EXPECT_NEAR(acme_rudder.GetFx(), 1308.26, 1E-2);
-  EXPECT_NEAR(acme_rudder.GetFy(), -3326.08, 1E-2);
-  EXPECT_NEAR(acme_rudder.GetMz(), -128.836, 1E-3);
+  EXPECT_NEAR(acme_rudder.GetFy(), 3326.08, 1E-2);
+  EXPECT_NEAR(acme_rudder.GetMz(), 128.836, 1E-3);
+
+  // with different parameters
+  params.m_hull_wake_fraction_0 = 0.;
+  params.m_chord_m = 3.;
+  params.m_lateral_area_m2 = 15.;
+  params.m_flap_slope = 0.; //NA
+
+  auto acme_rudder2 = SimpleRudderModel(params, ss.str());
+  acme_rudder2.Initialize();
+
+  // u = 1, v = 0, delta = 20
+  acme_rudder2.Compute(1025, 1., 0., 20.);
+  EXPECT_NEAR(acme_rudder2.GetFx(), 344.176, 1E-3);
+  EXPECT_NEAR(acme_rudder2.GetFy(), 13398.5, 1E-1);
+  EXPECT_NEAR(acme_rudder2.GetMz(), 724.702, 1E-3);
+
+  // with hull/rudder interactions
+  params.m_hull_wake_fraction_0 = 0.2;
+  params.m_chord_m = 2.;
+  params.m_lateral_area_m2 = 4.;
+  params.m_flap_slope = 0.; //NA
+
+  auto acme_rudder3 = SimpleRudderModel(params, ss.str());
+  acme_rudder3.Initialize();
+
+  // u = 1, v = 0, delta = 0
+  acme_rudder3.Compute(1025, 1., 0., 0.);
+  EXPECT_NEAR(acme_rudder3.GetFx(), 6.8788, 1E-4);
+  EXPECT_NEAR(acme_rudder3.GetFy(), 0.0350063, 1E-7);
+  EXPECT_NEAR(acme_rudder3.GetMz(), -0.00877224, 1E-8);
+
+  // u = 1, v = 0, delta = 20
+  acme_rudder3.Compute(1025, 1., 0., 20.);
+  EXPECT_NEAR(acme_rudder3.GetFx(), 58.7393, 1E-4);
+  EXPECT_NEAR(acme_rudder3.GetFy(), 2286.68, 1E-2);
+  EXPECT_NEAR(acme_rudder3.GetMz(), 82.455, 1E-3);
+
+  // u = 2, v = 0, delta = 20
+  acme_rudder3.Compute(1025, 2., 0., 20.);
+  EXPECT_NEAR(acme_rudder3.GetFx(), 234.957, 1E-3);
+  EXPECT_NEAR(acme_rudder3.GetFy(), 9146.74, 1E-2);
+  EXPECT_NEAR(acme_rudder3.GetMz(), 329.82, 1E-2);
+
+  // u = cos(-20), v = sin(-20), delta = 0
+  acme_rudder3.Compute(1025, std::cos(-20*DEG2RAD), std::sin(-20*DEG2RAD), 0.);
+  EXPECT_NEAR(acme_rudder3.GetFx(), 1115.11, 1E-2);
+  EXPECT_NEAR(acme_rudder3.GetFy(), 2196.63, 1E-2);
+  EXPECT_NEAR(acme_rudder3.GetMz(), -9.21777, 1E-5);
 
 }
 
