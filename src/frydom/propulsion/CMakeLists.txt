@@ -1,7 +1,5 @@
 message(STATUS "    ...propulsion")
 
-add_subdirectory(acme)
-
 target_sources(frydom PRIVATE
         FrActuatorForceBase.cpp
         FrPropellerForce.cpp
