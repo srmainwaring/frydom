@@ -7,6 +7,7 @@
 
 #include "propeller/propeller.h"
 #include "rudder/rudder.h"
+#include "tunnel/tunnel.h"
 #include "propeller_rudder/PropellerRudder.h"
 #include "sail/sail.h"
 

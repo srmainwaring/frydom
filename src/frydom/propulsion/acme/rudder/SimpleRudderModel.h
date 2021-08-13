@@ -23,6 +23,8 @@ namespace acme {
     // Optional
 //    bool m_has_hull_influence_transverse_velocity = false;
     double m_flap_slope = 0.; // only used for a flap rudder type
+
+    bool m_use_transverse_velocity_correction = false;
   };
 
 

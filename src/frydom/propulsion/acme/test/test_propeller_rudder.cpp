@@ -66,7 +66,7 @@ int main() {
 
   // Parameters
   RudderParams rudder_params;
-  rudder_params.m_hull_wake_fraction_0 = 0.;
+  rudder_params.m_hull_wake_fraction_0 = 0.4;
   rudder_params.m_chord_m = 2.;
   rudder_params.m_height_m = 2.;
   rudder_params.m_lateral_area_m2 = 4.;
@@ -156,7 +156,7 @@ int main() {
   double v_NWU_propeller_ms = 0.3;
   double r_rads = 3 * MU_PI_180;
   double xr_m = 3;
-  double rpm = 50;
+  double rpm = 200;
   double pitch_ratio = 0.;
   double rudder_angle_deg = 10;
 

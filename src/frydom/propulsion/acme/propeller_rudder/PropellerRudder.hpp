@@ -57,29 +57,34 @@ namespace acme {
     double wR = wr0 * std::exp(-4. * rudder_sidewash_angle_0 * rudder_sidewash_angle_0);
 
     double uRA = u_R0 * (1 - wR);
+
+    // TODO: ici, pour calculer vRA, on peut appliquer la correction kappa
     double vRA = v_R0;
+    if (rudder_params.m_use_transverse_velocity_correction) {
+
+    }
 
     double rudder_angle_rad = rudder_angle_deg * MU_PI_180;
 
-    // TODO: Quantites a recuperer
-    double uPA = m_propeller->GetAdvanceVelocity(); // Mean axial speed of inflow to the propeller (with wake fraction correction included)
-//    double vPA; // Mean radial speed of inflow to the propeller
+    // Mean axial speed of inflow to the propeller (with wake fraction correction included)
+    double uPA = m_propeller->GetAdvanceVelocity();
+    double vPA = v_NWU_propeller;
 
     // Propeller data
     double r0 = propeller_params.m_diameter_m;  // Propeller radius
     double Ap = MU_PI * r0 * r0;  // Propeller disk area
 
     // Rudder data
-    double hR = rudder_params.m_height_m;// Rudder height
     double A_R = rudder_params.m_lateral_area_m2;// Rudder total area
     double c = rudder_params.m_chord_m;// Rudder chord length at its half height
+    double hR = rudder_params.m_height_m;// Rudder height
 
     /**
      * Dealing with rudder forces INSIDE the slipstream of the propeller (RP)
      */
 
     // Stagnation pressure at propeller position
-    double q_PA = 0.5 * water_density * uPA * uPA;
+    double q_PA = 0.5 * water_density * (uPA * uPA + vPA * vPA);
 
     // Thrust loading coefficient
     double Cth = std::abs(m_propeller->GetThrust() / (q_PA * Ap));
@@ -193,8 +198,7 @@ namespace acme {
 
     double fx_R = fx_RA + fx_RP;
     double fy_R = fy_RA + fy_RP;
-    double torque_R = (torque_RA + torque_RP) - xr * fy_R;  // Transport of the torque to the propeller
-    // TODO: doit etre mise en cache
+    double torque_R = (torque_RA + torque_RP) - xr * fy_R;  // Transport of the rudder torque to the propeller location
 
   }
 

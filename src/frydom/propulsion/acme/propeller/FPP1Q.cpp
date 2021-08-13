@@ -43,13 +43,27 @@ namespace acme {
     double n = rpm / 60.;
 
     // Advance ratio
-    double J = uPA / (n * m_params.m_diameter_m);
-    if (isinfl(J) or isnanl(J))
-      J = m_kt_kq_coeffs.GetX().back(); // FIXME: encore une fois bof... plutot saturer proprement si n=0 !!
 
-    // Get Coefficients
+    // If J is higher than Jmax (ie st. Kq(Jmax) = 0 with Jmax > 0), then we have two cases:
+    //  - uPA is too high. Unless the initial conditions are imposed as follows, it should never happen.
+    //  - n is too low. This is absolutely possible when the engine regime is lowered rapidly. In that case, the screw
+    //    becomes only resistive and gives no thrust despite its direction of rotation that has not changed. For
+    //    simulations requiring this kind of regime to be taken into account, a FPP4 model would be best required.
+
+    // TODO: introduire un Jmax dans les tables Kt/Kq open water et traiter le cas où on a J > Jmax
+    double J;
     double kt, kq;
-    GetKtKq(J, kt, kq);  // FIXME: renvoie des valeurs negatives pour kt et kq...
+    bool is_out_of_range = false;
+    if (n > 0.) {
+      J = uPA / (n * m_params.m_diameter_m);
+      GetKtKq(J, kt, kq);  // FIXME: renvoie des valeurs negatives pour kt et kq...
+      // TODO: traiter le cas J > Jmax
+    } else {
+      // Bof bof...
+      kt = 0.;
+      kq = 0.;
+      is_out_of_range = true;
+    }
 
     // Propeller Thrust
     double n2 = n * n;
@@ -66,7 +80,7 @@ namespace acme {
     c_torque_Nm = water_density * n2 * D4 * m_params.m_diameter_m * _kq;
 
     // Efficiency
-    c_efficiency = J * _kt / (MU_2PI * _kq);
+    c_efficiency = is_out_of_range ? 0. : J * _kt / (MU_2PI * _kq);
 
     // Power
     c_power_W = MU_2PI * n * c_torque_Nm;

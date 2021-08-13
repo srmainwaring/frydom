@@ -65,6 +65,25 @@ namespace acme {
                  const double &pitch_ratio,
                  const double &rudder_angle_deg) const override;
 
+    double GetpropellerThrust() const;
+
+    double GetPropellerTorque() const;
+
+    double GetPropellerEfficiency() const;
+
+    double GetPropellerPower() const;
+
+    double GetRudderLift() const;
+
+    double GetRudderDrag() const;
+
+    double GetRudderMz() const;
+
+    double GetPropellerRudderFx() const;
+
+    double GetPropellerRudderFy() const;
+
+    double GetPropellerRudderMz() const;
 
    private:
     std::unique_ptr<Propeller> m_propeller;
@@ -72,13 +91,15 @@ namespace acme {
 
   };
 
-
-  std::shared_ptr<PropellerRudderBase> build_pr(PropellerModelType prop_type,
-                                                PropellerParams prop_params,
-                                                const std::string &prop_perf_data_string,
-                                                RudderModelType rudder_type,
-                                                RudderParams rudder_params,
-                                                const std::string &rudder_perf_data_string) {
+  /// Build a propeller rudder model using type keys to get a custom combination of propeller and rudder model among the
+  /// available models in acme.
+  std::shared_ptr<PropellerRudderBase>
+  build_pr(PropellerModelType prop_type,
+           PropellerParams prop_params,
+           const std::string &prop_perf_data_string,
+           RudderModelType rudder_type,
+           RudderParams rudder_params,
+           const std::string &rudder_perf_data_string) {
 
     std::shared_ptr<PropellerRudderBase> pr;
 
