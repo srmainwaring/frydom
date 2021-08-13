@@ -64,6 +64,8 @@ namespace acme {
 
    private:
     mathutils::LookupTable1D<double, double> m_cl_cd_cn_coeffs;
+    double m_max_alpha_R_rad;
+    double m_min_alpha_R_rad;
 
     mutable double c_alpha_R_rad;
     mutable double c_lift_N;

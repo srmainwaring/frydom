@@ -63,6 +63,7 @@ namespace acme {
     // Attack angle
     double rudder_angle_rad = rudder_angle_deg * MU_PI_180;
     c_alpha_R_rad = rudder_angle_rad - beta_R;
+    c_alpha_R_rad = mathutils::Normalize__PI_PI(c_alpha_R_rad);
 
     // Get coefficients
     double cl, cd, cn;
@@ -92,9 +93,14 @@ namespace acme {
                                     double &cd,
                                     double &cn) const {
 
+  try {
     cl = m_cl_cd_cn_coeffs.Eval("cl", attack_angle_rad);
     cd = m_cl_cd_cn_coeffs.Eval("cd", attack_angle_rad);
     cn = m_cl_cd_cn_coeffs.Eval("cn", attack_angle_rad);
+  } catch (std::exception& e) {
+    std::cerr << "SimpleRudder : attack angle exceed interpolator range : " << e.what() << std::endl;
+    exit(EXIT_FAILURE);
+  }
   }
 
 
@@ -106,6 +112,9 @@ namespace acme {
     m_cl_cd_cn_coeffs.AddY("cd", cd);
     m_cl_cd_cn_coeffs.AddY("cl", cl);
     m_cl_cd_cn_coeffs.AddY("cn", cn);
+//    m_cl_cd_cn_coeffs.PermissiveOFF();
+    m_min_alpha_R_rad = *std::min_element(attack_angle_rad.begin(), attack_angle_rad.end());
+    m_max_alpha_R_rad = *std::max_element(attack_angle_rad.begin(), attack_angle_rad.end());
 
   }
 
@@ -116,6 +125,7 @@ namespace acme {
     std::string fc, dc;
 
     json node = json::parse(json_string);
+    unsigned int n;
 
 //    auto node = j["rudder"];
 
@@ -145,108 +155,135 @@ namespace acme {
 
     try {
       attack_angle_rad = node["flow_incidence_on_main_rudder_deg"].get<std::vector<double>>();
+      n = attack_angle_rad.size();
+      if (!std::is_sorted(attack_angle_rad.begin(), attack_angle_rad.end()))
+        throw std::runtime_error("SimpleRudderModel parser : flow_incidence_on_main_rudder_deg not sorted");
       for (auto &angle:attack_angle_rad) {
         angle *= DEG2RAD;
       }
+      if (dc == "GOTO")
+        for (auto &angle:attack_angle_rad) {
+          angle =+ MU_PI;
+          angle = mathutils::Normalize__PI_PI(angle);
+        }
     } catch (json::parse_error &err) {
       std::cerr<<"SimpleRudderModel parser : no flow_incidence_on_main_rudder_deg in load_coefficients";
+      exit(EXIT_FAILURE);
+    } catch (const std::exception&d) {
+      std::cerr<<d.what();
       exit(EXIT_FAILURE);
     }
 
     try {
       cd = node["Cd"].get<std::vector<double>>();
+      if (cd.size()!=n)
+        throw std::runtime_error("SimpleRudderModel parser : Cd not covering all flow_incidence_on_main_rudder_deg range");
     } catch (json::parse_error &err) {
       std::cerr<<"SimpleRudderModel parser : no Cd in load_coefficients";
+      exit(EXIT_FAILURE);
+    } catch (const std::exception&d) {
+      std::cerr<<d.what();
       exit(EXIT_FAILURE);
     }
 
     try {
       cl = node["Cl"].get<std::vector<double>>();
+      if (cl.size()!=n)
+        throw std::runtime_error("SimpleRudderModel parser : Cd not covering all flow_incidence_on_main_rudder_deg range");
     } catch (json::parse_error &err) {
       std::cerr<<"SimpleRudderModel parser : no Cl in load_coefficients";
+      exit(EXIT_FAILURE);
+    } catch (const std::exception&d) {
+      std::cerr<<d.what();
       exit(EXIT_FAILURE);
     }
 
     try {
       cn = node["Cn"].get<std::vector<double>>();
+      if (cn.size()!=n)
+        throw std::runtime_error("SimpleRudderModel parser : Cd not covering all flow_incidence_on_main_rudder_deg range");
+      if (fc == "NED")
+        for (auto& coeff : cn) {
+          coeff *= -1;
+        }
     } catch (json::parse_error &err) {
       std::cerr<<"SimpleRudderModel parser : no Cn in load_coefficients";
       exit(EXIT_FAILURE);
+    } catch (const std::exception&d) {
+      std::cerr<<d.what();
+      exit(EXIT_FAILURE);
     }
 
-    assert( attack_angle_rad.size() == cd.size());
-    assert( attack_angle_rad.size() == cl.size());
-    assert( attack_angle_rad.size() == cn.size());
     std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
 
     for (int i = 0; i <  attack_angle_rad.size(); i++) {
       rudderCoeff.emplace_back( attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
     }
 
-    std::pair<double, mathutils::Vector3d<double>> new_element;
-    // Complete if symmetry
-    auto max_angle = rudderCoeff.back().first;
-    auto min_angle = rudderCoeff[0].first;
-
-    if (std::abs(min_angle) < 10e-2 and std::abs(max_angle - MU_PI) < 10e-2) {
-      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
-        new_element.first = 2. * MU_PI - rudderCoeff[i].first;
-        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
-        rudderCoeff.push_back(new_element);
-      }
-    } else if (std::abs(min_angle + MU_PI) < 10e-2 and std::abs(max_angle) < 10e-2) {
-      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
-        new_element.first = -rudderCoeff[i].first;
-        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
-        rudderCoeff.push_back(new_element);
-      }
-    }
-
-    // Delete double term
-    if (std::abs(rudderCoeff[0].first) < 10e-2 and std::abs(rudderCoeff.back().first - 2. * MU_PI) < 10e-2
-                                                   or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
-        std::abs(rudderCoeff.back().first - MU_PI) < 10e-2) {
-      rudderCoeff.pop_back();
-    }
-
-    // Conversion to NWU if NED convention is used
-    if (fc == "NED") {
-      for (auto &it : rudderCoeff) {
-        it.first = -it.first;
-        it.second = {it.second[0], -it.second[1], -it.second[2]};
-      }
-    }
-
-    // Conversion to COMEFROM if GOTO convention is used
-    if (dc == "GOTO") {
-      for (auto &it : rudderCoeff) { it.first += MU_PI; }
-    }
-
-    // Normalized angle in [0, 2pi]
-    for (auto &it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
-
-    // Sort element according to increasing angles
-    std::sort(rudderCoeff.begin(), rudderCoeff.end(), [](auto const &a, auto const &b) {
-      return a.first < b.first;
-    });
-
-    // Adding last term for angle equal to 2pi
-    new_element.first = 2. * MU_PI;
-    new_element.second = rudderCoeff.begin()->second;
-    rudderCoeff.push_back(new_element);
-
-    // Complete lookup table
-     attack_angle_rad.clear();
-    cl.clear();
-    cd.clear();
-    cn.clear();
-
-    for (auto &it : rudderCoeff) {
-       attack_angle_rad.push_back(it.first);
-      cd.push_back(it.second[0]);
-      cl.push_back(it.second[1]);
-      cn.push_back(it.second[2]);
-    }
+//    std::pair<double, mathutils::Vector3d<double>> new_element;
+//    // Complete if symmetry
+//    auto max_angle = rudderCoeff.back().first;
+//    auto min_angle = rudderCoeff[0].first;
+//
+//    if (std::abs(min_angle) < 10e-2 and std::abs(max_angle - MU_PI) < 10e-2) {
+//      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
+//        new_element.first = 2. * MU_PI - rudderCoeff[i].first;
+//        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
+//        rudderCoeff.push_back(new_element);
+//      }
+//    } else if (std::abs(min_angle + MU_PI) < 10e-2 and std::abs(max_angle) < 10e-2) {
+//      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
+//        new_element.first = -rudderCoeff[i].first;
+//        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
+//        rudderCoeff.push_back(new_element);
+//      }
+//    }
+//
+//    // Delete double term
+//    if (std::abs(rudderCoeff[0].first) < 10e-2 and std::abs(rudderCoeff.back().first - 2. * MU_PI) < 10e-2
+//                                                   or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
+//        std::abs(rudderCoeff.back().first - MU_PI) < 10e-2) {
+//      rudderCoeff.pop_back();
+//    }
+//
+//    // Conversion to NWU if NED convention is used
+//    if (fc == "NED") {
+//      for (auto &it : rudderCoeff) {
+//        it.first = -it.first;
+//        it.second = {it.second[0], -it.second[1], -it.second[2]};
+//      }
+//    }
+//
+//    // Conversion to COMEFROM if GOTO convention is used
+//    if (dc == "GOTO") {
+//      for (auto &it : rudderCoeff) { it.first += MU_PI; }
+//    }
+//
+//    // Normalized angle in [0, 2pi]
+//    for (auto &it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
+//
+//    // Sort element according to increasing angles
+//    std::sort(rudderCoeff.begin(), rudderCoeff.end(), [](auto const &a, auto const &b) {
+//      return a.first < b.first;
+//    });
+//
+//    // Adding last term for angle equal to 2pi
+//    new_element.first = 2. * MU_PI;
+//    new_element.second = rudderCoeff.begin()->second;
+//    rudderCoeff.push_back(new_element);
+//
+//    // Complete lookup table
+//     attack_angle_rad.clear();
+//    cl.clear();
+//    cd.clear();
+//    cn.clear();
+//
+//    for (auto &it : rudderCoeff) {
+//       attack_angle_rad.push_back(it.first);
+//      cd.push_back(it.second[0]);
+//      cl.push_back(it.second[1]);
+//      cn.push_back(it.second[2]);
+//    }
 
   }
 }  // end namespace acme

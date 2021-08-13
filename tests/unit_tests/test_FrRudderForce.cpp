@@ -54,11 +54,11 @@ void TestFrRudderForce::SetUp() {
 }
 
 //TEST_F(TestFrRudderForce, ReadCoefficientsFile) {
-  TODO
+//  TODO
 //}
 //
 //TEST_F(TestFrRudderForce, ComputeGeneralizedForceInWorld) {
-  TODO
+//  TODO
 //}
 
 TEST_F(TestFrRudderForce, GetDriftAngle) {
