@@ -76,7 +76,7 @@ namespace acme {
     c_torque_Nm = q * cn * m_params.m_lateral_area_m2 *
                   m_params.m_chord_m; // FIXME: la prise en compte du signe de alpha se fait comment ? dans les tables ?
 
-    // Forces in rudder frame
+    // Forces in body frame
     double Cbeta = std::cos(beta_R);
     double Sbeta = std::sin(beta_R);
 
@@ -221,19 +221,12 @@ namespace acme {
       exit(EXIT_FAILURE);
     }
 
-<<<<<<< HEAD
-=======
-    assert(attack_angle_rad.size() == cd.size());
-    assert(attack_angle_rad.size() == cl.size());
-    assert(attack_angle_rad.size() == cn.size());
->>>>>>> a9e3b6a6e64d23f6d7d2704a671040b4fcd8648f
-    std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
+//    std::vector<std::pair<double, mathutils::Vector3d<double>>> rudderCoeff;
+//
+//    for (int i = 0; i < attack_angle_rad.size(); i++) {
+//      rudderCoeff.emplace_back(attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
+//    }
 
-    for (int i = 0; i < attack_angle_rad.size(); i++) {
-      rudderCoeff.emplace_back(attack_angle_rad[i], mathutils::Vector3d<double>(cd[i], cl[i], cn[i]));
-    }
-
-<<<<<<< HEAD
 //    std::pair<double, mathutils::Vector3d<double>> new_element;
 //    // Complete if symmetry
 //    auto max_angle = rudderCoeff.back().first;
@@ -298,72 +291,7 @@ namespace acme {
 //      cl.push_back(it.second[1]);
 //      cn.push_back(it.second[2]);
 //    }
-=======
-    std::pair<double, mathutils::Vector3d<double>> new_element;
-    // Complete if symmetry
-    auto max_angle = rudderCoeff.back().first;
-    auto min_angle = rudderCoeff[0].first;
 
-    if (std::abs(min_angle) < 10e-2 and std::abs(max_angle - MU_PI) < 10e-2) {
-      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
-        new_element.first = 2. * MU_PI - rudderCoeff[i].first;
-        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
-        rudderCoeff.push_back(new_element);
-      }
-    } else if (std::abs(min_angle + MU_PI) < 10e-2 and std::abs(max_angle) < 10e-2) {
-      for (unsigned int i = rudderCoeff.size() - 2; i >= 1; i--) {
-        new_element.first = -rudderCoeff[i].first;
-        new_element.second = {rudderCoeff[i].second[0], -rudderCoeff[i].second[1], -rudderCoeff[i].second[2]};
-        rudderCoeff.push_back(new_element);
-      }
-    }
-
-    // Delete double term
-    if (std::abs(rudderCoeff[0].first) < 10e-2 and std::abs(rudderCoeff.back().first - 2. * MU_PI) < 10e-2
-                                                   or std::abs(rudderCoeff[0].first + MU_PI) < 10e-2 and
-        std::abs(rudderCoeff.back().first - MU_PI) < 10e-2) {
-      rudderCoeff.pop_back();
-    }
-
-    // Conversion to NWU if NED convention is used
-    if (fc == "NED") {
-      for (auto &it : rudderCoeff) {
-        it.first = -it.first;
-        it.second = {it.second[0], -it.second[1], -it.second[2]};
-      }
-    }
-
-    // Conversion to COMEFROM if GOTO convention is used
-    if (dc == "GOTO") {
-      for (auto &it : rudderCoeff) { it.first += MU_PI; }
-    }
-
-    // Normalized angle in [0, 2pi]
-    for (auto &it : rudderCoeff) { it.first = mathutils::Normalize_0_2PI(it.first); }
-
-    // Sort element according to increasing angles
-    std::sort(rudderCoeff.begin(), rudderCoeff.end(), [](auto const &a, auto const &b) {
-      return a.first < b.first;
-    });
-
-    // Adding last term for angle equal to 2pi
-    new_element.first = 2. * MU_PI;
-    new_element.second = rudderCoeff.begin()->second;
-    rudderCoeff.push_back(new_element);
-
-    // Complete lookup table
-    attack_angle_rad.clear();
-    cl.clear();
-    cd.clear();
-    cn.clear();
-
-    for (auto &it : rudderCoeff) {
-      attack_angle_rad.push_back(it.first);
-      cd.push_back(it.second[0]);
-      cl.push_back(it.second[1]);
-      cn.push_back(it.second[2]);
-    }
->>>>>>> a9e3b6a6e64d23f6d7d2704a671040b4fcd8648f
 
   }
 
