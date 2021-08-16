@@ -21,7 +21,7 @@ set(hermes_TAG v1.4 CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.4.3 CACHE STRING "hdb5_io version")
+set(hdb5_io_TAG v2.4.6 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
