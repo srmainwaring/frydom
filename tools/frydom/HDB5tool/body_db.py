@@ -55,23 +55,38 @@ class BodyDB(object):
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
 
+        # x-derivative of the added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
+        self.Added_mass_x_derivative = None
+
         # Infinite-frequency added mass matrices.
         self.Inf_Added_mass = None
+
+        # x-derivative of the infinite-frequency added mass matrices.
+        self.Inf_Added_mass_x_derivative = None
 
         # Zero-frequency added mass matrices.
         self.Zero_Added_mass = None
 
+        # x-derivative of the zero-frequency added mass matrices.
+        self.Zero_Added_mass_x_derivative = None
+
         # Damping matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Damping = np.zeros((6, 6 * nb_bodies, nw), dtype=np.float)
+
+        # x-derivative of the damping matrices (6 dof so 6 rows x all the columns x all the frequencies).
+        self.Damping_x_derivative = None
 
         # Diffraction loads (6 dof so 6 rows x all the frequencies).
         self.Diffraction = np.zeros((6, nw, nbeta), dtype=np.complex)
 
+        # x-derivative of the diffraction loads (6 dof so 6 rows x all the frequencies).
+        self.Diffraction_x_derivative = None
+
         # Froude-Krylov loads (6 dof so 6 rows x all the frequencies).
         self.Froude_Krylov = np.zeros((6, nw, nbeta), dtype=np.complex)
 
-        # Excitation loads (6 dof so 6 rows x all the frequencies).
-        # self.Excitation = np.zeros((6, nw, nbeta), dtype=np.complex)
+        # x-derivative of the Froude-Krylov loads (6 dof so 6 rows x all the frequencies).
+        self.Froude_Krylov_x_derivative = None
 
         # Mesh.
         self.mesh = mesh
@@ -244,6 +259,21 @@ class BodyDB(object):
         else:
             return self.Inf_Added_mass * self._flags
 
+    def infinite_added_mass_x_derivative(self):
+
+        """This function gives the x-derivative of the infinite-frequency added mass coefficients.
+
+        Returns
+        -------
+        Array of floats
+            x-derivative of the infinite-frequency added mass coefficients.
+        """
+
+        if self.Inf_Added_mass_x_derivative is None:
+            return
+        else:
+            return self.Inf_Added_mass_x_derivative * self._flags
+
     def zero_added_mass(self):
 
         """This function gives the zero-frequency added mass coefficients.
@@ -258,6 +288,21 @@ class BodyDB(object):
             return
         else:
             return self.Zero_Added_mass * self._flags
+
+    def zero_added_mass_x_derivative(self):
+
+        """This function gives the x-derivative of the zero-frequency added mass coefficients.
+
+        Returns
+        -------
+        Array of floats
+            x-derivative of the zero-frequency added mass coefficients.
+        """
+
+        if self.Zero_Added_mass_x_derivative is None:
+            return
+        else:
+            return self.Zero_Added_mass_x_derivative * self._flags
 
     @property
     def hydrostatic(self):

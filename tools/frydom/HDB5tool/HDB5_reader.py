@@ -595,30 +595,6 @@ class HDB5reader_v2(HDB5reader):
         # Bodies.
         self.read_bodies(reader, pyHDB)
 
-    # def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
-    #     """This function reads the force and motion modes of the *.hdb5 file.
-    #
-    #     Parameters
-    #     ----------
-    #     reader : string
-    #         *.hdb5 file.
-    #     body : BodyDB.
-    #         Body.
-    #     ForceOrMotion : int
-    #         0 for Force, 1 for Motion.
-    #     body_modes_path : string
-    #         Path to body modes.
-    #     """
-    #
-    #     for iforce in range(0, 6):
-    #         if (ForceOrMotion == 0):  # Force.
-    #             mode_path = body_modes_path + "/ForceModes/Mode_%u" % iforce
-    #         else:  # Motion.
-    #             mode_path = body_modes_path + "/MotionModes/Mode_%u" % iforce
-    #
-    #         if (iforce >= 3):
-    #             body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
-
     def read_excitation(self, reader, pyHDB, body, excitation_path):
 
         """This function reads the diffraction and Froude-Krylov loads into the *.hdb5 file.
@@ -634,6 +610,21 @@ class HDB5reader_v2(HDB5reader):
         excitation_path : string
             Path to excitation loads.
         """
+
+        # Test of the presence of the x-derivative of the excitation loads.
+        try:
+            reader[excitation_path + "/FroudeKrylovXDerivative/Angle_0/RealCoeffs"] # Read for cheking if the folder is present or not.
+            pyHDB._has_x_derivatives = True
+            nw = pyHDB.nb_wave_freq
+            nbeta = pyHDB.nb_wave_dir
+            body.Froude_Krylov_x_derivative = np.zeros((6, nw, nbeta), dtype=np.complex)
+            body.Diffraction_x_derivative = np.zeros((6, nw, nbeta), dtype=np.complex)
+            body.Added_mass_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies, nw), dtype=np.float)
+            body.Inf_Added_mass_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies), dtype=np.float)
+            body.Zero_Added_mass_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies), dtype=np.float)
+            body.Damping_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies, nw), dtype=np.float)
+        except:
+            pass
 
         # Froude-Krylov loads.
 
@@ -651,6 +642,21 @@ class HDB5reader_v2(HDB5reader):
             # Imaginary parts.
             body.Froude_Krylov[:, :, idir].imag = np.array(reader[wave_dir_path + "/ImagCoeffs"])
 
+        # x-derivative of the Froude-Krylov loads.
+        if(pyHDB._has_x_derivatives):
+            fk_x_derivative_path = excitation_path + "/FroudeKrylovXDerivative"
+            for idir in range(0, pyHDB.nb_wave_dir):
+                wave_dir_path = fk_x_derivative_path + "/Angle_%u" % idir
+
+                # Check of the wave direction.
+                assert (abs(pyHDB.wave_dir[idir] - np.radians(np.array(reader[wave_dir_path + "/Angle"]))) < pow(10, -5))
+
+                # Real parts.
+                body.Froude_Krylov_x_derivative[:, :, idir].real = np.array(reader[wave_dir_path + "/RealCoeffs"])
+
+                # Imaginary parts.
+                body.Froude_Krylov_x_derivative[:, :, idir].imag = np.array(reader[wave_dir_path + "/ImagCoeffs"])
+
         # Diffraction loads.
 
         diffraction_path = excitation_path + "/Diffraction"
@@ -666,6 +672,21 @@ class HDB5reader_v2(HDB5reader):
 
             # Imaginary parts.
             body.Diffraction[:, :, idir].imag = np.array(reader[wave_dir_path + "/ImagCoeffs"])
+
+        # x-derivative of the diffraction loads.
+        if (pyHDB._has_x_derivatives):
+            diffraction_x_derivative_path = excitation_path + "/DiffractionXDerivative"
+            for idir in range(0, pyHDB.nb_wave_dir):
+                wave_dir_path = diffraction_x_derivative_path + "/Angle_%u" % idir
+
+                # Check of the wave direction.
+                assert (abs(pyHDB.wave_dir[idir] - np.radians(np.array(reader[wave_dir_path + "/Angle"]))) < pow(10, -5))
+
+                # Real parts.
+                body.Diffraction_x_derivative[:, :, idir].real = np.array(reader[wave_dir_path + "/RealCoeffs"])
+
+                # Imaginary parts.
+                body.Diffraction_x_derivative[:, :, idir].imag = np.array(reader[wave_dir_path + "/ImagCoeffs"])
 
     def read_radiation(self, reader, pyHDB, body, radiation_path):
 
@@ -706,7 +727,9 @@ class HDB5reader_v2(HDB5reader):
             # Paths.
             radiation_body_motion_path = radiation_path + "/BodyMotion_%u" % j
             added_mass_path = radiation_body_motion_path + "/AddedMass"
+            added_mass_x_derivative_path = radiation_body_motion_path + "/AddedMassXDerivative"
             radiation_damping_path = radiation_body_motion_path + "/RadiationDamping"
+            radiation_damping_x_derivative_path = radiation_body_motion_path + "/RadiationDampingXDerivative"
             irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
             irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
             modal_path = radiation_body_motion_path + "/Modal"
@@ -714,11 +737,22 @@ class HDB5reader_v2(HDB5reader):
             # Infinite-frequency added mass.
             body.Inf_Added_mass[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/InfiniteAddedMass"])
 
+            # x-derivative of the infinite-frequency added mass.
+            if (pyHDB._has_x_derivatives):
+                body.Inf_Added_mass_x_derivative[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/InfiniteAddedMassXDerivative"])
+
             # Zero-frequency added mass.
             try:
                 body.Zero_Added_mass[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/ZeroFreqAddedMass"])
             except:
                 pass
+
+            # x-derivative of the zero-frequency added mass.
+            if (pyHDB._has_x_derivatives):
+                try:
+                    body.Zero_Added_mass_x_derivative[:, 6 * j:6 * (j + 1)] = np.array(reader[radiation_body_motion_path + "/ZeroFreqAddedMassXDerivative"])
+                except:
+                    pass
 
             # Radiation mask.
             try:
@@ -731,8 +765,16 @@ class HDB5reader_v2(HDB5reader):
                 # Added mass.
                 body.Added_mass[:, 6 * j + imotion, :] = np.array(reader[added_mass_path + "/DOF_%u" % imotion])
 
+                # x-derivative of the added mass.
+                if (pyHDB._has_x_derivatives):
+                    body.Added_mass_x_derivative[:, 6 * j + imotion, :] = np.array(reader[added_mass_x_derivative_path + "/DOF_%u" % imotion])
+
                 # Damping.
                 body.Damping[:, 6 * j + imotion, :] = np.array(reader[radiation_damping_path + "/DOF_%u" % imotion])
+
+                # x-derivative of the damping.
+                if (pyHDB._has_x_derivatives):
+                    body.Damping_x_derivative[:, 6 * j + imotion, :] = np.array(reader[radiation_damping_x_derivative_path + "/DOF_%u" % imotion])
 
                 # Impulse response functions without forward speed.
                 if(body.irf is not None):
@@ -947,18 +989,11 @@ class HDB5reader_v2(HDB5reader):
                 except:
                     pass
 
-            # if (pyHDB.version == 2.0):
-            #     # Force modes.
-            #     self.read_mode(reader, body, 0, body_path + "/Modes")
-            #
-            #     # Motion modes.
-            #     self.read_mode(reader, body, 1, body_path + "/Modes")
-
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
 
             # Diffraction and Froude-Krylov loads.
-            self.read_excitation(reader, pyHDB, body, body_path + "/Excitation")
+            self.read_excitation(reader, pyHDB, body, body_path + "/Excitation") # Must be before read_radiation.
 
             # Added mass and damping coefficients, impulse response functions and poles and residues of the VF.
             self.read_radiation(reader, pyHDB, body, body_path + "/Radiation")
@@ -999,40 +1034,6 @@ class HDB5reader_v1(HDB5reader):
 
         # Bodies.
         self.read_bodies(reader, pyHDB)
-
-    # def read_mode(self, reader, body, ForceOrMotion, body_modes_path):
-    #     """This function reads the force and motion modes of the *.hdb5 file.
-    #
-    #     Parameters
-    #     ----------
-    #     reader : string
-    #         *.hdb5 file.
-    #     body : BodyDB.
-    #         Body.
-    #     ForceOrMotion : int
-    #         0 for Force, 1 for Motion.
-    #     body_modes_path : string
-    #         Path to body modes.
-    #     """
-    #
-    #     j = 0
-    #     for iforce in range(0, 6):
-    #         if (ForceOrMotion == 0): # Force.
-    #             if (body.Motion_mask[iforce] == 1):
-    #                 mode_path = body_modes_path + "/ForceModes/Mode_%u" % j
-    #                 j = j + 1
-    #         else:  # Motion.
-    #             if (body.Force_mask[iforce] == 1):
-    #                 mode_path = body_modes_path + "/MotionModes/Mode_%u" % j
-    #                 j = j + 1
-    #
-    #         if (iforce >= 3):
-    #             if (ForceOrMotion == 0): # Force.
-    #                 if(body.Motion_mask[iforce] == 1):
-    #                     body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
-    #             else: # Motion.
-    #                 if (body.Force_mask[iforce] == 1):
-    #                     body.point[iforce - 3, :] = np.array(reader[mode_path + "/Point"])
 
     def read_excitation(self, reader, pyHDB, body, excitation_path):
 
