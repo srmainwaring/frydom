@@ -116,7 +116,7 @@ namespace frydom {
   }
 
   std::shared_ptr<FrACMERudder>
-  frydom::make_ACME_rudder(const std::string &name, const FrNode &rudder_node, double area_m2, double chord_m,
+  make_ACME_rudder(const std::string &name, const FrNode &rudder_node, double area_m2, double chord_m,
                            double height_m, double wake_fraction, const std::string &perf_data_json_string,
                            RudderType type) {
     RudderParams params;
