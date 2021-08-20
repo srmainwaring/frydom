@@ -15,7 +15,7 @@ namespace frydom {
   FrACMEPropeller::FrACMEPropeller(const std::string &name, const FrNode &propeller_node,
                                    PropellerParams params, const std::string &perf_data_json_string,
                                    PropellerType type) :
-      FrActuatorForceBase(name, "FrPropulsionName", propeller_node.GetBody()) {
+      FrActuatorForceBase(name, "FrACMEPropeller", propeller_node.GetBody()) {
 
     switch (type) {
       case acme::PropellerModelType::E_FPP1Q :
@@ -42,7 +42,6 @@ namespace frydom {
 
   void FrACMEPropeller::Initialize() {
 
-
     m_acme_propeller->Initialize();
 
     c_water_density = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
@@ -56,18 +55,15 @@ namespace frydom {
     Velocity relative_node_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(
         m_node->GetFrameInWorld(), m_node->GetVelocityInWorld(NWU), WATER, NWU);
 
-    c_uPA = relative_node_velocity.GetVx();
-    c_vPA = relative_node_velocity.GetVy();
+    c_uP0 = relative_node_velocity.GetVx();
+    c_vP0 = relative_node_velocity.GetVy();
 
     // compute propeller loads using acme
-    m_acme_propeller->Compute(c_water_density, c_uPA, c_vPA, m_rpm, m_pitch_ratio);
-
-    c_thrust = m_acme_propeller->GetThrust();
-    c_torque = m_acme_propeller->GetTorque();
+    m_acme_propeller->Compute(c_water_density, c_uP0, c_vP0, m_rpm, m_pitch_ratio);
 
     // project thrust and torque loads in world reference frame
-    auto force = m_node->ProjectVectorInWorld(Force(c_thrust, 0., 0.), NWU);
-    auto torque = m_node->ProjectVectorInWorld(Torque(c_torque, 0., 0.), NWU);
+    auto force = m_node->ProjectVectorInWorld(Force(m_acme_propeller->GetThrust(), 0., 0.), NWU);
+    auto torque = m_node->ProjectVectorInWorld(Torque(m_acme_propeller->GetTorque(), 0., 0.), NWU);
 
     SetForceTorqueInWorldAtPointInBody(force, torque, m_node->GetNodePositionInBody(NWU), NWU);
 
@@ -80,16 +76,16 @@ namespace frydom {
                           [this]() { return m_chronoForce->GetChTime(); });
 
     msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
-                          [this]() { return c_thrust; });
+                          [this]() { return m_acme_propeller->GetThrust(); });
 
     msg->AddField<double>("Torque", "Nm", "Torque delivered by the propeller",
-                          [this]() { return c_torque; });
+                          [this]() { return m_acme_propeller->GetTorque(); });
 
     msg->AddField<double>("Power", "W", "Power delivered by the propeller",
                           [this]() { return m_acme_propeller->GetPower(); });
 
-    msg->AddField<double>("uPA", "m/s", "Longitudinal velocity at the propeller position, in body reference frame",
-                          [this]() { return c_uPA; });
+    msg->AddField<double>("uP0", "m/s", "Longitudinal velocity at the propeller position, in body reference frame",
+                          [this]() { return c_uP0; });
 
     msg->AddField<double>("RotationalVelocity", "rad/s", "Rotational velocity",
                           [this]() { return mathutils::convert_frequency(m_rpm, RPM, RADS); });

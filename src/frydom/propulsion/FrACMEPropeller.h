@@ -27,9 +27,9 @@ namespace frydom {
 
    private:
 
-    void Compute(double time) override;
-
     void Initialize() override;
+
+    void Compute(double time) override;
 
     void DefineLogMessages() override;
 
@@ -42,12 +42,7 @@ namespace frydom {
 
     // cached
     double c_water_density;
-    double c_thrust;
-    double c_torque;
-    double c_efficiency;
-    double c_power;
-
-    double c_uPA, c_vPA;
+    double c_uP0, c_vP0;
 
   };
 
