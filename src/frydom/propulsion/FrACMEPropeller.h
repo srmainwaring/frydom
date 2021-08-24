@@ -17,13 +17,21 @@ namespace frydom {
 
    public:
 
-    FrACMEPropeller(const std::string &name, const FrNode &propeller_node, PropellerParams params,
+    FrACMEPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
                     const std::string &perf_data_json_string, PropellerType type);
 
     void SetRPM(double rpm);
 
     // For CPP only
     void SetPitchRatio(double pitch_ratio);
+
+    double GetThrust() const {return m_acme_propeller->GetThrust();}
+
+    double GetTorque() const {return m_acme_propeller->GetTorque();}
+
+    double GetPower() const {return m_acme_propeller->GetPower();}
+
+    double GetEfficiency() const {return m_acme_propeller->GetPropellerEfficiency();}
 
    private:
 
@@ -47,10 +55,10 @@ namespace frydom {
   };
 
   std::shared_ptr<FrACMEPropeller>
-  make_ACME_propeller(const std::string &name, const FrNode &propeller_node, PropellerParams params,
+  make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
                       const std::string &perf_data_json_string, PropellerType type);
 
-  std::shared_ptr<FrACMEPropeller> make_ACME_propeller(const std::string &name, const FrNode &propeller_node,
+  std::shared_ptr<FrACMEPropeller> make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
                                                        double diameter, double wake_fraction,
                                                        double thrust_deduction_factor,
                                                        const std::string &screwDirection,

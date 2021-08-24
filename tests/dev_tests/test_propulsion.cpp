@@ -77,10 +77,10 @@ int test_FPP1Q() {
                                                                                          node->GetVelocityInWorld(NWU),
                                                                                          WATER,
                                                                                          NWU);
-  auto u_NWU = prop_relative_velocity.GetVx();
-  auto v_NWU = prop_relative_velocity.GetVy();
-  std::cout << "u_NWU :" << u_NWU << std::endl;
-  std::cout << "v_NWU :" << v_NWU << std::endl;
+//  auto u_NWU = prop_relative_velocity.GetVx();
+//  auto v_NWU = prop_relative_velocity.GetVy();
+//  std::cout << "u_NWU :" << u_NWU << std::endl;
+//  std::cout << "v_NWU :" << v_NWU << std::endl;
 
 //  auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/propeller_FPP.json"});
   auto frydom_FPP1Q = make_first_quadrant_propeller_force("FPP1Q", body, node->GetNodePositionInBody(NWU), filename,
@@ -101,15 +101,17 @@ int test_FPP1Q() {
 //  params.m_propeller_design_rpm = propeller_design_rpm;
 //  params.m_vessel_design_speed_ms = vessel_design_speed_ms;
 
-  auto acme_FPP1Q = acme::FPP1Q(params, open_water_data_table);
+  auto acme_FPP1Q = make_ACME_propeller("ACME_FPP1Q", node, params, open_water_data_table, PropellerType::E_FPP1Q);
+  acme_FPP1Q->SetRPM(rpm);
+
+//  auto acme_FPP1Q = acme::FPP1Q(params, open_water_data_table);
 
   system.Initialize();
-  acme_FPP1Q.Initialize();
-  acme_FPP1Q.Compute(rho, u_NWU, v_NWU, rpm, 0.);
-  std::cout << "ACME Thrust :" << acme_FPP1Q.GetThrust() << std::endl;
-  std::cout << "ACME Torque :" << acme_FPP1Q.GetTorque() << std::endl;
-  std::cout << "ACME Power :" << acme_FPP1Q.GetPower() << std::endl;
-  std::cout << "ACME Efficiency :" << acme_FPP1Q.GetPropellerEfficiency() << std::endl;
+//  acme_FPP1Q.Compute(rho, u_NWU, v_NWU, rpm, 0.);
+  std::cout << "ACME Thrust :" << acme_FPP1Q->GetThrust() << std::endl;
+  std::cout << "ACME Torque :" << acme_FPP1Q->GetTorque() << std::endl;
+  std::cout << "ACME Power :" << acme_FPP1Q->GetPower() << std::endl;
+  std::cout << "ACME Efficiency :" << acme_FPP1Q->GetEfficiency() << std::endl;
 
   std::cout << "FRyDoM Thrust :" << frydom_FPP1Q->GetThrust() << std::endl;
   std::cout << "FRyDoM Torque :" << frydom_FPP1Q->GetTorque() << std::endl;
@@ -426,23 +428,25 @@ int test_rudder() {
   std::cout << "u_NWU :" << u_NWU << std::endl;
   std::cout << "v_NWU :" << v_NWU << std::endl;
 
-  { // acme rudder model
-    acme::RudderParams params;
-    params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
-    params.m_chord_m = chord_length_m;
-    params.m_lateral_area_m2 = rudder_lateral_area_m2;
-    params.m_flap_slope = 0.; //NA
+  // acme rudder model
+  acme::RudderParams params;
+  params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
+  params.m_lateral_area_m2 = rudder_lateral_area_m2;
+  params.m_chord_m = chord_length_m;
+  params.m_height_m = height_m;
+  params.m_flap_slope = 0.; //NA
 
-    auto acme_rudder = acme::SimpleRudderModel(params, ss.str());
-    acme_rudder.Initialize();
+  auto acme_rudder = make_ACME_rudder("ACME_rudder", node, params, ss.str(), acme::E_SIMPLE_RUDDER);
+  acme_rudder->SetRudderRampSlope(ramp_slope_degs);
+  acme_rudder->SetRudderCommandAngle(rudder_angle_deg, DEG);
+//    auto acme_rudder = acme::SimpleRudderModel(params, ss.str());
+//    acme_rudder.Initialize();
+//    acme_rudder.Compute(rho, u_NWU, v_NWU, rudder_angle_deg);
+//  std::cout << "acme Fx = " << acme_rudder.GetFx() << std::endl;
+//  std::cout << "acme Fy = " << acme_rudder.GetFy() << std::endl;
+//  std::cout << "acme Mz = " << acme_rudder.GetMz() << std::endl;
 
-    acme_rudder.Compute(rho, u_NWU, v_NWU, rudder_angle_deg);
 
-    std::cout << "acme Fx = " << acme_rudder.GetFx() << std::endl;
-    std::cout << "acme Fy = " << acme_rudder.GetFy() << std::endl;
-    std::cout << "acme Mz = " << acme_rudder.GetMz() << std::endl;
-
-  }
 
 
   { // Old FRyDoM model
@@ -474,7 +478,16 @@ int test_rudder() {
 
     system.AdvanceTo(30);
 
-    auto forceInBody = frydom_rudder->GetForceInBody(NWU);
+    auto forceInBody = acme_rudder->GetForceInBody(NWU);
+
+    std::cout << "rudder angle = " << acme_rudder->GetRudderAngle(DEG) << std::endl;
+    std::cout << "acme Fx = " << forceInBody.GetFx() << std::endl;
+    std::cout << "acme Fy = " << forceInBody.GetFy() << std::endl;
+    std::cout << "acme Mz = "
+              << acme_rudder->GetTorqueInBodyAtPointInBody(node->GetNodePositionInBody(NWU), NWU).GetMz()
+              << std::endl;
+
+    forceInBody = frydom_rudder->GetForceInBody(NWU);
 
     std::cout << "rudder angle = " << frydom_rudder->GetRudderAngle(DEG) << std::endl;
     std::cout << "FRyDoM Fx = " << forceInBody.GetFx() << std::endl;
@@ -488,5 +501,6 @@ int test_rudder() {
 }
 
 int main() {
+//  return test_FPP1Q();
   return test_rudder();
 }

@@ -13,4 +13,7 @@
 #include "FrRudderForce.h"
 #include "FrFlapRudderForce.h"
 
+#include "FrACMEPropeller.h"
+#include "FrACMERudder.h"
+
 #endif //FRYDOM_FRPROPULSIONINC_H

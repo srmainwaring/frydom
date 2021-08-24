@@ -12,10 +12,10 @@
 
 namespace frydom {
 
-  FrACMEPropeller::FrACMEPropeller(const std::string &name, const FrNode &propeller_node,
+  FrACMEPropeller::FrACMEPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
                                    PropellerParams params, const std::string &perf_data_json_string,
                                    PropellerType type) :
-      FrActuatorForceBase(name, "FrACMEPropeller", propeller_node.GetBody()) {
+      m_node(propeller_node), FrActuatorForceBase(name, "FrACMEPropeller", propeller_node->GetBody()) {
 
     switch (type) {
       case acme::PropellerModelType::E_FPP1Q :
@@ -109,21 +109,21 @@ namespace frydom {
   }
 
   std::shared_ptr<FrACMEPropeller>
-  make_ACME_propeller(const std::string &name, const FrNode &propeller_node, PropellerParams params,
+  make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
                       const std::string &perf_data_json_string, PropellerType type) {
     auto force = std::make_shared<FrACMEPropeller>(name, propeller_node, params, perf_data_json_string, type);
-    propeller_node.GetBody()->AddExternalForce(force);
+    propeller_node->GetBody()->AddExternalForce(force);
     return force;
   }
 
   std::shared_ptr<FrACMEPropeller>
-  make_ACME_propeller(const std::string &name, const FrNode &propeller_node, double diameter,
-                              double wake_fraction, double thrust_deduction_factor, const std::string &screwDirection,
-                              const std::string &perf_data_json_string, PropellerType type) {
+  make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, double diameter,
+                      double wake_fraction, double thrust_deduction_factor, const std::string &screwDirection,
+                      const std::string &perf_data_json_string, PropellerType type) {
     acme::SCREW_DIRECTION sc;
     if (screwDirection != "LEFT_HANDED" or screwDirection != "RIGHT_HANDED")
       throw std::runtime_error("wrong screwDirection given : LEFT_HANDED or RIGHT_HANDED only");
-    sc = screwDirection=="LEFT_HANDED" ? acme::SCREW_DIRECTION::LEFT_HANDED : acme::SCREW_DIRECTION::RIGHT_HANDED;
+    sc = screwDirection == "LEFT_HANDED" ? acme::SCREW_DIRECTION::LEFT_HANDED : acme::SCREW_DIRECTION::RIGHT_HANDED;
     PropellerParams params(diameter, wake_fraction, thrust_deduction_factor, sc);
     return make_ACME_propeller(name, propeller_node, params, perf_data_json_string, type);
   }
