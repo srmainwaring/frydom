@@ -5,23 +5,17 @@
 #ifndef FRYDOM_FRPROPELLERTYPE_H
 #define FRYDOM_FRPROPELLERTYPE_H
 
+#include "acme/propeller/PropellerModelType.h"
+#include "acme/propeller/PropellerBaseModel.h"
+#include "acme/rudder/RudderModelType.h"
+
 namespace frydom {
 
-  enum PROPELLER_TYPE {
-    FPP_1Q,  /// Fixed Propeller Pitch with one quadrant model
-    FPP_4Q,  /// Fixed Propeller Pitch with four quadrant model
-    CPP      /// Controllable Pitch Propeller (always four quadrant model extended with pitch ratio dependency)
-  };
+  using PropellerModelType = acme::PropellerModelType;
 
-  enum SCREW_DIRECTION {
-    LEFT_HANDED,
-    RIGHT_HANDED
-  };
+  using SCREW_DIRECTION = acme::SCREW_DIRECTION;
 
-  enum RUDDER_TYPE {
-    SINGLE,
-    FLAP
-  };
+  using RudderModelType = acme::RudderModelType;
 
 }  // end namespace frydom
 

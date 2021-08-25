@@ -20,7 +20,7 @@ namespace frydom {
       m_correction_factor(1.),
       m_diameter(1.0),
       m_rotational_velocity(0.),
-      m_screwDirection(RIGHT_HANDED) {
+      m_screwDirection(1) {
 
     if (IsNED(fc)) internal::SwapFrameConvention(m_positionInBody);
 
@@ -112,33 +112,16 @@ namespace frydom {
   }
 
   void FrPropellerForce::SetScrewDirection(SCREW_DIRECTION dir) {
-    m_screwDirection = (dir == RIGHT_HANDED ? 1 : -1);
-//    m_screwDirection = dir;
+    m_screwDirection = (dir == SCREW_DIRECTION::RIGHT_HANDED ? 1 : -1);
   }
 
   SCREW_DIRECTION FrPropellerForce::GetScrewDirection() const {
-    return m_screwDirection == 1 ? RIGHT_HANDED : LEFT_HANDED;
+    return m_screwDirection == 1 ? SCREW_DIRECTION::RIGHT_HANDED : SCREW_DIRECTION::LEFT_HANDED;
   }
 
   signed int FrPropellerForce::GetScrewDirectionSign() const {
     return m_screwDirection;
   }
-
-//  signed int FrPropellerForce::GetScrewDirectionSign() const {
-//    return m_screwDirection == RIGHT_HANDED ? 1 : -1;
-////    signed int result = 0;
-////    switch (m_screwDirection) {
-////      case LEFT_HANDED: {
-////        result = -1;
-////        break;
-////      }
-////      case RIGHT_HANDED: {
-////        result = 1;
-////        break;
-////      }
-////    }
-////    return result;
-//  }
 
   double FrPropellerForce::GetPower() const {
     return GetRotationalVelocity(RADS) * c_torque;

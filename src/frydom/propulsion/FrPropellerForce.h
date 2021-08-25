@@ -88,7 +88,7 @@ namespace frydom {
     Position m_positionInBody;
     double m_diameter;
     double m_rotational_velocity;
-    signed int m_screwDirection; // TODO: stocker plutot le signe plutot que l'enum
+    signed int m_screwDirection;
 
     // Hull/propeller interaction coefficients
     double m_K1; // TODO: Donner les definitions de chacun de ces parametres

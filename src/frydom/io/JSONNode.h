@@ -160,15 +160,15 @@ namespace frydom {
   }
 
   template<>
-  inline frydom::PROPELLER_TYPE JSONNode::get_val<frydom::PROPELLER_TYPE>(const std::string &key) const {
+  inline frydom::PropellerModelType JSONNode::get_val<frydom::PropellerModelType>(const std::string &key) const {
     auto pt_str = get_val<std::string>(key);
-    frydom::PROPELLER_TYPE pt;
+    frydom::PropellerModelType pt;
     if (pt_str == "FPP_1Q") {
-      pt = frydom::PROPELLER_TYPE::FPP_1Q;
+      pt = frydom::PropellerModelType::E_FPP1Q;
     } else if (pt_str == "FPP_4Q") {
-      pt = frydom::PROPELLER_TYPE::FPP_4Q;
+      pt = frydom::PropellerModelType::E_FPP4Q;
     } else if (pt_str == "CPP") {
-      pt = frydom::PROPELLER_TYPE::CPP;
+      pt = frydom::PropellerModelType::E_CPP;
     } else {
       fs::path dir_path = get_json_file_root_directory();
       std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;

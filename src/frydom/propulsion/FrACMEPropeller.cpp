@@ -118,13 +118,9 @@ namespace frydom {
 
   std::shared_ptr<FrACMEPropeller>
   make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, double diameter,
-                      double wake_fraction, double thrust_deduction_factor, const std::string &screwDirection,
+                      double wake_fraction, double thrust_deduction_factor, SCREW_DIRECTION screwDirection,
                       const std::string &perf_data_json_string, PropellerType type) {
-    acme::SCREW_DIRECTION sc;
-    if (screwDirection != "LEFT_HANDED" or screwDirection != "RIGHT_HANDED")
-      throw std::runtime_error("wrong screwDirection given : LEFT_HANDED or RIGHT_HANDED only");
-    sc = screwDirection == "LEFT_HANDED" ? acme::SCREW_DIRECTION::LEFT_HANDED : acme::SCREW_DIRECTION::RIGHT_HANDED;
-    PropellerParams params(diameter, wake_fraction, thrust_deduction_factor, sc);
+    PropellerParams params(diameter, wake_fraction, thrust_deduction_factor, screwDirection);
     return make_ACME_propeller(name, propeller_node, params, perf_data_json_string, type);
   }
 }
