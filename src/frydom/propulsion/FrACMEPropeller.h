@@ -50,6 +50,7 @@ namespace frydom {
     std::unique_ptr<acme::PropellerBaseModel> m_acme_propeller;
 
     // cached
+    double c_advance_ratio;
     double c_water_density;
     double c_uP0, c_vP0;
 

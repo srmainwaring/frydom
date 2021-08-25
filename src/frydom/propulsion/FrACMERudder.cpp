@@ -76,6 +76,9 @@ namespace frydom {
     c_uR0 = relative_node_velocity.GetVx();
     c_vR0 = relative_node_velocity.GetVy();
 
+    if (relative_node_velocity.norm() == 0.)
+      return;
+
     // compute propeller loads using acme
     m_acme_rudder->Compute(c_water_density, c_uR0, c_vR0, m_rudder_angle_deg);
 
@@ -94,7 +97,7 @@ namespace frydom {
                           [this]() { return m_chronoForce->GetChTime(); });
 
     msg->AddField<double>("RudderAngle", "rad", "Rudder angle",
-                          [this]() { return m_rudder_angle_deg; });
+                          [this]() { return m_rudder_angle_deg * DEG2RAD; });
 
     msg->AddField<double>("DriftAngle", "rad", "Drift angle",
                           [this]() { return m_acme_rudder->GetDriftAngle(RAD); });

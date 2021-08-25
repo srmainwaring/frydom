@@ -28,11 +28,11 @@ namespace frydom {
 
     auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
-    auto J = ComputeAdvanceRatio();
+    c_advance_ratio = ComputeAdvanceRatio();
     auto n2 = GetRotationalVelocity(RPM) / 60.;
     n2 *= n2;
-    c_thrust = density * std::pow(GetDiameter(), 4) * kt(J) * n2 * (1-m_thrust_deduction_factor);
-    c_torque = density * std::pow(GetDiameter(), 5) * kq(J) * n2 * GetScrewDirectionSign(); // FIXME: en realite, est-ce qu'on veut avoir un torque signe ??
+    c_thrust = density * std::pow(GetDiameter(), 4) * kt(c_advance_ratio) * n2 * (1-m_thrust_deduction_factor);
+    c_torque = density * std::pow(GetDiameter(), 5) * kq(c_advance_ratio) * n2 * GetScrewDirectionSign(); // FIXME: en realite, est-ce qu'on veut avoir un torque signe ??
 
     return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
   }
@@ -103,10 +103,10 @@ namespace frydom {
     }
 
     try {
-      advanceRatio = node["open_water_table"]["J"].get<std::vector<double>>();
+      advanceRatio = node["open_water_table"]["j"].get<std::vector<double>>();
       m_coefficients.SetX(advanceRatio);
     } catch (json::parse_error &err) {
-      event_logger::error("FrFirstQuadrantPropellerForce", "", "no J in open_water_table");
+      event_logger::error("FrFirstQuadrantPropellerForce", "", "no j in open_water_table");
       exit(EXIT_FAILURE);
     }
 

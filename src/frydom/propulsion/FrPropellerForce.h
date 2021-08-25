@@ -97,8 +97,9 @@ namespace frydom {
     double m_thrust_deduction_factor;
 
     // cached
-    double c_thrust;
-    double c_torque;
+    mutable double c_advance_ratio;
+    mutable double c_thrust;
+    mutable double c_torque;
 
     friend class FrPropellerRudder;
 

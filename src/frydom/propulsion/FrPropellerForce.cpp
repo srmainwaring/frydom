@@ -145,6 +145,9 @@ namespace frydom {
     msg->AddField<double>("Time", "s", "Current time of the simulation",
                           [this]() { return m_chronoForce->GetChTime(); });
 
+    msg->AddField<double>("AdvanceRatio", "", "Advance ratio (J for FPP1Q, beta for FPP4Q)",
+                          [this]() { return this->c_advance_ratio; });
+
     msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
                           [this]() { return GetThrust(); });
 
