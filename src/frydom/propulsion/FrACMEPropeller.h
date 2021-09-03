@@ -7,12 +7,9 @@
 
 #include "FrActuatorForceBase.h"
 #include "acme/propeller/PropellerBaseModel.h"
+#include "FrPropellerType.h"
 
 namespace frydom {
-
-  using PropellerType = acme::PropellerModelType;
-  using PropellerParams = acme::PropellerParams;
-  using SCREW_DIRECTION = acme::SCREW_DIRECTION;
 
   class FrACMEPropeller : public FrActuatorForceBase {
 

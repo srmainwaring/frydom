@@ -364,7 +364,7 @@ int test_rudder() {
   auto current = system.GetEnvironment()->GetOcean()->GetCurrent()->GetFieldUniform();
   current->SetNorth(1.0, MS, COMEFROM);
 //  current->Set(-20, 1, DEG, MS, NWU, COMEFROM);
-  double rudder_angle_deg = 20;
+  double rudder_angle_deg = 0;
 
   auto body = system.NewBody("body");
   body->SetFixedInWorld(true);
@@ -372,10 +372,10 @@ int test_rudder() {
 
   auto node = body->NewNode("node");
 
-  double hull_wake_fraction_0 = 0.;
+  double hull_wake_fraction_0 = 0.2;
   double height_m = 3;
-  double chord_length_m = 3;
-  double rudder_lateral_area_m2 = 15;
+  double chord_length_m = 2;
+  double rudder_lateral_area_m2 = 4;
   double ramp_slope_degs = 4;
 
   std::vector<double> flow_incidence_on_main_rudder_deg = {-28, -26, -24.0, -22.0, -20.0, -18.0, -16.0, -14.0, -12.0,
@@ -435,6 +435,8 @@ int test_rudder() {
   params.m_chord_m = chord_length_m;
   params.m_height_m = height_m;
   params.m_flap_slope = 0.; //NA
+  params.m_has_hull_influence = hull_wake_fraction_0 != 0;
+  params.m_has_hull_influence_transverse_velocity = false;
 
   auto acme_rudder = make_ACME_rudder("ACME_rudder", node, params, ss.str(), acme::E_SIMPLE_RUDDER);
   acme_rudder->SetRudderRampSlope(ramp_slope_degs);

@@ -11,4 +11,5 @@ target_sources(frydom PRIVATE
         FrPropellerRudder.cpp
         FrACMEPropeller.cpp
         FrACMERudder.cpp
+        FrACMEPropellerRudder.cpp
         )

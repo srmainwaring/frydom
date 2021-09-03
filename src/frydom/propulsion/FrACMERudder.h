@@ -6,13 +6,11 @@
 #define FRYDOM_FRACMERUDDER_H
 
 #include "FrActuatorForceBase.h"
+#include "FrPropellerType.h"
 #include "acme/rudder/SimpleRudderModel.h"
 #include "frydom/core/math/functions/FrFunctionsInc.h"
 
 namespace frydom {
-
-  using RudderType = acme::RudderModelType;
-  using RudderParams = acme::RudderParams;
 
   class FrACMERudder : public FrActuatorForceBase {
 

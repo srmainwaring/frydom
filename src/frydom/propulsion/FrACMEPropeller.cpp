@@ -61,7 +61,7 @@ namespace frydom {
     // compute propeller loads using acme
     m_acme_propeller->Compute(c_water_density, c_uP0, c_vP0, m_rpm, m_pitch_ratio);
 
-    c_advance_ratio = m_acme_propeller->GetAdvanceRatio();
+//    c_advance_ratio = m_acme_propeller->GetAdvanceRatio();
 
     // project thrust and torque loads in world reference frame
     auto force = m_node->ProjectVectorInWorld(Force(m_acme_propeller->GetThrust(), 0., 0.), NWU);
@@ -77,8 +77,8 @@ namespace frydom {
     msg->AddField<double>("Time", "s", "Current time of the simulation",
                           [this]() { return m_chronoForce->GetChTime(); });
 
-    msg->AddField<double>("AdvanceRatio", "", "Advance ratio (J for FPP1Q, beta for FPP4Q)",
-                          [this]() { return c_advance_ratio; });
+//    msg->AddField<double>("AdvanceRatio", "", "Advance ratio (J for FPP1Q, beta for FPP4Q)",
+//                          [this]() { return c_advance_ratio; });
 
     msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
                           [this]() { return m_acme_propeller->GetThrust(); });
@@ -94,6 +94,9 @@ namespace frydom {
 
     msg->AddField<double>("RotationalVelocity", "rad/s", "Rotational velocity",
                           [this]() { return mathutils::convert_frequency(m_rpm, RPM, RADS); });
+
+    msg->AddField<double>("Pitch_Ratio", "", "Propeller pitch ratio",
+                          [this]() { return m_pitch_ratio; });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
