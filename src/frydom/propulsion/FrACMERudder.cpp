@@ -54,6 +54,7 @@ namespace frydom {
   void FrACMERudder::Initialize() {
 
     m_acme_rudder->Initialize();
+    m_acme_rudder->Log(true);
 
     c_water_density = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
@@ -135,6 +136,10 @@ namespace frydom {
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
+  }
+
+  void FrACMERudder::StepFinalize() {
+    m_acme_rudder->Finalize();
   }
 
   std::shared_ptr<FrACMERudder>

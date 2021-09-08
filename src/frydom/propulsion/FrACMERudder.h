@@ -33,6 +33,8 @@ namespace frydom {
 
     void Compute(double time) override;
 
+    void StepFinalize() override;
+
     void DefineLogMessages() override;
 
     std::shared_ptr<FrNode> m_node;
