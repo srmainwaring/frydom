@@ -2,8 +2,7 @@
 # Here we declare the different PATH, TAG and PATCH to get the FRyDoM dependencies
 
 # Chrono
-set(chrono_URL "https://github.com/projectchrono/chrono.git")
-set(chrono_TAG 4.0.0 CACHE STRING "Chrono version")
+set(chrono_URL "https://github.com/projectchrono/chrono/archive/refs/tags/4.0.0.tar.gz")
 set(chrono_PATCH chrono_V4.0.0.patch)
 
 # GeographicLib
