@@ -139,7 +139,7 @@ namespace frydom {
   }
 
   void FrACMERudder::StepFinalize() {
-    m_acme_rudder->Finalize();
+    m_acme_rudder->Finalize(GetSystem()->GetTime());
   }
 
   std::shared_ptr<FrACMERudder>

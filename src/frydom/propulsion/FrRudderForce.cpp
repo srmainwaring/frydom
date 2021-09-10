@@ -169,7 +169,7 @@ namespace frydom {
 
   }
 
-  GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(const Velocity &rudderRelativeVelocity) const {
+  GeneralizedForce FrRudderForce::ComputeGeneralizedForceInWorld(const Velocity &rudderRelativeVelocity, double kd) const {
     GeneralizedForce rudderForce;
     rudderForce.SetNull();
 
@@ -188,7 +188,7 @@ namespace frydom {
       auto density = GetBody()->GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
       c_drag = 0.5 * density * GetDragCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
-      c_lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity;
+      c_lift = 0.5 * density * GetLiftCoefficient(attackAngle) * m_projectedLateralArea * squaredNormVelocity * kd;
       c_torque = 0.5 * density * GetTorqueCoefficient(attackAngle) * m_projectedLateralArea * m_rootChord * squaredNormVelocity;
 
       auto rudderFlowFrame = GetRudderFlowFrame(rudderRelativeVelocity);

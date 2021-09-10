@@ -98,7 +98,8 @@ namespace frydom {
       auto body = GetBody();
       auto environment = GetSystem()->GetEnvironment();
       auto rudderVelocityInWorld = body->GetVelocityInWorldAtPointInBody(m_rudderForce->GetPositionInBody(), NWU);
-      auto u_0 = -environment->GetRelativeVelocityInFrame(GetBody()->GetHeadingFrame(), rudderVelocityInWorld, WATER, NWU).GetVx();
+      auto u_0 = -environment->GetRelativeVelocityInFrame(GetBody()->GetHeadingFrame(), rudderVelocityInWorld, WATER,
+                                                          NWU).GetVx();
 
       c_vRP = c_vRA;
       ComputeVelocityInSlipStream(u_0, c_uRA, c_uPA, m_propellerForce->GetThrust(), c_uRP, c_A_RP, c_kd);
@@ -106,10 +107,10 @@ namespace frydom {
 
       // Inside slipstream rudder force
       auto propellerVelocityInSlipstream = GetBody()->ProjectVectorInWorld(Velocity(c_uRP, c_vRP, 0.), NWU);
-      auto insideSlipstreamRudderForce = m_rudderForce->ComputeGeneralizedForceInWorld(propellerVelocityInSlipstream);
+      auto insideSlipstreamRudderForce = m_rudderForce->ComputeGeneralizedForceInWorld(propellerVelocityInSlipstream, c_kd);
 
       rudderForceInWorld *= (1. - area_ratio);
-      rudderForceInWorld += area_ratio * c_kd * insideSlipstreamRudderForce;
+      rudderForceInWorld += area_ratio * insideSlipstreamRudderForce;
     }
 
     c_rudderForceInWorld = {rudderForceInWorld, m_rudderForce->GetPositionInBody(), NWU};
@@ -139,11 +140,13 @@ namespace frydom {
     auto w_a = 0.34 * (1 + xrp / std::sqrt(1 + xrp * xrp) * Kappa(thrust, xrp)) * mathutils::sgn(thrust) * w_ainf;
     u_rp = u_pa + w_a;
 
-    auto r_rp = 0.5 * Dp * std::sqrt(std::abs(0.5 * u_0 / u_rp)); // FIXME: pourquoi 0.5 ??
+    auto r_rp = 0.5 * Dp * std::sqrt(std::abs(u_0 / u_rp));
 
     kd = std::pow(std::abs(u_ra / u_rp), 2. * std::pow(2. / (2. + std::sqrt(MU_PI) * r_rp / (2 * br)), 8));
 
-    A_rp = 2. * r_rp / m_rudderForce->GetHeight() * m_rudderForce->GetProjectedLateralArea();
+    A_rp = 2. * r_rp < m_rudderForce->GetHeight() ?
+           2. * r_rp / m_rudderForce->GetHeight() * m_rudderForce->GetProjectedLateralArea()
+                                                  : m_rudderForce->GetProjectedLateralArea();
 
   }
 
@@ -265,7 +268,7 @@ namespace frydom {
                                  [this]() { return c_kd; });
 
     rudder_msg->AddField<double>("slipstream_area_ratio", "", "Area ratio",
-                                 [this]() { return c_A_RP/m_rudderForce->GetProjectedLateralArea(); });
+                                 [this]() { return c_A_RP / m_rudderForce->GetProjectedLateralArea(); });
 
     rudder_msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
                                  [this]() { return m_rudderForce->GetDrag(); });
