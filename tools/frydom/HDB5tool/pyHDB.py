@@ -31,8 +31,8 @@ class pyHDB(object):
         self.rho_water = 0
         self.grav = 0
         self.depth = -1
-        self.x_wave_measure = 0.
-        self.y_wave_measure = 0.
+        self.x_wave_measure = 0. # Only for Nemoh ? Dublication with wave_reference_point_x ?
+        self.y_wave_measure = 0. # Only for Nemoh ? Dublication with wave_reference_point_y ?
 
         # Wave frequencies.
         self.nb_wave_freq = 0
@@ -1588,7 +1588,7 @@ class pyHDB(object):
             dset.attrs['Description'] = "Tag - Commit hash - Branch - Date."
 
     def write_numerical_parameters(self, writer, num_param_path = "/ExpertParameters"):
-        """This method writes the vector fitting parameters into the *.hdb5 file.
+        """This method writes the expert numerical parameters into the *.hdb5 file.
 
         Parameter
         ---------
