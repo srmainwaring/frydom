@@ -49,6 +49,44 @@ class Merger(object):
 
         pyHDB_out.version = self._pyHDB_1.version_max
 
+    def merge_commit_hash(self, pyHDB_out):
+
+        """
+            This method merges the commit hashes of the two pyHDB.
+        """
+
+        pyHDB_out.commit_hash = self._pyHDB_1.commit_hash
+
+    def merge_numerical_parameters(self, pyHDB_out):
+
+        """
+            This method merges the expert numerical parameters of the two pyHDB.
+        """
+
+        #TODO: Should they be really identical?
+
+        # Presence of expert numerical parameters.
+        assert (self._pyHDB_1.has_expert_parameters == self._pyHDB_2.has_expert_parameters)
+        pyHDB_out.has_expert_parameters = self._pyHDB_1.has_expert_parameters
+
+        # Surface integration order.
+        assert (self._pyHDB_1.surface_integration_order == self._pyHDB_2.surface_integration_order)
+        pyHDB_out.surface_integration_order = self._pyHDB_1.surface_integration_order
+
+        # Infinite-depth Green's function.
+        assert (self._pyHDB_1.green_function == self._pyHDB_2.green_function)
+        pyHDB_out.green_function = self._pyHDB_1.green_function
+
+        # Crmax.
+        assert (self._pyHDB_1.crmax == self._pyHDB_2.crmax)
+        pyHDB_out.crmax = self._pyHDB_1.crmax
+
+        # Wave reference point.
+        assert (self._pyHDB_1.wave_reference_point_x == self._pyHDB_2.wave_reference_point_x)
+        assert (self._pyHDB_1.wave_reference_point_y == self._pyHDB_2.wave_reference_point_y)
+        pyHDB_out.wave_reference_point_x = self._pyHDB_1.wave_reference_point_x
+        pyHDB_out.wave_reference_point_y = self._pyHDB_1.wave_reference_point_y
+
     def merge_environment(self, pyHDB_out):
 
         """
@@ -498,6 +536,12 @@ class Merger(object):
 
         # Version.
         self.merge_version(pyHDB_out)
+
+        # Commit hash.
+        self.merge_commit_hash(pyHDB_out)
+
+        # Expert numerical parameters.
+        self.merge_numerical_parameters(pyHDB_out)
 
         # Environnement.
         self.merge_environment(pyHDB_out)
