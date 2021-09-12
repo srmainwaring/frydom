@@ -193,7 +193,7 @@ class HDB5reader():
         pyHDB.nb_wave_freq = wave_frequency.shape[0]
         pyHDB.min_wave_freq = wave_frequency[0]
         pyHDB.max_wave_freq = wave_frequency[-1]
-        pyHDB.set_wave_frequencies()  # Definition of omega.
+        pyHDB.wave_freq = wave_frequency
 
         # Wave direction discretization.
 
