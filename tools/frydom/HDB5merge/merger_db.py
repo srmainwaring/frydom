@@ -368,6 +368,12 @@ class Merger(object):
             assert (body_1.name == body_2.name)
             body_out.name = body_1.name
 
+            # Mesh.
+            if (body_1.mesh is not None and body_2.mesh is not None):
+                assert (body_1.mesh.nb_vertices == body_2.mesh.nb_vertices)
+                assert (body_1.mesh.nb_faces == body_2.mesh.nb_faces)
+                body_out.mesh = body_1.mesh
+
             # Horizontal position in world (m, m, deg).
             assert (np.all(body_1.horizontal_position == body_2.horizontal_position))
             body_out.horizontal_position = body_1.horizontal_position
