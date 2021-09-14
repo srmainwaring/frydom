@@ -33,7 +33,7 @@ namespace frydom {
 
     double ComputeAdvanceAngle();
 
-   private:
+   protected:
 
     GeneralizedForce ComputeGeneralizedForceInBody() override;
 
@@ -44,6 +44,8 @@ namespace frydom {
     std::string c_fileCoefficients;
 
     mathutils::LookupTable1D<double> m_coefficients;
+
+    double m_delta_ct, m_delta_cq;
 
   };
 
