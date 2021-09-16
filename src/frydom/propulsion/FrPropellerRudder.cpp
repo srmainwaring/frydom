@@ -140,7 +140,7 @@ namespace frydom {
     auto w_a = 0.34 * (1 + xrp / std::sqrt(1 + xrp * xrp) * Kappa(thrust, xrp)) * mathutils::sgn(thrust) * w_ainf;
     u_rp = u_pa + w_a;
 
-    auto r_rp = 0.5 * Dp * std::sqrt(std::abs(u_0 / u_rp));
+    auto r_rp = 0.5 * Dp * std::sqrt(std::abs(u_ra / u_rp));
 
     kd = std::pow(std::abs(u_ra / u_rp), 2. * std::pow(2. / (2. + std::sqrt(MU_PI) * r_rp / (2 * br)), 8));
 

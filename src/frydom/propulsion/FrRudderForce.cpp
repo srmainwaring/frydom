@@ -217,7 +217,7 @@ namespace frydom {
     if (beta < m_beta1) {
       kappa = std::min(m_K2, m_K3 * beta);
     } else if (beta <= m_beta2 and beta >= m_beta1) {
-      auto bv = 0.5 / (m_beta2 - m_beta1);
+      auto bv = (1.-m_K2) / (m_beta2 - m_beta1);
       auto av = m_K2 - bv * m_beta1;
       kappa = av + bv * beta;
     } else {
