@@ -18,11 +18,11 @@ namespace frydom {
   }
 
   double FrCPPForce::Ct(double beta) const {
-    return m_coefficients.Eval("Ct", beta, GetPitchRatio());
+    return m_coefficients.Eval("Ct", beta, GetPitchRatio()) + m_delta_ct * std::pow(GetPitchRatio() / 1.5, 8);
   }
 
   double FrCPPForce::Cq(double beta) const {
-    return m_coefficients.Eval("Cq", beta, GetPitchRatio());
+    return m_coefficients.Eval("Cq", beta, GetPitchRatio()) + m_delta_cq * std::pow(GetPitchRatio() / 1.5, 1);
   }
 
   void FrCPPForce::SetPitchRatio(double P_D) {

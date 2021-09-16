@@ -338,6 +338,10 @@ namespace frydom {
     return c_propellerForceInBody.GetTorqueAtPoint(GetBody()->GetCOG(fc), fc);
   }
 
+  double FrPropellerRudder::GetPropulsivePower() const {
+    return m_propellerForce->GetPower();
+  }
+
   // Rudder
 
   Force FrPropellerRudder::GetRudderForceInWorld(FRAME_CONVENTION fc) const {

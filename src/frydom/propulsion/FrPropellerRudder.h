@@ -30,6 +30,8 @@ namespace frydom {
 
     void SetPropellerRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
 
+    double GetPropulsivePower() const;
+
     void ActivateInteractions(bool val);
 
     bool IsInteractions() const;
