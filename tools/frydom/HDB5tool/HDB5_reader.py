@@ -44,6 +44,9 @@ class HDB5reader():
             # Version.
             self.read_version(reader, pyHDB)
 
+            # Date.
+            self.Creation_data_hdf5file = np.array(reader['CreationDate'])  # Date of creation of the hdf5file.
+
             # Environment.
             self.read_environment(reader, pyHDB)
 
@@ -88,9 +91,6 @@ class HDB5reader():
         pyHDB : object
             pyHDB object for storing the hydrodynamic database.
         """
-
-        # Date.
-        self.Creation_data_hdf5file = np.array(reader['CreationDate']) # Date of creation of the hdf5file.
 
         # Gravity acceleration.
         pyHDB.grav = np.array(reader['GravityAcc'])

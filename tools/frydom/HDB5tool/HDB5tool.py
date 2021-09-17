@@ -169,6 +169,10 @@ def get_parser(parser):
     parser.add_argument('--initialization', '-init', action="store_true", help="""
                 Initialization of the hydrodynamic database: computation of the Froude-Krylov loads, IRF, etc.""")
 
+    # Information about the hdb5 file.
+    parser.add_argument('--info', '-info', action="store_true", help="""
+                    Information about the hdb5 file""")
+
     return parser
 
 
@@ -176,7 +180,7 @@ def Read_cal_hdb5(args):
     """This function reads the input files of a frequency-domain tool or a *.HDB5 file."""
 
     # BEM reader.
-    if (args.path_to_nemoh_cal is not None):  # Nemoh.
+    if (args.path_to_nemoh_cal is not None): # Nemoh.
         database = H5T.HDB5()
         database.nemoh_reader(args.path_to_nemoh_cal[0])
         database._pyHDB.solver = "Nemoh"
@@ -411,6 +415,13 @@ def get_Arg_part_3_CE(args, database):
 def get_Arg_part_4_CE(args, database):
     """This function writes the *.hdb5 output file."""
 
+    # Information about the hdb5.
+    if (args.info is True):
+        if (args.path_to_nemoh_cal is not None):
+            database.write_info(None)
+        if (args.read is not None):
+            database.write_info(args.read)
+
     # Writing the hdb5 output file.
     if (args.write is not None):
         database.export_hdb5(args.write)
@@ -450,7 +461,7 @@ def main():
     # 3rd set of arguments - FRyDoM CE - Plots of A, B, Fdiff, Ffk, Fexc., IRF.
     database = get_Arg_part_3_CE(args, database)
 
-    # 4th set of arguments - FRyDoM CE - Writing the *.hdb5 output file.
+    # 4th set of arguments - FRyDoM CE - Information about the hdb and writing of the *.hdb5 output file.
     database = get_Arg_part_4_CE(args, database)
 
 

@@ -1607,3 +1607,90 @@ class pyHDB(object):
         dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/x", data=self.wave_reference_point_x)
         dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/y", data=self.wave_reference_point_y)
 
+    def write_info(self, input_file):
+        """This function writes the hydrodynamic database into a *.hdb5 file."""
+
+        print("\t-------------------------------------------------------")
+        print("\t      Information about the hydrodynamic database")
+        print("\t-------------------------------------------------------")
+
+        # *.hdb5 file name.
+        if (input_file != None):
+            print("\nfile name: " + input_file)
+
+        # Environement.
+        print("\nGravity acceleration (m/s2): " + str(self.grav))
+        print("Water density (kg/m3): " + str(self.rho_water))
+        print("Water depth (m): " + str(self.depth))
+        if (self.has_expert_parameters):
+            wave_ref_point = np.zeros(2)
+            wave_ref_point[0] = self.wave_reference_point_x
+            wave_ref_point[1] = self.wave_reference_point_y
+            print("Wave reference point (m, m): " + str(wave_ref_point))
+
+        # Discretization.
+        print("\nNumber of wave frequencies: " + str(self.nb_wave_freq))
+        print("Wave frequency minimum (rad/s): " + str(self.min_wave_freq))
+        print("Wave frequency maximum (rad/s): " + str(self.max_wave_freq))
+        print("\nNumber of wave directions: " + str(self.nb_wave_dir))
+        print("Wave frequency direction (deg): " + str(self.min_wave_dir))
+        print("Wave frequency direction (deg): " + str(self.max_wave_dir))
+
+        # Symmetries.
+        print("\nBottom symmetry: " + str(self.bottom_sym))
+        print("(xOz) symmetry: " + str(self.xoz_sym))
+        print("(yOz) symmetry: " + str(self.yoz_sym))
+
+        # Bodies.
+        print("\nNumber of bodies: " + str(self.nb_bodies))
+        for body in self.bodies:
+            if(body.i_body > 0):
+                print("")
+            print("    Body " + str(body.i_body + 1))
+            print("    Name: " + str(body.name))
+            if(body.horizontal_position is not None):
+                print("    Horizontal position (m, m, deg): " + str(body.horizontal_position))
+            if(body.computation_point is not None):
+                print("    Combutation point in body frame (m, m, m): " + str(body.computation_point))
+            if(body.mesh is not None):
+                print("    Number of faces: " + str(body.mesh.nb_faces))
+                print("    Number of vertices: " + str(body.mesh.nb_vertices))
+            if body._inertia:
+                print("    Mass matrix: Yes")
+            else:
+                print("    Mass matrix: No")
+            if body._extra_damping is not None:
+                print("    Extra damping matrix: Yes")
+            else:
+                print("    Extra damping matrix: No")
+            if body._hydrostatic:
+                print("    Hydrostatic matrix: Yes")
+            else:
+                print("    Hydrostatic matrix: No")
+            if body._mooring:
+                print("    Mooring matrix: Yes")
+            else:
+                print("    Mooring matrix: No")
+            if self.has_RAO:
+                print("    RAO computed: Yes")
+            else:
+                print("    RAO computed: No")
+        if (self.has_Drift):
+            print("Drift coefficients: Yes")
+        else:
+            print("Drift coefficients: No")
+        if (self.has_VF):
+            print("Pole and residues: Yes")
+        else:
+            print("Pole and residues: No")
+
+        # Expert parameters.
+        print("\nVersion of the hdb5 file: " + str(self.version))
+        if (self.commit_hash is not None):
+            print("Commit hash: " + str(self.commit_hash))
+        if (self.has_expert_parameters):
+            print("Surface integration order: " + str(self.surface_integration_order))
+            print("Green's function: " + str(self.green_function))
+            print("Crmax = " + str(self.crmax))
+        print("Solver: " + self.solver)
+        print("")

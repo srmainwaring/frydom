@@ -517,3 +517,8 @@ class HDB5(object):
         print('')
         print('-------> "%s" has been loaded.' % hdb5_file)
         print('')
+
+    def write_info(self, input_file):
+        """This method writes information about the hdb5."""
+
+        self._pyHDB.write_info(input_file)
