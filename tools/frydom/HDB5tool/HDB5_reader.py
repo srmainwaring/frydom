@@ -569,7 +569,12 @@ class HDB5reader():
         try:
             reader[num_param_path]
             pyHDB.surface_integration_order = np.array(reader[num_param_path + "/SurfaceIntegrationOrder"])
-            pyHDB.green_function = np.array(reader[num_param_path + "/GreenFunction"])
+            pyHDB.green_function = str(np.array(reader[num_param_path + "/GreenFunction"]))
+
+            # Fix problem of convertion between bytes and string when using h5py.
+            if (pyHDB.green_function[0:2] == "b'" and pyHDB.green_function[-1] == "'"):
+                pyHDB.green_function = pyHDB.green_function[2:-1]
+
             pyHDB.crmax = np.array(reader[num_param_path + "/Crmax"])
             pyHDB.wave_reference_point_x = np.array(reader[num_param_path + "/WaveReferencePoint/x"])
             pyHDB.wave_reference_point_y = np.array(reader[num_param_path + "/WaveReferencePoint/y"])
