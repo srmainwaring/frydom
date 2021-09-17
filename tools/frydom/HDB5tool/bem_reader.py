@@ -387,6 +387,8 @@ class NemohReader(_BEMReader):
                     _, isym = fmesh.readline().split()
                 if int(isym) == 1:  # Mesh is symmetric
                     pyHDB.xoz_sym = 1
+                else:
+                    pyHDB.xoz_sym = 0
 
                 # Symmetries.
                 pyHDB.bottom_sym = 0
