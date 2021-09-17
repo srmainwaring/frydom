@@ -386,7 +386,11 @@ class NemohReader(_BEMReader):
                 with open(abs_meshfile, 'r') as fmesh:
                     _, isym = fmesh.readline().split()
                 if int(isym) == 1:  # Mesh is symmetric
-                    mesh.symmetrize(Plane([0, 1, 0]))
+                    pyHDB.xoz_sym = 1
+
+                # Symmetries.
+                pyHDB.bottom_sym = 0
+                pyHDB.yoz_sym = 0
 
                 mesh.name, _ = os.path.splitext(meshfile)
 
