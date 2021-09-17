@@ -774,8 +774,7 @@ class pyHDB(object):
             self.write_discretization(writer)
 
             # Symmetries.
-            if(self.solver == "Helios"):
-                self.write_symmetries(writer)
+            self.write_symmetries(writer)
 
             # Bodies.
             for body in self.bodies:

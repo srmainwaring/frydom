@@ -54,8 +54,7 @@ class HDB5reader():
                 self.read_discretization_v3(reader, pyHDB)
 
             # Symmetries.
-            if(pyHDB.solver == "Helios"):
-                self.read_symmetries(reader, pyHDB)
+            self.read_symmetries(reader, pyHDB)
 
             # Vector fitting.
             self.read_VF(reader, pyHDB, "/VectorFitting") # Always before HDBRreader for setting has_VF.
@@ -233,9 +232,12 @@ class HDB5reader():
         """
 
         symmetry_path = "/Symmetries"
-        pyHDB.bottom_sym = np.array(reader[symmetry_path + "/Bottom"])
-        pyHDB.xoz_sym = np.array(reader[symmetry_path + "/xOz"])
-        pyHDB.yoz_sym = np.array(reader[symmetry_path + "/yOz"])
+        try:
+            pyHDB.bottom_sym = np.array(reader[symmetry_path + "/Bottom"])
+            pyHDB.xoz_sym = np.array(reader[symmetry_path + "/xOz"])
+            pyHDB.yoz_sym = np.array(reader[symmetry_path + "/yOz"])
+        except:
+            pass
 
     def read_mesh(self, reader, pyHDB, mesh_path):
 
