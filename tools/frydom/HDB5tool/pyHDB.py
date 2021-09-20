@@ -1667,7 +1667,7 @@ class pyHDB(object):
                 print("    Hydrostatic matrix: Yes")
             else:
                 print("    Hydrostatic matrix: No")
-            if body._mooring:
+            if body._mooring is not None:
                 print("    Mooring matrix: Yes")
             else:
                 print("    Mooring matrix: No")
