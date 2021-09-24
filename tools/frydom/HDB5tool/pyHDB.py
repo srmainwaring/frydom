@@ -360,6 +360,8 @@ class pyHDB(object):
          It uses the Ogilvie formula to get the coefficients from the impulse response functions.
         """
 
+        #TODO: The value at w = 0 and so the interval [0, w_min] are not taken into account.
+
         if not self._has_infinite_added_mass:
 
             # Wave frequency range.
@@ -402,6 +404,8 @@ class pyHDB(object):
             If True (default), it will use the full frequency range for computations.
         """
 
+        # TODO: The value at w = 0 and so the interval [0, w_min] are not taken into account.
+
         # Wave frequency range.
         if full:
             w = self.get_full_omega()
@@ -417,10 +421,11 @@ class pyHDB(object):
             # Initialization.
             irf_data = np.empty(0, dtype=np.float)
 
+            # Added mass.
             if full:
-                cm = np.einsum('ijk, ij -> ijk', body.Added_mass, body._flags) # Added mass.
+                cm = np.einsum('ijk, ij -> ijk', body.Added_mass, body._flags)
             else:
-                cm = self.radiation_added_mass(self._iwcut) # Added mass.
+                cm = self.radiation_added_mass(self._iwcut)
 
             cm_inf = body.Inf_Added_mass
 

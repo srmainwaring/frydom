@@ -144,26 +144,6 @@ class BodyDB(object):
         self.cob = None
         self.underwater_volume = None
 
-    # @property
-    # def name(self):
-    #
-    #     """This function gives the name of the mesh of a body.
-    #
-    #     Returns
-    #     -------
-    #     string
-    #         Name of the mesh of a body.
-    #     """
-    #
-    #     return self.name
-    #
-    # @name.setter
-    # def name(self, value):
-    #
-    #     """This function sets the name of the body mesh."""
-    #
-    #     self.name = value
-
     def _compute_nds(self):
         """Computes the term n dS for each force mode of the body."""
 
