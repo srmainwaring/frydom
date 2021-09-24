@@ -393,10 +393,8 @@ class pyHDB(object):
 
                 body.Inf_Added_mass = (cm + integral).mean(axis=2)  # mean( A(w) + 1/w * int(irf*sin(w*t),dt) ) wrt w.
 
-    def eval_impulse_response_function_Ku(self, full=True):
-        """Computes the impulse response functions relative to the ship advance speed
-
-        ref : F. Rongère et al. (Journées de l'Hydrodynamique 2010 - Nantes).
+    def eval_impulse_response_function_Ku_b(self, full=True):
+        """Computes the impulse response functions proportional to the forward speed without x-derivatives.
 
         Parameter
         ---------
@@ -445,6 +443,95 @@ class pyHDB(object):
             irf_data = (2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int((A(inf) - A(w))*L*cos(wt),dw).
 
             body.irf_ku = irf_data
+
+    def eval_impulse_response_function_Ku_a(self, full=True):
+        """Computes the impulse response functions proportional to the forward speed with x-derivatives.
+
+        Parameter
+        ---------
+        full : bool, optional
+            If True (default), it will use the full frequency range for computations.
+        """
+
+        # TODO: The value at w = 0 and so the interval [0, w_min] are not taken into account.
+
+        # Wave frequency range.
+        if full:
+            w = self.get_full_omega()
+        else:
+            w = self.omega
+
+        # Computation.
+        wt = np.einsum('i, j ->ij', w, self.time)  # w*t.
+        cwt = np.cos(wt)  # cos(w*t).
+
+        for body in self.bodies:
+
+            # Initialization.
+            irf_data = np.empty(0, dtype=np.float)
+
+            # x-derivative of the added mass.
+            if full:
+                cm = np.einsum('ijk, ij -> ijk', body.Added_mass_x_derivative, body._flags)
+            else:
+                cm = self.radiation_added_mass_x_derivative(self._iwcut)
+
+            cm_inf = body.Inf_Added_mass_x_derivative
+
+            cm_diff = np.zeros(cm.shape)
+            for j in range(w.size):
+                cm_diff[:, :, j] = cm_inf[:, :] - cm[:, :, j] # dAdx(inf) - dAdx(w).
+
+            kernel = np.einsum('ijk, kl -> ijkl', cm_diff, cwt) # int((dAdx(inf) - dAdx(w))*cos(wt),dw).
+
+            irf_data = (2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int((dAdx(inf) - dAdx(w))*cos(wt),dw).
+
+            body.irf_ku_x_derivative = irf_data
+
+    def eval_impulse_response_function_Ku2(self, full=True):
+        """Computes the impulse response functions proportional to the square of the forward speed.
+
+        Parameter
+        ---------
+        full : bool, optional
+            If True (default), it will use the full frequency range for computations.
+        """
+
+        # TODO: The value at w = 0 and so the interval [0, w_min] are not taken into account.
+
+        # Wave frequency range.
+        if full:
+            w = self.get_full_omega()
+        else:
+            w = self.omega
+
+        # Computation.
+        wt = np.einsum('i, j ->ij', w, self.time)  # w*t.
+        cwt = np.cos(wt)  # cos(w*t).
+
+        for body in self.bodies:
+
+            # Initialization.
+            irf_data = np.empty(0, dtype=np.float)
+
+            # x-derivative of the damping.
+            # if full:
+            ca = np.einsum('ijk, ij -> ijk', body.Damping_x_derivative / (w * w), body._flags)
+            # else:
+            #     cm = self.radiation_damping(self._iwcut)
+
+            ca[:, 4, :] = -ca[:, 2, :]
+            ca[:, 5, :] = ca[:, 1, :]
+            ca[:, 0, :] = 0.
+            ca[:, 1, :] = 0.
+            ca[:, 2, :] = 0.
+            ca[:, 3, :] = 0.
+
+            kernel = np.einsum('ijk, kl -> ijkl', ca, cwt) # int(B(w)/w*L*cos(wt),dw).
+
+            irf_data = -(2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int(B(w)/w*L*cos(wt),dw).
+
+            body.irf_ku2 = irf_data
 
     def interpolation(self, discretization):
         """this function interpolates with respect to the wave directions and the wave frequencies."""

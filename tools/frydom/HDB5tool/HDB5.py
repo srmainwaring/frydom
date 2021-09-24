@@ -138,8 +138,16 @@ class HDB5(object):
         # Infinite masses.
         self._pyHDB.eval_infinite_added_mass()
 
-        # Impule response functions for advance speed.
-        self._pyHDB.eval_impulse_response_function_Ku()
+        # Impule response functions proportional to the forward speed without x-derivatives.
+        self._pyHDB.eval_impulse_response_function_Ku_b()
+
+        if(self._pyHDB._has_x_derivatives):
+
+            # Impule response functions proportional to the forward speed with x-derivatives.
+            self._pyHDB.eval_impulse_response_function_Ku_a()
+
+            # Impule response functions proportional to the square of the forward speed.
+            self._pyHDB.eval_impulse_response_function_Ku2()
 
         # Interpolations with respect to the wave directions and the wave frequencies.
         # self._pyHDB.interpolation(self.discretization)

@@ -112,8 +112,14 @@ class BodyDB(object):
         # Impulse response functions without forward speed.
         self.irf = None
 
-        # Impulse response functions with forward speed.
+        # Impulse response functions proportional to the forward speed and without x-derivative.
         self.irf_ku = None
+
+        # Impulse response functions proportional to the forward speed and with x-derivatives.
+        self.irf_ku_x_derivative = None
+
+        # Impulse response functions proportional to the the square of the forward speed.
+        self.irf_ku2 = None
 
         # Flags (?).
         self._flags = np.ones((6, 6 * nb_bodies), dtype=np.bool)
@@ -208,7 +214,24 @@ class BodyDB(object):
 
         return np.einsum('ijk, ij -> ijk', ca, self._flags)
 
-    def radiation_added_mass(self,iwcut):
+    def radiation_damping_x_derivative(self,iwcut):
+
+        """This function gives the x-derivative of the damping coefficients.
+
+        Returns
+        -------
+        Array of floats
+            Damping coefficients.
+        """
+
+        if iwcut is None:
+            ca = self.Damping_x_derivative
+        else:
+            ca = self.Damping_x_derivative[:, :, :iwcut]
+
+        return np.einsum('ijk, ij -> ijk', ca, self._flags)
+
+    def radiation_added_mass(self, iwcut):
 
         """This function gives the added-mass coefficients.
 
@@ -222,6 +245,16 @@ class BodyDB(object):
             cm = self.Added_mass
         else:
             cm = self.Added_mass[:, :, :iwcut]
+        return np.einsum('ijk, ij -> ijk', cm, self._flags)
+
+    def radiation_added_mass_x_derivative(self, iwcut):
+
+        """This function gives the x-derivative of the added-mass coefficients."""
+
+        if iwcut is None:
+            cm = self.Added_mass_x_derivative
+        else:
+            cm = self.Added_mass_x_derivative[:, :, :iwcut]
         return np.einsum('ijk, ij -> ijk', cm, self._flags)
 
     def infinite_added_mass(self):
