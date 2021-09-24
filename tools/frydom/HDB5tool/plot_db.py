@@ -22,7 +22,7 @@ import meshmagick.MMviewer
 Dof_notation = [r'x', r'y', r'z', r'\phi', r'\theta', r'\psi']
 Dof_name = ["surge", "sway", "heave", "roll", "pitch", "yaw"]
 
-def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, show=True, save=False, filename="Loads.png"):
+def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, x_derivative, show=True, save=False, filename="Loads.png"):
     """Plots the diffraction or Froude-Krylov or excitation response function of a given modes set.
 
     Parameters
@@ -47,59 +47,114 @@ def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, show=True, save=Fals
 
         # Amplitude.
         if (iforce <= 2):
-            ylabel1 = r'$|F_{Diff}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
+            if(x_derivative):
+                ylabel1 = r'$|\partial F_{Diff}^{%s}/\partial x(\omega, \beta)|$' % Dof_notation[iforce]
+            else:
+                ylabel1 = r'$|F_{Diff}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
         else:
-            ylabel1 = r'$|M_{Diff}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel1 = r'$|\partial M_{Diff}^{%s}/\partial x(\omega, \beta)|$' % Dof_notation[iforce]
+            else:
+                ylabel1 = r'$|M_{Diff}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
 
         # Phase.
         if (iforce <= 2):
-            ylabel2 = r'$Arg\left[F_{Diff}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel2 = r'$Arg\left[\partial F_{Diff}^{%s}/\partial x(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            else:
+                ylabel2 = r'$Arg\left[F_{Diff}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
         else:
-            ylabel2 = r'$Arg\left[F_{Diff}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel2 = r'$Arg\left[\partial F_{Diff}^{%s}/\partial x(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            else:
+                ylabel2 = r'$Arg\left[F_{Diff}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
 
         # Title.
-        title = r'Diffraction loads in %s of body %u for a wave of direction %.1f deg' % \
-                (Dof_name[iforce], ibody + 1, np.degrees(beta))
+        if (x_derivative):
+            title = r'x-derivative of the diffraction loads in %s of body %u for a wave of direction %.1f deg' % \
+                    (Dof_name[iforce], ibody + 1, np.degrees(beta))
+        else:
+            title = r'Diffraction loads in %s of body %u for a wave of direction %.1f deg' % \
+                    (Dof_name[iforce], ibody + 1, np.degrees(beta))
     elif (DiffOrFKOrExc == 1):  # Froude-Krylov loads.
 
         # Amplitude.
         if (iforce <= 2):
-            ylabel1 = r'$|F_{FK}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel1 = r'$|\partial F_{FK}^{%s}/\partial x(\omega, \beta)|$' % Dof_notation[iforce]
+            else:
+                ylabel1 = r'$|F_{FK}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
         else:
-            ylabel1 = r'$|M_{FK}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel1 = r'$|\partial M_{FK}^{%s}/\partial x(\omega, \beta)|$' % Dof_notation[iforce]
+            else:
+                ylabel1 = r'$|M_{FK}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
 
         # Phase.
         if (iforce <= 2):
-            ylabel2 = r'$Arg\left[F_{FK}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel2 = r'$Arg\left[\partial F_{FK}^{%s}/\partial x(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            else:
+                ylabel2 = r'$Arg\left[F_{FK}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
         else:
-            ylabel2 = r'$Arg\left[F_{FK}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel2 = r'$Arg\left[\partial F_{FK}^{%s}/\partial x(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            else:
+                ylabel2 = r'$Arg\left[F_{FK}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
 
         # Title.
-        title = r'Froude-Krylov loads in %s of body %u for a wave of direction %.1f deg' % \
-                (Dof_name[iforce], ibody + 1, np.degrees(beta))
+        if (x_derivative):
+            title = r'x-derivative of the Froude-Krylov loads in %s of body %u for a wave of direction %.1f deg' % \
+                    (Dof_name[iforce], ibody + 1, np.degrees(beta))
+        else:
+            title = r'Froude-Krylov loads in %s of body %u for a wave of direction %.1f deg' % \
+                    (Dof_name[iforce], ibody + 1, np.degrees(beta))
+
     elif (DiffOrFKOrExc == 2):  # Excitation loads.
 
         # Amplitude.
         if (iforce <= 2):
-            ylabel1 = r'$|F_{Exc}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel1 = r'$|\partial F_{Exc}^{%s}/\partial x(\omega, \beta)|$' % Dof_notation[iforce]
+            else:
+                ylabel1 = r'$|F_{Exc}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
         else:
-            ylabel1 = r'$|M_{Exc}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel1 = r'$|\partial M_{Exc}^{%s}/\partial x(\omega, \beta)|$' % Dof_notation[iforce]
+            else:
+                ylabel1 = r'$|M_{Exc}^{%s}(\omega, \beta)|$' % Dof_notation[iforce]
 
         # Phase.
         if (iforce <= 2):
-            ylabel2 = r'$Arg\left[F_{Exc}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel2 = r'$Arg\left[\partial F_{Exc}^{%s}/\partial x(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            else:
+                ylabel2 = r'$Arg\left[F_{Exc}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
         else:
-            ylabel2 = r'$Arg\left[F_{Exc}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            if (x_derivative):
+                ylabel2 = r'$Arg\left[\partial F_{Exc}^{%s}/\partial x(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
+            else:
+                ylabel2 = r'$Arg\left[F_{Exc}^{%s}(\omega,\beta)\right] (deg)$' % Dof_notation[iforce]
 
         # Title.
-        title = r'Excitation loads in %s of body %u for a wave of direction %.1f deg' % \
-                (Dof_name[iforce], ibody + 1, np.degrees(beta))
+        if (x_derivative):
+            title = r'x-derivative of the excitation loads in %s of body %u for a wave of direction %.1f deg' % \
+                    (Dof_name[iforce], ibody + 1, np.degrees(beta))
+        else:
+            title = r'Excitation loads in %s of body %u for a wave of direction %.1f deg' % \
+                    (Dof_name[iforce], ibody + 1, np.degrees(beta))
 
     # Units.
     if (iforce <= 2):
-        ylabel1 += r' $(N/m)$'
+        if (x_derivative):
+            ylabel1 += r' $(N/m^2)$'
+        else:
+            ylabel1 += r' $(N/m)$' # Because it is divided by the wave amplitude.
     else:
-        ylabel1 += r' $(N)$'
+        if (x_derivative):
+            ylabel1 += r' $(N/m)$'
+        else:
+            ylabel1 += r' $(N)$' # Because it is divided by the wave amplitude.
 
     # Plots.
     if (save == False):
@@ -126,8 +181,7 @@ def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, show=True, save=Fals
         plt.savefig(filename)
     plt.close()
 
-
-def plot_AB(data, w, ibody_force, iforce, ibody_motion, idof, show=True, save=False, filename="AB.png"):
+def plot_AB(data, w, ibody_force, iforce, ibody_motion, idof, x_derivative, show=True, save=False, filename="AB.png"):
     """Plots the radiation coefficients of a given modes set.
 
     Parameters
@@ -148,35 +202,62 @@ def plot_AB(data, w, ibody_force, iforce, ibody_motion, idof, show=True, save=Fa
 
     # Label.
     xlabel = r'$\omega$' + ' $(rad/s)$'
-    ylabel1 = r'$A_{%s}(\omega)$' % (
+    if(x_derivative):
+        ylabel1 = r'$\partial A_{%s}/\partial x(\omega)$' % (
                 Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
-    ylabel2 = r'$B_{%s}(\omega)$' % (
+        ylabel2 = r'$\partial B_{%s}/\partial x(\omega)$' % (
+                Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
+    else:
+        ylabel1 = r'$A_{%s}(\omega)$' % (
+                Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
+        ylabel2 = r'$B_{%s}(\omega)$' % (
                 Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
 
     if (iforce <= 2):
         force_str = 'force'
         if (idof <= 2):  # Translation.
-            ylabel1 += r' $(kg)$'
-            ylabel2 += r' $(kg/s)$'
+            if (x_derivative):
+                ylabel1 += r' $(kg/m)$'
+                ylabel2 += r' $(kg/(m\,s)$'
+            else:
+                ylabel1 += r' $(kg)$'
+                ylabel2 += r' $(kg/s)$'
             motion_str = 'translation'
         else:  # Rotation.
-            ylabel1 += r' $(kg\,m)$'
-            ylabel2 += r' $(kg\,m/s)$'
+            if (x_derivative):
+                ylabel1 += r' $(kg)$'
+                ylabel2 += r' $(kg/s)$'
+            else:
+                ylabel1 += r' $(kg\,m)$'
+                ylabel2 += r' $(kg\,m/s)$'
             motion_str = 'rotation'
     else:
         force_str = 'moment'
         if (idof <= 2):  # Translation.
-            ylabel1 += r' $(kg\,m)$'
-            ylabel2 += r' $(kg\,m/s)$'
+            if (x_derivative):
+                ylabel1 += r' $(kg)$'
+                ylabel2 += r' $(kg/s)$'
+            else:
+                ylabel1 += r' $(kg\,m)$'
+                ylabel2 += r' $(kg\,m/s)$'
             motion_str = 'translation'
         else:  # Rotation.
-            ylabel1 += r' $(kg\,m^2)$'
-            ylabel2 += r' $(kg\,m^2/s)$'
+            if (x_derivative):
+                ylabel1 += r' $(kg\,m)$'
+                ylabel2 += r' $(kg\,m/s)$'
+            else:
+                ylabel1 += r' $(kg\,m^2)$'
+                ylabel2 += r' $(kg\,m^2/s)$'
             motion_str = 'rotation'
 
-    title = r"Radiation coefficients giving the %s in %s of body %u " \
-            r"for a %s in %s of body %u" \
-            % (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1)
+    if (x_derivative):
+        title = r"x-derivative of the radiation coefficients giving the %s in %s of body %u " \
+                r"for a %s in %s of body %u" \
+                % (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1)
+    else:
+        title = r"Radiation coefficients giving the %s in %s of body %u " \
+                r"for a %s in %s of body %u" \
+                % (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1)
 
     plt.close()
     if (save == False):

@@ -211,7 +211,19 @@ class HDB5(object):
         beta = self._pyHDB.wave_dir[iwave]
 
         # Plot.
-        plot_db.plot_loads(data, self._pyHDB.wave_freq, 0, ibody, iforce, beta)
+        plot_db.plot_loads(data, self._pyHDB.wave_freq, 0, ibody, iforce, beta, False)
+
+    def Plot_Diffraction_x_derivative(self, ibody, iforce, iwave = 0):
+        """This functions plots the x-derivative of the diffraction loads."""
+
+        # Data.
+        data = self._pyHDB.bodies[ibody].Diffraction_x_derivative[iforce, :, iwave]
+
+        # Wave direction.
+        beta = self._pyHDB.wave_dir[iwave]
+
+        # Plot.
+        plot_db.plot_loads(data, self._pyHDB.wave_freq, 0, ibody, iforce, beta, True)
 
     def Plot_Froude_Krylov(self, ibody, iforce, iwave = 0, **kwargs):
         """This functions plots the Froude-Krylov loads."""
@@ -223,7 +235,19 @@ class HDB5(object):
         beta = self._pyHDB.wave_dir[iwave]
 
         # Plots.
-        plot_db.plot_loads(data, self._pyHDB.wave_freq, 1, ibody, iforce, beta, **kwargs)
+        plot_db.plot_loads(data, self._pyHDB.wave_freq, 1, ibody, iforce, beta, False, **kwargs)
+
+    def Plot_Froude_Krylov_x_derivative(self, ibody, iforce, iwave = 0, **kwargs):
+        """This functions plots the x-derivative of the Froude-Krylov loads."""
+
+        # Data.
+        data = self._pyHDB.bodies[ibody].Froude_Krylov_x_derivative[iforce, :, iwave]
+
+        # Wave direction.
+        beta = self._pyHDB.wave_dir[iwave]
+
+        # Plots.
+        plot_db.plot_loads(data, self._pyHDB.wave_freq, 1, ibody, iforce, beta, True, **kwargs)
 
     def Plot_Excitation(self, ibody, iforce, iwave = 0, **kwargs):
         """This functions plots the excitation loads."""
@@ -235,7 +259,19 @@ class HDB5(object):
         beta = self._pyHDB.wave_dir[iwave]
 
         # Plots.
-        plot_db.plot_loads(data, self._pyHDB.wave_freq, 2, ibody, iforce, beta, **kwargs)
+        plot_db.plot_loads(data, self._pyHDB.wave_freq, 2, ibody, iforce, beta, False, **kwargs)
+
+    def Plot_Excitation_x_derivative(self, ibody, iforce, iwave = 0, **kwargs):
+        """This functions plots the x-derivative of the excitation loads."""
+
+        # Data.
+        data = self._pyHDB.bodies[ibody].Diffraction_x_derivative[iforce, :, iwave] + self._pyHDB.bodies[ibody].Froude_Krylov_x_derivative[iforce, :, iwave]
+
+        # Wave direction.
+        beta = self._pyHDB.wave_dir[iwave]
+
+        # Plots.
+        plot_db.plot_loads(data, self._pyHDB.wave_freq, 2, ibody, iforce, beta, True, **kwargs)
 
     def Plot_Radiation_coeff(self, ibody_force, iforce, ibody_motion, idof):
         """This functions plots the added mass and damping coefficients."""
@@ -272,7 +308,33 @@ class HDB5(object):
             w = self._pyHDB.wave_freq
 
         # Plots.
-        plot_db.plot_AB(data, w, ibody_force, iforce, ibody_motion, idof)
+        plot_db.plot_AB(data, w, ibody_force, iforce, ibody_motion, idof, False)
+
+    def Plot_Radiation_coeff_x_derivative(self, ibody_force, iforce, ibody_motion, idof):
+        """This functions plots the x-derivative of the added mass and damping coefficients."""
+
+        if(self._pyHDB._has_x_derivatives):
+
+            # Data.
+            body_force = self._pyHDB.bodies[ibody_force]
+            data = np.zeros((self._pyHDB.nb_wave_freq + 2, 2), dtype=np.float)  # 2 for added mass and damping coefficients, +2 for both the infinite and zero-frequency added mass.
+
+            # x-derivative of the added mass.
+            data[0, 0] = body_force.Zero_Added_mass_x_derivative[iforce, 6 * ibody_motion + idof]
+            data[1:self._pyHDB.nb_wave_freq+1, 0] = body_force.Added_mass_x_derivative[iforce, 6 * ibody_motion + idof, :]
+            data[self._pyHDB.nb_wave_freq+1, 0] = body_force.Inf_Added_mass_x_derivative[iforce, 6 * ibody_motion + idof]
+
+            # x-derivative of the Damping.
+            data[0, 1] = 0.
+            data[1:self._pyHDB.nb_wave_freq+1, 1] = body_force.Damping_x_derivative[iforce, 6 * ibody_motion + idof, :]
+
+            # Wave frequency.
+            w = np.zeros((self._pyHDB.wave_freq.shape[0] + 1))
+            w[0] = 0
+            w[1:] = self._pyHDB.wave_freq
+
+            # Plots.
+            plot_db.plot_AB(data, w, ibody_force, iforce, ibody_motion, idof, True)
 
     def Plot_IRF(self, ibody_force, iforce, ibody_motion, idof):
         """This function plots the impulse response functions without forward speed."""
