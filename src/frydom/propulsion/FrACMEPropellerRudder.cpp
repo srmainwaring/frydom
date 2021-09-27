@@ -150,14 +150,14 @@ namespace frydom {
 //    msg->AddField<double>("AttackAngle", "rad", "Attack angle",
 //                          [this]() { return m_acme_rudder->GetAttackAngle(RAD); });
 
-    msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
-                          [this]() { return m_acme_propeller_rudder->GetRudderDrag(); });
-
-    msg->AddField<double>("Lift", "N", "Lift delivered by the rudder",
-                          [this]() { return m_acme_propeller_rudder->GetRudderLift(); });
-
-    msg->AddField<double>("Torque", "Nm", "Torque delivered by the rudder",
-                          [this]() { return m_acme_propeller_rudder->GetRudderMz(); });
+//    msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
+//                          [this]() { return m_acme_propeller_rudder->GetRudderDrag(); });
+//
+//    msg->AddField<double>("Lift", "N", "Lift delivered by the rudder",
+//                          [this]() { return m_acme_propeller_rudder->GetRudderLift(); });
+//
+//    msg->AddField<double>("Torque", "Nm", "Torque delivered by the rudder",
+//                          [this]() { return m_acme_propeller_rudder->GetRudderMz(); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
