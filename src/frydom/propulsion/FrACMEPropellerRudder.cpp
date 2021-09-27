@@ -175,4 +175,18 @@ namespace frydom {
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
   }
+
+  std::shared_ptr<FrACMEPropellerRudder>
+  make_ACME_propeller_rudder(const std::string &name, PropellerModelType prop_type,
+                             const std::shared_ptr<FrNode> &propeller_node, PropellerParams prop_params,
+                             const std::string &prop_perf_data_string, RudderModelType rudder_type,
+                             const std::shared_ptr<FrNode> &rudder_node, RudderParams rudder_params,
+                             const std::string &rudder_perf_data_string) {
+    auto prop_rudder = std::make_shared<FrACMEPropellerRudder>(name, prop_type, propeller_node, prop_params,
+                                                               prop_perf_data_string,
+                                                               rudder_type, rudder_node, rudder_params,
+                                                               rudder_perf_data_string);
+    propeller_node->GetBody()->AddExternalForce(prop_rudder);
+    return prop_rudder;
+  }
 }
