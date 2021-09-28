@@ -53,11 +53,11 @@ namespace frydom {
                                                                     PropellerModelType prop_type,
                                                                     const std::shared_ptr<FrNode>& propeller_node,
                                                                     PropellerParams prop_params,
-                                                                    const std::string &prop_perf_data_string,
+                                                                    const std::string &prop_input_filepath,
                                                                     RudderModelType rudder_type,
                                                                     const std::shared_ptr<FrNode>& rudder_node,
                                                                     RudderParams rudder_params,
-                                                                    const std::string &rudder_perf_data_string);
+                                                                    const std::string &rudder_input_filepath);
 
 }
 #endif //FRYDOM_FRACMEPROPELLERRUDDER_H

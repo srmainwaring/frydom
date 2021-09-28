@@ -176,7 +176,7 @@ namespace frydom {
     if (not rudderRelativeVelocity.isZero(1E-3)) {
 
       auto attackAngle = GetAttackAngle(rudderRelativeVelocity);
-      attackAngle = mathutils::Normalize__PI_PI(attackAngle);
+      attackAngle = mathutils::Normalize_0_2PI(attackAngle);
 
       // projection of the rudder velocity in the body COG reference frame
       auto rudderVelocityInBody = GetBody()->ProjectVectorInBody(rudderRelativeVelocity, NWU);

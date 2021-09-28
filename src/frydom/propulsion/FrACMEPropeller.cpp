@@ -2,6 +2,7 @@
 // Created by lletourn on 20/08/2021.
 //
 
+#include <frydom/utils/FrFileSystem.h>
 #include "FrACMEPropeller.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/core/common/FrNode.h"
@@ -118,17 +119,21 @@ namespace frydom {
 
   std::shared_ptr<FrACMEPropeller>
   make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
-                      const std::string &perf_data_json_string, PropellerType type) {
-    auto force = std::make_shared<FrACMEPropeller>(name, propeller_node, params, perf_data_json_string, type);
+                      const std::string &prop_input_filepath, PropellerType type) {
+
+    std::string tmp_string = prop_input_filepath;
+
+    if (!FrFileSystem::isfile(prop_input_filepath)) {
+      std::cerr << "make_ACME_propeller : perf_data_json_string is a filepath to a non existent file : " +
+                   prop_input_filepath << std::endl;
+      exit(1);
+    }
+    std::ifstream tmp_buffer(prop_input_filepath);
+    json node = json::parse(tmp_buffer);
+    tmp_string = node["propeller"]["open_water_table"].dump();
+
+    auto force = std::make_shared<FrACMEPropeller>(name, propeller_node, params, tmp_string, type);
     propeller_node->GetBody()->AddExternalForce(force);
     return force;
-  }
-
-  std::shared_ptr<FrACMEPropeller>
-  make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, double diameter,
-                      double wake_fraction, double thrust_deduction_factor, SCREW_DIRECTION screwDirection,
-                      const std::string &perf_data_json_string, PropellerType type) {
-    PropellerParams params(diameter, wake_fraction, thrust_deduction_factor, screwDirection);
-    return make_ACME_propeller(name, propeller_node, params, perf_data_json_string, type);
   }
 }

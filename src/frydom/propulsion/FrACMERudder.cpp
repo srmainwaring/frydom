@@ -9,6 +9,8 @@
 
 #include "acme/rudder/FlapRudderModel.h"
 
+#include "frydom/utils/FrFileSystem.h"
+
 namespace frydom {
 
   FrACMERudder::FrACMERudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node,
@@ -31,7 +33,8 @@ namespace frydom {
     if (unit == RAD) m_rudder_angle_deg *= RAD2DEG;
   }
 
-  double FrACMERudder::GetRudderAngle(ANGLE_UNIT unit) const {double angle = m_rudder_angle_deg;
+  double FrACMERudder::GetRudderAngle(ANGLE_UNIT unit) const {
+    double angle = m_rudder_angle_deg;
     if (unit == RAD) angle *= DEG2RAD;
     return angle;
   }
@@ -46,7 +49,7 @@ namespace frydom {
     else {
       auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
       m_rudderAngleFunction = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
-                                               GetSystem()->GetTime() + t_ramp, angle);
+                                                       GetSystem()->GetTime() + t_ramp, angle);
     }
 
   }
@@ -144,21 +147,22 @@ namespace frydom {
 
   std::shared_ptr<FrACMERudder>
   make_ACME_rudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
-                   const std::string &perf_data_json_string, RudderType type) {
-    auto force = std::make_shared<FrACMERudder>(name, rudder_node, params, perf_data_json_string, type);
+                   const std::string &rudder_input_filepath, RudderType type) {
+
+    std::string tmp_string = rudder_input_filepath;
+
+    if (!FrFileSystem::isfile(rudder_input_filepath)) {
+      std::cerr << "make_ACME_rudder : rudder_input_filepath is a filepath to a non existent file : " +
+                   rudder_input_filepath << std::endl;
+      exit(1);
+    }
+
+    std::ifstream tmp_buffer(rudder_input_filepath);
+    json node = json::parse(tmp_buffer);
+    tmp_string = node["rudder"]["load_coefficients"].dump();
+
+    auto force = std::make_shared<FrACMERudder>(name, rudder_node, params, tmp_string, type);
     rudder_node->GetBody()->AddExternalForce(force);
     return force;
-  }
-
-  std::shared_ptr<FrACMERudder>
-  make_ACME_rudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, double area_m2, double chord_m,
-                           double height_m, double wake_fraction, const std::string &perf_data_json_string,
-                           RudderType type) {
-    RudderParams params;
-    params.m_lateral_area_m2 = area_m2;
-    params.m_chord_m = chord_m;
-    params.m_height_m = height_m;
-    params.m_hull_wake_fraction_0 = wake_fraction;
-    return make_ACME_rudder(name, rudder_node, params, perf_data_json_string, type);
   }
 }

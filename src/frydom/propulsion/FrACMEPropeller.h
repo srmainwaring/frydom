@@ -54,16 +54,11 @@ namespace frydom {
   };
 
   std::shared_ptr<FrACMEPropeller>
-  make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
-                      const std::string &perf_data_json_string, PropellerType type);
-
-  std::shared_ptr<FrACMEPropeller> make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
-                                                       double diameter, double wake_fraction,
-                                                       double thrust_deduction_factor,
-                                                       SCREW_DIRECTION screwDirection,
-                                                       const std::string &perf_data_json_string,
-                                                       PropellerType type);
-
+  make_ACME_propeller(const std::string &name,
+                      const std::shared_ptr<FrNode> &propeller_node,
+                      PropellerParams params,
+                      const std::string &prop_input_filepath,
+                      PropellerType type);
 
 }
 

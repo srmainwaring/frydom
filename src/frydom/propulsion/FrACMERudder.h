@@ -16,8 +16,11 @@ namespace frydom {
 
    public:
 
-    FrACMERudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
-                 const std::string &perf_data_json_string, RudderType type);
+    FrACMERudder(const std::string &name,
+                 const std::shared_ptr<FrNode> &rudder_node,
+                 RudderParams params,
+                 const std::string &perf_data_json_string,
+                 RudderType type);
 
     void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
@@ -45,7 +48,6 @@ namespace frydom {
 
     // cached
     double c_water_density;
-
     double c_uR0, c_vR0;
 
     // TODO : move to VSL
@@ -55,12 +57,11 @@ namespace frydom {
   };
 
   std::shared_ptr<FrACMERudder>
-  make_ACME_rudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
-                   const std::string &perf_data_json_string, RudderType type);
-
-  std::shared_ptr<FrACMERudder>
-  make_ACME_rudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, double area_m2, double chord_m, double height_m,
-                   double wake_fraction, const std::string &perf_data_json_string, RudderType type);
+  make_ACME_rudder(const std::string &name,
+                   const std::shared_ptr<FrNode> &rudder_node,
+                   RudderParams params,
+                   const std::string &rudder_input_filepath,
+                   RudderType type);
 
 }
 #endif //FRYDOM_FRACMERUDDER_H

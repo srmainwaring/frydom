@@ -2,6 +2,7 @@
 // Created by lletourn on 03/09/2021.
 //
 
+#include <frydom/utils/FrFileSystem.h>
 #include "FrACMEPropellerRudder.h"
 
 #include "frydom/core/common/FrNode.h"
@@ -11,11 +12,15 @@ using namespace acme;
 
 namespace frydom {
 
-  FrACMEPropellerRudder::FrACMEPropellerRudder(const std::string &name, PropellerModelType prop_type,
+  FrACMEPropellerRudder::FrACMEPropellerRudder(const std::string &name,
+                                               PropellerModelType prop_type,
                                                const std::shared_ptr<FrNode> &propeller_node,
-                                               PropellerParams prop_params, const std::string &prop_perf_data_string,
-                                               RudderModelType rudder_type, const std::shared_ptr<FrNode> &rudder_node,
-                                               RudderParams rudder_params, const std::string &rudder_perf_data_string) :
+                                               PropellerParams prop_params,
+                                               const std::string &prop_perf_data_string,
+                                               RudderModelType rudder_type,
+                                               const std::shared_ptr<FrNode> &rudder_node,
+                                               RudderParams rudder_params,
+                                               const std::string &rudder_perf_data_string) :
       FrActuatorForceBase(name, "ACMEPropellerRudder", propeller_node->GetBody()),
       m_propeller_node(propeller_node), m_rudder_node(rudder_node) {
 
@@ -104,7 +109,8 @@ namespace frydom {
     auto Mz = m_acme_propeller_rudder->GetPropellerRudderMz();
 
     auto force = m_propeller_node->ProjectVectorInWorld(Force(Fx, Fy, 0.), NWU);
-    auto torque = m_propeller_node->ProjectVectorInWorld(Torque(m_acme_propeller_rudder->GetPropellerTorque(), 0., Mz), NWU);
+    auto torque = m_propeller_node->ProjectVectorInWorld(Torque(m_acme_propeller_rudder->GetPropellerTorque(), 0., Mz),
+                                                         NWU);
 
     SetForceTorqueInWorldAtPointInBody(force, torque, m_propeller_node->GetNodePositionInBody(NWU), NWU);
 
@@ -124,7 +130,7 @@ namespace frydom {
                           [this]() { return mathutils::convert_frequency(m_rpm, RPM, RADS); });
 
     msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
-                          [this]() { return m_acme_propeller_rudder->GetpropellerThrust(); });
+                          [this]() { return m_acme_propeller_rudder->GetPropellerThrust(); });
 
     msg->AddField<double>("Torque", "Nm", "Torque delivered by the propeller",
                           [this]() { return m_acme_propeller_rudder->GetPropellerTorque(); });
@@ -177,15 +183,47 @@ namespace frydom {
   }
 
   std::shared_ptr<FrACMEPropellerRudder>
-  make_ACME_propeller_rudder(const std::string &name, PropellerModelType prop_type,
-                             const std::shared_ptr<FrNode> &propeller_node, PropellerParams prop_params,
-                             const std::string &prop_perf_data_string, RudderModelType rudder_type,
-                             const std::shared_ptr<FrNode> &rudder_node, RudderParams rudder_params,
-                             const std::string &rudder_perf_data_string) {
-    auto prop_rudder = std::make_shared<FrACMEPropellerRudder>(name, prop_type, propeller_node, prop_params,
-                                                               prop_perf_data_string,
-                                                               rudder_type, rudder_node, rudder_params,
-                                                               rudder_perf_data_string);
+  make_ACME_propeller_rudder(const std::string &name,
+                             PropellerModelType prop_type,
+                             const std::shared_ptr<FrNode> &propeller_node,
+                             PropellerParams prop_params,
+                             const std::string &prop_input_filepath,
+                             RudderModelType rudder_type,
+                             const std::shared_ptr<FrNode> &rudder_node,
+                             RudderParams rudder_params,
+                             const std::string &rudder_input_filepath) {
+
+    std::string rudder_tmp_string = rudder_input_filepath;
+
+    if (!FrFileSystem::isfile(rudder_input_filepath)) {
+      std::cerr << "make_ACME_propeller_rudder : rudder_input_filepath is a filepath to a non existent file : " +
+                   rudder_input_filepath << std::endl;
+      exit(1);
+    }
+    std::ifstream tmp_buffer(rudder_input_filepath);
+    json node = json::parse(tmp_buffer);
+    rudder_tmp_string = node["rudder"]["load_coefficients"].dump();
+
+    std::string prop_tmp_string = prop_input_filepath;
+
+    if (!FrFileSystem::isfile(prop_input_filepath)) {
+      std::cerr << "make_ACME_propeller_rudder : prop_input_filepath is a filepath to a non existent file : " +
+                   prop_input_filepath << std::endl;
+      exit(1);
+    }
+    tmp_buffer = std::ifstream(prop_input_filepath);
+    node = json::parse(tmp_buffer);
+    prop_tmp_string = node["propeller"]["open_water_table"].dump();
+
+    auto prop_rudder = std::make_shared<FrACMEPropellerRudder>(name,
+                                                               prop_type,
+                                                               propeller_node,
+                                                               prop_params,
+                                                               prop_tmp_string,
+                                                               rudder_type,
+                                                               rudder_node,
+                                                               rudder_params,
+                                                               rudder_tmp_string);
     propeller_node->GetBody()->AddExternalForce(prop_rudder);
     return prop_rudder;
   }
