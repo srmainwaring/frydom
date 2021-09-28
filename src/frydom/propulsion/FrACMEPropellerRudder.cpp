@@ -80,7 +80,7 @@ namespace frydom {
   void FrACMEPropellerRudder::Initialize() {
 
     c_water_density = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
-    c_xr = m_rudder_node->GetNodePositionInBody(NWU).GetX() - m_propeller_node->GetNodePositionInBody(NWU).GetX();
+    c_xr = m_propeller_node->GetNodePositionInBody(NWU).GetX() - m_rudder_node->GetNodePositionInBody(NWU).GetX();
 
     m_acme_propeller_rudder->Initialize();
 

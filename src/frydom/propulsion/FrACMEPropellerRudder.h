@@ -5,6 +5,7 @@
 #ifndef FRYDOM_FRACMEPROPELLERRUDDER_H
 #define FRYDOM_FRACMEPROPELLERRUDDER_H
 
+#include "frydom/core/math/functions/FrFunctionsInc.h"
 #include "FrActuatorForceBase.h"
 #include "FrPropellerType.h"
 
@@ -26,6 +27,42 @@ namespace frydom {
                           RudderParams rudder_params,
                           const std::string &rudder_perf_data_string);
 
+    void SetRPM(double rpm) {
+      m_rpm = rpm;
+    }
+
+    // For CPP only
+    void SetPitchRatio(double pitch_ratio) {
+      m_pitch_ratio = pitch_ratio;
+    }
+
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {
+      m_rudder_angle_deg = rudder_angle;
+    if (unit == RAD) m_rudder_angle_deg *= RAD2DEG;
+    }
+
+    double GetRudderAngle(ANGLE_UNIT unit) const {
+      double angle = m_rudder_angle_deg;
+      if (unit == RAD) angle *= DEG2RAD;
+      return angle;
+    }
+
+    // TODO : move to VSL
+    void SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
+      if (unit == RAD) angle *= RAD2DEG;
+
+      double actualRudderAngle = GetRudderAngle(DEG);
+
+      if (std::abs(angle - GetRudderAngle(DEG)) <= 0)
+        m_rudderAngleFunction = new FrConstantFunction(angle);
+      else {
+        auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
+        m_rudderAngleFunction = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
+                                                         GetSystem()->GetTime() + t_ramp, angle);
+      }
+
+    }
+
    private:
 
     void Initialize() override;
@@ -41,9 +78,13 @@ namespace frydom {
     double m_rudder_angle_deg;
     double m_rpm, m_pitch_ratio;
 
+    // TODO : move to VSL
+    double m_ramp_slope;
+    FrFunctionBase *m_rudderAngleFunction;
+
     // cached
     double c_water_density;
-    double c_xr; ///< distance from propeller to rudder
+    double c_xr; ///< distance from propeller to rudder (positive if rudder behind the propeller)
 
 //    double c_uR0, c_vR0;
 
