@@ -373,7 +373,7 @@ def plot_AB_array(data, w, ibody_force, ibody_motion, pyHDB):
     plt.show()
 
 
-def plot_irf(data, time, SpeedOrNot, ibody_force, iforce, ibody_motion, idof, show=True, save=False,
+def plot_irf(data, time, IRFtype, ibody_force, iforce, ibody_motion, idof, show=True, save=False,
              filename="IRF.png"):
     """Plots the impulse response function of a given modes set.
 
@@ -383,8 +383,8 @@ def plot_irf(data, time, SpeedOrNot, ibody_force, iforce, ibody_motion, idof, sh
         Data to plot: impulse response functions.
     time : Array of floats.
         Time.
-    SpeedOrNot : int
-        IRF with forward speed (1) or not (0).
+    IRFtype : int
+        Type of IRF: K0 (0), Kua (1), Kub (2), Ku2 (3) (cf doc Helios).
     ibody_force : int
         Index of the body where the radiation force is applied.
     iforce : int
@@ -396,11 +396,17 @@ def plot_irf(data, time, SpeedOrNot, ibody_force, iforce, ibody_motion, idof, sh
     """
 
     # Labels.
-    if (SpeedOrNot == 0):  # Without forward speed.
+    if (IRFtype == 0):  # Without forward speed.
         ylabel = r'$K_{%s}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
             ibody_motion + 1))
-    else:  # With forward speed.
-        ylabel = r'$Ku_{%s}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
+    elif(IRFtype == 2):  # Proportional to the forward speed velocity, no x-derivatives.
+        ylabel = r'$Ku_{%s}^b$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
+            ibody_motion + 1))
+    elif (IRFtype == 1):  # Proportional to the forward speed velocity, with x-derivatives.
+        ylabel = r'$Ku_{%s}^a$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
+            ibody_motion + 1))
+    elif (IRFtype == 3):  # Proportional to the square of the forward speed velocity.
+        ylabel = r'$Ku^2_{%s}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
             ibody_motion + 1))
 
     if (iforce <= 2):
@@ -429,13 +435,20 @@ def plot_irf(data, time, SpeedOrNot, ibody_force, iforce, ibody_motion, idof, sh
     plt.xlabel(r'$t$' + ' $(s)$', fontsize=18)
     plt.ylabel(ylabel, fontsize=18)  # TODO: mettre une unite
     if (save == False):
-        if (SpeedOrNot == 0):  # Without forward speed.
+        if (IRFtype == 0):  # Without forward speed.
             plt.title('Impulse response function of the radiation %s in %s of body %u for a %s in %s of body %u' %
                       (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1),
                       fontsize=20)
-        else:  # With forward speed.
-            plt.title(
-                'Impulse response function with forward speed of the radiation %s in %s of body %u for a %s in %s of body %u' %
+        elif (IRFtype == 2): # Proportional to the forward speed velocity, no x-derivatives.
+            plt.title('Impulse response function proportional to the forward speed and without x-derivatives\n of the radiation %s in %s of body %u for a %s in %s of body %u' %
+                (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1),
+                fontsize=20)
+        elif (IRFtype == 1): # Proportional to the forward speed velocity, with x-derivatives.
+            plt.title('Impulse response function proportional to the forward speed and with x-derivatives\n of the radiation %s in %s of body %u for a %s in %s of body %u' %
+                (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1),
+                fontsize=20)
+        elif (IRFtype == 3): # Proportional to the square of the forward speed velocity.
+            plt.title('Impulse response function proportional to the square of the forward speed\n of the radiation %s in %s of body %u for a %s in %s of body %u' %
                 (force_str, Dof_name[iforce], ibody_force + 1, motion_str, Dof_name[idof], ibody_motion + 1),
                 fontsize=20)
     plt.grid()
