@@ -132,68 +132,154 @@ namespace frydom {
 
   void FrACMEPropellerRudder::DefineLogMessages() {
 
-    auto msg = NewMessage("FrRudderForce", "Rudder force message");
 
-    msg->AddField<double>("Time", "s", "Current time of the simulation",
-                          [this]() { return m_chronoForce->GetChTime(); });
+    // Propeller logs
+    auto prop_msg = NewMessage("_propeller", "propeller force message");
 
-    msg->AddField<double>("RudderAngle", "rad", "Rudder angle",
-                          [this]() { return m_rudder_angle_deg * DEG2RAD; });
+    prop_msg->AddField<double>("Time", "s", "Current time of the simulation",
+                               [this]() { return m_chronoForce->GetChTime(); });
 
-    msg->AddField<double>("RotationalVelocity", "rad/s", "Rotational velocity",
-                          [this]() { return mathutils::convert_frequency(m_rpm, RPM, RADS); });
+    prop_msg->AddField<double>("RotationalVelocity", "rad/s", "Rotational velocity",
+                               [this]() { return mathutils::convert_frequency(m_rpm, RPM, RADS); });
 
-    msg->AddField<double>("Thrust", "N", "Thrust delivered by the propeller",
-                          [this]() { return m_acme_propeller_rudder->GetPropellerThrust(); });
-
-    msg->AddField<double>("Torque", "Nm", "Torque delivered by the propeller",
-                          [this]() { return m_acme_propeller_rudder->GetPropellerTorque(); });
-
-    msg->AddField<double>("Power", "W", "Power delivered by the propeller",
-                          [this]() { return m_acme_propeller_rudder->GetPropellerPower(); });
-
-    msg->AddField<double>("Efficiency", "", "Efficiency delivered by the propeller",
-                          [this]() { return m_acme_propeller_rudder->GetPropellerEfficiency(); });
-
-//    msg->AddField<double>("uP0", "m/s", "Longitudinal velocity at the propeller position, in body reference frame",
-//                          [this]() { return c_uP0; });
-
-//    msg->AddField<double>("u_R0", "m/s", "Rudder longitudinal relative velocity, in body reference frame",
-//                          [this]() { return c_uR0; });
-//
-//    msg->AddField<double>("v_R0", "m/s", "Rudder transversal relative velocity, in body reference frame",
-//                          [this]() { return c_vR0; });
-
-//    msg->AddField<double>("DriftAngle", "rad", "Drift angle",
-//                          [this]() { return m_acme_propeller_rudder->GetDriftAngle(RAD); });
-//
-//    msg->AddField<double>("AttackAngle", "rad", "Attack angle",
-//                          [this]() { return m_acme_rudder->GetAttackAngle(RAD); });
-
-//    msg->AddField<double>("Drag", "N", "Drag delivered by the rudder",
-//                          [this]() { return m_acme_propeller_rudder->GetRudderDrag(); });
-//
-//    msg->AddField<double>("Lift", "N", "Lift delivered by the rudder",
-//                          [this]() { return m_acme_propeller_rudder->GetRudderLift(); });
-//
-//    msg->AddField<double>("Torque", "Nm", "Torque delivered by the rudder",
-//                          [this]() { return m_acme_propeller_rudder->GetRudderMz(); });
-
-    msg->AddField<Eigen::Matrix<double, 3, 1>>
+    prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
-         [this]() { return GetForceInBody(GetLogFC()); });
+         [this]() { return GetPropellerForceInBody(GetLogFC()); });
 
-    msg->AddField<Eigen::Matrix<double, 3, 1>>
-        ("TorqueInBodyAtCOG", "Nm", fmt::format("torque at COG in body reference frame in {}", GetLogFC()),
-         [this]() { return GetTorqueInBodyAtCOG(GetLogFC()); });
+    prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInBodyAtCOG", "Nm", fmt::format("torque in body reference frame, at COG, in {}", GetLogFC()),
+         [this]() { return GetPropellerTorqueInBodyAtCOG(GetLogFC()); });
 
-    msg->AddField<Eigen::Matrix<double, 3, 1>>
+//    prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
+//        ("TorqueInBodyAtProp", "Nm", fmt::format("torque in body reference frame, at prop, in {}", GetLogFC()),
+//         [this]() { return GetPropellerTorqueInBodyAtPropeller(GetLogFC()); });
+
+    prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("ForceInWorld", "N", fmt::format("force in world reference frame in {}", GetLogFC()),
-         [this]() { return GetForceInWorld(GetLogFC()); });
+         [this]() { return GetPropellerForceInWorld(GetLogFC()); });
 
-    msg->AddField<Eigen::Matrix<double, 3, 1>>
-        ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
-         [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
+    prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInWorldAtCOG", "Nm", fmt::format("torque in world reference frame, at COG, in {}", GetLogFC()),
+         [this]() { return GetPropellerTorqueInWorldAtCOG(GetLogFC()); });
+
+//    prop_msg->AddField<Eigen::Matrix<double, 3, 1>>
+//        ("TorqueInWorldAtProp", "Nm", fmt::format("torque in world reference frame, at prop, in {}", GetLogFC()),
+//         [this]() { return GetPropellerTorqueInWorldAtPropeller(GetLogFC()); });
+
+
+    // Rudder logs
+    auto rudder_msg = NewMessage("_rudder", "rudder force message");
+
+    rudder_msg->AddField<double>("Time", "s", "Current time of the simulation",
+                                 [this]() { return m_chronoForce->GetChTime(); });
+
+    rudder_msg->AddField<double>("RudderAngle", "rad", "Rudder angle",
+                                 [this]() { return GetRudderAngle(RAD); });
+
+    rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ForceInBody", "N", fmt::format("force in body reference frame in {}", GetLogFC()),
+         [this]() { return GetRudderForceInBody(GetLogFC()); });
+
+    rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInBodyAtCOG", "Nm", fmt::format("torque in body reference frame, at COG, in {}", GetLogFC()),
+         [this]() { return GetRudderTorqueInBodyAtCOG(GetLogFC()); });
+
+//    rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
+//        ("TorqueInBodyAtRudder", "Nm", fmt::format("torque in body reference frame, at rudder, in {}", GetLogFC()),
+//         [this]() { return GetRudderTorqueInBodyAtRudder(GetLogFC()); });
+
+    rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("ForceInWorld", "N", fmt::format("force in world reference frame in {}", GetLogFC()),
+         [this]() { return GetRudderForceInWorld(GetLogFC()); });
+
+    rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("TorqueInWorldAtCOG", "Nm", fmt::format("torque in world reference frame, at COG, in {}", GetLogFC()),
+         [this]() { return GetRudderTorqueInWorldAtCOG(GetLogFC()); });
+
+//    rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
+//        ("TorqueInWorldAtRudder", "Nm", fmt::format("torque in world reference frame, at rudder, in {}", GetLogFC()),
+//         [this]() { return GetRudderTorqueInWorldAtRudder(GetLogFC()); });
+
+    m_acme_propeller_rudder->DefineLogMessages(prop_msg, rudder_msg);
+
+  }
+
+  void FrACMEPropellerRudder::SetRPM(double rpm) {
+    m_rpm = rpm;
+  }
+
+  void FrACMEPropellerRudder::SetPitchRatio(double pitch_ratio) {
+    m_pitch_ratio = pitch_ratio;
+  }
+
+  void FrACMEPropellerRudder::SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {
+    m_rudder_angle_deg = rudder_angle;
+    if (unit == RAD) m_rudder_angle_deg *= RAD2DEG;
+  }
+
+  double FrACMEPropellerRudder::GetRudderAngle(ANGLE_UNIT unit) const {
+    double angle = m_rudder_angle_deg;
+    if (unit == RAD) angle *= DEG2RAD;
+    return angle;
+  }
+
+  double FrACMEPropellerRudder::GetPropulsivePower() const {
+    return m_acme_propeller_rudder->GetPropellerPower();
+  }
+
+  Force FrACMEPropellerRudder::GetPropellerForceInWorld(FRAME_CONVENTION fc) const {
+    auto thrust = m_acme_propeller_rudder->GetPropellerThrust();
+    return m_propeller_node->ProjectVectorInWorld(Force(thrust, 0., 0.), fc);
+  }
+
+  Force FrACMEPropellerRudder::GetPropellerForceInBody(FRAME_CONVENTION fc) const {
+    return GetBody()->ProjectVectorInBody(GetPropellerForceInWorld(NWU), fc);
+  }
+
+  Torque FrACMEPropellerRudder::GetPropellerTorqueInWorldAtPropeller(FRAME_CONVENTION fc) const {
+    auto torque = m_acme_propeller_rudder->GetPropellerTorque();
+    return m_propeller_node->ProjectVectorInWorld(Torque(torque, 0., 0.), fc);
+  }
+
+  Torque FrACMEPropellerRudder::GetPropellerTorqueInBodyAtPropeller(FRAME_CONVENTION fc) const {
+    return GetBody()->ProjectVectorInBody(GetPropellerTorqueInWorldAtPropeller(NWU), fc);
+  }
+
+  Torque FrACMEPropellerRudder::GetPropellerTorqueInWorldAtCOG(FRAME_CONVENTION fc) const {
+    Translation MG = m_propeller_node->GetPositionInWorld(fc) - GetBody()->GetCOGPositionInWorld(fc);
+    return GetPropellerTorqueInWorldAtPropeller(fc) + MG.cross(GetPropellerForceInWorld(fc));
+  }
+
+  Torque FrACMEPropellerRudder::GetPropellerTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
+    return GetBody()->ProjectVectorInBody(GetPropellerTorqueInWorldAtCOG(NWU), fc);
+  }
+
+  Force FrACMEPropellerRudder::GetRudderForceInWorld(FRAME_CONVENTION fc) const {
+    auto rudderForceInNode = Force(m_acme_propeller_rudder->GetPropellerRudderFx(),
+                                   m_acme_propeller_rudder->GetPropellerRudderFy(),
+                                   0.);
+    return m_rudder_node->ProjectVectorInWorld(rudderForceInNode, fc);
+  }
+
+  Force FrACMEPropellerRudder::GetRudderForceInBody(FRAME_CONVENTION fc) const {
+    return GetBody()->ProjectVectorInBody(GetRudderForceInWorld(NWU), fc);
+  }
+
+  Torque FrACMEPropellerRudder::GetRudderTorqueInWorldAtRudder(FRAME_CONVENTION fc) const {
+    return m_rudder_node->ProjectVectorInWorld(Torque(0.,0.,m_acme_propeller_rudder->GetPropellerRudderMz()), fc);
+  }
+
+  Torque FrACMEPropellerRudder::GetRudderTorqueInBodyAtRudder(FRAME_CONVENTION fc) const {
+    return GetBody()->ProjectVectorInBody(GetRudderTorqueInWorldAtRudder(NWU), fc);
+  }
+
+  Torque FrACMEPropellerRudder::GetRudderTorqueInWorldAtCOG(FRAME_CONVENTION fc) const {
+    Translation MG = m_propeller_node->GetPositionInWorld(fc) - GetBody()->GetCOGPositionInWorld(fc);
+    return GetRudderTorqueInWorldAtRudder(fc) + MG.cross(GetRudderForceInWorld(fc));
+  }
+
+  Torque FrACMEPropellerRudder::GetRudderTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
+    return GetBody()->ProjectVectorInBody(GetRudderTorqueInWorldAtCOG(NWU), fc);
   }
 
   std::shared_ptr<FrACMEPropellerRudder>

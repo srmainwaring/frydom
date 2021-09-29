@@ -26,32 +26,47 @@ namespace frydom {
                           RudderParams rudder_params,
                           const std::string &rudder_perf_data_string);
 
-    void SetRPM(double rpm) {
-      m_rpm = rpm;
-    }
+    void SetRPM(double rpm);
 
     // For CPP only
-    void SetPitchRatio(double pitch_ratio) {
-      m_pitch_ratio = pitch_ratio;
-    }
+    void SetPitchRatio(double pitch_ratio);
 
-    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {
-      m_rudder_angle_deg = rudder_angle;
-    if (unit == RAD) m_rudder_angle_deg *= RAD2DEG;
-    }
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
-    double GetRudderAngle(ANGLE_UNIT unit) const {
-      double angle = m_rudder_angle_deg;
-      if (unit == RAD) angle *= DEG2RAD;
-      return angle;
-    }
+    double GetRudderAngle(ANGLE_UNIT unit) const;
 
     // TODO : move to VSL
     void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
 
-    double GetPropulsivePower() const {
-      return m_acme_propeller_rudder->GetPropellerPower();
-    }
+    // Propeller Force
+
+    Force GetPropellerForceInWorld(FRAME_CONVENTION fc) const;
+
+    Force GetPropellerForceInBody(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInWorldAtPropeller(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInBodyAtPropeller(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInWorldAtCOG(FRAME_CONVENTION fc) const;
+
+    Torque GetPropellerTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
+
+    double GetPropulsivePower() const;
+
+    // Rudder Force
+
+    Force GetRudderForceInWorld(FRAME_CONVENTION fc) const;
+
+    Force GetRudderForceInBody(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInWorldAtRudder(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInBodyAtRudder(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInWorldAtCOG(FRAME_CONVENTION fc) const;
+
+    Torque GetRudderTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
 
    private:
 
