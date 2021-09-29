@@ -726,6 +726,13 @@ class HDB5reader_v2(HDB5reader):
         except:
             pass
 
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKUXDerivative/DOF_0"] # Read for cheking if the folder is present or not.
+            body.irf_ku_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+            body.irf_ku2 = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
+
         if(pyHDB.has_VF):
             body.poles_residues = []
 
@@ -739,6 +746,8 @@ class HDB5reader_v2(HDB5reader):
             radiation_damping_x_derivative_path = radiation_body_motion_path + "/RadiationDampingXDerivative"
             irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
             irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
+            irf_ku_x_derivative_path = radiation_body_motion_path + "/ImpulseResponseFunctionKUXDerivative"
+            irf_ku2_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU2"
             modal_path = radiation_body_motion_path + "/Modal"
 
             # Infinite-frequency added mass.
@@ -787,9 +796,17 @@ class HDB5reader_v2(HDB5reader):
                 if(body.irf is not None):
                     body.irf[:, 6 * j + imotion, :] = np.array(reader[irf_path + "/DOF_%u" % imotion])
 
-                # Impulse response functions with forward speed.
+                # Impulse response functions proportional to the forward speed without x-derivatives.
                 if(body.irf_ku is not None):
                     body.irf_ku[:, 6 * j + imotion, :] = np.array(reader[irf_ku_path + "/DOF_%u" % imotion])
+
+                # Impulse response functions proportional to the forward speed with x-derivatives.
+                if (body.irf_ku_x_derivative is not None):
+                    body.irf_ku_x_derivative[:, 6 * j + imotion, :] = np.array(reader[irf_ku_x_derivative_path + "/DOF_%u" % imotion])
+
+                # Impulse response functions proportional to the square of the forward speed.
+                if (body.irf_ku2 is not None):
+                    body.irf_ku2[:, 6 * j + imotion, :] = np.array(reader[irf_ku2_path + "/DOF_%u" % imotion])
 
                 # Poles and residues.
                 if(pyHDB.has_VF):
