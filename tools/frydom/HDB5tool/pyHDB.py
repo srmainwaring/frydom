@@ -1212,7 +1212,19 @@ class pyHDB(object):
             if (body.irf_ku is not None):
                 irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
                 dg = writer.create_group(irf_ku_path)
-                dg.attrs['Description'] = "Impulse response functions Ku due to the velocity of body %u that radiates waves " \
+                dg.attrs['Description'] = "Impulse response functions Kub proportional to the forward speed without x-derivatives due to the velocity of body %u that radiates waves " \
+                                          "and generates forces on body %u." % (j, body.i_body)
+
+            if (body.irf_ku_x_derivative is not None):
+                irf_ku_x_derivative_path = radiation_body_motion_path + "/ImpulseResponseFunctionKUXDerivative"
+                dg = writer.create_group(irf_ku_x_derivative_path)
+                dg.attrs['Description'] = "Impulse response functions Kua proportional to the forward speed with x-derivatives due to the velocity of body %u that radiates waves " \
+                                          "and generates forces on body %u." % (j, body.i_body)
+
+            if (body.irf_ku2 is not None):
+                irf_ku2_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU2"
+                dg = writer.create_group(irf_ku2_path)
+                dg.attrs['Description'] = "Impulse response functions Kub proportional to the square of the forward speed due to the velocity of body %u that radiates waves " \
                                           "and generates forces on body %u." % (j, body.i_body)
 
             if(self.has_VF):
@@ -1291,12 +1303,23 @@ class pyHDB(object):
                 # Impulse response functions without forward speed.
                 if(body.irf is not None):
                     dset = writer.create_dataset(irf_path + "/DOF_%u" % idof, data=body.irf[:, 6*j+idof, :])
-                    dset.attrs['Description'] = "Impulse response functions"
+                    dset.attrs['Description'] = "Impulse response functions K."
 
-                # Impulse response function with forward speed.
+                # Impulse response function proportional to the forward speed without x-derivatives.
                 if(body.irf_ku is not None):
                     dset = writer.create_dataset(irf_ku_path + "/DOF_%u" % idof, data=body.irf_ku[:, 6*j+idof, :])
-                    dset.attrs['Description'] = "Impulse response functions Ku"
+                    dset.attrs['Description'] = "Impulse response functions Kub."
+
+                # Impulse response function propotional to the forward speed with x-derivative.
+                if (body.irf_ku_x_derivative is not None):
+                    dset = writer.create_dataset(irf_ku_x_derivative_path + "/DOF_%u" % idof, data=body.irf_ku_x_derivative[:, 6 * j + idof, :])
+                    dset.attrs['Description'] = "Impulse response functions Kua."
+
+                # Impulse response function proportional to the square of the forward speed.
+                if (body.irf_ku2 is not None):
+                    dset = writer.create_dataset(irf_ku2_path + "/DOF_%u" % idof,
+                                                 data=body.irf_ku2[:, 6 * j + idof, :])
+                    dset.attrs['Description'] = "Impulse response functions Ku2."
 
                 # Poles and residues.
                 if(self.has_VF):
