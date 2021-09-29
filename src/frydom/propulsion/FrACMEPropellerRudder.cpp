@@ -255,8 +255,8 @@ namespace frydom {
   }
 
   Force FrACMEPropellerRudder::GetRudderForceInWorld(FRAME_CONVENTION fc) const {
-    auto rudderForceInNode = Force(m_acme_propeller_rudder->GetPropellerRudderFx(),
-                                   m_acme_propeller_rudder->GetPropellerRudderFy(),
+    auto rudderForceInNode = Force(m_acme_propeller_rudder->GetRudderFx(),
+                                   m_acme_propeller_rudder->GetRudderFy(),
                                    0.);
     return m_rudder_node->ProjectVectorInWorld(rudderForceInNode, fc);
   }
@@ -266,7 +266,7 @@ namespace frydom {
   }
 
   Torque FrACMEPropellerRudder::GetRudderTorqueInWorldAtRudder(FRAME_CONVENTION fc) const {
-    return m_rudder_node->ProjectVectorInWorld(Torque(0.,0.,m_acme_propeller_rudder->GetPropellerRudderMz()), fc);
+    return m_rudder_node->ProjectVectorInWorld(Torque(0.,0.,m_acme_propeller_rudder->GetRudderMz()), fc);
   }
 
   Torque FrACMEPropellerRudder::GetRudderTorqueInBodyAtRudder(FRAME_CONVENTION fc) const {
