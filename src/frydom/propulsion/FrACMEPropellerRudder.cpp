@@ -76,6 +76,20 @@ namespace frydom {
         break;
     }
   }
+  void FrACMEPropellerRudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
+    if (unit == RAD) angle *= RAD2DEG;
+
+    double actualRudderAngle = GetRudderAngle(DEG);
+
+    if (std::abs(angle - GetRudderAngle(DEG)) <= 0)
+      m_rudderAngleFunction = new FrConstantFunction(angle);
+    else {
+      auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
+      m_rudderAngleFunction = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
+                                                       GetSystem()->GetTime() + t_ramp, angle);
+    }
+
+  }
 
   void FrACMEPropellerRudder::Initialize() {
 

@@ -5,11 +5,10 @@
 #ifndef FRYDOM_FRACMEPROPELLERRUDDER_H
 #define FRYDOM_FRACMEPROPELLERRUDDER_H
 
-#include "frydom/core/math/functions/FrFunctionsInc.h"
 #include "FrActuatorForceBase.h"
 #include "FrPropellerType.h"
-
 #include "acme/acme.h"
+#include "frydom/core/math/functions/FrFunctionsInc.h"
 
 namespace frydom {
 
@@ -48,19 +47,10 @@ namespace frydom {
     }
 
     // TODO : move to VSL
-    void SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
-      if (unit == RAD) angle *= RAD2DEG;
+    void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
 
-      double actualRudderAngle = GetRudderAngle(DEG);
-
-      if (std::abs(angle - GetRudderAngle(DEG)) <= 0)
-        m_rudderAngleFunction = new FrConstantFunction(angle);
-      else {
-        auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
-        m_rudderAngleFunction = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
-                                                         GetSystem()->GetTime() + t_ramp, angle);
-      }
-
+    double GetPropulsivePower() const {
+      return m_acme_propeller_rudder->GetPropellerPower();
     }
 
    private:
