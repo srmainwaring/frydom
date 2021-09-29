@@ -1078,26 +1078,28 @@ class pyHDB(object):
             fk_x_derivative_path = excitation_path + "/FroudeKrylovXDerivative"
             writer.create_group(fk_x_derivative_path)
 
-            wave_dir_path = fk_x_derivative_path + "/Angle_%u" % idir
-            writer.create_group(wave_dir_path)
+            for idir in range(0, self.nb_wave_dir):
 
-            dset = writer.create_dataset(wave_dir_path + "/Angle", data=np.degrees(self.wave_dir[idir]))
-            dset.attrs['Unit'] = 'deg'
-            dset.attrs['Description'] = "Wave direction."
+                wave_dir_path = fk_x_derivative_path + "/Angle_%u" % idir
+                writer.create_group(wave_dir_path)
 
-            # Real parts.
-            dset = writer.create_dataset(wave_dir_path + "/RealCoeffs", data=body.Froude_Krylov_x_derivative[:, :, idir].real)
-            dset.attrs['Unit'] = ''
-            dset.attrs['Description'] = "Real part of the x-derivative of the Froude-Krylov loads " \
-                                        "on body %u for a wave direction of %.1f deg." % \
-                                        (body.i_body, np.degrees(self.wave_dir[idir]))
+                dset = writer.create_dataset(wave_dir_path + "/Angle", data=np.degrees(self.wave_dir[idir]))
+                dset.attrs['Unit'] = 'deg'
+                dset.attrs['Description'] = "Wave direction."
 
-            # Imaginary parts.
-            dset = writer.create_dataset(wave_dir_path + "/ImagCoeffs", data=body.Froude_Krylov_x_derivative[:, :, idir].imag)
-            dset.attrs['Unit'] = ''
-            dset.attrs['Description'] = "Imaginary part of the x-derivative of the Froude-Krylov loads " \
-                                        "on body %u for a wave direction of %.1f deg." % \
-                                        (body.i_body, np.degrees(self.wave_dir[idir]))
+                # Real parts.
+                dset = writer.create_dataset(wave_dir_path + "/RealCoeffs", data=body.Froude_Krylov_x_derivative[:, :, idir].real)
+                dset.attrs['Unit'] = ''
+                dset.attrs['Description'] = "Real part of the x-derivative of the Froude-Krylov loads " \
+                                            "on body %u for a wave direction of %.1f deg." % \
+                                            (body.i_body, np.degrees(self.wave_dir[idir]))
+
+                # Imaginary parts.
+                dset = writer.create_dataset(wave_dir_path + "/ImagCoeffs", data=body.Froude_Krylov_x_derivative[:, :, idir].imag)
+                dset.attrs['Unit'] = ''
+                dset.attrs['Description'] = "Imaginary part of the x-derivative of the Froude-Krylov loads " \
+                                            "on body %u for a wave direction of %.1f deg." % \
+                                            (body.i_body, np.degrees(self.wave_dir[idir]))
 
         # Diffraction loads.
 
@@ -1154,7 +1156,6 @@ class pyHDB(object):
                 dset.attrs['Description'] = "Imaginary part of the x-derivative of the diffraction loads " \
                                             "on body %u for a wave direction of %.1f deg." % \
                                             (body.i_body, np.degrees(self.wave_dir[idir]))
-
 
     def write_radiation(self, writer, body, radiation_path="/Radiation"):
 
