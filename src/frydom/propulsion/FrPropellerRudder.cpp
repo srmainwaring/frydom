@@ -108,6 +108,9 @@ namespace frydom {
       // Inside slipstream rudder force
       auto propellerVelocityInSlipstream = GetBody()->ProjectVectorInWorld(Velocity(c_uRP, c_vRP, 0.), NWU);
       auto insideSlipstreamRudderForce = m_rudderForce->ComputeGeneralizedForceInWorld(propellerVelocityInSlipstream, c_kd);
+      c_drag_RP = m_rudderForce->GetDrag();
+      c_lift_RP = m_rudderForce->GetLift();
+      c_torque_RP = m_rudderForce->GetTorque();
 
       rudderForceInWorld *= (1. - area_ratio);
       rudderForceInWorld += area_ratio * insideSlipstreamRudderForce;
@@ -278,6 +281,15 @@ namespace frydom {
 
     rudder_msg->AddField<double>("Torque", "Nm", "Torque delivered by the rudder",
                                  [this]() { return m_rudderForce->GetTorque(); });
+
+    rudder_msg->AddField<double>("Drag_RP", "N", "Drag delivered by the rudder",
+                                 [this]() { return c_drag_RP; });
+
+    rudder_msg->AddField<double>("Lift_RP", "N", "Lift delivered by the rudder",
+                                 [this]() { return c_lift_RP; });
+
+    rudder_msg->AddField<double>("Torque_RP", "Nm", "Torque delivered by the rudder",
+                                 [this]() { return c_torque_RP; });
 
     rudder_msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("InflowVelocityInWorld", "m/s", fmt::format("Inflow velocity in World reference frame in {}", GetLogFC()),

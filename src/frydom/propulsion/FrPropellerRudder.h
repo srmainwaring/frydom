@@ -108,6 +108,8 @@ namespace frydom {
     double c_uRP, c_vRP;
     double c_kd, c_A_RP;
 
+    double c_drag_RP, c_lift_RP, c_torque_RP;
+
   };
 
   std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, const std::shared_ptr<FrBody> &body);
