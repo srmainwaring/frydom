@@ -448,8 +448,7 @@ namespace frydom {
 
           //idof applied here to BEMBodyMotion, even if it's not really explicit. The BEMBodyMotion is now called at the
           // Eval below. So it's equivalent to the next line, previously written for the old container.
-//          auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_K)->at(idof);
-          auto interpK = BEMBody->first->GetIRFInterpolator()->at(idof);
+          auto interpK = BEMBody->first->GetIRFInterpolator("K")->at(idof);
 
           std::vector<mathutils::Vector6d<double>> kernel;
           kernel.reserve(vtime.size());
@@ -498,8 +497,7 @@ namespace frydom {
 
     for (unsigned int idof = 4; idof < 6; idof++) {
 
-//      auto interpKu = BEMBody->GetHDBInterpolator(FrBEMBody::IRF_KU)->at(idof);
-      auto interpKu = BEMBody->GetIRF_KuInterpolator()->at(idof);
+      auto interpKu = BEMBody->GetIRFInterpolator("KU")->at(idof);
 
       std::vector<mathutils::Vector6d<double>> kernel;
       for (unsigned int it = 0; it < vtime.size(); ++it) {
