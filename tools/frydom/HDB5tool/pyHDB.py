@@ -1773,6 +1773,13 @@ class pyHDB(object):
                 print("    Number of vertices: " + str(body.mesh.nb_vertices))
             if body._inertia:
                 print("    Mass matrix: Yes")
+                print("        Mass (kg): " + str(body._inertia.mass))
+                print("        Ixx (kg.m2) : " + str(body._inertia.I44))
+                print("        Iyy (kg.m2) : " + str(body._inertia.I55))
+                print("        Izz (kg.m2) : " + str(body._inertia.I66))
+                print("        Ixy (kg.m2) : " + str(body._inertia.I45))
+                print("        Ixz (kg.m2) : " + str(body._inertia.I46))
+                print("        Iyz (kg.m2) : " + str(body._inertia.I56))
             else:
                 print("    Mass matrix: No")
             if body._extra_damping is not None:
@@ -1781,6 +1788,12 @@ class pyHDB(object):
                 print("    Extra damping matrix: No")
             if body._hydrostatic:
                 print("    Hydrostatic matrix: Yes")
+                print("        K33 (N/m) : " + str(body._hydrostatic.k33))
+                print("        K44 (N.m) : " + str(body._hydrostatic.k44))
+                print("        K55 (N.m) : " + str(body._hydrostatic.k55))
+                print("        K34 (N) : " + str(body._hydrostatic.k34))
+                print("        K35 (N) : " + str(body._hydrostatic.k35))
+                print("        K45 (N.m) : " + str(body._hydrostatic.k45))
             else:
                 print("    Hydrostatic matrix: No")
             if body._mooring is not None:
