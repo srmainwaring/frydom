@@ -97,6 +97,14 @@ namespace frydom {
     dt = Te / double(N - 1);
   }
 
+  bool FrHydroDB::GetIsXDerivative() const {
+
+    // This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
+
+    return m_HDB->GetIsXDerivative();
+
+  }
+
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file) {
     return std::make_shared<FrHydroDB>(h5file);
   }
