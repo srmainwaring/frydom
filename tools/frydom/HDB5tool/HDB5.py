@@ -17,6 +17,8 @@
 import os
 import numpy as np
 
+from meshmagick.mmio import write_OBJ
+
 import frydom.HDB5tool.bem_reader as bem_reader
 import frydom.HDB5tool.HDB5_reader as HDB5_reader
 import frydom.HDB5tool.pyHDB as pyHDB
@@ -406,6 +408,37 @@ class HDB5(object):
             # Plot.
             plot_db.Meshmagick_viewer(MultibodyMesh)
 
+    def Write_Mesh(self, ibody = -1):
+        """This method writes a mesh."""
+
+        if (self._pyHDB.bodies[ibody].mesh is not None):
+
+            # Data.
+            body = self._pyHDB.bodies[ibody]
+            mesh = body.mesh
+
+            # Write.
+            if(body.name is not None):
+                write_OBJ(body.name + ".obj", mesh.vertices, mesh.faces)
+            else:
+                write_OBJ("Body_" + str(id + 1) + ".obj", mesh.vertices, mesh.faces)
+
+    def Write_Meshes(self):
+        """This method writes all meshes."""
+
+        for ibody in range(0, self._pyHDB.nb_bodies):  # Loop over all bodies except the first one.
+
+            if (self._pyHDB.bodies[ibody].mesh is not None):  # If one mesh is present, other ones should also be.
+
+                # Data.
+                body = self._pyHDB.bodies[ibody]
+                mesh = body.mesh
+
+                # Write.
+                if (body.name is not None):
+                    write_OBJ(body.name + ".obj", mesh.vertices, mesh.faces)
+                else:
+                    write_OBJ("Body_" + str(ibody + 1) + ".obj", mesh.vertices, mesh.faces)
 
     def Cutoff_scaling_IRF(self, tc, ibody_force, iforce, ibody_motion, idof, auto_apply=False):
         """This function applies a filter to the impule response functions without forward speed and plot the result.

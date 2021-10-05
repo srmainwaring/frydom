@@ -194,6 +194,14 @@ def get_parser(parser):
     parser.add_argument('--info', '-info', action="store_true", help="""
                     Information about the hdb5 file""")
 
+    # Plot the mesh.
+    parser.add_argument('--write_mesh', '-wm', nargs=1, metavar=('ibody'), action="append", help="""
+                    Write the mesh of ibody.""")
+
+    # Plot meshes.
+    parser.add_argument('--write_meshes', '-wms', action="store_true", help="""
+                        Write all the meshes in the same time.""")
+
     return parser
 
 
@@ -379,6 +387,16 @@ def get_Arg_part_3_CE(args, database):
     # Plot meshes.
     if (args.plot_meshes is True):
         database.Plot_Meshes()
+
+    # Write mesh.
+    if (args.write_mesh is not None):
+        nb_write_mesh = len(args.write_mesh)
+        for j in range(0, nb_write_mesh):
+            database.Write_Mesh(ibody=int(args.write_mesh[j][0]) - 1)
+
+    # Write meshes.
+    if (args.write_meshes is True):
+        database.Write_Meshes()
 
     # Plot the added mass and damping coefficients.
     if (args.plot_radiation is not None):
