@@ -1767,7 +1767,7 @@ class pyHDB(object):
             if(body.horizontal_position is not None):
                 print("    Horizontal position (m, m, deg): " + str(body.horizontal_position))
             if(body.computation_point is not None):
-                print("    Combutation point in body frame (m, m, m): " + str(body.computation_point))
+                print("    Computation point in body frame (m, m, m): " + str(body.computation_point))
             if(body.mesh is not None):
                 print("    Number of faces: " + str(body.mesh.nb_faces))
                 print("    Number of vertices: " + str(body.mesh.nb_vertices))
