@@ -107,7 +107,7 @@ namespace frydom {
 
   void FrACMERudder::DefineLogMessages() {
 
-    auto msg = NewMessage("FrRudderForce", "Rudder force message");
+    auto msg = NewMessage("FrForce", "Rudder force message");
 
     msg->AddField<double>("Time", "s", "Current time of the simulation",
                           [this]() { return m_chronoForce->GetChTime(); });
