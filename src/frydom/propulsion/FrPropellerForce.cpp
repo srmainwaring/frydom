@@ -12,7 +12,7 @@ namespace frydom {
                                      FrBody *body,
                                      Position propellerPositionInBody,
                                      FRAME_CONVENTION fc) :
-      FrActuatorForceBase(name, "FrPropulsionName", body), m_name(name),
+      FrActuatorForceBase(name, "FrPropellerForce", body), m_name(name),
       m_positionInBody(propellerPositionInBody),
       m_thrust_deduction_factor(0.),
       m_K1(4),
