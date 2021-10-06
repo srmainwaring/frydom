@@ -21,7 +21,7 @@ namespace frydom {
                                                const std::shared_ptr<FrNode> &rudder_node,
                                                RudderParams rudder_params,
                                                const std::string &rudder_perf_data_string) :
-      FrActuatorForceBase(name, "ACMEPropellerRudder", propeller_node->GetBody()),
+      FrActuatorForceBase(name, "FrACMEPropellerRudder", propeller_node->GetBody()),
       m_propeller_node(propeller_node), m_rudder_node(rudder_node) {
 
     switch (prop_type) {
