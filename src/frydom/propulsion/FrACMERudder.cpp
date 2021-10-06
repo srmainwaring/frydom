@@ -59,6 +59,8 @@ namespace frydom {
     m_acme_rudder->Initialize();
     m_acme_rudder->Log(true);
 
+    c_x_gr = GetBody()->GetCOG(NWU).GetX() - m_node->GetNodePositionInBody(NWU).GetX();
+
     c_water_density = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
 
     //TODO : remove when command function is moved in VSL
@@ -73,6 +75,16 @@ namespace frydom {
     //TODO : remove when command function is moved in VSL
     SetRudderAngle(m_rudderAngleFunction->Get_y(time), DEG);
 
+    // ship velocity at COG
+    auto ship_vel = GetBody()->GetCOGLinearVelocityInWorld(NWU);
+    auto ship_frame = GetBody()->GetFrameAtCOG();
+    Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel, WATER, NWU);
+
+    auto u = ship_relative_velocity.GetVx();
+    auto v = ship_relative_velocity.GetVy();
+
+    auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
+
     // get fluid relative velocity at propeller position, in propeller reference frame
     Velocity relative_node_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(
         m_node->GetFrameInWorld(), m_node->GetVelocityInWorld(NWU), WATER, NWU);
@@ -84,7 +96,7 @@ namespace frydom {
       return;
 
     // compute propeller loads using acme
-    m_acme_rudder->Compute(c_water_density, c_uR0, c_vR0, m_rudder_angle_deg);
+    m_acme_rudder->Compute(c_water_density, c_uR0, c_vR0, m_rudder_angle_deg, u, v, r, c_x_gr);
 
     // project thrust and torque loads in world reference frame
     auto force = m_node->ProjectVectorInWorld(Force(m_acme_rudder->GetFx(), m_acme_rudder->GetFy(), 0.), NWU);

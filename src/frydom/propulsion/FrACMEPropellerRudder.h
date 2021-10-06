@@ -89,7 +89,8 @@ namespace frydom {
 
     // cached
     double c_water_density;
-    double c_xr; ///< distance from propeller to rudder (positive if rudder behind the propeller)
+    double c_x_pr; ///< distance from propeller to rudder (positive if rudder behind the propeller)
+    double c_x_gr; ///< distance from COG to rudder (positive if rudder is behind COG)
 
 //    double c_uR0, c_vR0;
 

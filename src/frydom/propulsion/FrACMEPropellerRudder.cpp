@@ -94,7 +94,8 @@ namespace frydom {
   void FrACMEPropellerRudder::Initialize() {
 
     c_water_density = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
-    c_xr = m_propeller_node->GetNodePositionInBody(NWU).GetX() - m_rudder_node->GetNodePositionInBody(NWU).GetX();
+    c_x_pr = m_propeller_node->GetNodePositionInBody(NWU).GetX() - m_rudder_node->GetNodePositionInBody(NWU).GetX();
+    c_x_gr = GetBody()->GetCOG(NWU).GetX() - m_rudder_node->GetNodePositionInBody(NWU).GetX();
 
     m_acme_propeller_rudder->Initialize();
 
@@ -107,6 +108,14 @@ namespace frydom {
 
   void FrACMEPropellerRudder::Compute(double time) {
 
+    // ship velocity at COG
+    auto ship_vel = GetBody()->GetCOGLinearVelocityInWorld(NWU);
+    auto ship_frame = GetBody()->GetFrameAtCOG();
+    Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel, WATER, NWU);
+
+    auto u = ship_relative_velocity.GetVx();
+    auto v = ship_relative_velocity.GetVy();
+
     // get fluid relative velocity at propeller position, in propeller reference frame
     Velocity relative_node_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(
         m_propeller_node->GetFrameInWorld(), m_propeller_node->GetVelocityInWorld(NWU), WATER, NWU);
@@ -116,7 +125,7 @@ namespace frydom {
 
     auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
 
-    m_acme_propeller_rudder->Compute(c_water_density, uP0, vP0, r, c_xr, m_rpm, m_pitch_ratio, m_rudder_angle_deg);
+    m_acme_propeller_rudder->Compute(c_water_density, uP0, vP0, u, v, r, c_x_pr, c_x_gr, m_rpm, m_pitch_ratio, m_rudder_angle_deg);
 
     auto Fx = m_acme_propeller_rudder->GetPropellerRudderFx();
     auto Fy = m_acme_propeller_rudder->GetPropellerRudderFy();

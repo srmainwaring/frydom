@@ -49,6 +49,7 @@ namespace frydom {
     // cached
     double c_water_density;
     double c_uR0, c_vR0;
+    double c_x_gr;
 
     // TODO : move to VSL
     double m_ramp_slope;
