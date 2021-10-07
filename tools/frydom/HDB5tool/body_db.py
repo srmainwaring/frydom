@@ -88,7 +88,7 @@ class BodyDB(object):
         # x-derivative of the Froude-Krylov loads (6 dof so 6 rows x all the frequencies).
         self.Froude_Krylov_x_derivative = None
 
-        # Mesh.
+        # Mesh in the body frame.
         self.mesh = mesh
 
         # Body name (body mesh name until version 2).

@@ -392,6 +392,12 @@ class HDB5(object):
             # Data.
             mesh = self._pyHDB.bodies[ibody].mesh
 
+            # From the body frame to the global frame.
+            if(self._pyHDB.bodies[ibody].horizontal_position is not None):
+                horizontal_position = self._pyHDB.bodies[ibody].horizontal_position
+                mesh.rotate([0., 0., horizontal_position[2]])
+                mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
             # Plot.
             plot_db.Meshmagick_viewer(mesh)
 
@@ -401,9 +407,25 @@ class HDB5(object):
         if (self._pyHDB.bodies[0].mesh is not None): # If one mesh is present, other ones should also be.
 
             # Data.
-            MultibodyMesh = self._pyHDB.bodies[0].mesh # Initialization by using the first body which always exists because they are several bodies.
+            mesh = self._pyHDB.bodies[0].mesh
+            if (self._pyHDB.bodies[0].horizontal_position is not None):
+                horizontal_position = self._pyHDB.bodies[0].horizontal_position
+                mesh.rotate([0., 0., horizontal_position[2]])
+                mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+            MultibodyMesh = mesh # Initialization by using the first body which always exists because they are several bodies.
             for id in range(1, self._pyHDB.nb_bodies): # Loop over all bodies except the first one.
-                MultibodyMesh += self._pyHDB.bodies[id].mesh
+
+                mesh = self._pyHDB.bodies[id].mesh
+
+                # From the body frame to the global frame.
+                if (self._pyHDB.bodies[id].horizontal_position is not None):
+                    horizontal_position = self._pyHDB.bodies[id].horizontal_position
+                    mesh.rotate([0., 0., horizontal_position[2]])
+                    mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+                # Merging.
+                MultibodyMesh += mesh
 
             # Plot.
             plot_db.Meshmagick_viewer(MultibodyMesh)
@@ -416,6 +438,12 @@ class HDB5(object):
             # Data.
             body = self._pyHDB.bodies[ibody]
             mesh = body.mesh
+
+            # From the body frame to the global frame.
+            if (self._pyHDB.bodies[ibody].horizontal_position is not None):
+                horizontal_position = self._pyHDB.bodies[ibody].horizontal_position
+                mesh.rotate([0., 0., horizontal_position[2]])
+                mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
 
             # Write.
             if(body.name is not None):
@@ -433,6 +461,12 @@ class HDB5(object):
                 # Data.
                 body = self._pyHDB.bodies[ibody]
                 mesh = body.mesh
+
+                # From the body frame to the global frame.
+                if (self._pyHDB.bodies[ibody].horizontal_position is not None):
+                    horizontal_position = self._pyHDB.bodies[ibody].horizontal_position
+                    mesh.rotate([0., 0., horizontal_position[2]])
+                    mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
 
                 # Write.
                 if (body.name is not None):
