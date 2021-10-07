@@ -46,7 +46,7 @@ class BodyDB(object):
         # Index.
         self.i_body = i_body
 
-        # Horizontal position in world.
+        # Horizontal position in world (m, m, deg).
         self.horizontal_position = None
 
         # Computation point in body frame.
@@ -55,23 +55,38 @@ class BodyDB(object):
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
 
+        # x-derivative of the added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
+        self.Added_mass_x_derivative = None
+
         # Infinite-frequency added mass matrices.
         self.Inf_Added_mass = None
+
+        # x-derivative of the infinite-frequency added mass matrices.
+        self.Inf_Added_mass_x_derivative = None
 
         # Zero-frequency added mass matrices.
         self.Zero_Added_mass = None
 
+        # x-derivative of the zero-frequency added mass matrices.
+        self.Zero_Added_mass_x_derivative = None
+
         # Damping matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Damping = np.zeros((6, 6 * nb_bodies, nw), dtype=np.float)
+
+        # x-derivative of the damping matrices (6 dof so 6 rows x all the columns x all the frequencies).
+        self.Damping_x_derivative = None
 
         # Diffraction loads (6 dof so 6 rows x all the frequencies).
         self.Diffraction = np.zeros((6, nw, nbeta), dtype=np.complex)
 
+        # x-derivative of the diffraction loads (6 dof so 6 rows x all the frequencies).
+        self.Diffraction_x_derivative = None
+
         # Froude-Krylov loads (6 dof so 6 rows x all the frequencies).
         self.Froude_Krylov = np.zeros((6, nw, nbeta), dtype=np.complex)
 
-        # Excitation loads (6 dof so 6 rows x all the frequencies).
-        # self.Excitation = np.zeros((6, nw, nbeta), dtype=np.complex)
+        # x-derivative of the Froude-Krylov loads (6 dof so 6 rows x all the frequencies).
+        self.Froude_Krylov_x_derivative = None
 
         # Mesh.
         self.mesh = mesh
@@ -97,8 +112,14 @@ class BodyDB(object):
         # Impulse response functions without forward speed.
         self.irf = None
 
-        # Impulse response functions with forward speed.
+        # Impulse response functions proportional to the forward speed and without x-derivative.
         self.irf_ku = None
+
+        # Impulse response functions proportional to the forward speed and with x-derivatives.
+        self.irf_ku_x_derivative = None
+
+        # Impulse response functions proportional to the the square of the forward speed.
+        self.irf_ku2 = None
 
         # Flags (?).
         self._flags = np.ones((6, 6 * nb_bodies), dtype=np.bool)
@@ -128,26 +149,6 @@ class BodyDB(object):
         self.cog = None
         self.cob = None
         self.underwater_volume = None
-
-    # @property
-    # def name(self):
-    #
-    #     """This function gives the name of the mesh of a body.
-    #
-    #     Returns
-    #     -------
-    #     string
-    #         Name of the mesh of a body.
-    #     """
-    #
-    #     return self.name
-    #
-    # @name.setter
-    # def name(self, value):
-    #
-    #     """This function sets the name of the body mesh."""
-    #
-    #     self.name = value
 
     def _compute_nds(self):
         """Computes the term n dS for each force mode of the body."""
@@ -213,7 +214,24 @@ class BodyDB(object):
 
         return np.einsum('ijk, ij -> ijk', ca, self._flags)
 
-    def radiation_added_mass(self,iwcut):
+    def radiation_damping_x_derivative(self,iwcut):
+
+        """This function gives the x-derivative of the damping coefficients.
+
+        Returns
+        -------
+        Array of floats
+            Damping coefficients.
+        """
+
+        if iwcut is None:
+            ca = self.Damping_x_derivative
+        else:
+            ca = self.Damping_x_derivative[:, :, :iwcut]
+
+        return np.einsum('ijk, ij -> ijk', ca, self._flags)
+
+    def radiation_added_mass(self, iwcut):
 
         """This function gives the added-mass coefficients.
 
@@ -227,6 +245,16 @@ class BodyDB(object):
             cm = self.Added_mass
         else:
             cm = self.Added_mass[:, :, :iwcut]
+        return np.einsum('ijk, ij -> ijk', cm, self._flags)
+
+    def radiation_added_mass_x_derivative(self, iwcut):
+
+        """This function gives the x-derivative of the added-mass coefficients."""
+
+        if iwcut is None:
+            cm = self.Added_mass_x_derivative
+        else:
+            cm = self.Added_mass_x_derivative[:, :, :iwcut]
         return np.einsum('ijk, ij -> ijk', cm, self._flags)
 
     def infinite_added_mass(self):
@@ -244,6 +272,21 @@ class BodyDB(object):
         else:
             return self.Inf_Added_mass * self._flags
 
+    def infinite_added_mass_x_derivative(self):
+
+        """This function gives the x-derivative of the infinite-frequency added mass coefficients.
+
+        Returns
+        -------
+        Array of floats
+            x-derivative of the infinite-frequency added mass coefficients.
+        """
+
+        if self.Inf_Added_mass_x_derivative is None:
+            return
+        else:
+            return self.Inf_Added_mass_x_derivative * self._flags
+
     def zero_added_mass(self):
 
         """This function gives the zero-frequency added mass coefficients.
@@ -258,6 +301,21 @@ class BodyDB(object):
             return
         else:
             return self.Zero_Added_mass * self._flags
+
+    def zero_added_mass_x_derivative(self):
+
+        """This function gives the x-derivative of the zero-frequency added mass coefficients.
+
+        Returns
+        -------
+        Array of floats
+            x-derivative of the zero-frequency added mass coefficients.
+        """
+
+        if self.Zero_Added_mass_x_derivative is None:
+            return
+        else:
+            return self.Zero_Added_mass_x_derivative * self._flags
 
     @property
     def hydrostatic(self):

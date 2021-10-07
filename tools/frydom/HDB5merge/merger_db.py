@@ -49,6 +49,44 @@ class Merger(object):
 
         pyHDB_out.version = self._pyHDB_1.version_max
 
+    def merge_commit_hash(self, pyHDB_out):
+
+        """
+            This method merges the commit hashes of the two pyHDB.
+        """
+
+        pyHDB_out.commit_hash = self._pyHDB_1.commit_hash
+
+    def merge_numerical_parameters(self, pyHDB_out):
+
+        """
+            This method merges the expert numerical parameters of the two pyHDB.
+        """
+
+        #TODO: Should they be really identical?
+
+        # Presence of expert numerical parameters.
+        assert (self._pyHDB_1.has_expert_parameters == self._pyHDB_2.has_expert_parameters)
+        pyHDB_out.has_expert_parameters = self._pyHDB_1.has_expert_parameters
+
+        # Surface integration order.
+        assert (self._pyHDB_1.surface_integration_order == self._pyHDB_2.surface_integration_order)
+        pyHDB_out.surface_integration_order = self._pyHDB_1.surface_integration_order
+
+        # Infinite-depth Green's function.
+        assert (self._pyHDB_1.green_function == self._pyHDB_2.green_function)
+        pyHDB_out.green_function = self._pyHDB_1.green_function
+
+        # Crmax.
+        assert (self._pyHDB_1.crmax == self._pyHDB_2.crmax)
+        pyHDB_out.crmax = self._pyHDB_1.crmax
+
+        # Wave reference point.
+        assert (self._pyHDB_1.wave_reference_point_x == self._pyHDB_2.wave_reference_point_x)
+        assert (self._pyHDB_1.wave_reference_point_y == self._pyHDB_2.wave_reference_point_y)
+        pyHDB_out.wave_reference_point_x = self._pyHDB_1.wave_reference_point_x
+        pyHDB_out.wave_reference_point_y = self._pyHDB_1.wave_reference_point_y
+
     def merge_environment(self, pyHDB_out):
 
         """
@@ -78,6 +116,12 @@ class Merger(object):
         # Solver.
         assert (self._pyHDB_1.solver == self._pyHDB_2.solver)
         pyHDB_out.solver = self._pyHDB_1.solver
+
+        # Wave mesure point.
+        assert (self._pyHDB_1.x_wave_measure == self._pyHDB_2.x_wave_measure)
+        assert (self._pyHDB_1.y_wave_measure == self._pyHDB_2.y_wave_measure)
+        pyHDB_out.x_wave_measure = self._pyHDB_1.x_wave_measure
+        pyHDB_out.y_wave_measure = self._pyHDB_1.y_wave_measure
 
     def merge_discretization(self, pyHDB_out):
 
@@ -135,7 +179,7 @@ class Merger(object):
         assert (self._pyHDB_1.has_VF == self._pyHDB_2.has_VF)
         pyHDB_out.has_VF = self._pyHDB_1.has_VF
 
-    def merge_excitation(self, body_1, body_2, body_out):
+    def merge_excitation(self, body_1, body_2, body_out, pyHDB_out):
 
         """
             This method merges the excitation loads of the two pyHDB.
@@ -146,10 +190,22 @@ class Merger(object):
         assert (body_out.Froude_Krylov.shape[2] == body_1.Froude_Krylov.shape[2] == body_2.Froude_Krylov.shape[2]) # Wave directions.
         body_out.Froude_Krylov = np.concatenate([body_1.Froude_Krylov, body_2.Froude_Krylov], axis=1) # Wave frequencies.
 
+        # x-derivative of the Froude-Kylov loads.
+        if(pyHDB_out._has_x_derivatives):
+            assert (body_out.Froude_Krylov_x_derivative.shape[0] == body_1.Froude_Krylov_x_derivative.shape[0] == body_2.Froude_Krylov_x_derivative.shape[0]) # Dof.
+            assert (body_out.Froude_Krylov_x_derivative.shape[2] == body_1.Froude_Krylov_x_derivative.shape[2] == body_2.Froude_Krylov_x_derivative.shape[2]) # Wave directions.
+            body_out.Froude_Krylov_x_derivative = np.concatenate([body_1.Froude_Krylov_x_derivative, body_2.Froude_Krylov_x_derivative], axis=1) # Wave frequencies.
+
         # Diffraction loads.
         assert (body_out.Diffraction.shape[0] == body_1.Diffraction.shape[0] == body_2.Diffraction.shape[0]) # Dof.
         assert (body_out.Diffraction.shape[2] == body_1.Diffraction.shape[2] == body_2.Diffraction.shape[2]) # Wave directions.
         body_out.Diffraction = np.concatenate([body_1.Diffraction, body_2.Diffraction], axis=1) # Wave frequencies.
+
+        # x_derivative of the diffraction loads.
+        if (pyHDB_out._has_x_derivatives):
+            assert (body_out.Diffraction_x_derivative.shape[0] == body_1.Diffraction_x_derivative.shape[0] == body_2.Diffraction_x_derivative.shape[0]) # Dof.
+            assert (body_out.Diffraction_x_derivative.shape[2] == body_1.Diffraction_x_derivative.shape[2] == body_2.Diffraction_x_derivative.shape[2]) # Wave directions.
+            body_out.Diffraction_x_derivative = np.concatenate([body_1.Diffraction_x_derivative, body_2.Diffraction_x_derivative], axis=1) # Wave frequencies.
 
     def merge_radiation(self, body_1, body_2, body_out, pyHDB_out):
 
@@ -161,9 +217,19 @@ class Merger(object):
         assert (np.all(body_1.Inf_Added_mass == body_2.Inf_Added_mass))
         body_out.Inf_Added_mass = body_1.Inf_Added_mass
 
+        # x-derivative of the infinite-frequency added mass.
+        if (pyHDB_out._has_x_derivatives):
+            assert (np.all(body_1.Inf_Added_mass_x_derivative == body_2.Inf_Added_mass_x_derivative))
+            body_out.Inf_Added_mass_x_derivative = body_1.Inf_Added_mass_x_derivative
+
         # Zero-frequency added mass.
         assert (np.all(body_1.Zero_Added_mass == body_2.Zero_Added_mass))
         body_out.Zero_Added_mass = body_1.Zero_Added_mass
+
+        # x-derivative of the zero-frequency added mass.
+        if (pyHDB_out._has_x_derivatives):
+            assert (np.all(body_1.Zero_Added_mass_x_derivative == body_2.Zero_Added_mass_x_derivative))
+            body_out.Zero_Added_mass_x_derivative = body_1.Zero_Added_mass_x_derivative
 
         # Radiation mask.
         assert (np.all(body_1.Radiation_mask == body_2.Radiation_mask))
@@ -174,10 +240,22 @@ class Merger(object):
         assert (body_out.Added_mass.shape[1] == body_1.Added_mass.shape[1] == body_2.Added_mass.shape[1]) # i_motion.
         body_out.Added_mass = np.concatenate([body_1.Added_mass, body_2.Added_mass], axis=2) # Wave frequencies.
 
+        # x-derivative of the added mass.
+        if (pyHDB_out._has_x_derivatives):
+            assert (body_out.Added_mass_x_derivative.shape[0] == body_1.Added_mass_x_derivative.shape[0] == body_2.Added_mass_x_derivative.shape[0]) # i_force.
+            assert (body_out.Added_mass_x_derivative.shape[1] == body_1.Added_mass_x_derivative.shape[1] == body_2.Added_mass_x_derivative.shape[1]) # i_motion.
+            body_out.Added_mass_x_derivative = np.concatenate([body_1.Added_mass_x_derivative, body_2.Added_mass_x_derivative], axis=2) # Wave frequencies.
+
         # Damping.
         assert (body_out.Damping.shape[0] == body_1.Damping.shape[0] == body_2.Damping.shape[0]) # i_force.
         assert (body_out.Damping.shape[1] == body_1.Damping.shape[1] == body_2.Damping.shape[1]) # i_motion.
         body_out.Damping = np.concatenate([body_1.Damping, body_2.Damping], axis=2) # Wave frequencies.
+
+        # x-derivative of the damping.
+        if (pyHDB_out._has_x_derivatives):
+            assert (body_out.Damping_x_derivative.shape[0] == body_1.Damping_x_derivative.shape[0] == body_2.Damping_x_derivative.shape[0])  # i_force.
+            assert (body_out.Damping_x_derivative.shape[1] == body_1.Damping_x_derivative.shape[1] == body_2.Damping_x_derivative.shape[1])  # i_motion.
+            body_out.Damping_x_derivative = np.concatenate([body_1.Damping_x_derivative, body_2.Damping_x_derivative], axis=2)  # Wave frequencies.
 
         # Impulse response functions without forward speed.
         assert (body_1.irf == body_2.irf)
@@ -290,9 +368,19 @@ class Merger(object):
             assert (body_1.name == body_2.name)
             body_out.name = body_1.name
 
-            # Position.
-            assert (np.all(body_1.position == body_2.position))
-            body_out.position = body_1.position
+            # Mesh.
+            if (body_1.mesh is not None and body_2.mesh is not None):
+                assert (body_1.mesh.nb_vertices == body_2.mesh.nb_vertices)
+                assert (body_1.mesh.nb_faces == body_2.mesh.nb_faces)
+                body_out.mesh = body_1.mesh
+
+            # Horizontal position in world (m, m, deg).
+            assert (np.all(body_1.horizontal_position == body_2.horizontal_position))
+            body_out.horizontal_position = body_1.horizontal_position
+
+            # Computation point in body frame.
+            assert (np.all(body_1.computation_point == body_2.computation_point))
+            body_out.computation_point = body_1.computation_point
 
             # Point.
             assert (np.all(body_1.point == body_2.point))
@@ -306,10 +394,14 @@ class Merger(object):
             assert (np.all(body_1.Force_mask == body_2.Force_mask))
             body_out.Force_mask = body_1.Force_mask
 
+            # x-derivatives.
+            assert (self._pyHDB_1._has_x_derivatives == self._pyHDB_2._has_x_derivatives)
+            pyHDB_out._has_x_derivatives = self._pyHDB_1._has_x_derivatives
+
             # Excitation loads.
             assert (self._pyHDB_1._has_froude_krylov == self._pyHDB_2._has_froude_krylov)
             pyHDB_out._has_froude_krylov = self._pyHDB_1._has_froude_krylov
-            self.merge_excitation(body_1, body_2, body_out)
+            self.merge_excitation(body_1, body_2, body_out, pyHDB_out)
 
             # Added mass and damping coefficients, impulse response functions and poles and residues of the VF.
             assert (self._pyHDB_1._has_infinite_added_mass == self._pyHDB_2._has_infinite_added_mass)
@@ -450,6 +542,12 @@ class Merger(object):
 
         # Version.
         self.merge_version(pyHDB_out)
+
+        # Commit hash.
+        self.merge_commit_hash(pyHDB_out)
+
+        # Expert numerical parameters.
+        self.merge_numerical_parameters(pyHDB_out)
 
         # Environnement.
         self.merge_environment(pyHDB_out)

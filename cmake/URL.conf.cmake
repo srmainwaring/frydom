@@ -2,8 +2,7 @@
 # Here we declare the different PATH, TAG and PATCH to get the FRyDoM dependencies
 
 # Chrono
-set(chrono_URL "https://github.com/projectchrono/chrono.git")
-set(chrono_TAG 4.0.0 CACHE STRING "Chrono version")
+set(chrono_URL "https://github.com/projectchrono/chrono/archive/refs/tags/4.0.0.tar.gz")
 set(chrono_PATCH chrono_V4.0.0.patch)
 
 # GeographicLib
@@ -21,7 +20,7 @@ set(hermes_TAG v1.4 CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.4.3 CACHE STRING "hdb5_io version")
+set(hdb5_io_TAG v2.4.6 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)

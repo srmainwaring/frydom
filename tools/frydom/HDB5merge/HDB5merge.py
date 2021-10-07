@@ -38,7 +38,7 @@ def creation_parser():
 def get_parser(parser):
 
     # Merge two hdb5 files into a single one.
-    parser.add_argument('--merge', '-m', nargs=2, action="store", help="""Reading a hdb5 file with the given name.""")
+    parser.add_argument('--merge', '-m', nargs=2, action="store", help="""Mering two hdb5 files with disjoint wave frequency ranges.""")
 
     # Writing the output hdb5 file.
     parser.add_argument('--write', '-w', action="store", help="""Writing the hdb5 output file with the given name.""")

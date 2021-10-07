@@ -1,10 +1,8 @@
 include(FetchContent)
 
 FetchContent_Declare(chrono
-        GIT_REPOSITORY ${chrono_URL}
-        GIT_TAG ${chrono_TAG}
-        GIT_PROGRESS 1
-        PATCH_COMMAND git apply ${PROJECT_SOURCE_DIR}/cmake/patches/${chrono_PATCH}
+        URL ${chrono_URL}
+        PATCH_COMMAND patch -p1 < ${PROJECT_SOURCE_DIR}/cmake/patches/${chrono_PATCH}
         )
 
 
