@@ -196,11 +196,11 @@ def get_parser(parser):
 
     # Plot the mesh.
     parser.add_argument('--write_mesh', '-wm', nargs=1, metavar=('ibody'), action="append", help="""
-                    Write the mesh of ibody.""")
+                    Write the mesh of ibody in a *.obj file.""")
 
     # Plot meshes.
     parser.add_argument('--write_meshes', '-wms', action="store_true", help="""
-                        Write all the meshes in the same time.""")
+                        Write all meshes in a single *.obj file.""")
 
     return parser
 
