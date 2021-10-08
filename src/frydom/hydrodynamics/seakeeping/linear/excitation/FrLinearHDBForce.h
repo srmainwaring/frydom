@@ -51,11 +51,17 @@ namespace frydom {
                      FrBody *body,
                      const std::shared_ptr<FrHydroDB> &HDB);
 
+    /// Getter for the Froude-Krylov, diffraction or exciting loads for a given wave direction.
     virtual Eigen::MatrixXcd GetHDBData(unsigned int iangle) const = 0;
 
+    /// Getter for the x-derivative of the Froude-Krylov, diffraction or exciting loads for a given wave direction.
+    virtual Eigen::MatrixXcd GetHDBDataXDerivative(unsigned int iangle) const = 0;
+
+    /// Getter for the Froude-Krylov, diffraction or exciting loads for a given wave direction and dof.
     virtual Eigen::VectorXcd GetHDBData(unsigned int iangle, unsigned iforce) const = 0;
 
-    /// Build the interpolators between hydrodynamic components and wave frequency and direction discretizations
+    /// Getter for the x-derivative of the Froude-Krylov, diffraction or exciting loads for a given wave direction and dof.
+    virtual Eigen::VectorXcd GetHDBDataXDerivative(unsigned int iangle, unsigned iforce) const = 0;
     virtual void BuildHDBInterpolators();
 
     /// This function return the excitation force (linear excitation) or the diffraction force (nonlinear excitation) form the interpolator.

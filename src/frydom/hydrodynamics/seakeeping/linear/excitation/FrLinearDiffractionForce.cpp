@@ -22,17 +22,41 @@ namespace frydom {
 
   Eigen::MatrixXcd FrLinearDiffractionForce::GetHDBData(unsigned int iangle) const {
 
+    // Getter for the diffraction loads for a given wave direction.
+
     auto BEMBody = m_HDB->GetBody(GetBody());
 
     return BEMBody->GetDiffraction(iangle);
 
   }
 
+  Eigen::MatrixXcd FrLinearDiffractionForce::GetHDBDataXDerivative(unsigned int iangle) const {
+
+    // Getter for the x-derivative of the diffraction loads for a given wave direction.
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    return BEMBody->GetXDerivativeDiffraction(iangle);
+
+  }
+
   Eigen::VectorXcd FrLinearDiffractionForce::GetHDBData(unsigned int iangle, unsigned int iforce) const {
+
+    // Getter for the diffraction loads for a given wave direction and dof.
 
     auto BEMBody = m_HDB->GetBody(GetBody());
 
     return BEMBody->GetDiffraction(iangle, iforce);
+
+  }
+
+  Eigen::VectorXcd FrLinearDiffractionForce::GetHDBDataXDerivative(unsigned int iangle, unsigned int iforce) const {
+
+    /// Getter for the x-derivative of the diffraction loads for a given wave direction and dof.
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    return BEMBody->GetXDerivativeDiffraction(iangle, iforce);
 
   }
 

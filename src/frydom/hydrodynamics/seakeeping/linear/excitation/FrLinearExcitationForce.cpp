@@ -21,17 +21,41 @@ namespace frydom {
 
   Eigen::MatrixXcd FrLinearExcitationForce::GetHDBData(unsigned int iangle) const {
 
+    // Getter for the exciting loads for a given wave direction.
+
     auto BEMBody = m_HDB->GetBody(GetBody());
 
     return BEMBody->GetExcitation(iangle);
 
   }
 
+  Eigen::MatrixXcd FrLinearExcitationForce::GetHDBDataXDerivative(unsigned int iangle) const {
+
+    // Getter for the x-derivative of the exciting loads for a given wave direction.
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    return BEMBody->GetXDerivativeExcitation(iangle);
+
+  }
+
   Eigen::VectorXcd FrLinearExcitationForce::GetHDBData(unsigned int iangle, unsigned int iforce) const {
+
+    // Getter for the exciting loads for a given wave direction and dof.
 
     auto BEMBody = m_HDB->GetBody(GetBody());
 
     return BEMBody->GetExcitation(iangle, iforce);
+
+  }
+
+  Eigen::VectorXcd FrLinearExcitationForce::GetHDBDataXDerivative(unsigned int iangle, unsigned int iforce) const {
+
+    // Getter for the x-derivative of the exciting loads for a given wave direction and dof.
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    return BEMBody->GetXDerivativeExcitation(iangle, iforce);
 
   }
 
