@@ -12,7 +12,9 @@ if (NOT acme_POPULATED)
     FetchContent_Populate(acme)
 
     # hdb5_io BUILD OPTIONS
-    set(acme_BUILD_TESTS OFF CACHE BOOL "")
+    set(ACME_BUILD_TESTS OFF CACHE BOOL "")
+    set(ACME_BUILD_DEV_TESTS OFF CACHE BOOL "")
+    set(ACME_BUILD_UNIT_TESTS OFF CACHE BOOL "")
 
     add_subdirectory(${acme_SOURCE_DIR} ${acme_BINARY_DIR})
 endif ()
