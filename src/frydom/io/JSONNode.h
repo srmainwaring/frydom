@@ -14,6 +14,7 @@
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrConvention.h"
 #include "frydom/propulsion/FrPropellerType.h"
+#include "frydom/core/body/FrInertiaTensor.h"
 
 
 namespace fs = std::filesystem;
@@ -54,6 +55,10 @@ namespace frydom {
         node.next_node(key);
       }
       return node;
+    }
+
+    JSONNode operator()(const std::vector<std::string> &key_list) const {
+      return get_node(key_list);
     }
 
     template<typename T>
@@ -117,19 +122,19 @@ namespace frydom {
  */
 
   template<>
-  inline frydom::Position JSONNode::get_val<frydom::Position>(const std::string &key) const {
+  inline Position JSONNode::get_val<Position>(const std::string &key) const {
     auto pos = get_val<std::vector<double>>(key);
     return {pos[0], pos[1], pos[2]};
   }
 
   template<>
-  inline frydom::FRAME_CONVENTION JSONNode::get_val<frydom::FRAME_CONVENTION>(const std::string &key) const {
+  inline FRAME_CONVENTION JSONNode::get_val<FRAME_CONVENTION>(const std::string &key) const {
     auto fc_str = get_val<std::string>(key);
-    frydom::FRAME_CONVENTION fc;
+    FRAME_CONVENTION fc;
     if (fc_str == "NED") {
-      fc = frydom::FRAME_CONVENTION::NED;
+      fc = FRAME_CONVENTION::NED;
     } else if (fc_str == "NWU") {
-      fc = frydom::FRAME_CONVENTION::NWU;
+      fc = FRAME_CONVENTION::NWU;
     } else {
       fs::path dir_path = get_json_file_root_directory();
       std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
@@ -141,13 +146,13 @@ namespace frydom {
   }
 
   template<>
-  inline frydom::DIRECTION_CONVENTION JSONNode::get_val<frydom::DIRECTION_CONVENTION>(const std::string &key) const {
+  inline DIRECTION_CONVENTION JSONNode::get_val<DIRECTION_CONVENTION>(const std::string &key) const {
     auto fc_str = get_val<std::string>(key);
-    frydom::DIRECTION_CONVENTION fc;
+    DIRECTION_CONVENTION fc;
     if (fc_str == "GOTO") {
-      fc = frydom::DIRECTION_CONVENTION::GOTO;
+      fc = DIRECTION_CONVENTION::GOTO;
     } else if (fc_str == "COMEFROM") {
-      fc = frydom::DIRECTION_CONVENTION::COMEFROM;
+      fc = DIRECTION_CONVENTION::COMEFROM;
     } else {
       fs::path dir_path = get_json_file_root_directory();
       std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
@@ -160,15 +165,15 @@ namespace frydom {
   }
 
   template<>
-  inline frydom::PropellerModelType JSONNode::get_val<frydom::PropellerModelType>(const std::string &key) const {
+  inline PropellerModelType JSONNode::get_val<PropellerModelType>(const std::string &key) const {
     auto pt_str = get_val<std::string>(key);
-    frydom::PropellerModelType pt;
+    PropellerModelType pt;
     if (pt_str == "FPP_1Q") {
-      pt = frydom::PropellerModelType::E_FPP1Q;
+      pt = PropellerModelType::E_FPP1Q;
     } else if (pt_str == "FPP_4Q") {
-      pt = frydom::PropellerModelType::E_FPP4Q;
+      pt = PropellerModelType::E_FPP4Q;
     } else if (pt_str == "CPP") {
-      pt = frydom::PropellerModelType::E_CPP;
+      pt = PropellerModelType::E_CPP;
     } else {
       fs::path dir_path = get_json_file_root_directory();
       std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
@@ -181,13 +186,13 @@ namespace frydom {
   }
 
   template<>
-  inline frydom::SCREW_DIRECTION JSONNode::get_val<frydom::SCREW_DIRECTION>(const std::string &key) const {
+  inline SCREW_DIRECTION JSONNode::get_val<SCREW_DIRECTION>(const std::string &key) const {
     auto sd_str = get_val<std::string>(key);
-    frydom::SCREW_DIRECTION sd;
+    SCREW_DIRECTION sd;
     if (sd_str == "LEFT_HANDED") {
-      sd = frydom::SCREW_DIRECTION::LEFT_HANDED;
+      sd = SCREW_DIRECTION::LEFT_HANDED;
     } else if (sd_str == "RIGHT_HANDED") {
-      sd = frydom::SCREW_DIRECTION::RIGHT_HANDED;
+      sd = SCREW_DIRECTION::RIGHT_HANDED;
     } else {
       fs::path dir_path = get_json_file_root_directory();
       std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
@@ -197,6 +202,24 @@ namespace frydom {
       exit(EXIT_FAILURE);
     }
     return sd;
+  }
+
+  template<>
+  inline FrInertiaTensor JSONNode::get_val<FrInertiaTensor>(const std::string &key) const {
+
+    auto node = get_node({key});
+
+    auto mass = node.get_val<double>("mass_t") * 1e3;
+    auto frame_convention = node.get_val<frydom::FRAME_CONVENTION>("frame_convention");
+    auto cog = node.get_val<frydom::Position>("cog_m");
+    auto ixx = node.get_val<double>("ixx_tm2") * 1e3;
+    auto iyy = node.get_val<double>("iyy_tm2") * 1e3;
+    auto izz = node.get_val<double>("izz_tm2") * 1e3;
+    auto ixy = node.get_val<double>("ixy_tm2") * 1e3;
+    auto ixz = node.get_val<double>("ixz_tm2") * 1e3;
+    auto iyz = node.get_val<double>("iyz_tm2") * 1e3;
+
+    return {mass, ixx, iyy, izz, ixy, ixz, iyz, cog, frame_convention};
   }
 
 // TODO: voir avec Guillaume comment faire un operator overloading de ++ qui permette de skipper
