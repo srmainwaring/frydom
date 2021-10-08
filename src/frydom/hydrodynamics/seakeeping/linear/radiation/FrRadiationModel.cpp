@@ -518,29 +518,34 @@ namespace frydom {
 
     // KUXDerivative.
     if(m_HDB->GetIsXDerivative()) {
+      auto KUXderivativeForce = GeneralizedForce();
+      KUXderivativeForce.SetNull();
+      auto KU2Force = GeneralizedForce();
+      KU2Force.SetNull();
       for (unsigned int idof = 0; idof < 6; idof++) {
         // Convolution.
         auto interpKuXderivative = BEMBody->GetIRFInterpolator("KUXDerivative")->at(idof);
         auto interpKu2 = BEMBody->GetIRFInterpolator("KU2")->at(idof);
-        std::vector<mathutils::Vector6d<double>> kernel;
+        std::vector<mathutils::Vector6d<double>> kernel_KUXDerivative;
+        std::vector<mathutils::Vector6d<double>> kernel_KU2;
         for (unsigned int it = 0; it < vtime.size(); ++it) {
-          GeneralizedForce integrand = interpKuXderivative->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof); // KUXderivative(t-tau)*v(tau).
+          kernel_KUXDerivative.push_back(interpKuXderivative->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KUXderivative(t-tau)*v(tau).
           if(idof == 4 or idof == 5){
-            GeneralizedForce integrand_Ku2 = interpKu2->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof); // KU2(t-tau)*v(tau).
-            integrand += integrand_Ku2;
+            kernel_KU2.push_back(interpKu2->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KU2(t-tau)*v(tau).
           }
-          kernel.push_back(integrand);
         }
-        radiationForce += TrapzLoc(vtime, kernel) * meanSpeed.norm();
+        KUXderivativeForce += TrapzLoc(vtime, kernel_KUXDerivative) * meanSpeed.norm();
+        KU2Force += TrapzLoc(vtime, kernel_KU2) * meanSpeed.norm() * meanSpeed.norm();
       }
+      radiationForce += KUXderivativeForce + KU2Force;
     }
 
     // Infinite frequency damping.
-    auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L.
-    radiationForce += meanSpeed.norm() * damping; // -U*A(inf)*L.
+    auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
+    radiationForce += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
     if(m_HDB->GetIsXDerivative()) {
       auto dAdxinf = BEMBody->GetSelfXDerivativeInfiniteAddedMass();
-      radiationForce += - meanSpeed.norm() * dAdxinf * eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU); // -U*dAdx(inf).
+      radiationForce += - meanSpeed.norm() * dAdxinf * eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU); // -U*dAdx(inf)*V.
     }
 
     return radiationForce;
