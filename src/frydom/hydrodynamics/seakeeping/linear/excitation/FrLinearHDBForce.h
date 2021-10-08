@@ -35,13 +35,14 @@ namespace frydom {
 
     /// Interpolator in waves frequencies and directions.
     std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators;
+    std::vector<std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>> m_waveDirInterpolators_forward_speed;
 
     /// Hydrodynamic database.
     std::shared_ptr<FrHydroDB> m_HDB;
 
     /// Hydrodynamic components.
-    std::vector<Eigen::MatrixXcd> m_Fhdb;
-
+    std::vector<Eigen::MatrixXcd> m_Fhdb; // Zero-speed component.
+    std::vector<Eigen::MatrixXcd> m_Fhdb_forward_speed; // Forward-speed correction.
 
    public:
 
@@ -62,15 +63,18 @@ namespace frydom {
 
     /// Getter for the x-derivative of the Froude-Krylov, diffraction or exciting loads for a given wave direction and dof.
     virtual Eigen::VectorXcd GetHDBDataXDerivative(unsigned int iangle, unsigned iforce) const = 0;
+
+    /// This method creates the interpolator for the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
     virtual void BuildHDBInterpolators();
 
-    /// This function return the excitation force (linear excitation) or the diffraction force (nonlinear excitation) form the interpolator.
-    /// Interpolates the hydrodynamic components with respect to the wave frequency and directions discretizations given
-    /// \param waveFrequencies wave frequency discretization
-    /// \param waveDirections wave direction discretization
-    /// \return interpolation of the hydrodynamic component
-    std::vector<Eigen::MatrixXcd> GetHDBInterp(std::vector<double> waveFrequencies,
-                                               std::vector<double> waveDirections);
+    /// This method creates the interpolator for the x-derivatives of the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
+    virtual void BuildHDBInterpolatorsXDerivative();
+
+    /// This method returns the Froude-Krylov, diffraction or excitation loads from the interpolator.
+    std::vector<Eigen::MatrixXcd> GetHDBInterp(std::vector<double> waveFrequencies, std::vector<double> waveDirections);
+
+    /// This method returns the x-derivative of the Froude-Krylov, diffraction or excitation loads from the interpolator.
+    std::vector<Eigen::MatrixXcd> GetHDBInterpXDerivative(std::vector<double> waveFrequencies, std::vector<double> waveDirections);
 
     void Initialize() override;
 

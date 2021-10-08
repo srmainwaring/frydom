@@ -494,6 +494,7 @@ namespace frydom {
     auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody);
     auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
 
+    // Angular velocity.
     auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU);
 
     // Infinite frequency added mass.
