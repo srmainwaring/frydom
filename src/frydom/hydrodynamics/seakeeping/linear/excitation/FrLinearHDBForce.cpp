@@ -30,7 +30,7 @@ namespace frydom {
 
     // Interpolation of the excitation loads with respect to the wave direction.
     BuildHDBInterpolators();
-    if(m_HDB->GetIsXDerivative()) {
+    if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
       BuildHDBInterpolatorsXDerivative();
     }
 
@@ -41,7 +41,7 @@ namespace frydom {
     // Interpolation of the exciting loads if not already done.
     if (m_Fhdb.empty()) {
       m_Fhdb = GetHDBInterp(freqs, directions);
-      if(m_HDB->GetIsXDerivative()) {
+      if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
         m_Fhdb_forward_speed = GetHDBInterpXDerivative(freqs, directions);
       }
     }
@@ -290,7 +290,7 @@ namespace frydom {
       double tempforce = 0;
       for (unsigned int ifreq = 0; ifreq < nbFreq; ++ifreq) {
         for (unsigned int idir = 0; idir < nbWaveDir; ++idir) {
-          if(m_HDB->GetIsXDerivative()) {
+          if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
             auto omega = waveField->GetWaveFrequencies(RADS).at(ifreq);
             tempforce += std::imag(complexElevations[idir][ifreq] * (m_Fhdb[idir](idof, ifreq)
                 + (meanSpeed.norm() / (JJ * omega)) * m_Fhdb_forward_speed[idir](idof, ifreq)));

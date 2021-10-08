@@ -44,6 +44,10 @@ namespace frydom {
     std::vector<Eigen::MatrixXcd> m_Fhdb; // Zero-speed component.
     std::vector<Eigen::MatrixXcd> m_Fhdb_forward_speed; // Forward-speed correction.
 
+    // Forward-speed correction booleans.
+    bool c_FScorrection_simple_model = false;
+    bool c_FScorrection_extended_model = false;
+
    public:
 
     /// Constructor.
@@ -77,6 +81,14 @@ namespace frydom {
     std::vector<Eigen::MatrixXcd> GetHDBInterpXDerivative(std::vector<double> waveFrequencies, std::vector<double> waveDirections);
 
     void Initialize() override;
+
+    /// Setter for activated the forward-speed correction models.
+    void ActivateForwardSpeedCorrection(bool activation_simple_model, bool activation_extended_model) {
+      c_FScorrection_simple_model = activation_simple_model;
+      if(c_FScorrection_simple_model) {
+        c_FScorrection_extended_model = activation_extended_model;
+      }
+    }
 
    protected:
 

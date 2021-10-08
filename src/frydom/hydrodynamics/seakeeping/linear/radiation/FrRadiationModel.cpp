@@ -464,7 +464,7 @@ namespace frydom {
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
       auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
 
-      if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection) {
+      if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection_simple_model) {
         radiationForce += ForwardSpeedCorrection(BEMBody->first);
       }
 
@@ -518,7 +518,7 @@ namespace frydom {
     }
 
     // KUXDerivative.
-    if(m_HDB->GetIsXDerivative()) {
+    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
       auto KUXderivativeForce = GeneralizedForce();
       KUXderivativeForce.SetNull();
       auto KU2Force = GeneralizedForce();
@@ -544,7 +544,7 @@ namespace frydom {
     // Infinite frequency damping.
     auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
     radiationForce += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
-    if(m_HDB->GetIsXDerivative()) {
+    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
       auto dAdxinf = BEMBody->GetSelfXDerivativeInfiniteAddedMass();
       radiationForce += - meanSpeed.norm() * dAdxinf * eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU); // -U*dAdx(inf)*V.
     }
