@@ -40,9 +40,9 @@ namespace frydom {
       m_json_node = json::parse(ifs);
     }
 
-    JSONNode(JSONNode *jnode, json node) {
-
-    }
+//    JSONNode(JSONNode *jnode, json node) {
+//
+//    }
 
     bool exists(const std::string &key) const {
       return m_json_node.find(key) != m_json_node.end();
@@ -64,6 +64,24 @@ namespace frydom {
     template<typename T>
     T get_val(const std::string &key) const {
       return get_node({key}).m_json_node.get<T>();
+    }
+
+    std::string get_filepath(const std::string &key) const {
+      auto filename = get_val<fs::path>(key);
+
+      auto abs_filename = get_json_file_root_directory() / filename;
+
+      if (!fs::exists(abs_filename)) {
+        std::cerr << "File \""
+                  << filename
+                  << "\" declared in json file \""
+                  << m_json_file_path
+                  << "\" does not exists"
+                  << std::endl;
+        exit(EXIT_FAILURE);
+      }
+
+      return abs_filename;
     }
 
     std::string get_json_file() const {

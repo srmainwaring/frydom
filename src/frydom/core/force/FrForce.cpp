@@ -80,7 +80,6 @@ namespace frydom {
                    const std::string &type_name,
                    FrBody *body) :
       FrLoggable(name, type_name, body) {
-    event_logger::info(GetTypeName(), GetName(), "Force created");
     m_chronoForce = std::make_shared<internal::FrForceBase>(this);
 
   }
