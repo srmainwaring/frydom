@@ -20,7 +20,7 @@ set(hermes_TAG v1.4 CACHE STRING " version")
 
 # HDB5_IO
 set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.4.6 CACHE STRING "hdb5_io version")
+set(hdb5_io_TAG v2.5.2 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
@@ -52,7 +52,7 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 
 # MathUtils
 set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.6.6 CACHE STRING "mathutils version")
+set(mathutils_TAG v1.8 CACHE STRING "mathutils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 

@@ -98,7 +98,9 @@ namespace frydom {
     tidalTable.AddY("tidal_height", hVect);
   }
 
-  FrTidal::FrTidal(FrFreeSurface *freeSurface) : m_freeSurface(freeSurface) {
+  FrTidal::FrTidal(FrFreeSurface *freeSurface) :
+      m_freeSurface(freeSurface),
+      tidalTable(mathutils::LINEAR) {
     m_tidalFrame = std::make_unique<chrono::ChFrame<double>>();
   }
 
@@ -112,7 +114,8 @@ namespace frydom {
       m_h2(h2),
       m_level2(level2),
       m_mode(TWELFTH_RULE),
-      m_freeSurface(freeSurface) {
+      m_freeSurface(freeSurface),
+      tidalTable(mathutils::LINEAR) {
 
     assert(h1 >= 0. && h2 >= 0.);
     assert(level1 != level2);  // Levels have to be different
