@@ -2,8 +2,8 @@
 // Created by lletourn on 20/08/2021.
 //
 
-#ifndef FRYDOM_FRACMERUDDER_H
-#define FRYDOM_FRACMERUDDER_H
+#ifndef FRYDOM_FRRUDDER_H
+#define FRYDOM_FRRUDDER_H
 
 #include "FrActuatorForceBase.h"
 #include "FrPropellerType.h"
@@ -12,22 +12,23 @@
 
 namespace frydom {
 
-  class FrACMERudder : public FrActuatorForceBase {
+  class FrRudder : public FrActuatorForceBase {
 
    public:
 
-    FrACMERudder(const std::string &name,
-                 const std::shared_ptr<FrNode> &rudder_node,
-                 RudderParams params,
-                 const std::string &perf_data_json_string,
-                 RudderType type);
+    FrRudder(const std::string &name,
+             const std::shared_ptr<FrNode> &rudder_node,
+             RudderParams params,
+             const std::string &perf_data_json_string,
+             RudderModelType type);
 
     void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
     double GetRudderAngle(ANGLE_UNIT unit) const;
 
     // TODO : move to VSL
-    void SetRudderRampSlope(double slope) {m_ramp_slope = slope;}
+    void SetRudderRampSlope(double slope) { m_ramp_slope = slope; }
+
     void SetRudderCommandAngle(double rudder_angle, ANGLE_UNIT unit);
 
    private:
@@ -57,12 +58,12 @@ namespace frydom {
 
   };
 
-  std::shared_ptr<FrACMERudder>
-  make_ACME_rudder(const std::string &name,
-                   const std::shared_ptr<FrNode> &rudder_node,
-                   RudderParams params,
-                   const std::string &rudder_input_filepath,
-                   RudderType type);
+  std::shared_ptr<FrRudder>
+  make_rudder_model(const std::string &name,
+                    const std::shared_ptr<FrNode> &rudder_node,
+                    RudderParams params,
+                    const std::string &rudder_input_filepath,
+                    RudderModelType type);
 
 }
-#endif //FRYDOM_FRACMERUDDER_H
+#endif //FRYDOM_FRRUDDER_H

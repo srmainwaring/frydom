@@ -3,7 +3,7 @@
 //
 
 #include <frydom/utils/FrFileSystem.h>
-#include "FrACMEPropeller.h"
+#include "FrPropeller.h"
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/core/common/FrNode.h"
 #include "acme/propeller/FPP1Q.h"
@@ -13,9 +13,9 @@
 
 namespace frydom {
 
-  FrACMEPropeller::FrACMEPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
-                                   PropellerParams params, const std::string &perf_data_json_string,
-                                   PropellerType type) :
+  FrPropeller::FrPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
+                           PropellerParams params, const std::string &perf_data_json_string,
+                           PropellerModelType type) :
       m_node(propeller_node), FrActuatorForceBase(name, "FrACMEPropeller", propeller_node->GetBody()) {
 
     switch (type) {
@@ -32,16 +32,16 @@ namespace frydom {
 
   }
 
-  void FrACMEPropeller::SetRPM(double rpm) {
+  void FrPropeller::SetRPM(double rpm) {
     m_rpm = rpm;
   }
 
-  void FrACMEPropeller::SetPitchRatio(double pitch_ratio) {
+  void FrPropeller::SetPitchRatio(double pitch_ratio) {
     m_pitch_ratio = pitch_ratio;
   }
 
 
-  void FrACMEPropeller::Initialize() {
+  void FrPropeller::Initialize() {
 
     m_acme_propeller->Initialize();
 
@@ -50,7 +50,7 @@ namespace frydom {
     FrForce::Initialize();
   }
 
-  void FrACMEPropeller::Compute(double time) {
+  void FrPropeller::Compute(double time) {
 
     // get fluid relative velocity at propeller position, in propeller reference frame
     Velocity relative_node_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(
@@ -72,7 +72,7 @@ namespace frydom {
 
   }
 
-  void FrACMEPropeller::DefineLogMessages() {
+  void FrPropeller::DefineLogMessages() {
     auto msg = NewMessage("FrForce", "Force message");
 
     msg->AddField<double>("Time", "s", "Current time of the simulation",
@@ -117,14 +117,14 @@ namespace frydom {
 
   }
 
-  std::shared_ptr<FrACMEPropeller>
-  make_ACME_propeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
-                      const std::string &prop_input_filepath, PropellerType type) {
+  std::shared_ptr<FrPropeller>
+  make_propeller_model(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
+                       const std::string &prop_input_filepath, PropellerModelType type) {
 
     std::string tmp_string = prop_input_filepath;
 
     if (!FrFileSystem::isfile(prop_input_filepath)) {
-      std::cerr << "make_ACME_propeller : perf_data_json_string is a filepath to a non existent file : " +
+      std::cerr << "make_propeller_model : perf_data_json_string is a filepath to a non existent file : " +
                    prop_input_filepath << std::endl;
       exit(1);
     }
@@ -132,7 +132,7 @@ namespace frydom {
     json node = json::parse(tmp_buffer);
     tmp_string = node["propeller"]["open_water_table"].dump();
 
-    auto force = std::make_shared<FrACMEPropeller>(name, propeller_node, params, tmp_string, type);
+    auto force = std::make_shared<FrPropeller>(name, propeller_node, params, tmp_string, type);
     propeller_node->GetBody()->AddExternalForce(force);
     return force;
   }

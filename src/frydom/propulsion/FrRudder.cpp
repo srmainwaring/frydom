@@ -2,7 +2,7 @@
 // Created by lletourn on 20/08/2021.
 //
 
-#include "FrACMERudder.h"
+#include "FrRudder.h"
 
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/core/common/FrNode.h"
@@ -13,9 +13,9 @@
 
 namespace frydom {
 
-  FrACMERudder::FrACMERudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node,
-                             RudderParams params, const std::string &perf_data_json_string,
-                             RudderType type) :
+  FrRudder::FrRudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node,
+                     RudderParams params, const std::string &perf_data_json_string,
+                     RudderModelType type) :
       m_node(rudder_node), FrActuatorForceBase(name, "FrACMERudder", rudder_node->GetBody()) {
 
     switch (type) {
@@ -28,18 +28,18 @@ namespace frydom {
     }
   }
 
-  void FrACMERudder::SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {
+  void FrRudder::SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {
     m_rudder_angle_deg = rudder_angle;
     if (unit == RAD) m_rudder_angle_deg *= RAD2DEG;
   }
 
-  double FrACMERudder::GetRudderAngle(ANGLE_UNIT unit) const {
+  double FrRudder::GetRudderAngle(ANGLE_UNIT unit) const {
     double angle = m_rudder_angle_deg;
     if (unit == RAD) angle *= DEG2RAD;
     return angle;
   }
 
-  void FrACMERudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
+  void FrRudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
     if (unit == RAD) angle *= RAD2DEG;
 
     double actualRudderAngle = GetRudderAngle(DEG);
@@ -54,7 +54,7 @@ namespace frydom {
 
   }
 
-  void FrACMERudder::Initialize() {
+  void FrRudder::Initialize() {
 
     m_acme_rudder->Initialize();
     m_acme_rudder->Log(true);
@@ -70,7 +70,7 @@ namespace frydom {
     FrForce::Initialize();
   }
 
-  void FrACMERudder::Compute(double time) {
+  void FrRudder::Compute(double time) {
 
     //TODO : remove when command function is moved in VSL
     SetRudderAngle(m_rudderAngleFunction->Get_y(time), DEG);
@@ -78,7 +78,8 @@ namespace frydom {
     // ship velocity at COG
     auto ship_vel = GetBody()->GetCOGLinearVelocityInWorld(NWU);
     auto ship_frame = GetBody()->GetFrameAtCOG();
-    Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel, WATER, NWU);
+    Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel,
+                                                                                                 WATER, NWU);
 
     auto u = ship_relative_velocity.GetVx();
     auto v = ship_relative_velocity.GetVy();
@@ -105,7 +106,7 @@ namespace frydom {
     SetForceTorqueInWorldAtPointInBody(force, torque, m_node->GetNodePositionInBody(NWU), NWU);
   }
 
-  void FrACMERudder::DefineLogMessages() {
+  void FrRudder::DefineLogMessages() {
 
     auto msg = NewMessage("FrForce", "Rudder force message");
 
@@ -153,18 +154,18 @@ namespace frydom {
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
   }
 
-  void FrACMERudder::StepFinalize() {
+  void FrRudder::StepFinalize() {
     m_acme_rudder->Finalize(GetSystem()->GetTime());
   }
 
-  std::shared_ptr<FrACMERudder>
-  make_ACME_rudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
-                   const std::string &rudder_input_filepath, RudderType type) {
+  std::shared_ptr<FrRudder>
+  make_rudder_model(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
+                    const std::string &rudder_input_filepath, RudderModelType type) {
 
     std::string tmp_string = rudder_input_filepath;
 
     if (!FrFileSystem::isfile(rudder_input_filepath)) {
-      std::cerr << "make_ACME_rudder : rudder_input_filepath is a filepath to a non existent file : " +
+      std::cerr << "make_rudder_model : rudder_input_filepath is a filepath to a non existent file : " +
                    rudder_input_filepath << std::endl;
       exit(1);
     }
@@ -173,7 +174,7 @@ namespace frydom {
     json node = json::parse(tmp_buffer);
     tmp_string = node["rudder"]["load_coefficients"].dump();
 
-    auto force = std::make_shared<FrACMERudder>(name, rudder_node, params, tmp_string, type);
+    auto force = std::make_shared<FrRudder>(name, rudder_node, params, tmp_string, type);
     rudder_node->GetBody()->AddExternalForce(force);
     return force;
   }

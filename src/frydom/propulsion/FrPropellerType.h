@@ -12,18 +12,16 @@
 
 namespace frydom {
 
-  using PropellerType = acme::PropellerModelType;
+  using PropellerModelType = acme::PropellerModelType;
   using PropellerParams = acme::PropellerParams;
   using SCREW_DIRECTION = acme::SCREW_DIRECTION;
 
-  using PropellerModelType = acme::PropellerModelType;
-
-  using SCREW_DIRECTION = acme::SCREW_DIRECTION;
-
-  using RudderType = acme::RudderModelType;
-  using RudderParams = acme::RudderParams;
+//  using PropellerModelType = acme::PropellerModelType;
 
   using RudderModelType = acme::RudderModelType;
+  using RudderParams = acme::RudderParams;
+
+//  using RudderModelType = acme::RudderModelType;
 
 }  // end namespace frydom
 

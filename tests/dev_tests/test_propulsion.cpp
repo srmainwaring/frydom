@@ -83,13 +83,13 @@ int test_FPP1Q() {
 //  std::cout << "v_NWU :" << v_NWU << std::endl;
 
 //  auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/propeller_FPP.json"});
-  auto frydom_FPP1Q = make_first_quadrant_propeller_force("FPP1Q", body, node->GetNodePositionInBody(NWU), filename,
-                                                          NWU);
-  frydom_FPP1Q->SetDiameter(diameter_m);
-  frydom_FPP1Q->SetScrewDirection(SCREW_DIRECTION::RIGHT_HANDED);
-  frydom_FPP1Q->SetRotationalVelocity(rpm, RPM);
-  frydom_FPP1Q->SetStraightRunWakeFraction(hull_wake_fraction_0);
-  frydom_FPP1Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
+//  auto frydom_FPP1Q = make_first_quadrant_propeller_force("FPP1Q", body, node->GetNodePositionInBody(NWU), filename,
+//                                                          NWU);
+//  frydom_FPP1Q->SetDiameter(diameter_m);
+//  frydom_FPP1Q->SetScrewDirection(SCREW_DIRECTION::RIGHT_HANDED);
+//  frydom_FPP1Q->SetRotationalVelocity(rpm, RPM);
+//  frydom_FPP1Q->SetStraightRunWakeFraction(hull_wake_fraction_0);
+//  frydom_FPP1Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
   acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
                                acme::SCREW_DIRECTION::RIGHT_HANDED);
@@ -101,7 +101,7 @@ int test_FPP1Q() {
 //  params.m_propeller_design_rpm = propeller_design_rpm;
 //  params.m_vessel_design_speed_ms = vessel_design_speed_ms;
 
-  auto acme_FPP1Q = make_ACME_propeller("ACME_FPP1Q", node, params, open_water_data_table, PropellerType::E_FPP1Q);
+  auto acme_FPP1Q = make_propeller_model("ACME_FPP1Q", node, params, open_water_data_table, PropellerModelType::E_FPP1Q);
   acme_FPP1Q->SetRPM(rpm);
 
 //  auto acme_FPP1Q = acme::FPP1Q(params, open_water_data_table);
@@ -113,9 +113,9 @@ int test_FPP1Q() {
   std::cout << "ACME Power :" << acme_FPP1Q->GetPower() << std::endl;
   std::cout << "ACME Efficiency :" << acme_FPP1Q->GetEfficiency() << std::endl;
 
-  std::cout << "FRyDoM Thrust :" << frydom_FPP1Q->GetThrust() << std::endl;
-  std::cout << "FRyDoM Torque :" << frydom_FPP1Q->GetTorque() << std::endl;
-  std::cout << "FRyDoM Power :" << frydom_FPP1Q->GetPower() << std::endl;
+//  std::cout << "FRyDoM Thrust :" << frydom_FPP1Q->GetThrust() << std::endl;
+//  std::cout << "FRyDoM Torque :" << frydom_FPP1Q->GetTorque() << std::endl;
+//  std::cout << "FRyDoM Power :" << frydom_FPP1Q->GetPower() << std::endl;
 
 
 //  auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx022/propeller_BCP_1320f.json"});
@@ -225,13 +225,13 @@ int test_FPP4Q() {
   std::cout << "v_NWU :" << v_NWU << std::endl;
 
 //  auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/propeller_FPP.json"});
-  auto frydom_FPP4Q = make_four_quadrant_propeller_force("FPP4Q", body, node->GetNodePositionInBody(NWU), filename,
-                                                         NWU);
-  frydom_FPP4Q->SetDiameter(diameter_m);
-  frydom_FPP4Q->SetScrewDirection(SCREW_DIRECTION::RIGHT_HANDED);
-  frydom_FPP4Q->SetRotationalVelocity(rpm, RPM);
-  frydom_FPP4Q->SetStraightRunWakeFraction(hull_wake_fraction_0);
-  frydom_FPP4Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
+//  auto frydom_FPP4Q = make_four_quadrant_propeller_force("FPP4Q", body, node->GetNodePositionInBody(NWU), filename,
+//                                                         NWU);
+//  frydom_FPP4Q->SetDiameter(diameter_m);
+//  frydom_FPP4Q->SetScrewDirection(SCREW_DIRECTION::RIGHT_HANDED);
+//  frydom_FPP4Q->SetRotationalVelocity(rpm, RPM);
+//  frydom_FPP4Q->SetStraightRunWakeFraction(hull_wake_fraction_0);
+//  frydom_FPP4Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
   acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
                                acme::SCREW_DIRECTION::RIGHT_HANDED);
@@ -241,15 +241,15 @@ int test_FPP4Q() {
   system.Initialize();
   acme_FPP4Q.Initialize();
   acme_FPP4Q.Compute(rho, u_NWU, v_NWU, rpm, 0.);
-  std::cout << "beta : " << frydom_FPP4Q->ComputeAdvanceAngle() << std::endl;
+//  std::cout << "beta : " << frydom_FPP4Q->ComputeAdvanceAngle() << std::endl;
   std::cout << "ACME Thrust :" << acme_FPP4Q.GetThrust() << std::endl;
   std::cout << "ACME Torque :" << acme_FPP4Q.GetTorque() << std::endl;
   std::cout << "ACME Power :" << acme_FPP4Q.GetPower() << std::endl;
   std::cout << "ACME Efficiency :" << acme_FPP4Q.GetPropellerEfficiency() << std::endl;
 
-  std::cout << "FRyDoM Thrust :" << frydom_FPP4Q->GetThrust() << std::endl;
-  std::cout << "FRyDoM Torque :" << frydom_FPP4Q->GetTorque() << std::endl;
-  std::cout << "FRyDoM Power :" << frydom_FPP4Q->GetPower() << std::endl;
+//  std::cout << "FRyDoM Thrust :" << frydom_FPP4Q->GetThrust() << std::endl;
+//  std::cout << "FRyDoM Torque :" << frydom_FPP4Q->GetTorque() << std::endl;
+//  std::cout << "FRyDoM Power :" << frydom_FPP4Q->GetPower() << std::endl;
 
   return 0;
 
@@ -323,14 +323,14 @@ int test_CPP() {
   std::cout << "v_NWU :" << v_NWU << std::endl;
 
 //  auto file = FrFileSystem::join({system.config_file().GetDataFolder(), "rdx027/propeller_FPP.json"});
-  auto frydom_CPP = make_controllable_pitch_propeller("CPP", body, node->GetNodePositionInBody(NWU), filename,
-                                                      NWU);
-  frydom_CPP->SetDiameter(diameter_m);
-  frydom_CPP->SetScrewDirection(SCREW_DIRECTION::RIGHT_HANDED);
-  frydom_CPP->SetRotationalVelocity(rpm, RPM);
-  frydom_CPP->SetPitchRatio(pitch_ratio);
-  frydom_CPP->SetStraightRunWakeFraction(hull_wake_fraction_0);
-  frydom_CPP->SetThrustDeductionFactor(thrust_deduction_factor_0);
+//  auto frydom_CPP = make_controllable_pitch_propeller("CPP", body, node->GetNodePositionInBody(NWU), filename,
+//                                                      NWU);
+//  frydom_CPP->SetDiameter(diameter_m);
+//  frydom_CPP->SetScrewDirection(SCREW_DIRECTION::RIGHT_HANDED);
+//  frydom_CPP->SetRotationalVelocity(rpm, RPM);
+//  frydom_CPP->SetPitchRatio(pitch_ratio);
+//  frydom_CPP->SetStraightRunWakeFraction(hull_wake_fraction_0);
+//  frydom_CPP->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
   acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
                                acme::SCREW_DIRECTION::RIGHT_HANDED);
@@ -340,15 +340,15 @@ int test_CPP() {
   system.Initialize();
   acme_CPP.Initialize();
   acme_CPP.Compute(rho, u_NWU, v_NWU, rpm, pitch_ratio);
-  std::cout << "beta : " << frydom_CPP->ComputeAdvanceAngle() << std::endl;
+//  std::cout << "beta : " << frydom_CPP->ComputeAdvanceAngle() << std::endl;
   std::cout << "ACME Thrust :" << acme_CPP.GetThrust() << std::endl;
   std::cout << "ACME Torque :" << acme_CPP.GetTorque() << std::endl;
   std::cout << "ACME Power :" << acme_CPP.GetPower() << std::endl;
   std::cout << "ACME Efficiency :" << acme_CPP.GetPropellerEfficiency() << std::endl;
 
-  std::cout << "FRyDoM Thrust :" << frydom_CPP->GetThrust() << std::endl;
-  std::cout << "FRyDoM Torque :" << frydom_CPP->GetTorque() << std::endl;
-  std::cout << "FRyDoM Power :" << frydom_CPP->GetPower() << std::endl;
+//  std::cout << "FRyDoM Thrust :" << frydom_CPP->GetThrust() << std::endl;
+//  std::cout << "FRyDoM Torque :" << frydom_CPP->GetTorque() << std::endl;
+//  std::cout << "FRyDoM Power :" << frydom_CPP->GetPower() << std::endl;
 
   return 0;
 
@@ -438,7 +438,7 @@ int test_rudder() {
   params.m_has_hull_influence = hull_wake_fraction_0 != 0;
   params.m_has_hull_influence_transverse_velocity = false;
 
-  auto acme_rudder = make_ACME_rudder("ACME_rudder", node, params, ss.str(), acme::E_SIMPLE_RUDDER);
+  auto acme_rudder = make_rudder_model("ACME_rudder", node, params, ss.str(), acme::E_SIMPLE_RUDDER);
   acme_rudder->SetRudderRampSlope(ramp_slope_degs);
   acme_rudder->SetRudderCommandAngle(rudder_angle_deg, DEG);
 //    auto acme_rudder = acme::SimpleRudderModel(params, ss.str());
@@ -450,54 +450,54 @@ int test_rudder() {
 
 
 
-
-  { // Old FRyDoM model
-    json rudder_json = {{"rudder", {
-                                       {"reference", "test"},
-                                       {"load_coefficients", json::parse(ss.str())}
-                                   }}
-    };
-
-    std::string filename = "temp.json";
-    std::ofstream file;
-    file.open(filename, std::ios::trunc);
-    file << rudder_json.dump(2);
-    file.close();
-
-    auto frydom_rudder = make_rudder_force("frydom_rudder", body, node, filename);
-
-    frydom_rudder->SetStraightRunWakeFraction(hull_wake_fraction_0);
-    frydom_rudder->SetProjectedLateralArea(rudder_lateral_area_m2);
-    frydom_rudder->SetHeight(height_m);
-    frydom_rudder->SetRampSlope(ramp_slope_degs, DEGS);
-    frydom_rudder->SetRootChord(chord_length_m);
-    frydom_rudder->ActivateHullRudderInteraction(true);
-    frydom_rudder->ActivateHullInfluenceOnTransverseVelocity(false);
-
-    frydom_rudder->SetRudderAngle(rudder_angle_deg, DEG);
-
-    system.Initialize();
-
-    system.AdvanceTo(30);
-
-    auto forceInBody = acme_rudder->GetForceInBody(NWU);
-
-    std::cout << "rudder angle = " << acme_rudder->GetRudderAngle(DEG) << std::endl;
-    std::cout << "acme Fx = " << forceInBody.GetFx() << std::endl;
-    std::cout << "acme Fy = " << forceInBody.GetFy() << std::endl;
-    std::cout << "acme Mz = "
-              << acme_rudder->GetTorqueInBodyAtPointInBody(node->GetNodePositionInBody(NWU), NWU).GetMz()
-              << std::endl;
-
-    forceInBody = frydom_rudder->GetForceInBody(NWU);
-
-    std::cout << "rudder angle = " << frydom_rudder->GetRudderAngle(DEG) << std::endl;
-    std::cout << "FRyDoM Fx = " << forceInBody.GetFx() << std::endl;
-    std::cout << "FRyDoM Fy = " << forceInBody.GetFy() << std::endl;
-    std::cout << "FRyDoM Mz = "
-              << frydom_rudder->GetTorqueInBodyAtPointInBody(node->GetNodePositionInBody(NWU), NWU).GetMz()
-              << std::endl;
-  }
+//
+//  { // Old FRyDoM model
+//    json rudder_json = {{"rudder", {
+//                                       {"reference", "test"},
+//                                       {"load_coefficients", json::parse(ss.str())}
+//                                   }}
+//    };
+//
+//    std::string filename = "temp.json";
+//    std::ofstream file;
+//    file.open(filename, std::ios::trunc);
+//    file << rudder_json.dump(2);
+//    file.close();
+//
+//    auto frydom_rudder = make_rudder_force("frydom_rudder", body, node, filename);
+//
+//    frydom_rudder->SetStraightRunWakeFraction(hull_wake_fraction_0);
+//    frydom_rudder->SetProjectedLateralArea(rudder_lateral_area_m2);
+//    frydom_rudder->SetHeight(height_m);
+//    frydom_rudder->SetRampSlope(ramp_slope_degs, DEGS);
+//    frydom_rudder->SetRootChord(chord_length_m);
+//    frydom_rudder->ActivateHullRudderInteraction(true);
+//    frydom_rudder->ActivateHullInfluenceOnTransverseVelocity(false);
+//
+//    frydom_rudder->SetRudderAngle(rudder_angle_deg, DEG);
+//
+//    system.Initialize();
+//
+//    system.AdvanceTo(30);
+//
+//    auto forceInBody = acme_rudder->GetForceInBody(NWU);
+//
+//    std::cout << "rudder angle = " << acme_rudder->GetRudderAngle(DEG) << std::endl;
+//    std::cout << "acme Fx = " << forceInBody.GetFx() << std::endl;
+//    std::cout << "acme Fy = " << forceInBody.GetFy() << std::endl;
+//    std::cout << "acme Mz = "
+//              << acme_rudder->GetTorqueInBodyAtPointInBody(node->GetNodePositionInBody(NWU), NWU).GetMz()
+//              << std::endl;
+//
+//    forceInBody = frydom_rudder->GetForceInBody(NWU);
+//
+//    std::cout << "rudder angle = " << frydom_rudder->GetRudderAngle(DEG) << std::endl;
+//    std::cout << "FRyDoM Fx = " << forceInBody.GetFx() << std::endl;
+//    std::cout << "FRyDoM Fy = " << forceInBody.GetFy() << std::endl;
+//    std::cout << "FRyDoM Mz = "
+//              << frydom_rudder->GetTorqueInBodyAtPointInBody(node->GetNodePositionInBody(NWU), NWU).GetMz()
+//              << std::endl;
+//  }
 
   return 0.;
 }

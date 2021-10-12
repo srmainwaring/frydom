@@ -7,13 +7,7 @@
 
 #include "FrPropellerType.h"
 #include "FrActuatorForceBase.h"
-#include "FrPropellerForce.h"
-#include "FrFirstQuadrantPropellerForce.h"
-#include "FrCPPForce.h"
-#include "FrRudderForce.h"
-#include "FrFlapRudderForce.h"
-
-#include "FrACMEPropeller.h"
-#include "FrACMERudder.h"
+#include "FrPropeller.h"
+#include "FrRudder.h"
 
 #endif //FRYDOM_FRPROPULSIONINC_H

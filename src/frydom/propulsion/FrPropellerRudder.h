@@ -1,59 +1,42 @@
 //
-// Created by lletourn on 08/06/2021.
+// Created by lletourn on 03/09/2021.
 //
 
 #ifndef FRYDOM_FRPROPELLERRUDDER_H
 #define FRYDOM_FRPROPELLERRUDDER_H
 
 #include "FrActuatorForceBase.h"
+#include "FrPropellerType.h"
+#include "acme/acme.h"
+#include "frydom/core/math/functions/FrFunctionsInc.h"
 
 namespace frydom {
-
-  class FrRudderForce;
-
-  class FrFlapRudderForce;
-
-  class FrPropellerForce;
-
-  class FrFirstQuadrantPropellerForce;
-
-  class FrFourQuadrantPropellerForce;
-
-  class FrCPPForce;
 
   class FrPropellerRudder : public FrActuatorForceBase {
 
    public:
-    FrPropellerRudder(const std::string &name, FrBody *body);
 
-    void SetRudderAngle(double angle, ANGLE_UNIT unit);
+    FrPropellerRudder(const std::string &name,
+                      PropellerModelType prop_type,
+                      const std::shared_ptr<FrNode> &propeller_node,
+                      PropellerParams prop_params,
+                      const std::string &prop_perf_data_string,
+                      RudderModelType rudder_type,
+                      const std::shared_ptr<FrNode> &rudder_node,
+                      RudderParams rudder_params,
+                      const std::string &rudder_perf_data_string);
 
-    void SetPropellerRotationalVelocity(double omega, mathutils::FREQUENCY_UNIT unit);
+    void SetRPM(double rpm);
 
-    double GetPropulsivePower() const;
+    // For CPP only
+    void SetPitchRatio(double pitch_ratio);
 
-    void ActivateInteractions(bool val);
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
-    bool IsInteractions() const;
+    double GetRudderAngle(ANGLE_UNIT unit) const;
 
-    FrFirstQuadrantPropellerForce *
-    Add_FirstQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename,
-                               FRAME_CONVENTION fc);
-
-    FrFourQuadrantPropellerForce *
-    Add_FourQuadrantPropeller(const std::string &name, Position propellerPositionInBody, const std::string &filename,
-                              FRAME_CONVENTION fc);
-
-    FrCPPForce *
-    Add_ControllablePitchPropeller(const std::string &name, Position propellerPositionInBody,
-                                   const std::string &filename,
-                                   FRAME_CONVENTION fc);
-
-    FrRudderForce *
-    Add_Rudder(const std::string &name, const std::shared_ptr<FrNode> &node, const std::string &filename);
-
-    FrFlapRudderForce *
-    Add_FlapRudder(const std::string &name, const std::shared_ptr<FrNode> &node, const std::string &filename);
+    // TODO : move to VSL
+    void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
 
     // Propeller Force
 
@@ -68,6 +51,8 @@ namespace frydom {
     Torque GetPropellerTorqueInWorldAtCOG(FRAME_CONVENTION fc) const;
 
     Torque GetPropellerTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
+
+    double GetPropulsivePower() const;
 
     // Rudder Force
 
@@ -89,31 +74,38 @@ namespace frydom {
 
     void Compute(double time) override;
 
-    void ComputeVelocityInSlipStream(double u_0, double u_ra, double u_pa, double thrust, double &u_rp, double &A_rp, double &kd);
-
     void DefineLogMessages() override;
 
-    std::shared_ptr<FrPropellerForce> m_propellerForce;
-    std::shared_ptr<FrRudderForce> m_rudderForce;
+    std::unique_ptr<acme::PropellerRudderBase> m_acme_propeller_rudder;
+    std::shared_ptr<FrNode> m_propeller_node;
+    std::shared_ptr<FrNode> m_rudder_node;
 
-    double m_longitudinalDistancePropellerRudder;
+    double m_rudder_angle_deg;
+    double m_rpm, m_pitch_ratio;
 
-    GeneralizedForceTorsor c_propellerForceInBody;
-    GeneralizedForceTorsor c_rudderForceInWorld;
+    // TODO : move to VSL
+    double m_ramp_slope;
+    FrFunctionBase *m_rudderAngleFunction;
 
-    bool has_interactions;
+    // cached
+    double c_water_density;
+    double c_x_pr; ///< distance from propeller to rudder (positive if rudder behind the propeller)
+    double c_x_gr; ///< distance from COG to rudder (positive if rudder is behind COG)
 
-    double c_uPA, c_vPA;
-    double c_uRA, c_vRA;
-    double c_uRP, c_vRP;
-    double c_kd, c_A_RP;
-
-    double c_drag_RP, c_lift_RP, c_torque_RP;
+//    double c_uR0, c_vR0;
 
   };
 
-  std::shared_ptr<FrPropellerRudder> make_propeller_rudder(const std::string &name, const std::shared_ptr<FrBody> &body);
+  std::shared_ptr<FrPropellerRudder>
+  make_propeller_rudder_model(const std::string &name,
+                              PropellerModelType prop_type,
+                              const std::shared_ptr<FrNode> &propeller_node,
+                              PropellerParams prop_params,
+                              const std::string &prop_input_filepath,
+                              RudderModelType rudder_type,
+                              const std::shared_ptr<FrNode> &rudder_node,
+                              RudderParams rudder_params,
+                              const std::string &rudder_input_filepath);
 
-} // end namespace frydom
-
+}
 #endif //FRYDOM_FRPROPELLERRUDDER_H
