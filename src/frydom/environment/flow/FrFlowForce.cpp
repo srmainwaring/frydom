@@ -29,8 +29,7 @@ namespace frydom {
       m_table(mathutils::LINEAR),
       m_frontal_area(1.),
       m_lateral_area(1.),
-      m_length(1.),
-      m_table(mathutils::LINEAR){
+      m_length(1.){
 
     this->ReadTable(jsonFile);
   }
