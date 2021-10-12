@@ -40,10 +40,6 @@ namespace frydom {
       m_json_node = json::parse(ifs);
     }
 
-//    JSONNode(JSONNode *jnode, json node) {
-//
-//    }
-
     bool exists(const std::string &key) const {
       return m_json_node.find(key) != m_json_node.end();
     }
@@ -64,6 +60,11 @@ namespace frydom {
     template<typename T>
     T get_val(const std::string &key) const {
       return get_node({key}).m_json_node.get<T>();
+    }
+
+    template<typename T>
+    T get_val(const std::string &key, const T& default_val) const {
+      return exists(key) ? get_val<T>(key): default_val;
     }
 
     std::string get_filepath(const std::string &key) const {

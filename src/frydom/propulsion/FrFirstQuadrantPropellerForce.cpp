@@ -9,10 +9,14 @@
 namespace frydom {
 
 
-  FrFirstQuadrantPropellerForce::FrFirstQuadrantPropellerForce(const std::string &name, FrBody *body,
+  FrFirstQuadrantPropellerForce::FrFirstQuadrantPropellerForce(const std::string &name,
+                                                               FrBody *body,
                                                                Position propellerPositionInBody,
-                                                               const std::string &fileCoefficients, FRAME_CONVENTION fc)
-      : FrPropellerForce(name, body, propellerPositionInBody, fc), c_fileCoefficients(fileCoefficients) {
+                                                               const std::string &fileCoefficients,
+                                                               FRAME_CONVENTION fc)
+      : FrPropellerForce(name, body, propellerPositionInBody, fc),
+        m_coefficients(mathutils::LINEAR),
+        c_fileCoefficients(fileCoefficients) {
 
   }
 
@@ -31,8 +35,9 @@ namespace frydom {
     c_advance_ratio = ComputeAdvanceRatio();
     auto n2 = GetRotationalVelocity(RPM) / 60.;
     n2 *= n2;
-    c_thrust = density * std::pow(GetDiameter(), 4) * kt(c_advance_ratio) * n2 * (1-m_thrust_deduction_factor);
-    c_torque = density * std::pow(GetDiameter(), 5) * kq(c_advance_ratio) * n2 * GetScrewDirectionSign(); // FIXME: en realite, est-ce qu'on veut avoir un torque signe ??
+    c_thrust = density * std::pow(GetDiameter(), 4) * kt(c_advance_ratio) * n2 * (1 - m_thrust_deduction_factor);
+    c_torque = density * std::pow(GetDiameter(), 5) * kq(c_advance_ratio) * n2 *
+               GetScrewDirectionSign(); // FIXME: en realite, est-ce qu'on veut avoir un torque signe ??
 
     return {Force(c_thrust, 0., 0.), Torque(c_torque, 0., 0.)};
   }
@@ -120,7 +125,7 @@ namespace frydom {
 
     try {
       kq = node["open_water_table"]["kq"].get<std::vector<double>>();
-      for (auto &coeff:kq) coeff *= screwDirectionSign;
+      for (auto &coeff: kq) coeff *= screwDirectionSign;
       m_coefficients.AddY("kq", kq);
     } catch (json::parse_error &err) {
       event_logger::error("FrFirstQuadrantPropellerForce", "", "no kq in open_water_table");

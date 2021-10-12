@@ -26,6 +26,7 @@ namespace frydom {
                            FrBody *body,
                            const std::string &jsonFile) :
       FrForce(name, type_name, body),
+      m_table(mathutils::LINEAR),
       m_frontal_area(1.),
       m_lateral_area(1.),
       m_length(1.) {

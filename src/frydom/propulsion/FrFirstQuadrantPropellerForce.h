@@ -14,8 +14,11 @@ namespace frydom {
 
    public:
 
-    FrFirstQuadrantPropellerForce(const std::string &name, FrBody *body, Position propellerPositionInBody,
-                                  const std::string &fileCoefficients, FRAME_CONVENTION fc);
+    FrFirstQuadrantPropellerForce(const std::string &name,
+                                  FrBody *body,
+                                  Position propellerPositionInBody,
+                                  const std::string &fileCoefficients,
+                                  FRAME_CONVENTION fc);
 
     virtual double kt(double J) const;
 

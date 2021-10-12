@@ -14,7 +14,8 @@ namespace frydom {
   FrSutuloManoeuvringForce::FrSutuloManoeuvringForce(const std::string &name, frydom::FrBody *body,
                                                      const std::string &file)
       : FrForce(name, "FrManoeuvringForce", body),
-        c_filepath(file), m_Cm(0.625), m_mu22(0.), m_shipDraft(0.), m_shipLength(0.),
+        c_filepath(file),
+        m_Cm(0.625), m_mu22(0.), m_shipDraft(0.), m_shipLength(0.),
         m_cy0(0.), m_cy1(0.), m_cy2(0.), m_cy3(0.), m_cy4(0.), m_cy5(0.), m_cy6(0.), m_cy7(0.), m_cy8(0.),
         m_cn0(0.), m_cn1(0.), m_cn2(0.), m_cn3(0.), m_cn4(0.), m_cn5(0.), m_cn6(0.), m_cn7(0.), m_cn8(0.), m_cn9(0.),
         c_beta(0.), c_rpp(0.),

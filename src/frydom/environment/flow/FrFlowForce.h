@@ -30,15 +30,6 @@ namespace frydom {
    */
   class FrFlowForce : public FrForce {
 
-   protected:
-
-    Velocity m_fluxVelocityInBody;             ///< relative velocity of the flow in the body frame
-    mathutils::LookupTable1D<double, mathutils::Vector3d<double>> m_table;  ///< Table of polar coefficient
-
-    double m_frontal_area;
-    double m_lateral_area;
-    double m_length;
-
    public:
 
     /// Default constructor
@@ -62,6 +53,15 @@ namespace frydom {
     void Compute(double time) override;
 
     virtual double GetFluidDensity() const = 0;
+
+   protected:
+
+    Velocity m_fluxVelocityInBody;             ///< relative velocity of the flow in the body frame
+    mathutils::LookupTable1D<double, mathutils::Vector3d<double>> m_table;  ///< Table of polar coefficient
+
+    double m_frontal_area;
+    double m_lateral_area;
+    double m_length;
 
   };
 

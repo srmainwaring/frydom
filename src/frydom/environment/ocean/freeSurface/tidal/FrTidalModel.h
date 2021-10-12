@@ -79,6 +79,7 @@ namespace frydom {
    */
   class FrTidal : public FrObject {
 
+   public:
     enum TIDAL_LEVEL {
       LOW,
       HIGH
@@ -88,30 +89,6 @@ namespace frydom {
       NO_TIDAL,
       TWELFTH_RULE
     };
-
-   private:
-
-    FrFreeSurface *m_freeSurface;
-
-    std::unique_ptr<chrono::ChFrame<double>> m_tidalFrame;  // FIXME : utiliser un FrFrame !!!
-
-    double m_time = 0.;
-
-    TIDAL_MODE m_mode = NO_TIDAL;
-
-    TIDAL_LEVEL m_level1;
-    FrUTCTime m_t1;
-    double m_h1 = 0.;
-
-    TIDAL_LEVEL m_level2;
-    FrUTCTime m_t2;
-    double m_h2;
-
-    mathutils::LookupTable1D<double, double> tidalTable;
-
-    void BuildTable();
-
-    void BuildTwelfthRuleTable();
 
    public:
 
@@ -133,6 +110,31 @@ namespace frydom {
     void Initialize() override;
 
     void StepFinalize() override;
+
+   private:
+    void BuildTable();
+
+    void BuildTwelfthRuleTable();
+
+   private:
+
+    FrFreeSurface *m_freeSurface;
+
+    std::unique_ptr<chrono::ChFrame<double>> m_tidalFrame;  // FIXME : utiliser un FrFrame !!!
+
+    double m_time = 0.;
+
+    TIDAL_MODE m_mode = NO_TIDAL;
+
+    TIDAL_LEVEL m_level1;
+    FrUTCTime m_t1;
+    double m_h1 = 0.;
+
+    TIDAL_LEVEL m_level2;
+    FrUTCTime m_t2;
+    double m_h2;
+
+    mathutils::LookupTable1D<double, double> m_tidal_table;
 
   };
 

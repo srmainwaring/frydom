@@ -11,7 +11,10 @@ frydom::FrFourQuadrantPropellerForce::FrFourQuadrantPropellerForce(const std::st
                                                                    const std::string &fileCoefficients,
                                                                    FRAME_CONVENTION fc) :
     FrPropellerForce(name, body, propellerPositionInBody, fc),
-    c_fileCoefficients(fileCoefficients), m_delta_ct(-0.04*0), m_delta_cq(-0.0025*0) {
+    m_coefficients(mathutils::LINEAR),
+    c_fileCoefficients(fileCoefficients),
+    m_delta_ct(-0.04*0),
+    m_delta_cq(-0.0025*0) {
 
 }
 

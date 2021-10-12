@@ -39,14 +39,16 @@ namespace frydom {
   std::string FrFileSystem::cwd() {
 
     char currentPath[FILENAME_MAX];
+    std::string path_str;
 
     #ifndef _WIN32
-    if (getcwd(currentPath, FILENAME_MAX) != nullptr)
+    if (getcwd(currentPath, FILENAME_MAX) != nullptr) {
       #else
-      if (_getcwd(currentPath, FILENAME_MAX) != nullptr)
+      if (_getcwd(currentPath, FILENAME_MAX) != nullptr) {
       #endif
-
-      return std::string(currentPath);
+      path_str = std::string(currentPath);
+    }
+    return path_str;
 
   }
 
@@ -133,7 +135,7 @@ namespace frydom {
 
   std::string FrFileSystem::join(std::vector<std::string> paths) {
     cppfs::FilePath fp;
-    for (const auto &path : paths) {
+    for (const auto &path: paths) {
       fp = fp.resolve(path);
     }
     return fp.resolved();
