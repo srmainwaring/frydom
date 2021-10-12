@@ -1720,8 +1720,10 @@ class pyHDB(object):
 
         dset = writer.create_dataset(num_param_path + "/Crmax", data=self.crmax)
 
-        dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/x", data=self.wave_reference_point_x)
-        dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/y", data=self.wave_reference_point_y)
+        if(wave_reference_point_x is not None):
+            dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/x", data=self.wave_reference_point_x)
+        if (wave_reference_point_y is not None):
+            dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/y", data=self.wave_reference_point_y)
 
     def write_info(self, input_file):
         """This function writes the hydrodynamic database into a *.hdb5 file."""
@@ -1738,7 +1740,7 @@ class pyHDB(object):
         print("\nGravity acceleration (m/s2): " + str(self.grav))
         print("Water density (kg/m3): " + str(self.rho_water))
         print("Water depth (m): " + str(self.depth))
-        if (self.has_expert_parameters):
+        if (self.wave_reference_point_x is not None and self.wave_reference_point_y is not None):
             wave_ref_point = np.zeros(2)
             wave_ref_point[0] = self.wave_reference_point_x
             wave_ref_point[1] = self.wave_reference_point_y

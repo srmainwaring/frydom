@@ -567,7 +567,7 @@ class HDB5reader():
         """
 
         try:
-            reader[num_param_path]
+            reader[num_param_path] # To check if the path exists.
             pyHDB.surface_integration_order = np.array(reader[num_param_path + "/SurfaceIntegrationOrder"])
             pyHDB.green_function = str(np.array(reader[num_param_path + "/GreenFunction"]))
 
@@ -576,10 +576,14 @@ class HDB5reader():
                 pyHDB.green_function = pyHDB.green_function[2:-1]
 
             pyHDB.crmax = np.array(reader[num_param_path + "/Crmax"])
+            pyHDB.has_expert_parameters = True
+        except:
+            pass
+
+        try:
+            reader[num_param_path] # To check if the path exists.
             pyHDB.wave_reference_point_x = np.array(reader[num_param_path + "/WaveReferencePoint/x"])
             pyHDB.wave_reference_point_y = np.array(reader[num_param_path + "/WaveReferencePoint/y"])
-            pyHDB.has_expert_parameters = True
-
         except:
             pass
 
