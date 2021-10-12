@@ -1,0 +1,64 @@
+diff -r ./cmake/CMakeLists.txt ../geographiclib_modified/cmake/CMakeLists.txt
+47,53c47,55
+< export (TARGETS
+<   ${PROJECT_ALL_LIBRARIES} ${TOOLS}
+<   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-legacy-targets.cmake")
+< export (TARGETS
+<   ${PROJECT_ALL_LIBRARIES} ${TOOLS}
+<   NAMESPACE ${PROJECT_NAME}::
+<   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-targets.cmake")
+---
+> if (GEOGRAPHICLIB_BUILD_TOOLS)
+>   export (TARGETS
+>     ${PROJECT_ALL_LIBRARIES} ${TOOLS}
+>     FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-legacy-targets.cmake")
+>   export (TARGETS
+>     ${PROJECT_ALL_LIBRARIES} ${TOOLS}
+>     NAMESPACE ${PROJECT_NAME}::
+>     FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-targets.cmake")
+> endif()
+
+diff -r ./CMakeLists.txt ../geographiclib_modified/CMakeLists.txt
+62a63,69
+> option(GEOGRAPHICLIB_BUILD_EXAMPLES "Build examples" ON)
+> option(GEOGRAPHICLIB_BUILD_TOOLS "Build tools" ON)
+> option(GEOGRAPHICLIB_BUILD_MAN "Build man" ON)
+> option(GEOGRAPHICLIB_BUILD_DOC "Build doc" ON)
+> option(GEOGRAPHICLIB_BUILD_JS "Build javascript" ON)
+> option(GEOGRAPHICLIB_BUILD_MATLAB "Build matlab" ON)
+>
+449c456,458
+<   add_dependencies (distrib-all distrib-man)
+---
+>   if (GEOGRAPHICLIB_BUILD_MAN)
+>     add_dependencies (distrib-all distrib-man)
+>   endif()
+481,487c490,508
+< add_subdirectory (tools)
+< add_subdirectory (man)
+< add_subdirectory (doc)
+< add_subdirectory (js)
+< add_subdirectory (matlab)
+< add_subdirectory (python/geographiclib)
+< add_subdirectory (examples)
+---
+> if (GEOGRAPHICLIB_BUILD_TOOLS)
+>   add_subdirectory (tools)
+> endif()
+> if (GEOGRAPHICLIB_BUILD_MAN)
+>   add_subdirectory (man)
+> endif()
+> if (GEOGRAPHICLIB_BUILD_DOC)
+>   add_subdirectory (doc)
+> endif()
+> if (GEOGRAPHICLIB_BUILD_JS)
+>   add_subdirectory (js)
+> endif()
+> if (GEOGRAPHICLIB_BUILD_MATLAB)
+>   add_subdirectory (matlab)
+> endif()
+>   add_subdirectory (python/geographiclib)
+> if (GEOGRAPHICLIB_BUILD_EXAMPLES)
+>   add_subdirectory (examples)
+> endif()
+

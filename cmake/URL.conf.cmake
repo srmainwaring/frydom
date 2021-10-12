@@ -6,9 +6,9 @@ set(chrono_URL "https://github.com/projectchrono/chrono/archive/refs/tags/4.0.0.
 set(chrono_PATCH chrono_V4.0.0.patch)
 
 # GeographicLib
-set(geographiclib_URL git://git.code.sf.net/p/geographiclib/code)
-set(geographiclib_TAG v1.51 CACHE STRING "geographiclib")
-set(geographiclib_PATCH GeographicLib.patch)
+set(geographiclib_URL https://sourceforge.net/projects/geographiclib/files/distrib/GeographicLib-1.52.tar.gz/download)
+set(geographiclib_TAG v1.52 CACHE STRING "geographiclib")
+set(geographiclib_PATCH GeographicLib_1_52.patch)
 
 # GoogleTest
 set(googletest_URL https://github.com/google/googletest.git)
