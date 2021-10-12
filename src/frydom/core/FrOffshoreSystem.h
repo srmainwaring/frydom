@@ -193,7 +193,8 @@ namespace frydom {
       ///< drifting 'closed' by using a projection. If using an underlying CCP
       ///< complementarity solver, this is the typical Tasora stabilized timestepper for DVIs.
 
-      EULER_IMPLICIT,             ///< Performs a step of Euler implicit for II order systems.
+      ///< FIXME: This time-stepper does not work with the computation of the radiation loads.
+      //EULER_IMPLICIT,             ///< Performs a step of Euler implicit for II order systems.
 
       TRAPEZOIDAL,                ///< Performs a step of trapezoidal implicit for II order systems.
       ///< NOTE this is a modified version of the trapezoidal for DAE: the original

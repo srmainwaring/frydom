@@ -29,7 +29,8 @@ namespace frydom {
       m_table(mathutils::LINEAR),
       m_frontal_area(1.),
       m_lateral_area(1.),
-      m_length(1.) {
+      m_length(1.),
+      m_table(mathutils::LINEAR){
 
     this->ReadTable(jsonFile);
   }
@@ -96,6 +97,10 @@ namespace frydom {
     std::sort(polar.begin(), polar.end(), [](auto const &a, auto const &b) {
       return a.first < b.first;
     });
+
+    // Ensuring first term is 0
+    assert(polar[0].first <= 1E-6);
+    polar[0].first = 0;
 
     // Adding last term for angle equal to 2pi
     new_element.first = 2. * MU_PI;

@@ -1067,10 +1067,10 @@ namespace frydom {
         m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT_PROJECTED);
         timestepper_str = "EULER_IMPLICIT_PROJECTED";
         break;
-      case EULER_IMPLICIT:
-        m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT);
-        timestepper_str = "EULER_IMPLICIT";
-        break;
+//      case EULER_IMPLICIT:
+//        m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT);
+//        timestepper_str = "EULER_IMPLICIT";
+//        break;
       case TRAPEZOIDAL:
         m_chronoSystem->SetTimestepperType(timeStepperType::TRAPEZOIDAL);
         timestepper_str = "TRAPEZOIDAL";
