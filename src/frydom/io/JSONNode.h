@@ -234,9 +234,9 @@ namespace frydom {
     auto ixx = node.get_val<double>("ixx_tm2") * 1e3;
     auto iyy = node.get_val<double>("iyy_tm2") * 1e3;
     auto izz = node.get_val<double>("izz_tm2") * 1e3;
-    auto ixy = node.get_val<double>("ixy_tm2") * 1e3;
-    auto ixz = node.get_val<double>("ixz_tm2") * 1e3;
-    auto iyz = node.get_val<double>("iyz_tm2") * 1e3;
+    auto ixy = node.get_val<double>("ixy_tm2", 0.0) * 1e3;
+    auto ixz = node.get_val<double>("ixz_tm2", 0.0) * 1e3;
+    auto iyz = node.get_val<double>("iyz_tm2", 0.0) * 1e3;
 
     return {mass, ixx, iyy, izz, ixy, ixz, iyz, cog, frame_convention};
   }
