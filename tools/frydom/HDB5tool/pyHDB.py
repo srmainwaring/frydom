@@ -31,8 +31,8 @@ class pyHDB(object):
         self.rho_water = 0
         self.grav = 0
         self.depth = -1
-        self.x_wave_measure = 0. # Only for Nemoh ? Dublication with wave_reference_point_x ?
-        self.y_wave_measure = 0. # Only for Nemoh ? Dublication with wave_reference_point_y ?
+        self.x_wave_measure = 0. # Only for Nemoh ?
+        self.y_wave_measure = 0. # Only for Nemoh ?
 
         # Wave frequencies.
         self.nb_wave_freq = 0
@@ -128,8 +128,6 @@ class pyHDB(object):
         self.surface_integration_order = None
         self.green_function = None
         self.crmax = None
-        self.wave_reference_point_x = None
-        self.wave_reference_point_y = None
 
     def set_wave_frequencies(self):
         """Frequency array of BEM computations in rad/s.
@@ -1720,11 +1718,6 @@ class pyHDB(object):
 
         dset = writer.create_dataset(num_param_path + "/Crmax", data=self.crmax)
 
-        if(wave_reference_point_x is not None):
-            dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/x", data=self.wave_reference_point_x)
-        if (wave_reference_point_y is not None):
-            dset = writer.create_dataset(num_param_path + "/WaveReferencePoint/y", data=self.wave_reference_point_y)
-
     def write_info(self, input_file):
         """This function writes the hydrodynamic database into a *.hdb5 file."""
 
@@ -1740,11 +1733,6 @@ class pyHDB(object):
         print("\nGravity acceleration (m/s2): " + str(self.grav))
         print("Water density (kg/m3): " + str(self.rho_water))
         print("Water depth (m): " + str(self.depth))
-        if (self.wave_reference_point_x is not None and self.wave_reference_point_y is not None):
-            wave_ref_point = np.zeros(2)
-            wave_ref_point[0] = self.wave_reference_point_x
-            wave_ref_point[1] = self.wave_reference_point_y
-            print("Wave reference point (m, m): " + str(wave_ref_point))
 
         # Discretization.
         print("\nNumber of wave frequencies: " + str(self.nb_wave_freq))
@@ -1767,9 +1755,11 @@ class pyHDB(object):
             print("    Body " + str(body.i_body + 1))
             print("    Name: " + str(body.name))
             if(body.horizontal_position is not None):
-                print("    Horizontal position (m, m, deg): " + str(body.horizontal_position))
+                print("    Horizontal position in world frame (m, m, deg): " + str(body.horizontal_position))
             if(body.computation_point is not None):
                 print("    Computation point in body frame (m, m, m): " + str(body.computation_point))
+            if (body.wave_reference_point_in_body_frame is not None):
+                print("    Wave reference point in body frame (m, m): " + str(body.wave_reference_point_in_body_frame))
             if(body.mesh is not None):
                 print("    Number of faces: " + str(body.mesh.nb_faces))
                 print("    Number of vertices: " + str(body.mesh.nb_vertices))

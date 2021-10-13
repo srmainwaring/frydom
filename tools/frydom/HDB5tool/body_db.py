@@ -52,6 +52,9 @@ class BodyDB(object):
         # Computation point in body frame.
         self.computation_point = None
 
+        # Wave reference point in body frame.
+        self.wave_reference_point_in_body_frame = None
+
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
 

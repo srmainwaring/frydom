@@ -580,13 +580,6 @@ class HDB5reader():
         except:
             pass
 
-        try:
-            reader[num_param_path] # To check if the path exists.
-            pyHDB.wave_reference_point_x = np.array(reader[num_param_path + "/WaveReferencePoint/x"])
-            pyHDB.wave_reference_point_y = np.array(reader[num_param_path + "/WaveReferencePoint/y"])
-        except:
-            pass
-
 class HDB5reader_v2(HDB5reader):
     """
         Class for reading HDB5 file of version 2.
@@ -1016,6 +1009,12 @@ class HDB5reader_v2(HDB5reader):
                     body.computation_point = np.array(reader[body_path + "/ComputationPoint"])
                 except:
                     pass
+
+            # Wave reference point in body frame.
+            try:
+                body.wave_reference_point_in_body_frame = np.array(reader[body_path + "/WaveReferencePoint"])
+            except:
+                pass
 
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
