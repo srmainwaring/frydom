@@ -87,7 +87,7 @@ namespace frydom {
     m_meanDir = mathutils::Normalize_0_2PI(m_meanDir);
 
     event_logger::info("IrregularWaveField", "", "Mean wave direction set to {} deg in NED and GOTO conventions",
-                       GetMeanWaveDirection(NED, GOTO));
+                       GetMeanWaveDirectionAngle(mathutils::DEG, NED, GOTO));
 
     if (m_waveSpectrum->GetDirectionalModel() != nullptr) { ComputeWaveDirections(); }
   }
@@ -463,9 +463,10 @@ namespace frydom {
     double dirAngle = m_meanDir;
     if (IsNED(fc)) dirAngle = -dirAngle;
     if (IsCOMEFROM(dc)) dirAngle -= MU_PI;
+    dirAngle = mathutils::Normalize_0_2PI(dirAngle);
     if (unit == mathutils::DEG) dirAngle *= RAD2DEG;
 
-    return mathutils::Normalize_0_360(dirAngle);
+    return dirAngle;
   }
 
   Direction FrAiryIrregularWaveField::GetMeanWaveDirection(FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const {
