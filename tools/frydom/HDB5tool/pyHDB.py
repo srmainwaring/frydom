@@ -1780,6 +1780,12 @@ class pyHDB(object):
                 print("    Mass matrix: No")
             if body._extra_damping is not None:
                 print("    Extra damping matrix: Yes")
+                if ((body._extra_damping == np.zeros((6, 6))).all() is False):  # Plot
+                    for i in range(0, 6):
+                        print("        ", end = '')
+                        for j in range(0, 6):
+                            print(str(body._extra_damping[i, j]) + " ", end='')
+                        print("")
             else:
                 print("    Extra damping matrix: No")
             if body._hydrostatic:
@@ -1794,6 +1800,12 @@ class pyHDB(object):
                 print("    Hydrostatic matrix: No")
             if body._mooring is not None:
                 print("    Mooring matrix: Yes")
+                if((body._mooring == np.zeros((6, 6))).all() is False): # Plot
+                    for i in range(0, 6):
+                        print("        ", end = '')
+                        for j in range(0, 6):
+                            print(str(body._mooring[i, j]) + " ", end='')
+                        print("")
             else:
                 print("    Mooring matrix: No")
             if self.has_RAO:
