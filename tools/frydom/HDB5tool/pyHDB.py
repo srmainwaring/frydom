@@ -1497,6 +1497,10 @@ class pyHDB(object):
         if (body.computation_point is not None):
             dset = writer.create_dataset(body_path + "/ComputationPoint", data=body.computation_point)
 
+        # Wave reference point in body frame.
+        if (body.wave_reference_point_in_body_frame is not None):
+            dset = writer.create_dataset(body_path + "/WaveReferencePoint", data=body.wave_reference_point_in_body_frame)
+
         # Masks.
         self.write_mask(writer, body, body_path + "/Mask")
 
