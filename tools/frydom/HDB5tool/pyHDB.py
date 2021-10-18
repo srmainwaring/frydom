@@ -1808,19 +1808,41 @@ class pyHDB(object):
                         print("")
             else:
                 print("    Mooring matrix: No")
-            if self.has_RAO:
-                print("    RAO computed: Yes")
-            else:
-                print("    RAO computed: No")
+
+        # Generalities.
+        print("")
+        if (self.has_kochin):
+            print("Kochin functions: Yes")
+            print("    Angular step (deg): " + str(self.angle_kochin[1] * 180 / np.pi))
+        else:
+            print("Kochin functions: No")
+        if self.has_RAO:
+            print("RAO: Yes")
+        else:
+            print("RAO: No")
         if (self.has_Drift):
             print("Drift coefficients: Yes")
         else:
             print("Drift coefficients: No")
+        if (self._has_x_derivatives):
+            print("x-derivatives: Yes")
+        else:
+            print("x-derivatives: No")
+        if (self.bodies[0].irf is not None):
+            print("Impulse response functions: Yes")
+            print("    Final time: " + str(self.time[-1]))
+            print("    Time step: " + str(self.dt))
+        else:
+            print("Impulse response functions: No")
+        if (self.bodies[0].irf_ku is not None):
+            print("Forward-speed impulse response functions: Yes")
+        else:
+            print("Forward-speed impulse response functions: No")
         if (self.has_VF):
             print("Pole and residues: Yes")
             print("    Max order: " + str(self.max_order))
             print("    Tolerance: " + str(self.tolerance))
-            if (self.has_VF):
+            if (self.relaxed):
                 print("    Relaxed VF: Yes")
             else:
                 print("    Relaxed VF: No")
