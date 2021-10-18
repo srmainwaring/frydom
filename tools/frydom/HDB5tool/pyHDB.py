@@ -1818,6 +1818,12 @@ class pyHDB(object):
             print("Drift coefficients: No")
         if (self.has_VF):
             print("Pole and residues: Yes")
+            print("    Max order: " + str(self.max_order))
+            print("    Tolerance: " + str(self.tolerance))
+            if (self.has_VF):
+                print("    Relaxed VF: Yes")
+            else:
+                print("    Relaxed VF: No")
         else:
             print("Pole and residues: No")
 
