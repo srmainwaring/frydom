@@ -402,8 +402,9 @@ namespace frydom {
 
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
+      // Check if the recorder was instanciated for this BEM body.
       if (m_recorder.find(BEMBody->first) == m_recorder.end()) {
-        auto interpK = BEMBody->first->GetIRFInterpolator();
+        auto interpK = BEMBody->first->GetIRFInterpolator("K");
         auto Te = interpK->at(0)->GetXmax(BEMBody->first->GetName());
         auto dt = GetParent()->GetTimeStep();
         m_recorder[BEMBody->first] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
@@ -556,9 +557,10 @@ namespace frydom {
 
   void FrRadiationConvolutionModel::SetImpulseResponseSize(FrBEMBody *BEMBody, double Te, double dt) {
     //TODO : check it is not already instanciated
-    auto Te_IRF = BEMBody->GetIRFInterpolator()->at(0)->GetXmax(BEMBody->GetName());
+    auto Te_IRF = BEMBody->GetIRFInterpolator("K")->at(0)->GetXmax(BEMBody->GetName());
     if (Te > Te_IRF) {
-      event_logger::error("FrRadiationConvolutionModel", GetName(), "SetImpulseResponseSize specified Te is larger than the IRF final time");
+      event_logger::error("FrRadiationConvolutionModel", GetName(),
+                          fmt::format("SetImpulseResponseSize specified Te = {} is larger than the IRF final time = {}.", Te, Te_IRF));
       exit(1);
     }
     m_recorder[BEMBody] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
