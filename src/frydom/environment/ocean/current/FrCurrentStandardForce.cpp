@@ -76,7 +76,7 @@ namespace frydom {
 
     auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
 
-    FrFrame FrameAtCOG = body->GetFrameAtCOG(NWU);
+    FrFrame FrameAtCOG = body->GetFrameAtCOG();
 
     auto bodyVelocity = body->GetLinearVelocityInWorld(NWU);
     bodyVelocity.z() = 0.;

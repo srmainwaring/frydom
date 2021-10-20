@@ -47,8 +47,8 @@ namespace frydom {
 
   void FrUnitQuaternion::Set(double q0, double q1, double q2, double q3, bool non_normalized, FRAME_CONVENTION fc) {
     if (IsNED(fc))
-      internal::SwapQuaternionElementsFrameConvention(q0, q1, q2,
-                                                      q3); // Internal chrono quaternion must always be in NWU convention
+      // Internal chrono quaternion must always be in NWU convention
+      internal::SwapQuaternionElementsFrameConvention(q0, q1, q2, q3);
     m_chronoQuaternion.Set(q0, q1, q2, q3);
     if (non_normalized) Normalize();
     else

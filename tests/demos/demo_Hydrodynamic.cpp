@@ -27,7 +27,7 @@ class FrlinearStiffnessForce : public FrForce {
  private:
 
   void Compute(double time) override {
-    auto frameAtCOGInWorld = GetBody()->GetFrameAtCOG(NWU);
+    auto frameAtCOGInWorld = GetBody()->GetFrameAtCOG();
 
     double phi, theta, psi, psieq;
     frameAtCOGInWorld.GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
   stiffnessMatrix(1,1) = 5E8;
   stiffnessMatrix(2,2) = 5E9;
   auto linearStiffnessForce = std::make_shared<FrlinearStiffnessForce>("linearStiffnessForce", platform.get(),
-                                                                       stiffnessMatrix, platform->GetFrameAtCOG(NWU));
+                                                                       stiffnessMatrix, platform->GetFrameAtCOG());
   platform->AddExternalForce(linearStiffnessForce);
 
   // ------------------ Run with Irrlicht ------------------ //

@@ -96,6 +96,20 @@ namespace frydom {
     m_stiffnessMatrix.SetK45(HydrostaticMatrix(1, 2));
   }
 
+  void FrLinearHydrostaticForce::SetStiffnessCoefficients(const double &k33,
+                                                          const double &k44,
+                                                          const double &k55,
+                                                          const double &k34,
+                                                          const double &k35,
+                                                          const double &k45) {
+    m_stiffnessMatrix.SetK33(k33);
+    m_stiffnessMatrix.SetK44(k44);
+    m_stiffnessMatrix.SetK55(k55);
+    m_stiffnessMatrix.SetK34(k34);
+    m_stiffnessMatrix.SetK35(k35);
+    m_stiffnessMatrix.SetK45(k45);
+  }
+
   std::shared_ptr<FrLinearHydrostaticForce>
   make_linear_hydrostatic_force(const std::string &name,
                                 const std::shared_ptr<FrBody> body,

@@ -47,6 +47,9 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 #set(HDF5_URL https://github.com/HDFGroup/hdf5.git)
 #set(HDF5_TAG hdf5-1_10_6 CACHE STRING "HDF5 version")
 
+# acme
+set(acme_URL git@frydom-ce.org:ce/acme.git)
+set(acme_TAG develop)
 
 ### Indirect dependencies / already included
 

@@ -69,6 +69,7 @@ include(Add_TimeZone)
 include(Add_hermes)
 include(Add_json)
 include(Add_spdlog)
+include(Add_acme)
 
 #=============================================================================
 # Adding the FRyDoM project sources

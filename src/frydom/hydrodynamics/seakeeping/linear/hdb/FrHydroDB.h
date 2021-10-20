@@ -84,8 +84,6 @@ namespace frydom {
 
     FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
 
-    void GetImpulseResponseSize(double timeStep, double &Te, double &dt) const;
-
     /// This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
     bool GetIsXDerivative() const;
 

@@ -153,6 +153,10 @@ namespace frydom {
     /// Method to be applied after each time steps
     void StepFinalize() override;
 
+    void SetEqFramePositionOrientation();
+
+    void SetEqFramePositionOrientation(const Position &localPos, FRAME_CONVENTION fc);
+
    protected:
 
     void DefineLogMessages() override;
@@ -160,10 +164,6 @@ namespace frydom {
     void ApplyFrameProjection();
 
    private:
-
-    void SetEqFramePositionOrientation();
-
-    void SetEqFramePositionOrientation(const Position &localPos, FRAME_CONVENTION fc);
 
     void Compute(double time) override;
 

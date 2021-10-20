@@ -6,5 +6,6 @@
 #define FRYDOM_FRMANOEUVRINGINC_H
 
 #include "FrManoeuvringDamping.h"
+#include "FrSutuloManoeuvringForce.h"
 
 #endif //FRYDOM_FRMANOEUVRINGINC_H

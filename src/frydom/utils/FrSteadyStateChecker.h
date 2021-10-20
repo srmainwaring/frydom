@@ -22,13 +22,13 @@ namespace frydom {
 
    public:
 
-      FrRecordingFieldBase(double time_length, double time_step);
+    FrRecordingFieldBase(double time_length, double time_step);
 
-      virtual void Record(double time) = 0;
+    virtual void Record(double time) = 0;
 
-      double GetStandardDeviation();
+    double GetStandardDeviation();
 
-      double GetMean();
+    double GetMean();
 
    protected:
 
@@ -38,28 +38,28 @@ namespace frydom {
   };
 
   template<class T>
-      class FrRecordingField : public FrRecordingFieldBase {
+  class FrRecordingField : public FrRecordingFieldBase {
 
-       public:
+   public:
 
-        FrRecordingField(T* data, double time_length, double time_step)
-          : FrRecordingFieldBase(time_length, time_step),
-            m_data([data]() {return *data;}) {}
+    FrRecordingField(T *data, double time_length, double time_step)
+        : FrRecordingFieldBase(time_length, time_step),
+          m_data([data]() { return *data; }) {}
 
-        FrRecordingField(std::function<T()> data, double time_length, double time_step)
-          : FrRecordingFieldBase(time_length, time_step),
-            m_data([data]() {return data(); }) {}
+    FrRecordingField(std::function<T()> data, double time_length, double time_step)
+        : FrRecordingFieldBase(time_length, time_step),
+          m_data([data]() { return data(); }) {}
 
-        virtual void Record(double time) override {
-          m_recorder.Record(time, m_data());
-          m_recorder_mean.Record(time, m_recorder.GetMean());
-        }
+    virtual void Record(double time) override {
+      m_recorder.Record(time, m_data());
+      m_recorder_mean.Record(time, m_recorder.GetMean());
+    }
 
-       private:
+   private:
 
-        std::function<T()> m_data;
+    std::function<T()> m_data;
 
-      };
+  };
 
 
   class FrSteadyStateChecker {
@@ -70,7 +70,7 @@ namespace frydom {
         : m_time_length(time_length), m_time_step(time_step), m_starting_time(starting_time) {}
 
     void Record(double time) {
-      for (auto& field: m_fields) {
+      for (auto &field: m_fields) {
         field->Record(time);
       }
       m_is_active = time > m_starting_time;
@@ -88,9 +88,7 @@ namespace frydom {
           auto stdev = m_fields[i]->GetStandardDeviation();
           auto denom = std::max(m_fields[i]->GetMean(), 1.);
 
-          is_steady = stdev/denom < m_max_deviations[i];
-          //std::cout << "** debug : stdev = " << stdev << " ; denom = " << denom << std::endl;
-          //std::cout << "** debug : stdev/denom = " << stdev/denom << std::endl;
+          is_steady = stdev / denom < m_max_deviations[i];
           ++i;
         }
         return is_steady;
@@ -100,16 +98,16 @@ namespace frydom {
     }
 
     template<class T>
-        void AddField(T *val, double max_deviation) {
-          m_fields.emplace_back(std::make_unique<FrRecordingField<T>>(val, m_time_length, m_time_step));
-          m_max_deviations.emplace_back(max_deviation);
-        }
+    void AddField(T *val, double max_deviation) {
+      m_fields.emplace_back(std::make_unique<FrRecordingField<T>>(val, m_time_length, m_time_step));
+      m_max_deviations.emplace_back(max_deviation);
+    }
 
     template<typename T>
-      void AddField(std::function<T()> func, double max_deviation) {
-        m_fields.emplace_back(std::make_unique<FrRecordingField<T>>(func, m_time_length, m_time_step));
-        m_max_deviations.emplace_back(max_deviation);
-      }
+    void AddField(std::function<T()> func, double max_deviation) {
+      m_fields.emplace_back(std::make_unique<FrRecordingField<T>>(func, m_time_length, m_time_step));
+      m_max_deviations.emplace_back(max_deviation);
+    }
 
    private:
 

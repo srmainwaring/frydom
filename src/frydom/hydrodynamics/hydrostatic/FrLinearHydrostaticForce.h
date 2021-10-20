@@ -25,6 +25,7 @@ namespace frydom {
 
   // Forward declarations
   class FrEquilibriumFrame;
+
   class FrHydroDB;
 
   /// This class defines the linear hydrostatic restoring force applied to a hydrodynamic body.
@@ -55,6 +56,14 @@ namespace frydom {
 
     /// This function sets the hydrostatic stiffness matrix.
     void SetStiffnessMatrix(FrLinearHydrostaticStiffnessMatrix HydrostaticMatrix);
+
+    /// Set the hydrostatic stiffness coefficients
+    void SetStiffnessCoefficients(const double &k33,
+                                  const double &k44,
+                                  const double &k55,
+                                  const double &k34,
+                                  const double &k35,
+                                  const double &k45);
 
     /// This function sets the hydrostatic stiffness matrix.
     void SetStiffnessMatrix(mathutils::MatrixMN<double> HydrostaticMatrix);

@@ -745,15 +745,24 @@ namespace frydom {
     SetRotation(worldFrame.GetQuaternion());
   }
 
-  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) {
+  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) const {
     FrFrame pointFrame;
     pointFrame.SetPosition(GetPointPositionInWorld(bodyPoint, fc), fc);
     pointFrame.SetRotation(GetQuaternion());
     return pointFrame;
   }
 
-  FrFrame FrBody::GetFrameAtCOG(FRAME_CONVENTION fc) {
-    return GetFrameAtPoint(GetCOG(fc), fc);
+  FrFrame FrBody::GetFrameAtCOG() const {
+    return GetFrameAtPoint(GetCOG(NWU), NWU);
+  }
+
+  FrFrame FrBody::GetHeadingFrame() const {
+    FrFrame headingFrame;
+    double phi, theta, psi;
+    GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+    headingFrame.SetRotZ_RADIANS(psi, NWU);
+    headingFrame.SetPosition(GetCOGPositionInWorld(NWU), NWU);
+    return headingFrame;
   }
 
   Position FrBody::GetPointPositionInWorld(const Position &bodyPos, FRAME_CONVENTION fc) const {
@@ -891,6 +900,10 @@ namespace frydom {
 
   Velocity FrBody::GetCOGVelocityInBody(FRAME_CONVENTION fc) const {
     return ProjectVectorInBody<Velocity>(GetCOGLinearVelocityInWorld(fc), fc);
+  }
+
+  Velocity FrBody::GetVelocityInHeadingFrame(FRAME_CONVENTION fc) const {
+    return GetHeadingFrame().ProjectVectorParentInFrame(GetCOGLinearVelocityInWorld(fc), fc);
   }
 
   void FrBody::SetAccelerationInWorldNoRotation(const Acceleration &worldAcc, FRAME_CONVENTION fc) {
@@ -1213,14 +1226,29 @@ namespace frydom {
          [this]() { return GetLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("LinearAccelerationInBody", "m/s2",
+         fmt::format("body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("COGLinearAccelerationInWorld", "m/s2",
          fmt::format("COG body linear acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetCOGLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("COGLinearAccelerationInBody", "m/s2",
+         fmt::format("COG body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetCOGAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("AngularAccelerationInWorld", "rad/s2",
          fmt::format("body angular acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetAngularAccelerationInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("AngularAccelerationInBody", "rad/s2",
+         fmt::format("body angular acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAngularAccelerationInBody(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TotalExtForceInBody", "N",

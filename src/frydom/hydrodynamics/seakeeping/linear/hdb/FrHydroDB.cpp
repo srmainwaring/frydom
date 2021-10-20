@@ -84,19 +84,6 @@ namespace frydom {
     return DOFMask&&BEMBody->GetForceMask();
   }
 
-  void FrHydroDB::GetImpulseResponseSize(double timeStep, double &Te, double &dt) const {
-
-    // FIXME : check this
-    auto frequencies = m_HDB->GetFrequencyDiscretization();
-    auto freqStep = frequencies[1] - frequencies[0];
-
-    Te = 0.5 * MU_2PI / freqStep;
-
-    auto N = (unsigned int) floor(Te / timeStep);
-
-    dt = Te / double(N - 1);
-  }
-
   bool FrHydroDB::GetIsXDerivative() const {
 
     // This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.

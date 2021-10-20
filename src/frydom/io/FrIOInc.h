@@ -18,5 +18,6 @@
 using json = nlohmann::json; // for convenience
 
 #include "FrLoader.h"
+#include "JSONNode.h"
 
 #endif //FRYDOM_IO_H
