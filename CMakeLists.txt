@@ -28,16 +28,17 @@ option(FRYDOM_BUILD_DEMOS "Build demo tests" ON)
 option(FRYDOM_BUILD_BENCHES "Build benches tests" ON)
 option(FRYDOM_BUILD_DEV_TESTS "Build dev test" ON)
 option(FRYDOM_BUILD_TOOLS "Build the standalone tools" ON)
+option(BUILD_ON_LIGER "For building on LIGER supercomputer" OFF)
+if (BUILD_ON_LIGER)
+    set(FRYDOM_USE_IRRLICHT FALSE CACHE BOOL "" FORCE)
+endif ()
 option(FRYDOM_USE_IRRLICHT "Use Irrlicht" ON)
-option(FRYDOM_BUILD_ON_LIGER "For building on LIGER supercomputer" OFF)
+message(STATUS BUILD_ON_LIGER: ${BUILD_ON_LIGER})
+message(STATUS FRYDOM_USE_IRRLICHT: ${FRYDOM_USE_IRRLICHT})
 option(BUILD_BOOST "Build boost instead of finding it on the system" ON)
 
 option(FRYDOM_DOWNLOAD_DEMOS_DATA "Downloading demo data" ON)
 set(FRYDOM_DEMOS_DATA_VERSION "1.1.6" CACHE STRING "Data version")
-
-if (FRYDOM_BUILD_ON_LIGER)
-    set(FRYDOM_USE_IRRLICHT FALSE CACHE BOOL "" FORCE)
-endif ()
 
 #=============================================================================
 # Retrieving the current Git revision
