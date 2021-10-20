@@ -253,7 +253,6 @@ int main(int argc, char *argv[]) {
   // -- Radiation
 
   auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(body.get(), 50., 0.008);
 
   // -- Excitation
 
