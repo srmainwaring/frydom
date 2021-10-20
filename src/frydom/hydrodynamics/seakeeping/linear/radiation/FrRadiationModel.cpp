@@ -15,6 +15,7 @@
 #include "FrRadiationModelBase.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
+#include "frydom/logging/FrEventLogger.h"
 
 #include "FrRadiationForce.h"
 
@@ -399,12 +400,12 @@ namespace frydom {
 
     FrRadiationModel::Initialize();
 
-    double Te, dt;
-    m_HDB->GetImpulseResponseSize(GetParent()->GetTimeStep(), Te, dt);
-
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
       if (m_recorder.find(BEMBody->first) == m_recorder.end()) {
+        auto interpK = BEMBody->first->GetIRFInterpolator();
+        auto Te = interpK->at(0)->GetXmax(BEMBody->first->GetName());
+        auto dt = GetParent()->GetTimeStep();
         m_recorder[BEMBody->first] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
       }
       m_recorder[BEMBody->first].Initialize();
@@ -517,6 +518,11 @@ namespace frydom {
 
   void FrRadiationConvolutionModel::SetImpulseResponseSize(FrBEMBody *BEMBody, double Te, double dt) {
     //TODO : check it is not already instanciated
+    auto Te_IRF = BEMBody->GetIRFInterpolator()->at(0)->GetXmax(BEMBody->GetName());
+    if (Te > Te_IRF) {
+      event_logger::error("FrRadiationConvolutionModel", GetName(), "SetImpulseResponseSize specified Te is larger than the IRF final time");
+      exit(1);
+    }
     m_recorder[BEMBody] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
   }
 
