@@ -25,6 +25,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 - Excitation force computation for hdb with a forceMask
 - Forward speed correction for the radiation force
 - Added mass variables definition for morison elements (de-allocation problems)
+- FrRadiationConvolutionModel::SetImpulseResponseSize and Initialize concerning the size of the TimeRecorder, previously recalculated, now get it from the HDB IRF. It can't be larger than the IRF one.
 
 ## [3.1] - 2020-02-06
 
