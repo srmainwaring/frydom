@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
     std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
     std::cout << "    - the wave period (s);" << std::endl;
     std::cout << "    - the wave amplitude (m);" << std::endl;
-    std::cout << "    - an interger for using the simple speed model (0) or the extended speed model (1);" << std::endl;
+    std::cout << "    - an interger for using no forward speed model (0), the simple speed model (1) or the extended speed model (2);" << std::endl;
     std::cout << "    - the name of the ouput folder." << std::endl;
     exit(0);
   }
@@ -212,8 +212,12 @@ int main(int argc, char *argv[]) {
 
   double ak = atof(argv[2]); // Wave amplitude (m).
   double Tk = atof(argv[3]); // Wave period (s).
+  bool simple_forward_speed_model = false;
   bool extended_forward_speed_model = false;
   if(atoi(argv[4]) == 1){
+    simple_forward_speed_model = true;
+  } else if(atoi(argv[4]) == 2) {
+    simple_forward_speed_model = true;
     extended_forward_speed_model = true;
   }
   char *name = argv[5]; // Output director prefix name.
@@ -223,10 +227,14 @@ int main(int argc, char *argv[]) {
   // -- System
   std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
                                    + "_Period_" + std::to_string(Tk);
-  if(extended_forward_speed_model) {
-    output_folder_name += "_Extended_forward_speed_model";
+  if(simple_forward_speed_model) {
+    if (extended_forward_speed_model) {
+      output_folder_name += "_Extended_forward_speed_model";
+    } else {
+      output_folder_name += "_Simple_forward_speed_model";
+    }
   } else {
-    output_folder_name += "_Simple_forward_speed_model";
+    output_folder_name += "_No_forward_speed_model";
   }
   FrOffshoreSystem system(name, FrOffshoreSystem::NONSMOOTH_CONTACT, FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::APGD, output_folder_name);
@@ -279,11 +287,12 @@ int main(int argc, char *argv[]) {
   // -- Radiation
 
   auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->ActivateForwardSpeedCorrection(true, extended_forward_speed_model);
+  radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
   // -- Excitation
 
   auto excitationForce = make_linear_excitation_force("linear_excitation", body, hdb);
+  excitationForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
   // -- Wave Drift force
 
