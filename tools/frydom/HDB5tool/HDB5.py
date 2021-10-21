@@ -17,6 +17,8 @@
 import os
 import numpy as np
 
+from meshmagick.mmio import write_OBJ
+
 import frydom.HDB5tool.bem_reader as bem_reader
 import frydom.HDB5tool.HDB5_reader as HDB5_reader
 import frydom.HDB5tool.pyHDB as pyHDB
@@ -139,12 +141,12 @@ class HDB5(object):
         self._pyHDB.eval_infinite_added_mass()
 
         # Impule response functions proportional to the forward speed without x-derivatives.
-        self._pyHDB.eval_impulse_response_function_Ku_b()
+        self._pyHDB.eval_impulse_response_function_Ku()
 
         if(self._pyHDB._has_x_derivatives):
 
             # Impule response functions proportional to the forward speed with x-derivatives.
-            self._pyHDB.eval_impulse_response_function_Ku_a()
+            self._pyHDB.eval_impulse_response_function_Ku_x_derivative()
 
             # Impule response functions proportional to the square of the forward speed.
             self._pyHDB.eval_impulse_response_function_Ku2()
@@ -385,22 +387,92 @@ class HDB5(object):
     def Plot_Mesh(self, ibody = -1):
         """This function plots a mesh."""
 
-        # Data.
-        mesh = self._pyHDB.bodies[ibody].mesh
+        if(self._pyHDB.bodies[ibody].mesh is not None):
 
-        # Plot.
-        plot_db.Meshmagick_viewer(mesh)
+            # Data.
+            mesh = self._pyHDB.bodies[ibody].mesh
+
+            # From the body frame to the global frame.
+            if(self._pyHDB.bodies[ibody].horizontal_position is not None):
+                horizontal_position = self._pyHDB.bodies[ibody].horizontal_position
+                mesh.rotate([0., 0., horizontal_position[2]])
+                mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+            # Plot.
+            plot_db.Meshmagick_viewer(mesh)
 
     def Plot_Meshes(self):
         """This function plots all meshes."""
 
-        # Data.
-        MultibodyMesh = self._pyHDB.bodies[0].mesh # Initialization by using the first body which always exists because they are several bodies.
-        for id in range(1, self._pyHDB.nb_bodies): # Loop over all bodies except the first one.
-            MultibodyMesh += self._pyHDB.bodies[id].mesh
+        if (self._pyHDB.bodies[0].mesh is not None): # If one mesh is present, other ones should also be.
 
-        # Plot.
-        plot_db.Meshmagick_viewer(MultibodyMesh)
+            # Data.
+            mesh = self._pyHDB.bodies[0].mesh
+            if (self._pyHDB.bodies[0].horizontal_position is not None):
+                horizontal_position = self._pyHDB.bodies[0].horizontal_position
+                mesh.rotate([0., 0., horizontal_position[2]])
+                mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+            MultibodyMesh = mesh # Initialization by using the first body which always exists because they are several bodies.
+            for id in range(1, self._pyHDB.nb_bodies): # Loop over all bodies except the first one.
+
+                mesh = self._pyHDB.bodies[id].mesh
+
+                # From the body frame to the global frame.
+                if (self._pyHDB.bodies[id].horizontal_position is not None):
+                    horizontal_position = self._pyHDB.bodies[id].horizontal_position
+                    mesh.rotate([0., 0., horizontal_position[2]])
+                    mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+                # Merging.
+                MultibodyMesh += mesh
+
+            # Plot.
+            plot_db.Meshmagick_viewer(MultibodyMesh)
+
+    def Write_Mesh(self, ibody = -1):
+        """This method writes a mesh."""
+
+        if (self._pyHDB.bodies[ibody].mesh is not None):
+
+            # Data.
+            body = self._pyHDB.bodies[ibody]
+            mesh = body.mesh
+
+            # From the body frame to the global frame.
+            if (self._pyHDB.bodies[ibody].horizontal_position is not None):
+                horizontal_position = self._pyHDB.bodies[ibody].horizontal_position
+                mesh.rotate([0., 0., horizontal_position[2]])
+                mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+            # Write.
+            if(body.name is not None):
+                write_OBJ(body.name + ".obj", mesh.vertices, mesh.faces)
+            else:
+                write_OBJ("Body_" + str(id + 1) + ".obj", mesh.vertices, mesh.faces)
+
+    def Write_Meshes(self):
+        """This method writes all meshes."""
+
+        for ibody in range(0, self._pyHDB.nb_bodies):  # Loop over all bodies except the first one.
+
+            if (self._pyHDB.bodies[ibody].mesh is not None):  # If one mesh is present, other ones should also be.
+
+                # Data.
+                body = self._pyHDB.bodies[ibody]
+                mesh = body.mesh
+
+                # From the body frame to the global frame.
+                if (self._pyHDB.bodies[ibody].horizontal_position is not None):
+                    horizontal_position = self._pyHDB.bodies[ibody].horizontal_position
+                    mesh.rotate([0., 0., horizontal_position[2]])
+                    mesh.translate([horizontal_position[0], horizontal_position[1], 0.])
+
+                # Write.
+                if (body.name is not None):
+                    write_OBJ(body.name + ".obj", mesh.vertices, mesh.faces)
+                else:
+                    write_OBJ("Body_" + str(ibody + 1) + ".obj", mesh.vertices, mesh.faces)
 
     def Cutoff_scaling_IRF(self, tc, ibody_force, iforce, ibody_motion, idof, auto_apply=False):
         """This function applies a filter to the impule response functions without forward speed and plot the result.
@@ -525,6 +597,23 @@ class HDB5(object):
 
                 # Plot.
                 plot_db.plot_AB_array(data, self._pyHDB.wave_freq, ibody_force, ibody_motion, self._pyHDB)
+
+    def Plot_irf_array(self):
+        """This method plots the impulse response functions per body."""
+
+        for ibody_force in range(0, self._pyHDB.nb_bodies):
+            for ibody_motion in range(0, self._pyHDB.nb_bodies):
+
+                # Time.
+                time = self._pyHDB.time
+
+                # Data.
+                data = np.zeros((6, 6, self._pyHDB.nb_time_samples), dtype=np.float)
+                for iforce in range(0, 6):
+                    for idof in range(0, 6):
+                        data[iforce, idof, :] = self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + idof, :]
+                # Plot.
+                plot_db.plot_irf_array(data, time, ibody_force, ibody_motion)
 
     def export_hdb5(self, output_file = None):
         """This function writes the hydrodynamic database into a *.hdb5 file.

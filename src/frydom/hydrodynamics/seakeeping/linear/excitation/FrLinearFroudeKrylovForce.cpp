@@ -22,17 +22,41 @@ namespace frydom {
 
   Eigen::MatrixXcd FrLinearFroudeKrylovForce::GetHDBData(unsigned int iangle) const {
 
+    // Getter for the Froude-Krylov loads for a given wave direction.
+
     auto BEMBody = m_HDB->GetBody(GetBody());
 
     return BEMBody->GetFroudeKrylov(iangle);
 
   }
 
+  Eigen::MatrixXcd FrLinearFroudeKrylovForce::GetHDBDataXDerivative(unsigned int iangle) const {
+
+    // Getter for the x-derivative of the Froude-Krylov loads for a given wave direction.
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    return BEMBody->GetXDerivativeFroudeKrylov(iangle);
+
+  }
+
   Eigen::VectorXcd FrLinearFroudeKrylovForce::GetHDBData(unsigned int iangle, unsigned int iforce) const {
+
+    // Getter for the Froude-Krylov loads for a given wave direction and dof.
 
     auto BEMBody = m_HDB->GetBody(GetBody());
 
     return BEMBody->GetFroudeKrylov(iangle, iforce);
+
+  }
+
+  Eigen::VectorXcd FrLinearFroudeKrylovForce::GetHDBDataXDerivative(unsigned int iangle, unsigned int iforce) const {
+
+    // Getter for the x-derivative of the Froude-Krylov loads for a given wave direction and dof.
+
+    auto BEMBody = m_HDB->GetBody(GetBody());
+
+    return BEMBody->GetXDerivativeFroudeKrylov(iangle, iforce);
 
   }
 

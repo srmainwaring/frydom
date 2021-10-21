@@ -169,8 +169,8 @@ double ResidualITTC(double speed) {
   } else if (std::abs(speed - 2.243) < 1E-2) {
     return 4.02529e-3;
   } else {
-    std::cout << "warning : no residual coefficient for this speed value" << std::endl;
-    std::cout << "        : residual set to 0. " << std::endl;
+    std::cout << "ResidualITTC: Warning, no residual coefficient for this speed value." << std::endl;
+    std::cout << "            : residual set to 0. " << std::endl;
   }
   return 0.;
 };
@@ -183,21 +183,61 @@ double ResidualITTC(double speed) {
 int main(int argc, char *argv[]) {
 
   std::cout << " ======================================================= \n"
-               " Benchmark test : DTMB 5512 captive motion \n"
+               " Benchmark test : DTMB 5512 \n"
                " =======================================================" << std::endl;
 
-  // -- Input
+  // -- Inputs
+  if(argc != 6){
+    std::cout << "bench_DTMB5512 requires five input data:" << std::endl;
+    std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
+    std::cout << "    - the wave period (s);" << std::endl;
+    std::cout << "    - the wave amplitude (m);" << std::endl;
+    std::cout << "    - an interger for using no forward speed model (0), the simple speed model (1) or the extended speed model (2);" << std::endl;
+    std::cout << "    - the name of the ouput folder." << std::endl;
+    exit(0);
+  }
 
-  double speed = atof(argv[1]);   // Ship forward speed
-  double ak = 0.5 * atof(argv[2]);  // Wave amplitude (m)
-  double Tk = atof(argv[3]);      // Wave period (s)
-  char *name = argv[4];     // Output director prefix name
+  double Froude = atof(argv[1]); // Froude number.
+  double length = 3.048; // Length (m).
+  double gravity = 9.80665; // m/s^2.
+  double forward_speed = Froude * sqrt(gravity * length); // Ship forward speed (m/s).
+
+  // Checking the Froude number.
+  if(!mathutils::IsClose(Froude, 0.) and !mathutils::IsClose(Froude, 0.19) and !mathutils::IsClose(Froude, 0.28)
+      and !mathutils::IsClose(Froude, 0.34) and !mathutils::IsClose(Froude, 0.41)) {
+    std::cout << "Possible Froude numbers are : 0. / 0.19 / 0.28 / 0.34 / 0.41" << std::endl;
+    std::cout << "Input Froude number = " << Froude << std::endl;
+    exit(0);
+  }
+
+  double ak = atof(argv[2]); // Wave amplitude (m).
+  double Tk = atof(argv[3]); // Wave period (s).
+  bool simple_forward_speed_model = false;
+  bool extended_forward_speed_model = false;
+  if(atoi(argv[4]) == 1){
+    simple_forward_speed_model = true;
+  } else if(atoi(argv[4]) == 2) {
+    simple_forward_speed_model = true;
+    extended_forward_speed_model = true;
+  }
+  char *name = argv[5]; // Output director prefix name.
 
   bool captive_test = false;      // fixed heave and pitch motions
 
   // -- System
-
-  FrOffshoreSystem system(name);
+  std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
+                                   + "_Period_" + std::to_string(Tk);
+  if(simple_forward_speed_model) {
+    if (extended_forward_speed_model) {
+      output_folder_name += "_Extended_forward_speed_model";
+    } else {
+      output_folder_name += "_Simple_forward_speed_model";
+    }
+  } else {
+    output_folder_name += "_No_forward_speed_model";
+  }
+  FrOffshoreSystem system(name, FrOffshoreSystem::NONSMOOTH_CONTACT, FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::APGD, output_folder_name);
 
   // -- Ocean
   auto ocean = system.GetEnvironment()->GetOcean();
@@ -232,11 +272,11 @@ int main(int argc, char *argv[]) {
 
   // -- Hydrodynamics
 
-  auto DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512.hdb5"});
+  auto DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios.hdb5"});
   auto hdb = make_hydrodynamic_database(DTMB_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body, {0., 0., 0.03}, NWU);
-  eqFrame->SetVelocityInWorld({speed, 0., 0.}, NWU);
+  eqFrame->SetVelocityInWorld({forward_speed, 0., 0.}, NWU);
 
   hdb->Map(0, body.get(), eqFrame);
 
@@ -247,11 +287,12 @@ int main(int argc, char *argv[]) {
   // -- Radiation
 
   auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(body.get(), 50., 0.008);
+  radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
   // -- Excitation
 
   auto excitationForce = make_linear_excitation_force("linear_excitation", body, hdb);
+  excitationForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
   // -- Wave Drift force
 
@@ -262,7 +303,7 @@ int main(int argc, char *argv[]) {
   auto lpp = 3.048;
   auto wettedSurfaceArea = 1.371;
 
-  auto ct = ResidualITTC(speed);
+  auto ct = ResidualITTC(forward_speed);
   auto forceResistance = make_ITTC_resistance_force("ITTC_resistance", body, lpp, wettedSurfaceArea, ct, 0.03);
 
   // -- Steady force
@@ -281,7 +322,7 @@ int main(int argc, char *argv[]) {
   shipNode->RotateAroundXInBody(90 * DEG2RAD, NWU);
 
   auto carriage = make_carriage(&system, shipNode, captive_test);
-  carriage->SetMotorFunction(FrConstantFunction(speed));
+  carriage->SetMotorFunction(FrConstantFunction(forward_speed));
 
   auto dt = 0.008;
 
@@ -289,7 +330,7 @@ int main(int argc, char *argv[]) {
   system.Initialize();
   system.DoAssembly();
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false);
@@ -298,7 +339,6 @@ int main(int argc, char *argv[]) {
     while (time < 50.) {
       time += dt;
       system.AdvanceTo(time);
-      std::cout << "time : " << time << std::endl;
     }
   }
   std::cout << "=============================== End ========================" << std::endl;
