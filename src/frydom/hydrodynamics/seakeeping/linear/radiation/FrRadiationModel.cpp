@@ -473,6 +473,7 @@ namespace frydom {
       auto forceInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetForce(), NWU);
       auto TorqueInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetTorque(), NWU);
 
+      // Application of the minus sign.
       m_radiationForce[BEMBody->first] = -GeneralizedForce(forceInWorld, TorqueInWorld);
     }
   }
@@ -538,7 +539,9 @@ namespace frydom {
           }
         }
         KUXderivativeForce += TrapzLoc(vtime, kernel_KUXDerivative) * meanSpeed.norm();
-        KU2Force += TrapzLoc(vtime, kernel_KU2) * meanSpeed.norm() * meanSpeed.norm();
+        if(idof == 4 or idof == 5) {
+          KU2Force += TrapzLoc(vtime, kernel_KU2) * meanSpeed.norm() * meanSpeed.norm();
+        }
       }
       radiationForce += KUXderivativeForce + KU2Force;
     }
