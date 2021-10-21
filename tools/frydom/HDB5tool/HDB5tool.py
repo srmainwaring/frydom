@@ -43,37 +43,35 @@ def get_parser(parser):
                 Path to the folder including the file Nemoh.cal.""")
 
     # Discretization - Wave directions.
-    parser.add_argument('--discretization_waves', '--discretization_wave', '-dis_waves', '-dis_wave', '-dw', '-dbeta',
+    parser.add_argument('--discretization_waves', '-dw', '-dbeta',
                         action="store", nargs=1, metavar='Arg', help="""
                 Integer for the new discretization of the wave directions.""")
 
     # Discretization - Wave frequencies.
-    parser.add_argument('--discretization_frequencies', '--discretization_freq', '--discretization_frequency',
-                        '-dis_freq', '-dis_frequency',
-                        '-dis_frequencies', '-df', action="store", nargs=1, metavar='Arg', help="""
+    parser.add_argument('--discretization_frequencies', '-dis_freq', '-df', action="store", nargs=1, metavar='Arg', help="""
                 Integer for the new discretization of the wave frequencies.""")
 
     # Discretization - Final time.
-    parser.add_argument('--final_time_irf', '--final_time', '-ft', '-tf', action="store", nargs=1, metavar='Arg', help="""
+    parser.add_argument('--final_time_irf', '-ft', action="store", nargs=1, metavar='Arg', help="""
                 Final time for the computation of the impulse response functions.""")
 
     # Discretization - Time step.
-    parser.add_argument('--time_step_irf', '--time_step', '-dt', action="store", nargs=1, metavar='Arg', help="""
+    parser.add_argument('--time_step_irf', '-dt', action="store", nargs=1, metavar='Arg', help="""
                     Time step for the computation of the impulse response functions.""")
 
     # Body - Activate hydrostatics (useless).
-    parser.add_argument('--activate_hydrostatics', '--activate_hydrostatic', '-active_hs', '-activate_hs', nargs='+',
-                        metavar='Arg', action="append", help="""
+    parser.add_argument('--activate_hydrostatics', '-activate_hs',
+                        nargs='+', metavar='Arg', action="append", help="""
                 Activate hydrostatics for the body of index given in argument.""")
 
     # Body - Hydrostatic matrix.
-    parser.add_argument('--hydrostatics', '--hydrostatic', '-hs',
+    parser.add_argument('--hydrostatics', '-hs',
                         metavar=('id', 'k33', 'k44', 'k55', 'k34', 'k35', 'k45'), nargs=7, type=float, action="append",
                         help="""
     #             Hydrostatic coefficients (K33, K44, K55, K34, K35, K45) for the body of index given in first argument.""")
 
     # Body - Activate inertia (useless).
-    parser.add_argument('--activate_inertia', '-active_i', action="append", nargs='+', metavar='Arg', help="""
+    parser.add_argument('--activate_inertia', '-activate_i', action="append", nargs='+', metavar='Arg', help="""
                 Activate inertia for the body of index given in argument.""")
 
     # Body - Inertia matrix (inertias and mass).
@@ -87,89 +85,87 @@ def get_parser(parser):
                 Inertia coefficients only (I44, I55, I66, I45, I46, I56) for the body of index given in first argument.""")
 
     # Body - Mass.
-    parser.add_argument('--mass', '--Mass', '-m', nargs=2, metavar=('id', 'mass'), action="append", help="""
+    parser.add_argument('--mass', '-m', nargs=2, metavar=('id', 'mass'), action="append", help="""
                 Mass of the body of index given in argument.""")
 
     # Filtering impulse response functions.
-    parser.add_argument('--cutoff_irf', '-co_irf', '-coirf', nargs=5,
+    parser.add_argument('--cutoff_irf', '-coirf', nargs=5,
                         metavar=('tc', 'ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Application of the filter with a cutoff time tc to the impulse response functions of ibody_force along iforce for a motion of ibody_motion along idof and plot the irf.""")
 
     # Filtering ALL impulse response functions.
-    parser.add_argument('--cutoff_irf_all', '-co_irf_all', '-coirf_all', nargs=1, metavar=('tc'), action="store", help="""
+    parser.add_argument('--cutoff_irf_all', '-coirf_all', nargs=1, metavar=('tc'), action="store", help="""
                     Application of the filter with a cutoff time tc to ALL impulse response functions.""")
 
     # Filtering impulse response functions with forward speed.
-    parser.add_argument('--cutoff_irf_speed', '-co_irf_speed', '-coirf_speed', nargs=5,
+    parser.add_argument('--cutoff_irf_speed', '-coirf_speed', nargs=5,
                         metavar=('tc', 'ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Application of the filter with a cutoff time tc to the impulse response functions with forward speed of ibody_force along iforce for a motion of ibody_motion along idof and plot the irf.""")
 
     # Filtering ALL impulse response functions with forward speed.
-    parser.add_argument('--cutoff_irf_all_speed', '-co_irf_all_speed', '-coirf_all_speed', nargs=1, metavar=('tc'),
+    parser.add_argument('--cutoff_irf_all_speed', '-coirf_all_speed', nargs=1, metavar=('tc'),
                         action="append", help="""
                     Application of the filter with a cutoff time tc to ALL impulse response functions with forward speed .""")
 
     # No symmetrization of the HDB.
-    parser.add_argument('--sym_hdb', '-sym', '-s', action="store_true", help="""
+    parser.add_argument('--sym_hdb', '-sym', action="store_true", help="""
                 Symmetrization of the HDB.""")
 
     # Update the radiation mask.
-    parser.add_argument('--radiation_mask', '-rad_mask', '-rm', action="store_true", help="""
+    parser.add_argument('--radiation_mask', '-rm', action="store_true", help="""
                     Update the radiation mask of all bodies.""")
 
     # Writing the hdb5 output file.
-    parser.add_argument('--write', '--export', '-w', action="store", help="""
+    parser.add_argument('--write', '-w', action="store", help="""
                 Writing the hdb5 output file with the given name.""")
 
     # Plot the added mass and damping coefficients.
-    parser.add_argument('--plot_radiation', '--plots_radiation', '--plot_AB', '-pab', '-prad', nargs=4,
-                        metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof')
-                        , action="append", help="""
+    parser.add_argument('--plot_radiation', '-pab', nargs=4,
+                        metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Plot the added mass and damping coefficients of ibody_force along iforce for a motion of ibody_motion along idof.""")
 
     # Plot the x-derivative of the added mass and damping coefficients.
-    parser.add_argument('--plot_radiation_derivative', '--plots_radiation_derivative', '--plot_AB_x', '-pabx', '-pradx', nargs=4,
-                        metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof')
-                        , action="append", help="""
+    parser.add_argument('--plot_radiation_derivative', '-pabx', nargs=4,
+                        metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                     Plot the x-derivative of the added mass and damping coefficients of ibody_force along iforce for a motion of ibody_motion along idof.""")
 
     # Plot the diffraction loads.
-    parser.add_argument('--plot_diffraction', '--plots_diffraction', '--plot_diff', '-pd', '-pdiff', nargs=3,
+    parser.add_argument('--plot_diffraction', '-pd', '-pdiff', nargs=3,
                         metavar=('ibody', 'iforce', 'iwave'), action="append", help="""
                 Plot the diffraction loads of ibody along iforce for iwave.""")
 
     # Plot the x-derivative of the diffraction loads.
-    parser.add_argument('--plot_diffraction_derivative', '--plots_diffraction_derivative', '--plot_diff_x', '-pdx', '-pdiffx', nargs=3,
+    parser.add_argument('--plot_diffraction_derivative', '-pdx', '-pdiffx', nargs=3,
                         metavar=('ibody', 'iforce', 'iwave'), action="append", help="""
                     Plot the x-derivative of the diffraction loads of ibody along iforce for iwave.""")
 
     # Plot the Froude-Krylov loads.
-    parser.add_argument('--plot_froude_krylov', '--plots_froude_krylov', '--plot_fk', '-pfk', nargs=3,
+    parser.add_argument('--plot_froude_krylov', '-pfk', nargs=3,
                         metavar=('ibody', 'iforce', 'iwave'), action="append", help="""
                 Plot the Froude-Krylov loads of ibody along iforce for iwave.""")
 
     # Plot the x-derivative of the Froude-Krylov loads.
-    parser.add_argument('--plot_froude_krylov_derivative', '--plots_froude_krylov_derivative', '--plot_fk_x', '-pfkx', nargs=3,
+    parser.add_argument('--plot_froude_krylov_derivative', '-pfkx', nargs=3,
                         metavar=('ibody', 'iforce', 'iwave'), action="append", help="""
                     Plot the x-derivative of the Froude-Krylov loads of ibody along iforce for iwave.""")
 
     # Plot the excitation loads.
-    parser.add_argument('--plot_excitation', '--plots_excitation', '--plot_exc', '-pe', '-pexc', nargs=3,
+    parser.add_argument('--plot_excitation', '-pe', '-pexc', nargs=3,
                         metavar=('ibody', 'iforce', 'iwave'), action="append", help="""
                 Plot the excitation loads of ibody along iforce for iwave.""")
 
     # Plot the x-derivative of the excitation loads.
-    parser.add_argument('--plot_excitation_derivative', '--plots_excitation_derivative', '--plot_exc_x', '-pex', '-pexcx', nargs=3,
+    parser.add_argument('--plot_excitation_derivative', '-pex', '-pexcx', nargs=3,
                         metavar=('ibody', 'iforce', 'iwave'), action="append", help="""
                     Plot the x-derivative of the excitation loads of ibody along iforce for iwave.""")
 
     # Plot the IRF.
-    parser.add_argument('--plot_irf', '--plots_irf', '-pirf', nargs=4,
+    parser.add_argument('--plot_irf', '-pirf', nargs=4,
                         metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Plot the impulse response functions of ibody_force along iforce for a motion of ibody_motion along idof.""")
 
     # Plot the IRF speed.
-    parser.add_argument('--plot_irf_speed', '--plots_irf_speed', '--plot_irf_ku', '-pirfs', '-pirfku', '-pirf_speed',
+    parser.add_argument('--plot_irf_speed', '-pirfs', '-pirfku', '-pirf_speed',
                         nargs=4,
                         metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Plot the impulse response functions with speed velocity of ibody_force along iforce for a motion of ibody_motion along idof.""")
