@@ -141,12 +141,12 @@ class HDB5(object):
         self._pyHDB.eval_infinite_added_mass()
 
         # Impule response functions proportional to the forward speed without x-derivatives.
-        self._pyHDB.eval_impulse_response_function_Ku_b()
+        self._pyHDB.eval_impulse_response_function_Ku()
 
         if(self._pyHDB._has_x_derivatives):
 
             # Impule response functions proportional to the forward speed with x-derivatives.
-            self._pyHDB.eval_impulse_response_function_Ku_a()
+            self._pyHDB.eval_impulse_response_function_Ku_x_derivative()
 
             # Impule response functions proportional to the square of the forward speed.
             self._pyHDB.eval_impulse_response_function_Ku2()

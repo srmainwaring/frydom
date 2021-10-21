@@ -400,10 +400,10 @@ def plot_irf(data, time, IRFtype, ibody_force, iforce, ibody_motion, idof, show=
         ylabel = r'$K_{%s}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
             ibody_motion + 1))
     elif(IRFtype == 2):  # Proportional to the forward speed velocity, no x-derivatives.
-        ylabel = r'$Ku_{%s}^b$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
+        ylabel = r'$Ku_{%s}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
             ibody_motion + 1))
     elif (IRFtype == 1):  # Proportional to the forward speed velocity, with x-derivatives.
-        ylabel = r'$Ku_{%s}^a$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
+        ylabel = r'$Ku_{%s}^{x-diff}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
             ibody_motion + 1))
     elif (IRFtype == 3):  # Proportional to the square of the forward speed velocity.
         ylabel = r'$Ku^2_{%s}$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(

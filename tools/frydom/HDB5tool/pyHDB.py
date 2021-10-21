@@ -329,21 +329,21 @@ class pyHDB(object):
             w = self.omega
 
         # Computation.
-        wt = np.einsum('i, j -> ij', w, self.time)  # w*t.
-        cwt = np.cos(wt)  # cos(w*t).
+        wt = np.einsum('i, j -> ij', w, self.time) # w*t.
+        cwt = np.cos(wt) # cos(w*t).
 
         for body in self.bodies:
 
             irf_data = np.empty(0, dtype=np.float)
 
             if full:
-                ca = np.einsum('ijk, ij -> ijk', body.Damping, body._flags) # Damping.
+                ca = np.einsum('ijk, ij -> ijk', body.Damping, body._flags) # B(w).
             else:
-                ca = body.radiation_damping(self._iwcut) # Damping.
+                ca = body.radiation_damping(self._iwcut) # B(w).
 
-            kernel = np.einsum('ijk, kl -> ijkl', ca, cwt)  # Damping*cos(wt).
+            kernel = np.einsum('ijk, kl -> ijkl', ca, cwt) # B(w)*cos(wt).
 
-            irf_data = (2 / np.pi) * np.trapz(kernel, x=w, axis=2)  # Int(Damping*cos(wt)*dw).
+            irf_data = (2 / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * Int(B(w)*cos(wt), dw).
 
             body.irf = irf_data
 
@@ -387,11 +387,11 @@ class pyHDB(object):
                     cm = body.radiation_added_mass(self._iwcut)
 
                 kernel = np.einsum('ijk, lk -> ijlk', irf, sin_wt)  # irf*sin(w*t).
-                integral = np.einsum('ijk, k -> ijk', np.trapz(kernel, x=self.time, axis=3), 1. / w)  # 1/w * int(irf*sin(w*t),dt).
+                integral = np.einsum('ijk, k -> ijk', np.trapz(kernel, x=self.time, axis=3), 1. / w)  # 1/w * int(irf*sin(w*t), dt).
 
-                body.Inf_Added_mass = (cm + integral).mean(axis=2)  # mean( A(w) + 1/w * int(irf*sin(w*t),dt) ) wrt w.
+                body.Inf_Added_mass = (cm + integral).mean(axis=2)  # mean( A(w) + 1/w * int(irf*sin(w*t), dt) ) wrt w.
 
-    def eval_impulse_response_function_Ku_b(self, full=True):
+    def eval_impulse_response_function_Ku(self, full=True):
         """Computes the impulse response functions proportional to the forward speed without x-derivatives.
 
         Parameter
@@ -409,8 +409,8 @@ class pyHDB(object):
             w = self.omega
 
         # Computation.
-        wt = np.einsum('i, j ->ij', w, self.time)  # w*t.
-        cwt = np.cos(wt)  # cos(w*t).
+        wt = np.einsum('i, j ->ij', w, self.time) # w*t.
+        cwt = np.cos(wt) # cos(w*t).
 
         for body in self.bodies:
 
@@ -419,16 +419,18 @@ class pyHDB(object):
 
             # Added mass.
             if full:
-                cm = np.einsum('ijk, ij -> ijk', body.Added_mass, body._flags)
+                cm = np.einsum('ijk, ij -> ijk', body.Added_mass, body._flags) # A(w).
             else:
-                cm = self.radiation_added_mass(self._iwcut)
+                cm = self.radiation_added_mass(self._iwcut) # A(w).
 
-            cm_inf = body.Inf_Added_mass
+            # Infinite-frequency added mass.
+            cm_inf = body.Inf_Added_mass # A(inf).
 
             cm_diff = np.zeros(cm.shape)
             for j in range(w.size):
                 cm_diff[:, :, j] = cm_inf[:, :] - cm[:, :, j] # A(inf) - A(w).
 
+            # [A(inf) - A(w)]*L.
             cm_diff[:, 4, :] = -cm_diff[:, 2, :]
             cm_diff[:, 5, :] = cm_diff[:, 1, :]
             cm_diff[:, 0, :] = 0.
@@ -436,13 +438,13 @@ class pyHDB(object):
             cm_diff[:, 2, :] = 0.
             cm_diff[:, 3, :] = 0.
 
-            kernel = np.einsum('ijk, kl -> ijkl', cm_diff, cwt) # int((A(inf) - A(w))*L*cos(wt),dw).
+            kernel = np.einsum('ijk, kl -> ijkl', cm_diff, cwt) # int([A(inf) - A(w)]*L*cos(wt), dw).
 
-            irf_data = (2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int((A(inf) - A(w))*L*cos(wt),dw).
+            irf_data = (2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int([A(inf) - A(w)]*L*cos(wt), dw).
 
             body.irf_ku = irf_data
 
-    def eval_impulse_response_function_Ku_a(self, full=True):
+    def eval_impulse_response_function_Ku_x_derivative(self, full=True):
         """Computes the impulse response functions proportional to the forward speed with x-derivatives.
 
         Parameter
@@ -504,8 +506,8 @@ class pyHDB(object):
             w = self.omega
 
         # Computation.
-        wt = np.einsum('i, j ->ij', w, self.time)  # w*t.
-        cwt = np.cos(wt)  # cos(w*t).
+        wt = np.einsum('i, j ->ij', w, self.time) # w*t.
+        cwt = np.cos(wt) # cos(w*t).
 
         for body in self.bodies:
 
@@ -513,11 +515,9 @@ class pyHDB(object):
             irf_data = np.empty(0, dtype=np.float)
 
             # x-derivative of the damping.
-            # if full:
-            ca = np.einsum('ijk, ij -> ijk', body.Damping_x_derivative / (w * w), body._flags)
-            # else:
-            #     cm = self.radiation_damping(self._iwcut)
+            ca = np.einsum('ijk, ij -> ijk', body.Damping_x_derivative / (w * w), body._flags) # dBdx(w) / w^2.
 
+            # [dBdx(w) / w^2]*L.
             ca[:, 4, :] = -ca[:, 2, :]
             ca[:, 5, :] = ca[:, 1, :]
             ca[:, 0, :] = 0.
@@ -525,9 +525,9 @@ class pyHDB(object):
             ca[:, 2, :] = 0.
             ca[:, 3, :] = 0.
 
-            kernel = np.einsum('ijk, kl -> ijkl', ca, cwt) # int(B(w)/w*L*cos(wt),dw).
+            kernel = np.einsum('ijk, kl -> ijkl', ca, cwt) # int([dBdx(w) / w^2]*L*cos(wt),dw).
 
-            irf_data = -(2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int(B(w)/w*L*cos(wt),dw).
+            irf_data = -(2. / np.pi) * np.trapz(kernel, x=w, axis=2) # (2/pi) * int([dBdx(w) / w^2]*L*cos(wt),dw).
 
             body.irf_ku2 = irf_data
 
