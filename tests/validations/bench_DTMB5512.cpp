@@ -187,23 +187,49 @@ int main(int argc, char *argv[]) {
                " =======================================================" << std::endl;
 
   // -- Inputs
+  if(argc != 6){
+    std::cout << "bench_DTMB5512 requires five input data:" << std::endl;
+    std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
+    std::cout << "    - the wave period (s);" << std::endl;
+    std::cout << "    - the wave amplitude (m);" << std::endl;
+    std::cout << "    - an interger for using the simple speed model (0) or the extended speed model (1);" << std::endl;
+    std::cout << "    - the name of the ouput folder." << std::endl;
+    exit(0);
+  }
 
   double Froude = atof(argv[1]); // Froude number.
   double length = 3.048; // Length (m).
   double gravity = 9.80665; // m/s^2.
   double forward_speed = Froude * sqrt(gravity * length); // Ship forward speed (m/s).
 
-  double ak = atof(argv[2]); // Wave amplitude (m)
-  double Tk = atof(argv[3]); // Wave period (s)
-  char *name = argv[4]; // Output director prefix name
+  // Checking the Froude number.
+  if(!mathutils::IsClose(Froude, 0.) and !mathutils::IsClose(Froude, 0.19) and !mathutils::IsClose(Froude, 0.28)
+      and !mathutils::IsClose(Froude, 0.34) and !mathutils::IsClose(Froude, 0.41)) {
+    std::cout << "Possible Froude numbers are : 0. / 0.19 / 0.28 / 0.34 / 0.41" << std::endl;
+    std::cout << "Input Froude number = " << Froude << std::endl;
+    exit(0);
+  }
+
+  double ak = atof(argv[2]); // Wave amplitude (m).
+  double Tk = atof(argv[3]); // Wave period (s).
+  bool extended_forward_speed_model = false;
+  if(atoi(argv[4]) == 1){
+    extended_forward_speed_model = true;
+  }
+  char *name = argv[5]; // Output director prefix name.
 
   bool captive_test = false;      // fixed heave and pitch motions
 
   // -- System
-
+  std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
+                                   + "_Period_" + std::to_string(Tk);
+  if(extended_forward_speed_model) {
+    output_folder_name += "_Extended_forward_speed_model";
+  } else {
+    output_folder_name += "_Simple_forward_speed_model";
+  }
   FrOffshoreSystem system(name, FrOffshoreSystem::NONSMOOTH_CONTACT, FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::APGD, "bench_DTMB5512_Fr_" + std::to_string(Froude)
-                          + "_Amplitude_" + std::to_string(ak) + "_Period_" + std::to_string(Tk));
+                          FrOffshoreSystem::APGD, output_folder_name);
 
   // -- Ocean
   auto ocean = system.GetEnvironment()->GetOcean();
@@ -253,6 +279,7 @@ int main(int argc, char *argv[]) {
   // -- Radiation
 
   auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+  radiationModel->ActivateForwardSpeedCorrection(true, extended_forward_speed_model);
 
   // -- Excitation
 

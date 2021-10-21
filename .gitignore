@@ -143,3 +143,6 @@ data/ce
 
 # .frydom_config.
 *.frydom_config
+
+# *.png files automatic bench.
+tests/validations/*.png
