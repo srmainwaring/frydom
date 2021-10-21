@@ -5,6 +5,7 @@ from subprocess import Popen, PIPE
 import numpy as np
 import scipy.fftpack
 import matplotlib.pyplot as plt
+import time
 
 # This Python file runs DTMB5512 bench of the FRyDoM project.
 
@@ -73,7 +74,7 @@ data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.34.
 data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.41.csv", delimiter=';', skip_header=2))
 
 # Storage of the RAO amplitude.
-RAO = np.zeros((len(period), len(Froude), 3, 2)) # 3 for encounter frequency, heave and pitch; 2 for the simple and extended forward speed models.
+RAO = np.zeros((len(period), len(Froude), 3, 3)) # First 3 for encounter frequency (0), heave (1) and pitch (2); Second 3 for no forward speed model (0), the simple (1) and extended (2) forward speed models.
 
 # Loop over the Froude numbers.
 for iFr in range(0, len(Froude)):
@@ -88,25 +89,32 @@ for iFr in range(0, len(Froude)):
         fe = (1. / T) + (forward_speed / (Lpp * lambda_over_Lpp[iT]))  # Encounter frequency (Hz).
 
         # Loop over the forward speed effect models.
-        for imodel in range(0, 2):
+        for imodel in range(0, 3):
 
-            if(imodel == 0):
+            if(imodel == 1):
                 print("Fr = " + str(Fr) + " - Amplitude (m) = " + str(A) + " - Period (s) = " + str(T) + " - Simple forward speed model")
-            else:
+            elif(imodel == 2):
                 print("Fr = " + str(Fr) + " - Amplitude (m) = " + str(A) + " - Period (s) = " + str(T) + " - Extended forward speed model")
+            else:
+                print("Fr = " + str(Fr) + " - Amplitude (m) = " + str(A) + " - Period (s) = " + str(T) + " - No forward speed model")
 
             # Run one case of the bench.
             args = ["../../cmake-build-release/bin/"+str(name), str(Fr), str(A), str(T), str(imodel), str(name)]
+            t_begin = time.time()
             process = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
             process.communicate()
-            print("%s (pid=%s)" % (' '.join(args), process.pid))
+            # print("%s (pid=%s)" % (' '.join(args), process.pid))
+            t_end = time.time()
+            print("CPU time (s): " + str(t_end - t_begin))
 
             # Reading of the FRyDoM output data.
             log_folder = "../../cmake-build-release/logs/"+str(name)+"_Fr_%.6f_Amplitude_%.6f_Period_%.6f" % (Fr, A, T)
-            if(imodel == 0):
+            if(imodel == 1):
                 log_folder += "_Simple_forward_speed_model"
-            else:
+            elif(imodel == 2):
                 log_folder += "_Extended_forward_speed_model"
+            else:
+                log_folder += "_No_forward_speed_model"
             data = np.genfromtxt(log_folder + "/FRYDOM_"+str(name)+"/BODIES/BODY_DTMB/BodyFrBody.csv", delimiter=';', skip_header=2)
 
             # Computation of the RAO in heave and pitch from FFT.
@@ -128,9 +136,10 @@ for iFr in range(0, len(Froude)):
 
     # Heave
     plt.figure(figsize=(6, 6))
-    plt.plot(RAO[: , iFr, 0, 0], RAO[: , iFr, 1, 0], color="r", linestyle='-', label="FRyDoM - Simple forward speed model")
-    plt.plot(RAO[:, iFr, 0, 1], RAO[:, iFr, 1, 1], color="b", linestyle='--', label="FRyDoM - Extended forward speed model")
-    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 1], color="g", linestyle='', marker = '+', label="Irvine2008")
+    plt.plot(RAO[:, iFr, 0, 0], RAO[:, iFr, 1, 0], color="r", linestyle='-', label="FRyDoM - No forward speed model")
+    plt.plot(RAO[: , iFr, 0, 1], RAO[: , iFr, 1, 1], color="b", linestyle='-', label="FRyDoM - Simple forward speed model")
+    plt.plot(RAO[:, iFr, 0, 2], RAO[:, iFr, 1, 2], color="g", linestyle='--', label="FRyDoM - Extended forward speed model")
+    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 1], color="k", linestyle='', marker = '+', label="Experimental data [Irvine2008]")
     plt.ylabel(r'$|RAO_{z}|$ (-)')
     plt.xlabel(r"$f_e$ (Hz)")
     plt.legend()
@@ -141,9 +150,10 @@ for iFr in range(0, len(Froude)):
 
     # Heave
     plt.figure(figsize=(6, 6))
-    plt.plot(RAO[:, iFr, 0, 0], RAO[:, iFr, 2, 0], color="r", linestyle='-', label="FRyDoM - Simple forward speed model")
-    plt.plot(RAO[:, iFr, 0, 1], RAO[:, iFr, 2, 1], color="b", linestyle='--', label="FRyDoM - Extended forward speed model")
-    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 2], color="g", linestyle='', marker='+', label="Irvine2008")
+    plt.plot(RAO[:, iFr, 0, 0], RAO[:, iFr, 2, 0], color="r", linestyle='-', label="FRyDoM - No forward speed model")
+    plt.plot(RAO[:, iFr, 0, 1], RAO[:, iFr, 2, 1], color="b", linestyle='-', label="FRyDoM - Simple forward speed model")
+    plt.plot(RAO[:, iFr, 0, 2], RAO[:, iFr, 2, 2], color="g", linestyle='--', label="FRyDoM - Extended forward speed model")
+    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 2], color="k", linestyle='', marker='+', label="Experimental data [Irvine2008]")
     plt.ylabel(r'$|RAO_{\theta}|$ (-)')
     plt.xlabel(r"$f_e$ (Hz)")
     plt.legend()
