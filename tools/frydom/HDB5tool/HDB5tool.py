@@ -164,6 +164,10 @@ def get_parser(parser):
                         metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Plot the impulse response functions of ibody_force along iforce for a motion of ibody_motion along idof.""")
 
+    # Plot the IRF per body.
+    parser.add_argument('--plot_irf_array', '-pirfa', action="store_true", help="""
+                        Plot the impulse reponse functions of ibody_force for a motion of ibody_motion.""")
+
     # Plot the IRF speed.
     parser.add_argument('--plot_irf_speed', '-pirfs', '-pirfku', '-pirf_speed',
                         nargs=4,
@@ -467,6 +471,10 @@ def get_Arg_part_3_CE(args, database):
             database.Plot_IRF(ibody_force=int(args.plot_irf[j][0]) - 1, iforce=int(args.plot_irf[j][1]) - 1,
                               ibody_motion=int(args.plot_irf[j][2]) - 1,
                               idof=int(args.plot_irf[j][3]) - 1)
+
+    # Plot the impulse response functiopn per body.
+    if (args.plot_irf_array is True):
+        database.Plot_irf_array()
 
     # Plot the impulse response function with speed velocity.
     if (args.plot_irf_speed is not None):

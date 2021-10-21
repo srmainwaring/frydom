@@ -148,7 +148,7 @@ class BodyDB(object):
         # Poles and residues.
         self.poles_residues = None
 
-        # Diodore date.
+        # Diodore data.
         self.cog = None
         self.cob = None
         self.underwater_volume = None

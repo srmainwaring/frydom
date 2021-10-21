@@ -598,6 +598,23 @@ class HDB5(object):
                 # Plot.
                 plot_db.plot_AB_array(data, self._pyHDB.wave_freq, ibody_force, ibody_motion, self._pyHDB)
 
+    def Plot_irf_array(self):
+        """This method plots the impulse response functions per body."""
+
+        for ibody_force in range(0, self._pyHDB.nb_bodies):
+            for ibody_motion in range(0, self._pyHDB.nb_bodies):
+
+                # Time.
+                time = self._pyHDB.time
+
+                # Data.
+                data = np.zeros((6, 6, self._pyHDB.nb_time_samples), dtype=np.float)
+                for iforce in range(0, 6):
+                    for idof in range(0, 6):
+                        data[iforce, idof, :] = self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + idof, :]
+                # Plot.
+                plot_db.plot_irf_array(data, time, ibody_force, ibody_motion)
+
     def export_hdb5(self, output_file = None):
         """This function writes the hydrodynamic database into a *.hdb5 file.
 

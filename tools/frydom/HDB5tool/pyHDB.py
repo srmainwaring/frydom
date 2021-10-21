@@ -87,7 +87,7 @@ class pyHDB(object):
         # x-derivatives.
         self._has_x_derivatives = False
 
-        # IRF.
+        # Impulse response functions.
         self.dt = None
         self.time = None
         self.nb_time_samples = None
