@@ -173,8 +173,7 @@ def get_parser(parser):
                         Plot the impulse reponse functions of ibody_force for a motion of ibody_motion.""")
 
     # Plot the IRF speed.
-    parser.add_argument('--plot_irf_speed', '-pirfs', '-pirfku', '-pirf_speed',
-                        nargs=4,
+    parser.add_argument('--plot_irf_speed', '-pirfs', '-pirfku', '-pirfx', nargs=4,
                         metavar=('ibody_force', 'iforce', 'ibody_motion', 'idof'), action="append", help="""
                 Plot the impulse response functions with speed velocity of ibody_force along iforce for a motion of ibody_motion along idof.""")
 
