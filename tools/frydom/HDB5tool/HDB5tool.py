@@ -115,6 +115,10 @@ def get_parser(parser):
     parser.add_argument('--radiation_mask', '-rm', action="store_true", help="""
                     Update the radiation mask of all bodies.""")
 
+    # Update the radiation mask from the x-derivatives.
+    parser.add_argument('--radiation_mask_x_derivatives', '-rmx', action="store_true", help="""
+                        Update the radiation mask of all bodies from the x-derivatives.""")
+
     # Writing the hdb5 output file.
     parser.add_argument('--write', '-w', action="store", help="""
                 Writing the hdb5 output file with the given name.""")
@@ -372,6 +376,8 @@ def get_Arg_part_2_CE(args, database):
     # Radiation mask.
     if (args.radiation_mask is True):
         database.Update_radiation_mask()
+    if (args.radiation_mask_x_derivatives is True):
+        database.Update_radiation_mask_x_derivatives()
 
     return database
 

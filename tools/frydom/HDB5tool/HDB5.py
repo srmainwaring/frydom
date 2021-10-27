@@ -581,7 +581,7 @@ class HDB5(object):
             self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + iforce, :] *= coeff
 
     def Update_radiation_mask(self):
-        """This function asks the user to define the damping coefficient which should be zeroed and update the radiation mask accordingly."""
+        """This function asks the user to define the radiation coefficient which should be zeroed and update the radiation mask accordingly."""
 
         for ibody_force in range(0, self._pyHDB.nb_bodies):
             for ibody_motion in range(0, self._pyHDB.nb_bodies):
@@ -596,7 +596,30 @@ class HDB5(object):
                                         - self._pyHDB.bodies[ibody_force].Inf_Added_mass[iforce, 6 * ibody_motion + idof]))
 
                 # Plot.
-                plot_db.plot_AB_array(data, self._pyHDB.wave_freq, ibody_force, ibody_motion, self._pyHDB)
+                plot_db.plot_AB_array(data, self._pyHDB.wave_freq, ibody_force, ibody_motion, self._pyHDB, False)
+
+    def Update_radiation_mask_x_derivatives(self):
+        """This function asks the user to define the radiation coefficient which should be zeroed and update the radiation mask accordingly."""
+
+        if (self._pyHDB._has_x_derivatives):
+
+            for ibody_force in range(0, self._pyHDB.nb_bodies):
+                for ibody_motion in range(0, self._pyHDB.nb_bodies):
+
+                    # data.
+                    data = np.zeros((6, 6, self._pyHDB.nb_wave_freq), dtype=np.float)
+                    for iforce in range(0, 6):
+                        for idof in range(0, 6):
+                            for iw in range(0, self._pyHDB.nb_wave_freq):
+                                data[iforce, idof, iw] = np.linalg.norm(self._pyHDB.bodies[ibody_force].Damping_x_derivative[iforce, 6 * ibody_motion + idof, iw]
+                                            + 1j * self._pyHDB.wave_freq[iw] * (self._pyHDB.bodies[ibody_force].Added_mass_x_derivative[iforce, 6 * ibody_motion + idof, iw]
+                                            - self._pyHDB.bodies[ibody_force].Inf_Added_mass_x_derivative[iforce, 6 * ibody_motion + idof]))
+
+                    # Plot.
+                    plot_db.plot_AB_array(data, self._pyHDB.wave_freq, ibody_force, ibody_motion, self._pyHDB, True)
+
+        else:
+            print("No x-derivative.")
 
     def Plot_irf_array(self):
         """This method plots the impulse response functions per body."""
