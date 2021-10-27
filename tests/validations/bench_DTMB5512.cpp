@@ -224,7 +224,7 @@ int main(int argc, char *argv[]) {
 
   bool captive_test = false;      // fixed heave and pitch motions
 
-  // -- System
+  // -- System.
   std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
                                    + "_Period_" + std::to_string(Tk);
   if(simple_forward_speed_model) {
@@ -239,7 +239,7 @@ int main(int argc, char *argv[]) {
   FrOffshoreSystem system(name, FrOffshoreSystem::NONSMOOTH_CONTACT, FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::APGD, output_folder_name);
 
-  // -- Ocean
+  // -- Ocean.
   auto ocean = system.GetEnvironment()->GetOcean();
   ocean->SetDensity(1000.);
 
@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
 
   system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(5., 0., 20., 1.);
 
-  // -- Body
+  // -- Body.
 
   auto body = system.NewBody("DTMB");
   Position COGPosition(0., 0., 0.03); // 0.03
@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
   body->AddMeshAsset(DTMB_asset);
   body->SetColor(Yellow);
 
-  // -- Inertia
+  // -- Inertia.
 
   double mass = 86.0;
 
@@ -280,25 +280,28 @@ int main(int argc, char *argv[]) {
 
   hdb->Map(0, body.get(), eqFrame);
 
-  // -- Hydrostatic
+  // -- Hydrostatic.
 
   auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
 
-  // -- Radiation
+  // -- Radiation.
 
   auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
   radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
-  // -- Excitation
+  // -- Excitation.
 
-  auto excitationForce = make_linear_excitation_force("linear_excitation", body, hdb);
-  excitationForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
+  auto diffractionForce = make_linear_diffraction_force("linear_diffraction", body, hdb);
+  diffractionForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
-  // -- Wave Drift force
+  auto FroudeKrylovForce = make_linear_froude_krylov_force("linear_Froude_Krylov", body, hdb);
+  FroudeKrylovForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
+
+  // -- Wave Drift force.
 
   auto waveDriftForce = make_wave_drift_force("wave_drift", body, hdb);
 
-  // -- ITTC57
+  // -- ITTC57.
 
   auto lpp = 3.048;
   auto wettedSurfaceArea = 1.371;
@@ -306,7 +309,7 @@ int main(int argc, char *argv[]) {
   auto ct = ResidualITTC(forward_speed);
   auto forceResistance = make_ITTC_resistance_force("ITTC_resistance", body, lpp, wettedSurfaceArea, ct, 0.03);
 
-  // -- Steady force
+  // -- Steady force.
 
   auto forcePitch = std::make_shared<SteadyPitchTorque>("forcePitch", body.get());
   body->AddExternalForce(forcePitch);
@@ -314,7 +317,7 @@ int main(int argc, char *argv[]) {
   auto forceHeave = std::make_shared<SteadyHeaveForce>("forceHeave", body.get());
   body->AddExternalForce(forceHeave);
 
-  // -- Carriage and fixation point
+  // -- Carriage and fixation point.
 
   auto shipNode = body->NewNode("shipNode");
   shipNode->SetPositionInBody(body->GetCOG(NWU), NWU);

@@ -277,7 +277,7 @@ namespace frydom {
     // Number of wave directions.
     auto nbWaveDir = waveField->GetWaveDirections(RAD, NWU, GOTO).size();
 
-    // Fexc(t) = eta*Fexc(Nemoh).
+    // Fexc(t) = eta*Fexc(Helios).
 
     // From vector to force and torque structures.
     Force force;

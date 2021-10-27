@@ -57,9 +57,9 @@ period = [0.714, 0.741, 0.769, 0.800, 0.833, 0.870, 0.909, 0.952, 1.000, 1.053, 
 lambda_over_Lpp = [0.260, 0.281, 0.303, 0.328, 0.356, 0.387, 0.423, 0.465, 0.512, 0.568, 0.632, 0.709, 0.800, 0.910,
                    1.045, 1.212, 1.423, 1.691, 2.040, 2.497, 3.093, 3.869, 4.884]
 name = "bench_DTMB5512"
-zcog = 0.03 # Initial vertical position.
-gravity = 9.80665
-Lpp = 3.048
+zcog = 0.03 # Initial vertical position (m).
+gravity = 9.80665 # gravity constant (m/s2).
+Lpp = 3.048 # Ship length (m).
 
 # FFT parameters.
 tstart = 30 # s.
@@ -130,9 +130,7 @@ for iFr in range(0, len(Froude)):
             RAO[iT, iFr, 1, imodel] = RAO_heave
             RAO[iT, iFr, 2, imodel] = RAO_pitch
 
-# Plots.
-for iFr in range(0, len(Froude)):
-    Fr = Froude[iFr]
+    # Plots.
 
     # Heave
     plt.figure(figsize=(6, 6))
@@ -145,7 +143,7 @@ for iFr in range(0, len(Froude)):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("Bench_DTMB_RAO_Heave_Fr_"+str(Fr)+".png", dpi = 500)
+    plt.savefig("Bench_DTMB_RAO_Heave_Fr_"+str(Fr)+".png", dpi = 100)
     plt.close()
 
     # Heave
@@ -159,5 +157,5 @@ for iFr in range(0, len(Froude)):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("Bench_DTMB_RAO_Pitch_Fr_" + str(Fr) + ".png", dpi=500)
+    plt.savefig("Bench_DTMB_RAO_Pitch_Fr_" + str(Fr) + ".png", dpi=100)
     plt.close()
