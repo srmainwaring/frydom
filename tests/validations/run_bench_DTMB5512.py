@@ -119,7 +119,7 @@ for iFr in range(0, len(Froude)):
 
             # Computation of the RAO in heave and pitch from FFT.
             constant_heave, RAO_heave = GetMode(data[:, 0], data[:, 6] - zcog, tstart, tlength, fe)
-            constant_pitch, RAO_pitch = GetMode(data[:, 0], data[:, 8] * np.pi / 180, tstart, tlength, fe)
+            constant_pitch, RAO_pitch = GetMode(data[:, 0], data[:, 8] * np.pi / 180, tstart, tlength, fe) # deg -> rad.
 
             # RAO nondimensionalization.
             RAO_heave /= A
@@ -137,7 +137,7 @@ for iFr in range(0, len(Froude)):
     plt.plot(RAO[:, iFr, 0, 0], RAO[:, iFr, 1, 0], color="r", linestyle='-', label="FRyDoM - No forward speed model")
     plt.plot(RAO[: , iFr, 0, 1], RAO[: , iFr, 1, 1], color="b", linestyle='-', label="FRyDoM - Simple forward speed model")
     plt.plot(RAO[:, iFr, 0, 2], RAO[:, iFr, 1, 2], color="g", linestyle='--', label="FRyDoM - Extended forward speed model")
-    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 1], color="k", linestyle='', marker = '+', label="Experimental data [Irvine2008]")
+    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 1], color="k", linestyle='', marker = '+', label="Experiments [Irvine2008]")
     plt.ylabel(r'$|RAO_{z}|$ (-)')
     plt.xlabel(r"$f_e$ (Hz)")
     plt.legend()
@@ -151,11 +151,35 @@ for iFr in range(0, len(Froude)):
     plt.plot(RAO[:, iFr, 0, 0], RAO[:, iFr, 2, 0], color="r", linestyle='-', label="FRyDoM - No forward speed model")
     plt.plot(RAO[:, iFr, 0, 1], RAO[:, iFr, 2, 1], color="b", linestyle='-', label="FRyDoM - Simple forward speed model")
     plt.plot(RAO[:, iFr, 0, 2], RAO[:, iFr, 2, 2], color="g", linestyle='--', label="FRyDoM - Extended forward speed model")
-    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 2], color="k", linestyle='', marker='+', label="Experimental data [Irvine2008]")
-    plt.ylabel(r'$|RAO_{\theta}|$ (-)')
+    plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 2], color="k", linestyle='', marker='+', label="Experiments [Irvine2008]")
+    plt.ylabel(r'$|RAO_{\theta}|$ (/rad)')
     plt.xlabel(r"$f_e$ (Hz)")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.savefig("Bench_DTMB_RAO_Pitch_Fr_" + str(Fr) + ".png", dpi=100)
+    plt.close()
+
+# Plots with subplots.
+for idof in range(1, 3):
+    fig, axes = plt.subplots(2, 3)
+    for iFr, ax in enumerate(fig.axes):
+        if(iFr <= 4):
+            ax.plot(RAO[:, iFr, 0, 1], RAO[:, iFr, idof, 1], color="r", linestyle='-')
+            ax.plot(data_exp[iFr][:, 0], data_exp[iFr][:, idof], color="k", linestyle='', marker='+')
+            if(iFr == 0 or iFr == 3):
+                if(idof == 1):
+                    ax.set_ylabel(r'$|RAO_{z}|$ (-)')
+                else:
+                    ax.set_ylabel(r'$|RAO_{\theta}|$ (/rad)')
+            ax.set_xlabel(r"$f_e$ (Hz)")
+            ax.grid(True)
+    axes[1][2].set_visible(False)
+    plt.tight_layout()
+    line_labels = ["FRyDoM", "Experiments [Irvine2008]"]
+    plt.figlegend( line_labels, loc = 'lower center', borderaxespad=0.1, ncol=2, labelspacing=0., bbox_to_anchor=(0.5, -0.05))
+    if (idof == 1):
+        plt.savefig("Bench_DTMB_RAO_Heave.png", dpi=100, bbox_inches = 'tight')
+    else:
+        plt.savefig("Bench_DTMB_RAO_Pitch.png", dpi=100, bbox_inches='tight')
     plt.close()
