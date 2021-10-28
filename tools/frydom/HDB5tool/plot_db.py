@@ -329,8 +329,10 @@ def plot_AB_array(data, w, ibody_force, ibody_motion, pyHDB, XDerivatives):
     for iforce in range(0, 6):
         for idof in range(0, 6):
             labelA = r'$H_{%s} (\omega)$' % (
-                        Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
-                    ibody_motion + 1))
+                        Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
+            if (XDerivatives):
+                labelA = r'$\partial H_{%s}/\partial x(\omega)$' % (
+                        Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
             axes[iforce, idof].plot(w, data[iforce, idof, :], linestyle="-", linewidth=2)
             axes[iforce, idof].grid()
             axes[iforce, idof].set_title(labelA)
