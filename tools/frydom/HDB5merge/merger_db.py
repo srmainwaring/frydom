@@ -81,12 +81,6 @@ class Merger(object):
         assert (self._pyHDB_1.crmax == self._pyHDB_2.crmax)
         pyHDB_out.crmax = self._pyHDB_1.crmax
 
-        # Wave reference point.
-        assert (self._pyHDB_1.wave_reference_point_x == self._pyHDB_2.wave_reference_point_x)
-        assert (self._pyHDB_1.wave_reference_point_y == self._pyHDB_2.wave_reference_point_y)
-        pyHDB_out.wave_reference_point_x = self._pyHDB_1.wave_reference_point_x
-        pyHDB_out.wave_reference_point_y = self._pyHDB_1.wave_reference_point_y
-
     def merge_environment(self, pyHDB_out):
 
         """
@@ -381,6 +375,10 @@ class Merger(object):
             # Computation point in body frame.
             assert (np.all(body_1.computation_point == body_2.computation_point))
             body_out.computation_point = body_1.computation_point
+
+            # Wave reference point in body frame.
+            assert (np.all(body_1.wave_reference_point_in_body_frame == body_2.wave_reference_point_in_body_frame))
+            body_out.wave_reference_point_in_body_frame = body_1.wave_reference_point_in_body_frame
 
             # Point.
             assert (np.all(body_1.point == body_2.point))
