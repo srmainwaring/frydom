@@ -239,7 +239,7 @@ def Read_cal_hdb5(args):
 
 def get_Arg_part_1_CE(args, database):
     """This function makes all the fundamental computations with the hydrodynamic database:
-    computation of IRF, infinite added masses, rediscretization, filering, etc."""
+    computation of IRF, infinite added masses, rediscretization, etc."""
 
     # Discretization - Wave directions.
     if (args.discretization_waves is not None):
@@ -324,6 +324,11 @@ def get_Arg_part_1_CE(args, database):
             database.body[int(args.mass[j][0]) - 1].activate_inertia()
             database.body[int(args.mass[j][0]) - 1].inertia.mass = float(args.mass[j][1])
 
+    return database
+
+def get_Arg_part_2_CE(args, database):
+    """This function makes the symmetry of the HDB, filters the IRF, the and updates the radiation mask."""
+
     # Filtering impulse response functions.
     if (args.cutoff_irf is not None):
         nb_cut_off_irf = len(args.cutoff_irf)
@@ -362,11 +367,6 @@ def get_Arg_part_1_CE(args, database):
                         database.Cutoff_scaling_IRF_speed(tc=float(args.cutoff_irf_all[0]),
                                                           ibody_force=body_force.i_body, iforce=iforce,
                                                           ibody_motion=body_motion.i_body, idof=idof, auto_apply=True)
-
-    return database
-
-def get_Arg_part_2_CE(args, database):
-    """This function makes the symmetry of the HDB and updates the radiation mask."""
 
     # Symmetry of the HDB.
     if (args.sym_hdb is True):
@@ -536,7 +536,7 @@ def main():
     # 1st set of arguments - FryDoM CE - Computation of IRF, infinite added masses, rediscretization, filering, etc.
     database = get_Arg_part_1_CE(args, database)
 
-    # 2nd set of arguments - FRyDoM CE - Symmetry of the HDB and updating of the radiation mask.
+    # 2nd set of arguments - FRyDoM CE - Symmetry of the HDB, filterering the IRF and updating of the radiation mask.
     database = get_Arg_part_2_CE(args, database)
 
     # 3rd set of arguments - FRyDoM CE - Plots of A, B, Fdiff, Ffk, Fexc., IRF.
