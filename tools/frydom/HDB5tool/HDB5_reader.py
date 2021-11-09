@@ -719,6 +719,11 @@ class HDB5reader_v2(HDB5reader):
         try:
             reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionK/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
+
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKU/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf_ku = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
         except:
             pass
@@ -726,6 +731,11 @@ class HDB5reader_v2(HDB5reader):
         try:
             reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKUXDerivative/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf_ku_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
+
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKU2/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf_ku2 = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
         except:
             pass
