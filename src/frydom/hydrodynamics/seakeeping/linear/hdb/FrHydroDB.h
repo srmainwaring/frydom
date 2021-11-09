@@ -48,6 +48,9 @@ namespace frydom {
     /// \return frydom body
     FrBody *GetBody(FrBEMBody *body);
 
+    /// This method returns the number of BEM bodies.
+    int GetBEMBodyNumber();
+
     /// Return the mapper between frydom body and BEM body database
     /// \return Mapper
     FrHydroMapper *GetMapper();

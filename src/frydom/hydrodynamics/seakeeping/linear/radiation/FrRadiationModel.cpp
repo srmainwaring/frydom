@@ -211,7 +211,16 @@ namespace frydom {
     }
 
     // This method computes the input parameters for a piecewise linear time-stepping (alpha, beta, gamma).
-    Compute_PieceWiseLinearCoefficients(c_poles,c_deltaT);
+    Compute_PieceWiseLinearCoefficients(c_poles, c_deltaT);
+
+    // Extra cached quantities in case of forward speed correction.
+    if (c_FScorrection_simple_model) {
+      c_residues_over_poles.setZero(c_N_poles);
+      for (int i = 0; i < c_residues_over_poles.size(); ++i){
+        c_residues_over_poles(i) = c_residues(i) / c_poles(i);
+      }
+      c_initial_positions = GetPositions();
+    }
 
   }
 
@@ -247,7 +256,7 @@ namespace frydom {
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
       // Computation of the convolution term from the auxilairy variables.
-      auto radiationForce = Compute_RadiationForce(BEMBody->first, indice);
+      auto radiationForce = Compute_RadiationForce(BEMBody->first, indice); // indice is updated here.
 
       // Setting the convolution term.
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
@@ -258,6 +267,131 @@ namespace frydom {
       m_radiationForce[BEMBody->first] = -GeneralizedForce(forceInWorld, TorqueInWorld);
     }
 
+  }
+
+  GeneralizedForce FrRadiationRecursiveConvolutionModel::Compute_RadiationForce(FrBEMBody* body, int &indice) const {
+
+    // This method computes the convolution term from the auxilairy variables.
+
+    // Initization.
+    auto radiationForce = GeneralizedForce();
+    radiationForce.SetNull();
+
+    // Forward speed.
+    auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(body);
+    auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
+
+    int i_BEMBodyMotion = 0;
+    for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
+
+      auto radiationMask = body->GetRadiationMask(BEMBodyMotion->first);
+      auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
+
+      for (auto idof : BodyMotionDOFMask.GetListDOF()) {
+
+        FrMask radiationMaskForIDOF;
+        radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+
+        for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
+
+          // FIXME:: GetModalCoefficients not const
+          auto poleResidue = body->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
+          auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+          // Contribution of every pole / residue to the convolution term.
+          std::complex<double> temp = c_residues.segment(indice, n_poles).transpose() * c_states.matrix().segment(indice, n_poles);
+
+          radiationForce[iforce] += temp.real();
+
+          indice += n_poles;
+        }
+      }
+      ++i_BEMBodyMotion;
+    }
+
+    // Forward speed correction.
+    auto SpeedCorrection = GeneralizedForce();
+    SpeedCorrection.SetNull();
+    if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection_simple_model) {
+
+      std::cout << "" << std::endl;
+
+      // Positions.
+      auto positions = GetPositions();
+
+      //WARNING: Only the influence of the body on itself is used for the forward speed model.
+
+      // Index of the body.
+      int i_body = 0;
+      int indice_forward_speed = 0;
+
+      // Radiation mask.
+      auto radiationMask = body->GetRadiationMask(body);
+      auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(body);
+
+      // Convolution term.
+      for (auto idof : BodyMotionDOFMask.GetListDOF()) {
+
+        FrMask radiationMaskForIDOF;
+        radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+
+        for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
+
+          if(idof >= 4) { // Application of the matrix L.
+
+            // Minus sign of the matrix L.
+            double epsilon = 1.;
+            if(idof == 4){
+              epsilon = -1.;
+            }
+
+            // Application of the matrix for selecting the poles and residues.
+            hdb5_io::PoleResidue poleResidue;
+            if(idof == 4){ // Pitch.
+              poleResidue = body->GetModalCoefficients(body, 2, iforce);
+//              std::cout << iforce + 1 << " " << 2 + 1 << " " << idof + 1 << " " << epsilon << std::endl;
+            } else { // idof = 5 (yaw).
+              poleResidue = body->GetModalCoefficients(body, 1, iforce);
+//              std::cout << iforce + 1 << " " << 1 + 1 << " " << idof + 1 << " " << epsilon << std::endl;
+            }
+            auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+
+            // Because of the radiation mask, the number of poles may be zero?
+            if(n_poles != 0) {
+
+              // Recursive convolution.
+              auto residues_over_poles = c_residues_over_poles.segment(indice_forward_speed, n_poles);
+              auto sum_residues_over_poles = residues_over_poles.sum();
+              double position_dof = positions.at(i_body)(idof);
+
+//              std::cout << position_dof << std::endl;
+
+              std::complex<double> speed_correction = -residues_over_poles.transpose() * c_states.matrix().segment(indice_forward_speed, n_poles);
+              speed_correction += (position_dof - c_initial_positions.at(i_body)(idof)) * sum_residues_over_poles;
+              SpeedCorrection[iforce] += meanSpeed.norm() * epsilon * speed_correction.real();
+
+//              std::cout << -residues_over_poles.transpose() * c_states.matrix().segment(indice_forward_speed, n_poles) << std::endl;
+//              std::cout << (position_dof - c_initial_positions.at(i_body)(idof)) * sum_residues_over_poles << std::endl;
+
+            }
+          }
+
+          // Udapte indice_forward_speed.
+          auto poleResidue_tmp = body->GetModalCoefficients(body, idof, iforce);
+          auto n_poles_tmp = poleResidue_tmp.nb_real_poles() + poleResidue_tmp.nb_cc_poles();
+          indice_forward_speed += n_poles_tmp;
+        }
+      }
+
+      // Infinite frequency damping.
+      auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU); // Angular velocity.
+      auto Ainf = body->GetSelfInfiniteAddedMass(); // Infinite frequency added mass.
+      auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
+      SpeedCorrection += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
+    }
+    radiationForce += SpeedCorrection;
+//    exit(0);
+
+    return radiationForce;
   }
 
   template<typename T>
@@ -352,42 +486,36 @@ namespace frydom {
     return velocities;
   }
 
-  GeneralizedForce FrRadiationRecursiveConvolutionModel::Compute_RadiationForce(FrBEMBody* body, int &indice) const {
+  std::vector<mathutils::Vector6d<double>> FrRadiationRecursiveConvolutionModel::GetPositions() const {
 
-    // This method computes the convolution term from the auxilairy variables.
+    // This method returns the positions in world of all bodies.
 
-    // Initization.
-    auto radiationForce = GeneralizedForce();
-    radiationForce.SetNull();
+    std::vector<mathutils::Vector6d<double>> positions;
+    positions.reserve(m_HDB->GetBEMBodyNumber());
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
-    for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
+      auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
+      auto position = eqFrame->GetPositionInWorld(NWU);
+      double phi, theta, psi;
+      eqFrame->GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
 
-      auto radiationMask = body->GetRadiationMask(BEMBodyMotion->first);
-      auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
+      std::cout << theta << " " << eqFrame->GetPerturbationAngularVelocityInFrame(NWU)(1) << std::endl;
 
-      for (auto idof : BodyMotionDOFMask.GetListDOF()) {FrMask radiationMaskForIDOF;
-        radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+//      auto body = m_HDB->GetMapper()->GetBody(BEMBody->first);
+//      auto position_body = body->GetCOGPositionInWorld(NWU);
+//      double phi_body, theta_body, psi_body;
+//      body->GetRotation().GetCardanAngles_RADIANS(phi_body, theta_body, psi_body, NWU);
 
-        for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
-
-          // FIXME:: GetModalCoefficients not const
-          auto poleResidue = body->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
-          auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
-          // Contribution of every pole / residue to the convolution term.
-          std::complex<double> temp = c_residues.segment(indice, n_poles).transpose() * c_states.matrix().segment(indice, n_poles);
-          radiationForce[iforce] += temp.real();
-
-          indice += n_poles;
-        }
-      }
+      positions.push_back(Vector6d(position(0), position(1), position(2), phi, theta, psi));
     }
 
-    return radiationForce;
+    return positions;
   }
 
   std::shared_ptr<FrRadiationRecursiveConvolutionModel>
   make_recursive_convolution_model(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB) {
 
+    // This method creates and adds the radiation recursive convolution model to the offshore system from the HDB.
 
     // Construction and initialization of the classes dealing with radiation models.
     auto radiationModel = std::make_shared<FrRadiationRecursiveConvolutionModel>(name, system, HDB);
@@ -505,6 +633,8 @@ namespace frydom {
 
     // This method computes the forward speed correction of the radiation loads.
 
+    //WARNING: Only the influence of the body on itself is used for the forward speed model.
+
     //TODO: Il faudrait ajouter des termes de raideur dependant de la vitesse d'avance.
 
     // Initialization.
@@ -528,41 +658,42 @@ namespace frydom {
     auto vtime = m_recorder.at(BEMBody).GetTime();
 
     // KU.
-    for (unsigned int idof = 4; idof < 6; idof++) {
+    for (unsigned int idof = 4; idof < 6; idof++) { // Pitch and yaw only.
       // Convolution.
-      auto interpKu = BEMBody->GetIRFInterpolator("KU")->at(idof);
+      auto interpKu = BEMBody->GetIRFInterpolator("KU")->at(idof); // The matrix L has already been applied in hdb5tool.
       std::vector<mathutils::Vector6d<double>> kernel;
       for (unsigned int it = 0; it < vtime.size(); ++it) {
-        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KU(t-tau)*v(tau).
+        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // int(KU(t-tau)*L*v(tau)).
       }
-      radiationForce += TrapzLoc(vtime, kernel) * meanSpeed.norm();
+      radiationForce += meanSpeed.norm() * TrapzLoc(vtime, kernel); // U*int(KU(t-tau)*L*v(tau)).
     }
 
     // KUXDerivative.
-    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
-      auto KUXderivativeForce = GeneralizedForce();
-      KUXderivativeForce.SetNull();
-      auto KU2Force = GeneralizedForce();
-      KU2Force.SetNull();
-      for (unsigned int idof = 0; idof < 6; idof++) {
-        // Convolution.
-        auto interpKuXderivative = BEMBody->GetIRFInterpolator("KUXDerivative")->at(idof);
-        auto interpKu2 = BEMBody->GetIRFInterpolator("KU2")->at(idof);
-        std::vector<mathutils::Vector6d<double>> kernel_KUXDerivative;
-        std::vector<mathutils::Vector6d<double>> kernel_KU2;
-        for (unsigned int it = 0; it < vtime.size(); ++it) {
-          kernel_KUXDerivative.push_back(interpKuXderivative->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KUXderivative(t-tau)*v(tau).
-          if(idof == 4 or idof == 5){
-            kernel_KU2.push_back(interpKu2->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KU2(t-tau)*v(tau).
-          }
-        }
-        KUXderivativeForce += TrapzLoc(vtime, kernel_KUXDerivative) * meanSpeed.norm();
-        if(idof == 4 or idof == 5) {
-          KU2Force += TrapzLoc(vtime, kernel_KU2) * meanSpeed.norm() * meanSpeed.norm();
-        }
-      }
-      radiationForce += KUXderivativeForce + KU2Force;
-    }
+//    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
+//      auto KUXderivativeForce = GeneralizedForce();
+//      KUXderivativeForce.SetNull();
+//      auto KU2Force = GeneralizedForce();
+//      KU2Force.SetNull();
+//      for (unsigned int idof = 0; idof < 6; idof++) {
+//        // Convolution.
+//        auto interpKuXderivative = BEMBody->GetIRFInterpolator("KUXDerivative")->at(idof);
+//        auto interpKu2 = BEMBody->GetIRFInterpolator("KU2")->at(idof);
+//        std::vector<mathutils::Vector6d<double>> kernel_KUXDerivative;
+//        std::vector<mathutils::Vector6d<double>> kernel_KU2;
+//        for (unsigned int it = 0; it < vtime.size(); ++it) {
+//          kernel_KUXDerivative.push_back(interpKuXderivative->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KUXderivative(t-tau)*v(tau).
+//          if(idof == 4 or idof == 5){
+//            kernel_KU2.push_back(interpKu2->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KU2(t-tau)*v(tau).
+//          }
+//        }
+//        KUXderivativeForce += TrapzLoc(vtime, kernel_KUXDerivative) * meanSpeed.norm();
+//        if(idof == 4 or idof == 5) {
+//          KU2Force += TrapzLoc(vtime, kernel_KU2) * meanSpeed.norm() * meanSpeed.norm();
+//        }
+//      }
+//      radiationForce += KUXderivativeForce + KU2Force;
+////      radiationForce += -(KUXderivativeForce + KU2Force); // Minus sign due to transformation from the body frame to the world frame.
+//    }
 
     // Infinite frequency damping.
     auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
@@ -571,6 +702,16 @@ namespace frydom {
       auto dAdxinf = BEMBody->GetSelfXDerivativeInfiniteAddedMass();
       radiationForce += - meanSpeed.norm() * dAdxinf * eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU); // -U*dAdx(inf)*V.
     }
+
+    // Speed-dependent stiffness.
+//    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
+//      double phi, theta, psi;
+//      eqFrame->GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+//      CardanAngles angular_position(phi, theta, psi); // Angular position of the body frame with respect to the equilibrium frame expressed in the equilibrium frame.
+//      auto dAdx0 = BEMBody->GetSelfXDerivativeZeroAddedMass(); // dAdx(0).
+//      auto stiffness = -dAdx0.col(2) * angular_position.GetPitch() + dAdx0.col(1) * angular_position.GetYaw(); // dAdx(0)*L*X.
+//      radiationForce += meanSpeed.norm() * meanSpeed.norm() * stiffness; // U^2*dAdx(0)*L*X.
+//    }
 
     return radiationForce;
 

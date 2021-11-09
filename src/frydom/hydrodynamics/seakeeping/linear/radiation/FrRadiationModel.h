@@ -125,6 +125,11 @@ namespace frydom {
     /// Constructor of the class.
     FrRadiationRecursiveConvolutionModel(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB);
 
+    /// Setter for activated the forward-speed correction model.
+    void ActivateForwardSpeedCorrection(bool activation_simple_model) {
+      c_FScorrection_simple_model = activation_simple_model;
+    }
+
    private:
 
     // Poles.
@@ -153,6 +158,15 @@ namespace frydom {
     // Sum of all vector fitting orders for all coefficients.
     unsigned int c_N_poles;
 
+    // Simple forward speed model.
+    bool c_FScorrection_simple_model = false;
+
+    // Residues over the poles.
+    Eigen::VectorXcd c_residues_over_poles;
+
+    // Storage of the initial positions.
+    std::vector<mathutils::Vector6d<double>> c_initial_positions;
+
     /// Method to initialize the radiation model
     void Initialize() override;
 
@@ -178,6 +192,9 @@ namespace frydom {
 
     // This method returns the velocities for every auxiliary variable.
     Eigen::ArrayXd GetVelocities() const;
+
+    // This method returns the positions in world of all bodies.
+    std::vector<mathutils::Vector6d<double>> GetPositions() const;
 
     // TODO:: Add const to FrBEMBody
     GeneralizedForce Compute_RadiationForce(FrBEMBody* body, int &indice) const;

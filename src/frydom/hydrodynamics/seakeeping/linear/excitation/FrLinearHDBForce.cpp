@@ -294,6 +294,8 @@ namespace frydom {
             auto omega = waveField->GetWaveFrequencies(RADS).at(ifreq);
             tempforce += std::imag(complexElevations[idir][ifreq] * (m_Fhdb[idir](idof, ifreq)
                 + (meanSpeed.norm() / (JJ * omega)) * m_Fhdb_forward_speed[idir](idof, ifreq)));
+//            tempforce += std::imag(complexElevations[idir][ifreq] * (m_Fhdb[idir](idof, ifreq)
+//                - (meanSpeed.norm() / (JJ * omega)) * m_Fhdb_forward_speed[idir](idof, ifreq))); // Minus sign due to transformation from the body frame to the world frame.
           } else {
             tempforce += std::imag(complexElevations[idir][ifreq] * m_Fhdb[idir](idof, ifreq));
           }

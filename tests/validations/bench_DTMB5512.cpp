@@ -118,19 +118,22 @@ class SteadyPitchTorque : public FrForce {
 
   void Compute(double time) override {
 
-    auto speed = GetBody()->GetLinearVelocityInWorld(NWU).GetVx();
-    auto torque = 4.332 * std::pow(speed, 6)
-                  - 9.1135 * std::pow(speed, 5)
-                  - 9.7756 * std::pow(speed, 4)
-                  + 34.232 * std::pow(speed, 3)
-                  - 22.7359 * std::pow(speed, 2);
+    auto meanSpeed = m_eqFrame->GetFrameVelocityInFrame(NWU).norm();
+    auto torque = 4.332 * std::pow(meanSpeed, 6)
+                  - 9.1135 * std::pow(meanSpeed, 5)
+                  - 9.7756 * std::pow(meanSpeed, 4)
+                  + 34.232 * std::pow(meanSpeed, 3)
+                  - 22.7359 * std::pow(meanSpeed, 2);
 
     SetTorqueInBodyAtCOG(Torque(0., -torque, 0.), NWU);
 
   }
 
  public:
-  SteadyPitchTorque(const std::string &name, FrBody *body) : FrForce(name, "SteadyPitchTorque", body) {}
+  SteadyPitchTorque(const std::string &name, FrBody *body, const std::shared_ptr<FrEquilibriumFrame> &eqFrame)
+  : FrForce(name, "SteadyPitchTorque", body), m_eqFrame(eqFrame) {}
+
+  std::shared_ptr<FrEquilibriumFrame> m_eqFrame;
 };
 
 // ----------------------------------------------------------
@@ -141,17 +144,21 @@ class SteadyHeaveForce : public FrForce {
 
   void Compute(double time) override {
 
-    auto speed = GetBody()->GetLinearVelocityInWorld(NWU).GetVx();
+    auto meanSpeed = m_eqFrame->GetFrameVelocityInFrame(NWU).norm();
 
-    auto force = -12.32426 * std::pow(speed, 3)
-                 - 2.8696 * std::pow(speed, 2);
+    auto force = -12.32426 * std::pow(meanSpeed, 3)
+                 - 2.8696 * std::pow(meanSpeed, 2);
 
     SetForceInWorldAtCOG(Force(0., 0., force), NWU);
 
   }
 
  public:
-  SteadyHeaveForce(const std::string &name, FrBody *body) : FrForce(name, "SteadyHeaveForce", body) {}
+  SteadyHeaveForce(const std::string &name, FrBody *body, const std::shared_ptr<FrEquilibriumFrame> &eqFrame)
+  : FrForce(name, "SteadyHeaveForce", body), m_eqFrame(eqFrame) {}
+
+  std::shared_ptr<FrEquilibriumFrame> m_eqFrame;
+
 };
 
 // -----------------------------------------------------------
@@ -168,10 +175,13 @@ double ResidualITTC(double speed) {
     return 1.6812e-3;
   } else if (std::abs(speed - 2.243) < 1E-2) {
     return 4.02529e-3;
+  } else if(std::abs(speed) < 1E-2) {
+    return 0.;
   } else {
-    std::cout << "ResidualITTC: Warning, no residual coefficient for this speed value." << std::endl;
-    std::cout << "            : residual set to 0. " << std::endl;
+      std::cout << "ResidualITTC: Warning, no residual coefficient for this speed value." << std::endl;
+      std::cout << "            : residual set to 0. " << std::endl;
   }
+
   return 0.;
 };
 
@@ -187,12 +197,13 @@ int main(int argc, char *argv[]) {
                " =======================================================" << std::endl;
 
   // -- Inputs
-  if(argc != 6){
+  if(argc != 7){
     std::cout << "bench_DTMB5512 requires five input data:" << std::endl;
     std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
     std::cout << "    - the wave period (s);" << std::endl;
     std::cout << "    - the wave amplitude (m);" << std::endl;
     std::cout << "    - an interger for using no forward speed model (0), the simple speed model (1) or the extended speed model (2);" << std::endl;
+    std::cout << "    - an interger for using the direct convolution (0) or the recursive convolution (1);" << std::endl;
     std::cout << "    - the name of the ouput folder." << std::endl;
     exit(0);
   }
@@ -220,9 +231,13 @@ int main(int argc, char *argv[]) {
     simple_forward_speed_model = true;
     extended_forward_speed_model = true;
   }
-  char *name = argv[5]; // Output director prefix name.
+  bool useIRF = true; // Direct convolution.
+  if(atoi(argv[5]) == 1){ // Recursive convolution.
+    useIRF = false;
+  }
+  char *name = argv[6]; // Output director prefix name.
 
-  bool captive_test = false;      // fixed heave and pitch motions
+  bool captive_test = false; // Fixed heave and pitch motions.
 
   // -- System.
   std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
@@ -235,6 +250,11 @@ int main(int argc, char *argv[]) {
     }
   } else {
     output_folder_name += "_No_forward_speed_model";
+  }
+  if(useIRF){
+    output_folder_name += "_Direct_convolution";
+  } else{
+    output_folder_name += "_Recursive_convolution";
   }
   FrOffshoreSystem system(name, FrOffshoreSystem::NONSMOOTH_CONTACT, FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::APGD, output_folder_name);
@@ -272,7 +292,14 @@ int main(int argc, char *argv[]) {
 
   // -- Hydrodynamics
 
-  auto DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios.hdb5"});
+  std::string DTMB_hdb;
+  if(useIRF) {
+//    DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_IRF.hdb5"});
+    DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_IRF_damped.hdb5"});
+    DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_IRF_from_VF.hdb5"});
+  } else {
+    DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_VF.hdb5"});
+  }
   auto hdb = make_hydrodynamic_database(DTMB_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body, {0., 0., 0.03}, NWU);
@@ -286,8 +313,13 @@ int main(int argc, char *argv[]) {
 
   // -- Radiation.
 
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
+  if(useIRF) {
+    auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+    radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
+  } else {
+    auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
+    radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model);
+  }
 
   // -- Excitation.
 
@@ -311,10 +343,10 @@ int main(int argc, char *argv[]) {
 
   // -- Steady force.
 
-  auto forcePitch = std::make_shared<SteadyPitchTorque>("forcePitch", body.get());
+  auto forcePitch = std::make_shared<SteadyPitchTorque>("forcePitch", body.get(), eqFrame);
   body->AddExternalForce(forcePitch);
 
-  auto forceHeave = std::make_shared<SteadyHeaveForce>("forceHeave", body.get());
+  auto forceHeave = std::make_shared<SteadyHeaveForce>("forceHeave", body.get(), eqFrame);
   body->AddExternalForce(forceHeave);
 
   // -- Carriage and fixation point.
@@ -335,14 +367,21 @@ int main(int argc, char *argv[]) {
 
   bool is_irrlicht = false;
 
+  clock_t begin = clock();
+
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false);
   } else {
     double time = 0.;
-    while (time < 50.) {
+    while (time < 500.) {
       time += dt;
       system.AdvanceTo(time);
     }
   }
+
+  clock_t end = clock();
+  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+  std::cout << "Elapsed cpu time in seconds : " << elapsed_secs << std::endl;
+
   std::cout << "=============================== End ========================" << std::endl;
 }
