@@ -126,7 +126,9 @@ namespace frydom {
   FrRadiationRecursiveConvolutionModel::FrRadiationRecursiveConvolutionModel(const std::string &name,
                                                                              FrOffshoreSystem *system,
                                                                              std::shared_ptr<FrHydroDB> HDB) :
-      FrRadiationModel(name, system, HDB) {
+                                                                             FrRadiationModel(name, system, HDB) {
+
+    // Constructor of the class.
 
     // Loop over every body subject to hydrodynamic loads.
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
@@ -135,14 +137,98 @@ namespace frydom {
     }
   }
 
+  void FrRadiationRecursiveConvolutionModel::Initialize() {
+
+    // Initialization of the Radiation model.
+    FrRadiationModel::Initialize();
+
+    // Time step.
+    c_deltaT = GetSystem()->GetTimeStep();
+
+    // Previous time sample (t_{j-1}).
+    c_time = GetSystem()->GetTime() - c_deltaT; // Useless here as it is the initialization.
+
+    // Sum of all vector fitting orders for all coefficients.
+    c_N_poles = 0;
+
+    // Temporary vectors for storing the poles and the residues.
+    std::vector<Eigen::VectorXcd> temp_Poles;
+    std::vector<Eigen::VectorXcd> temp_Residues;
+
+    // BEMBody force.
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+
+      // BEMBody motion.
+      for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
+
+        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+        auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
+
+        for (auto idof : BodyMotionDOFMask.GetListDOF()) {
+
+          FrMask radiationMaskForIDOF;
+          radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+
+          for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
+
+            // TODO : virer les états auxiliaires de la HDB !
+            auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
+            auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+            c_N_poles += n_poles;
+            temp_Poles.push_back(poleResidue.GetPoles());
+            temp_Residues.push_back(poleResidue.GetResidues());
+
+          }
+        }
+      }
+    }
+
+    // Initialization of the cached structures.
+    c_states.setZero(c_N_poles);
+    c_alpha.setZero(c_N_poles);
+    c_beta0.setZero(c_N_poles);
+    c_beta1.setZero(c_N_poles);
+    c_poles.resize(c_N_poles);
+    c_residues.resize(c_N_poles);
+
+    // The velocities is assumed to be null at t = 0.
+    c_velocities.setZero(c_N_poles);
+
+    // Storing of the poles.
+    int indice = 0;
+    for (auto& poles : temp_Poles) {
+      auto npoles = poles.size();
+      c_poles.segment(indice, npoles) = poles;
+      indice += npoles;
+    }
+
+    // Storing of the residues.
+    indice = 0;
+    for (auto& res : temp_Residues) {
+      auto npoles = res.size();
+      c_residues.segment(indice, npoles) = res;
+      indice += npoles;
+    }
+
+    // This method computes the input parameters for a piecewise linear time-stepping (alpha, beta, gamma).
+    Compute_PieceWiseLinearCoefficients(c_poles,c_deltaT);
+
+  }
+
   void FrRadiationRecursiveConvolutionModel::Compute(double time) {
 
-    auto deltaT = time - c_time;
-    c_time = time;
+    // This method computes the recursive convolution.
+
+    // Time step from the previous time sample.
+    auto deltaT = time - c_time; // c_time = t_{j-1}.
+
+    // Present time sample (t_j).
+    c_time = time; // c_time = t_{j-1}.
 
     if (deltaT < FLT_EPSILON)
       return;
 
+    // Velocities at the present time sample xdot(t_j).
     auto velocities = GetVelocities();
 
     if (abs(deltaT - c_deltaT) > 1E-6) {
@@ -151,20 +237,24 @@ namespace frydom {
       Compute_PieceWiseLinearCoefficients(c_poles, deltaT);
     }
 
+    // Computation of u(p, t_j) at the present time sample.
     c_states = c_alpha * c_states + c_beta0 * c_velocities + c_beta1 * velocities;
 
-//    std::cout<<"c_states :"<<std::endl<<c_states<<std::endl;
+    // Velocities for the next time step.
     c_velocities = velocities;
 
     int indice = 0;
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
+      // Computation of the convolution term from the auxilairy variables.
       auto radiationForce = Compute_RadiationForce(BEMBody->first, indice);
 
+      // Setting the convolution term.
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
       auto forceInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetForce(), NWU);
       auto TorqueInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetTorque(), NWU);
 
+      // Minus sign added.
       m_radiationForce[BEMBody->first] = -GeneralizedForce(forceInWorld, TorqueInWorld);
     }
 
@@ -206,74 +296,10 @@ namespace frydom {
     return alpha * previousStates + beta0 * previousVelocity + beta1 * velocity;
   }
 
-  void FrRadiationRecursiveConvolutionModel::Initialize() {
-    FrRadiationModel::Initialize();
-
-    c_deltaT = GetSystem()->GetTimeStep();
-    c_time = GetSystem()->GetTime() - c_deltaT;
-
-    c_N_poles = 0;
-
-    std::vector<Eigen::VectorXcd> temp_Poles;
-    std::vector<Eigen::VectorXcd> temp_Residues;
-
-    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
-
-      for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
-
-        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
-        auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
-
-        for (auto idof : BodyMotionDOFMask.GetListDOF()) {
-
-          FrMask radiationMaskForIDOF;
-          radiationMaskForIDOF.SetMask(radiationMask.col(idof));
-
-          for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
-
-            // TODO : virer les états auxiliaires de la HDB !
-            auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
-            auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
-            c_N_poles += n_poles;
-            temp_Poles.push_back(poleResidue.GetPoles());
-            temp_Residues.push_back(poleResidue.GetResidues());
-
-          }
-
-        }
-
-      }
-
-    }
-
-    c_states.setZero(c_N_poles);
-    c_velocities.setZero(c_N_poles);
-    c_alpha.setZero(c_N_poles);
-    c_beta0.setZero(c_N_poles);
-    c_beta1.setZero(c_N_poles);
-    c_poles.resize(c_N_poles);
-    c_residues.resize(c_N_poles);
-
-    int indice = 0;
-    for (auto& poles : temp_Poles) {
-      auto npoles = poles.size();
-      c_poles.segment(indice, npoles) = poles;
-      indice += npoles;
-    }
-
-    indice = 0;
-    for (auto& res : temp_Residues) {
-      auto npoles = res.size();
-      c_residues.segment(indice, npoles) = res;
-      indice += npoles;
-    }
-
-    Compute_PieceWiseLinearCoefficients(c_poles,c_deltaT);
-
-
-  }
-
   void FrRadiationRecursiveConvolutionModel::Compute_PieceWiseLinearCoefficients(const Eigen::ArrayXcd& poles, double dt) {
+
+    // This method computes the input parameters for a piecewise linear time-stepping.
+
     assert(poles.size() == c_N_poles);
     auto q2Dt = poles * poles * dt;
     c_alpha = Eigen::exp(poles * dt);
@@ -283,21 +309,20 @@ namespace frydom {
 
   Eigen::ArrayXd FrRadiationRecursiveConvolutionModel::GetVelocities() const {
 
+    // This method returns the velocities for every auxiliary variable.
+
     Eigen::ArrayXd velocities(c_N_poles);
 
     int indice = 0;
 
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
-
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
-
         auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
-
         auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
+        // Velocity of the body in the equilibrium frame.
         auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBodyMotion->first);
         auto currentVelocity = eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU);
-
         for (auto idof : BodyMotionDOFMask.GetListDOF()) {
 
           FrMask radiationMaskForIDOF;
@@ -315,30 +340,29 @@ namespace frydom {
             // TODO : virer les états auxiliaires de la HDB !
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
             auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+            // The same velocity is used for the all the poles / residues of a coefficient (the VF is vectorized).
             velocities.segment(indice, n_poles) = Eigen::ArrayXd::Constant(n_poles, currentVelocity[idof]);
             indice += n_poles;
 
           }
-
         }
-
       }
-
     }
 
     return velocities;
   }
 
-
   GeneralizedForce FrRadiationRecursiveConvolutionModel::Compute_RadiationForce(FrBEMBody* body, int &indice) const {
 
+    // This method computes the convolution term from the auxilairy variables.
+
+    // Initization.
     auto radiationForce = GeneralizedForce();
     radiationForce.SetNull();
 
     for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
       auto radiationMask = body->GetRadiationMask(BEMBodyMotion->first);
-
       auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
       for (auto idof : BodyMotionDOFMask.GetListDOF()) {FrMask radiationMaskForIDOF;
@@ -349,10 +373,7 @@ namespace frydom {
           // FIXME:: GetModalCoefficients not const
           auto poleResidue = body->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
           auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
-//            Eigen::VectorXcd v1(c_states.segment(indice, n_poles));
-//            std::cout<<"residues.segment(indice,n_poles).transpose() :"<<std::endl<<residues.segment(indice,n_poles).transpose()<<std::endl;
-//            std::cout<<"truc :"<<std::endl<<residues.segment(indice,n_poles).transpose() * c_states.matrix().segment(indice, n_poles)<<std::endl;
-//            auto n_poles = c_residues[i_res].size();
+          // Contribution of every pole / residue to the convolution term.
           std::complex<double> temp = c_residues.segment(indice, n_poles).transpose() * c_states.matrix().segment(indice, n_poles);
           radiationForce[iforce] += temp.real();
 
@@ -365,11 +386,8 @@ namespace frydom {
   }
 
   std::shared_ptr<FrRadiationRecursiveConvolutionModel>
-  make_recursive_convolution_model(const std::string &name,
-                                   FrOffshoreSystem *system,
-                                   std::shared_ptr<FrHydroDB> HDB) {
+  make_recursive_convolution_model(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB) {
 
-    // This subroutine creates and adds the radiation recursive convolution model to the offshore system from the HDB.
 
     // Construction and initialization of the classes dealing with radiation models.
     auto radiationModel = std::make_shared<FrRadiationRecursiveConvolutionModel>(name, system, HDB);
@@ -402,8 +420,9 @@ namespace frydom {
 
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
+      // Check if the recorder was instanciated for this BEM body.
       if (m_recorder.find(BEMBody->first) == m_recorder.end()) {
-        auto interpK = BEMBody->first->GetIRFInterpolator();
+        auto interpK = BEMBody->first->GetIRFInterpolator("K");
         auto Te = interpK->at(0)->GetXmax(BEMBody->first->GetName());
         auto dt = GetParent()->GetTimeStep();
         m_recorder[BEMBody->first] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);
@@ -449,8 +468,7 @@ namespace frydom {
 
           //idof applied here to BEMBodyMotion, even if it's not really explicit. The BEMBodyMotion is now called at the
           // Eval below. So it's equivalent to the next line, previously written for the old container.
-//          auto interpK = BEMBody->first->GetHDBInterpolator(HDB5_io::Body::IRF_K)->at(idof);
-          auto interpK = BEMBody->first->GetIRFInterpolator()->at(idof);
+          auto interpK = BEMBody->first->GetIRFInterpolator("K")->at(idof);
 
           std::vector<mathutils::Vector6d<double>> kernel;
           kernel.reserve(vtime.size());
@@ -466,13 +484,14 @@ namespace frydom {
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
       auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
 
-      if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection) {
+      if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection_simple_model) {
         radiationForce += ForwardSpeedCorrection(BEMBody->first);
       }
 
       auto forceInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetForce(), NWU);
       auto TorqueInWorld = eqFrame->GetFrame().ProjectVectorFrameInParent(radiationForce.GetTorque(), NWU);
 
+      // Application of the minus sign.
       m_radiationForce[BEMBody->first] = -GeneralizedForce(forceInWorld, TorqueInWorld);
     }
   }
@@ -484,33 +503,74 @@ namespace frydom {
 
   GeneralizedForce FrRadiationConvolutionModel::ForwardSpeedCorrection(FrBEMBody *BEMBody) const {
 
+    // This method computes the forward speed correction of the radiation loads.
+
+    //TODO: Il faudrait ajouter des termes de raideur dependant de la vitesse d'avance.
+
+    // Initialization.
     auto radiationForce = GeneralizedForce();
     radiationForce.SetNull();
 
+    // Forward speed.
     auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody);
     auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
 
+    // Angular velocity.
     auto angular = eqFrame->GetPerturbationAngularVelocityInFrame(NWU);
 
+    // Infinite frequency added mass.
     auto Ainf = BEMBody->GetSelfInfiniteAddedMass();
 
+    // Stored body velocity for the convolution.
     auto velocity = m_recorder.at(BEMBody).GetData();
+
+    // Stored time for the convolution.
     auto vtime = m_recorder.at(BEMBody).GetTime();
 
+    // KU.
     for (unsigned int idof = 4; idof < 6; idof++) {
-
-//      auto interpKu = BEMBody->GetHDBInterpolator(FrBEMBody::IRF_KU)->at(idof);
-      auto interpKu = BEMBody->GetIRF_KuInterpolator()->at(idof);
-
+      // Convolution.
+      auto interpKu = BEMBody->GetIRFInterpolator("KU")->at(idof);
       std::vector<mathutils::Vector6d<double>> kernel;
       for (unsigned int it = 0; it < vtime.size(); ++it) {
-        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof));
+        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KU(t-tau)*v(tau).
       }
       radiationForce += TrapzLoc(vtime, kernel) * meanSpeed.norm();
     }
 
-    auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z();
-    radiationForce += meanSpeed.norm() * damping;
+    // KUXDerivative.
+    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
+      auto KUXderivativeForce = GeneralizedForce();
+      KUXderivativeForce.SetNull();
+      auto KU2Force = GeneralizedForce();
+      KU2Force.SetNull();
+      for (unsigned int idof = 0; idof < 6; idof++) {
+        // Convolution.
+        auto interpKuXderivative = BEMBody->GetIRFInterpolator("KUXDerivative")->at(idof);
+        auto interpKu2 = BEMBody->GetIRFInterpolator("KU2")->at(idof);
+        std::vector<mathutils::Vector6d<double>> kernel_KUXDerivative;
+        std::vector<mathutils::Vector6d<double>> kernel_KU2;
+        for (unsigned int it = 0; it < vtime.size(); ++it) {
+          kernel_KUXDerivative.push_back(interpKuXderivative->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KUXderivative(t-tau)*v(tau).
+          if(idof == 4 or idof == 5){
+            kernel_KU2.push_back(interpKu2->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // KU2(t-tau)*v(tau).
+          }
+        }
+        KUXderivativeForce += TrapzLoc(vtime, kernel_KUXDerivative) * meanSpeed.norm();
+        if(idof == 4 or idof == 5) {
+          KU2Force += TrapzLoc(vtime, kernel_KU2) * meanSpeed.norm() * meanSpeed.norm();
+        }
+      }
+      radiationForce += KUXderivativeForce + KU2Force;
+    }
+
+    // Infinite frequency damping.
+    auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
+    radiationForce += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
+    if(m_HDB->GetIsXDerivative() and c_FScorrection_extended_model) {
+      auto dAdxinf = BEMBody->GetSelfXDerivativeInfiniteAddedMass();
+      radiationForce += - meanSpeed.norm() * dAdxinf * eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU); // -U*dAdx(inf)*V.
+    }
 
     return radiationForce;
 
@@ -518,9 +578,10 @@ namespace frydom {
 
   void FrRadiationConvolutionModel::SetImpulseResponseSize(FrBEMBody *BEMBody, double Te, double dt) {
     //TODO : check it is not already instanciated
-    auto Te_IRF = BEMBody->GetIRFInterpolator()->at(0)->GetXmax(BEMBody->GetName());
+    auto Te_IRF = BEMBody->GetIRFInterpolator("K")->at(0)->GetXmax(BEMBody->GetName());
     if (Te > Te_IRF) {
-      event_logger::error("FrRadiationConvolutionModel", GetName(), "SetImpulseResponseSize specified Te is larger than the IRF final time");
+      event_logger::error("FrRadiationConvolutionModel", GetName(),
+                          fmt::format("SetImpulseResponseSize specified Te = {} is larger than the IRF final time = {}.", Te, Te_IRF));
       exit(1);
     }
     m_recorder[BEMBody] = FrTimeRecorder<GeneralizedVelocity>(Te, dt);

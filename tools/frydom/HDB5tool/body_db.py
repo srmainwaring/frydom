@@ -52,6 +52,9 @@ class BodyDB(object):
         # Computation point in body frame.
         self.computation_point = None
 
+        # Wave reference point in body frame.
+        self.wave_reference_point_in_body_frame = None
+
         # Added mass matrices (6 dof so 6 rows x all the columns x all the frequencies).
         self.Added_mass = np.zeros((6, 6 * nb_bodies, nw), dtype = np.float)
 
@@ -88,7 +91,7 @@ class BodyDB(object):
         # x-derivative of the Froude-Krylov loads (6 dof so 6 rows x all the frequencies).
         self.Froude_Krylov_x_derivative = None
 
-        # Mesh.
+        # Mesh in the body frame.
         self.mesh = mesh
 
         # Body name (body mesh name until version 2).
@@ -145,7 +148,7 @@ class BodyDB(object):
         # Poles and residues.
         self.poles_residues = None
 
-        # Diodore date.
+        # Diodore data.
         self.cog = None
         self.cob = None
         self.underwater_volume = None

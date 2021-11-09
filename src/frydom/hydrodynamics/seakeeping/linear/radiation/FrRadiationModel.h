@@ -121,40 +121,42 @@ namespace frydom {
   class FrRadiationRecursiveConvolutionModel : public FrRadiationModel {
 
    public:
-    /// Default constructor
-    FrRadiationRecursiveConvolutionModel(const std::string &name,
-                                         FrOffshoreSystem *system,
-                                         std::shared_ptr<FrHydroDB> HDB);
+
+    /// Constructor of the class.
+    FrRadiationRecursiveConvolutionModel(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB);
 
    private:
 
-//    mathutils::VectorN<double>               c_velocities;
-//    mathutils::VectorN<std::complex<double>> c_states;
-//    mathutils::VectorN<std::complex<double>> c_alpha;
-//    mathutils::VectorN<std::complex<double>> c_beta0;
-//    mathutils::VectorN<std::complex<double>> c_beta1;
-
+    // Poles.
     Eigen::VectorXcd c_poles;
-    Eigen::VectorXcd c_residues;
-    Eigen::ArrayXd   c_velocities;
-    Eigen::ArrayXcd  c_states;
-    Eigen::ArrayXcd  c_alpha;
-    Eigen::ArrayXcd  c_beta0;
-    Eigen::ArrayXcd  c_beta1;
-    double           c_deltaT;
-    double           c_time;
-    unsigned int     c_N_poles;
 
-    std::unordered_map<FrBEMBody *, GeneralizedVelocity> c_previousVelocity;
-//    std::unordered_map<RealPoleResiduePair, double> c_previousRealStates;
-//    std::unordered_map<CCPoleResiduePair, std::complex<double>> c_previousCCStates;
+    // Residues.
+    Eigen::VectorXcd c_residues;
+
+    // Storage of the velocities for the next time step.
+    Eigen::ArrayXd c_velocities;
+
+    // Auxiliary variables for the next time step.
+    Eigen::ArrayXcd c_states;
+
+    // Parameters for the time integration of the state variables.
+    Eigen::ArrayXcd c_alpha;
+    Eigen::ArrayXcd c_beta0;
+    Eigen::ArrayXcd c_beta1;
+
+    // Time step (s).
+    double c_deltaT;
+
+    // Previous time sample (t_{j-1}).
+    double c_time;
+
+    // Sum of all vector fitting orders for all coefficients.
+    unsigned int c_N_poles;
 
     /// Method to initialize the radiation model
     void Initialize() override;
 
-
-    /// Compute the radiation convolution.
-    /// \param time Current time of the simulation from beginning, in seconds
+    /// This method computes the recursive convolution..
     void Compute(double time) override;
 
     template<typename T>
@@ -171,8 +173,10 @@ namespace frydom {
                                                       double previousVelocity, mathutils::Vector3d<T> poles,
                                                       double DeltaT);
 
+    // This method computes the input parameters for a piecewise linear time-stepping.
     void Compute_PieceWiseLinearCoefficients(const Eigen::ArrayXcd& poles, double dt);
 
+    // This method returns the velocities for every auxiliary variable.
     Eigen::ArrayXd GetVelocities() const;
 
     // TODO:: Add const to FrBEMBody
@@ -197,7 +201,8 @@ namespace frydom {
 
    private:
     std::unordered_map<FrBEMBody *, FrTimeRecorder<GeneralizedVelocity> > m_recorder;    ///< Recorder of the perturbation velocity of the body at COG
-    bool c_FScorrection = false;
+    bool c_FScorrection_simple_model = false;
+    bool c_FScorrection_extended_model = false;
 
    public:
     /// Default constructor
@@ -243,8 +248,12 @@ namespace frydom {
     /// \param dt Time step
     void GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const;
 
-    void ActivateForwardSpeedCorrection(bool activation) {
-      c_FScorrection = activation;
+    /// Setter for activated the forward-speed correction models.
+    void ActivateForwardSpeedCorrection(bool activation_simple_model, bool activation_extended_model) {
+      c_FScorrection_simple_model = activation_simple_model;
+      if(c_FScorrection_simple_model) {
+        c_FScorrection_extended_model = activation_extended_model;
+      }
     }
 
    private:

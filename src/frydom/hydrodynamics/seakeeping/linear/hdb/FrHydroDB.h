@@ -84,6 +84,9 @@ namespace frydom {
 
     FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
 
+    /// This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
+    bool GetIsXDerivative() const;
+
    private:
 
     std::shared_ptr<hdb5_io::HydrodynamicDataBase> m_HDB;

@@ -81,12 +81,6 @@ class Merger(object):
         assert (self._pyHDB_1.crmax == self._pyHDB_2.crmax)
         pyHDB_out.crmax = self._pyHDB_1.crmax
 
-        # Wave reference point.
-        assert (self._pyHDB_1.wave_reference_point_x == self._pyHDB_2.wave_reference_point_x)
-        assert (self._pyHDB_1.wave_reference_point_y == self._pyHDB_2.wave_reference_point_y)
-        pyHDB_out.wave_reference_point_x = self._pyHDB_1.wave_reference_point_x
-        pyHDB_out.wave_reference_point_y = self._pyHDB_1.wave_reference_point_y
-
     def merge_environment(self, pyHDB_out):
 
         """
@@ -382,6 +376,10 @@ class Merger(object):
             assert (np.all(body_1.computation_point == body_2.computation_point))
             body_out.computation_point = body_1.computation_point
 
+            # Wave reference point in body frame.
+            assert (np.all(body_1.wave_reference_point_in_body_frame == body_2.wave_reference_point_in_body_frame))
+            body_out.wave_reference_point_in_body_frame = body_1.wave_reference_point_in_body_frame
+
             # Point.
             assert (np.all(body_1.point == body_2.point))
             body_out.point = body_1.point
@@ -397,6 +395,15 @@ class Merger(object):
             # x-derivatives.
             assert (self._pyHDB_1._has_x_derivatives == self._pyHDB_2._has_x_derivatives)
             pyHDB_out._has_x_derivatives = self._pyHDB_1._has_x_derivatives
+            if(pyHDB_out._has_x_derivatives):
+                nw = pyHDB_out.nb_wave_freq
+                nbeta = pyHDB_out.nb_wave_dir
+                body_out.Froude_Krylov_x_derivative = np.zeros((6, nw, nbeta), dtype=np.complex)
+                body_out.Diffraction_x_derivative = np.zeros((6, nw, nbeta), dtype=np.complex)
+                body_out.Added_mass_x_derivative = np.zeros((6, 6 * pyHDB_out.nb_bodies, nw), dtype=np.float)
+                body_out.Inf_Added_mass_x_derivative = np.zeros((6, 6 * pyHDB_out.nb_bodies), dtype=np.float)
+                body_out.Zero_Added_mass_x_derivative = np.zeros((6, 6 * pyHDB_out.nb_bodies), dtype=np.float)
+                body_out.Damping_x_derivative = np.zeros((6, 6 * pyHDB_out.nb_bodies, nw), dtype=np.float)
 
             # Excitation loads.
             assert (self._pyHDB_1._has_froude_krylov == self._pyHDB_2._has_froude_krylov)

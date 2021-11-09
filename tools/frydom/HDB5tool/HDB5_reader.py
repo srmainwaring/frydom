@@ -567,7 +567,7 @@ class HDB5reader():
         """
 
         try:
-            reader[num_param_path]
+            reader[num_param_path] # To check if the path exists.
             pyHDB.surface_integration_order = np.array(reader[num_param_path + "/SurfaceIntegrationOrder"])
             pyHDB.green_function = str(np.array(reader[num_param_path + "/GreenFunction"]))
 
@@ -576,10 +576,7 @@ class HDB5reader():
                 pyHDB.green_function = pyHDB.green_function[2:-1]
 
             pyHDB.crmax = np.array(reader[num_param_path + "/Crmax"])
-            pyHDB.wave_reference_point_x = np.array(reader[num_param_path + "/WaveReferencePoint/x"])
-            pyHDB.wave_reference_point_y = np.array(reader[num_param_path + "/WaveReferencePoint/y"])
             pyHDB.has_expert_parameters = True
-
         except:
             pass
 
@@ -722,7 +719,24 @@ class HDB5reader_v2(HDB5reader):
         try:
             reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionK/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
+
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKU/DOF_0"] # Read for cheking if the folder is present or not.
             body.irf_ku = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
+
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKUXDerivative/DOF_0"] # Read for cheking if the folder is present or not.
+            body.irf_ku_x_derivative = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
+        except:
+            pass
+
+        try:
+            reader[radiation_path + "/BodyMotion_0/ImpulseResponseFunctionKU2/DOF_0"] # Read for cheking if the folder is present or not.
+            body.irf_ku2 = np.zeros((6, 6 * pyHDB.nb_bodies, pyHDB.nb_time_samples), dtype=np.float)
         except:
             pass
 
@@ -739,6 +753,8 @@ class HDB5reader_v2(HDB5reader):
             radiation_damping_x_derivative_path = radiation_body_motion_path + "/RadiationDampingXDerivative"
             irf_path = radiation_body_motion_path + "/ImpulseResponseFunctionK"
             irf_ku_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU"
+            irf_ku_x_derivative_path = radiation_body_motion_path + "/ImpulseResponseFunctionKUXDerivative"
+            irf_ku2_path = radiation_body_motion_path + "/ImpulseResponseFunctionKU2"
             modal_path = radiation_body_motion_path + "/Modal"
 
             # Infinite-frequency added mass.
@@ -787,9 +803,17 @@ class HDB5reader_v2(HDB5reader):
                 if(body.irf is not None):
                     body.irf[:, 6 * j + imotion, :] = np.array(reader[irf_path + "/DOF_%u" % imotion])
 
-                # Impulse response functions with forward speed.
+                # Impulse response functions proportional to the forward speed without x-derivatives.
                 if(body.irf_ku is not None):
                     body.irf_ku[:, 6 * j + imotion, :] = np.array(reader[irf_ku_path + "/DOF_%u" % imotion])
+
+                # Impulse response functions proportional to the forward speed with x-derivatives.
+                if (body.irf_ku_x_derivative is not None):
+                    body.irf_ku_x_derivative[:, 6 * j + imotion, :] = np.array(reader[irf_ku_x_derivative_path + "/DOF_%u" % imotion])
+
+                # Impulse response functions proportional to the square of the forward speed.
+                if (body.irf_ku2 is not None):
+                    body.irf_ku2[:, 6 * j + imotion, :] = np.array(reader[irf_ku2_path + "/DOF_%u" % imotion])
 
                 # Poles and residues.
                 if(pyHDB.has_VF):
@@ -995,6 +1019,12 @@ class HDB5reader_v2(HDB5reader):
                     body.computation_point = np.array(reader[body_path + "/ComputationPoint"])
                 except:
                     pass
+
+            # Wave reference point in body frame.
+            try:
+                body.wave_reference_point_in_body_frame = np.array(reader[body_path + "/WaveReferencePoint"])
+            except:
+                pass
 
             # Masks.
             self.read_mask(reader, body, body_path + "/Mask")
