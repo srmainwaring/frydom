@@ -91,13 +91,13 @@ int test_FPP1Q() {
 //  frydom_FPP1Q->SetStraightRunWakeFraction(hull_wake_fraction_0);
 //  frydom_FPP1Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
-  acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
-                               acme::SCREW_DIRECTION::RIGHT_HANDED);
-//  acme::ThrusterBaseParams params;
-//  params.m_diameter_m = diameter_m;
-//  params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
-//  params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
-//  params.m_thrust_deduction_factor_0 = thrust_deduction_factor_0;
+//  acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
+//                               acme::SCREW_DIRECTION::RIGHT_HANDED);
+  acme::PropellerParams params;
+  params.m_diameter_m = diameter_m;
+  params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
+  params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
+  params.m_thrust_deduction_factor_0 = thrust_deduction_factor_0;
 //  params.m_propeller_design_rpm = propeller_design_rpm;
 //  params.m_vessel_design_speed_ms = vessel_design_speed_ms;
 
@@ -233,8 +233,13 @@ int test_FPP4Q() {
 //  frydom_FPP4Q->SetStraightRunWakeFraction(hull_wake_fraction_0);
 //  frydom_FPP4Q->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
-  acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
-                               acme::SCREW_DIRECTION::RIGHT_HANDED);
+//  acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
+//                               acme::SCREW_DIRECTION::RIGHT_HANDED);
+  acme::PropellerParams params;
+  params.m_diameter_m = diameter_m;
+  params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
+  params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
+  params.m_thrust_deduction_factor_0 = thrust_deduction_factor_0;
 
   auto acme_FPP4Q = acme::FPP4Q(params, open_water_data_table);
 
@@ -332,8 +337,13 @@ int test_CPP() {
 //  frydom_CPP->SetStraightRunWakeFraction(hull_wake_fraction_0);
 //  frydom_CPP->SetThrustDeductionFactor(thrust_deduction_factor_0);
 
-  acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
-                               acme::SCREW_DIRECTION::RIGHT_HANDED);
+//  acme::PropellerParams params(diameter_m, hull_wake_fraction_0, thrust_deduction_factor_0,
+//                               acme::SCREW_DIRECTION::RIGHT_HANDED);
+  acme::PropellerParams params;
+  params.m_diameter_m = diameter_m;
+  params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
+  params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
+  params.m_thrust_deduction_factor_0 = thrust_deduction_factor_0;
 
   auto acme_CPP = acme::CPP(params, open_water_data_table);
 
