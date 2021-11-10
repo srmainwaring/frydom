@@ -1,0 +1,59 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index eb08bd4..a5bcbb2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -446,7 +446,7 @@ else ()
+ endif ()
+ if (MAINTAINER)
+   add_custom_target (distrib-all)
+-  add_dependencies (distrib-all distrib-man)
++#  add_dependencies (distrib-all distrib-man)
+ endif ()
+ 
+ if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+@@ -478,13 +478,13 @@ set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+ # The list of subdirectories to process
+ add_subdirectory (src)
+ add_subdirectory (include/GeographicLib)
+-add_subdirectory (tools)
+-add_subdirectory (man)
+-add_subdirectory (doc)
+-add_subdirectory (js)
+-add_subdirectory (matlab)
+-add_subdirectory (python/geographiclib)
+-add_subdirectory (examples)
++#add_subdirectory (tools)
++#add_subdirectory (man)
++#add_subdirectory (doc)
++#add_subdirectory (js)
++#add_subdirectory (matlab)
++#add_subdirectory (python/geographiclib)
++#add_subdirectory (examples)
+ if (MSVC AND BUILD_NETGEOGRAPHICLIB)
+   if (GEOGRAPHICLIB_PRECISION EQUAL 2)
+     set (NETGEOGRAPHICLIB_LIBRARIES NETGeographicLib)
+diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
+index fd0669f..7a1d8c5 100644
+--- a/cmake/CMakeLists.txt
++++ b/cmake/CMakeLists.txt
+@@ -44,13 +44,13 @@ configure_file (project-config.cmake.in
+   "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config.cmake" @ONLY)
+ configure_file (project-config-version.cmake.in
+   "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-config-version.cmake" @ONLY)
+-export (TARGETS
+-  ${PROJECT_ALL_LIBRARIES} ${TOOLS}
+-  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-legacy-targets.cmake")
+-export (TARGETS
+-  ${PROJECT_ALL_LIBRARIES} ${TOOLS}
+-  NAMESPACE ${PROJECT_NAME}::
+-  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-targets.cmake")
++#export (TARGETS
++#  ${PROJECT_ALL_LIBRARIES} ${TOOLS}
++#  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-legacy-targets.cmake")
++#export (TARGETS
++#  ${PROJECT_ALL_LIBRARIES} ${TOOLS}
++#  NAMESPACE ${PROJECT_NAME}::
++#  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME_LOWER}-targets.cmake")
+ 
+ # geographiclib-config.cmake for the install tree.  It's installed in
+ # ${INSTALL_CMAKE_DIR} and @PROJECT_ROOT_DIR@ is the relative
