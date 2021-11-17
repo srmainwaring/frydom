@@ -372,17 +372,19 @@ class HDB5(object):
 
         if(self._pyHDB._has_x_derivatives):
 
-            # Data.
-            data = self._pyHDB.bodies[ibody_force].irf_ku_x_derivative[iforce, 6 * ibody_motion + idof, :]
+            if(self._pyHDB.bodies[ibody_force].irf_ku_x_derivative is not None):
+                # Data.
+                data = self._pyHDB.bodies[ibody_force].irf_ku_x_derivative[iforce, 6 * ibody_motion + idof, :]
 
-            # Plots.
-            plot_db.plot_irf(data, time, 1, ibody_force, iforce, ibody_motion, idof)
+                # Plots.
+                plot_db.plot_irf(data, time, 1, ibody_force, iforce, ibody_motion, idof)
 
-            # Data.
-            data = self._pyHDB.bodies[ibody_force].irf_ku2[iforce, 6 * ibody_motion + idof, :]
+            if(self._pyHDB.bodies[ibody_force].irf_ku2 is not None):
+                # Data.
+                data = self._pyHDB.bodies[ibody_force].irf_ku2[iforce, 6 * ibody_motion + idof, :]
 
-            # Plots.
-            plot_db.plot_irf(data, time, 3, ibody_force, iforce, ibody_motion, idof)
+                # Plots.
+                plot_db.plot_irf(data, time, 3, ibody_force, iforce, ibody_motion, idof)
 
     def Plot_Mesh(self, ibody = -1):
         """This function plots a mesh."""

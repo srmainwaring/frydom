@@ -477,7 +477,7 @@ def get_Arg_part_3_CE(args, database):
                               ibody_motion=int(args.plot_irf[j][2]) - 1,
                               idof=int(args.plot_irf[j][3]) - 1)
 
-    # Plot the impulse response functiopn per body.
+    # Plot the impulse response functions per body.
     if (args.plot_irf_array is True):
         database.Plot_irf_array()
 
