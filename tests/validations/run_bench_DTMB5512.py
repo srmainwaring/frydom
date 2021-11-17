@@ -62,8 +62,8 @@ gravity = 9.80665 # gravity constant (m/s2).
 Lpp = 3.048 # Ship length (m).
 
 # FFT parameters.
-tstart = 300 # s.
-tlength = 200 # s.
+tstart = 30 # s.
+tlength = 20 # s.
 
 # Experimental data.
 data_exp = []

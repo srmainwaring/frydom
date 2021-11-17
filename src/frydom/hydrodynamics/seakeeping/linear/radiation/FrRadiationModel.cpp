@@ -151,40 +151,52 @@ namespace frydom {
     // Sum of all vector fitting orders for all coefficients.
     c_N_poles = 0;
 
+    // Matrix for knowing the index of every radiation coefficient in the cached vectors of size c_N_poles.
+    int nbBEMBody = m_HDB->GetBEMBodyNumber();
+    c_matrix_index = mathutils::MatrixMN<double>::Zero(6 * nbBEMBody, 6 * nbBEMBody);
+
     // Temporary vectors for storing the poles and the residues.
     std::vector<Eigen::VectorXcd> temp_Poles;
     std::vector<Eigen::VectorXcd> temp_Residues;
 
     // BEMBody force.
+    int iBEMBody_force = 0;
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
       // BEMBody motion.
+      int iBEMBody_motion = 0;
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
         auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
         auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
+        // idof of BEMBody motion.
         for (auto idof : BodyMotionDOFMask.GetListDOF()) {
 
           FrMask radiationMaskForIDOF;
           radiationMaskForIDOF.SetMask(radiationMask.col(idof));
 
+          // iforce of BEMBody force.
           for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
 
             // TODO : virer les états auxiliaires de la HDB !
             auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof, iforce);
             auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+            c_matrix_index(6 * iBEMBody_force + iforce, 6 * iBEMBody_motion + idof) = c_N_poles;
             c_N_poles += n_poles;
             temp_Poles.push_back(poleResidue.GetPoles());
-            temp_Residues.push_back(poleResidue.GetResidues());
+            temp_Residues.push_back(poleResidue.GetResidues()); // Complex residues are multiplied by 2 here!
 
           }
         }
+        ++iBEMBody_motion;
       }
+      ++iBEMBody_force;
     }
 
     // Initialization of the cached structures.
     c_states.setZero(c_N_poles);
+    c_states_forward_speed.setZero(c_N_poles);
     c_alpha.setZero(c_N_poles);
     c_beta0.setZero(c_N_poles);
     c_beta1.setZero(c_N_poles);
@@ -193,6 +205,7 @@ namespace frydom {
 
     // The velocities is assumed to be null at t = 0.
     c_velocities.setZero(c_N_poles);
+    c_velocities_forward_speed.setZero(c_N_poles);
 
     // Storing of the poles.
     int indice = 0;
@@ -232,13 +245,14 @@ namespace frydom {
     auto deltaT = time - c_time; // c_time = t_{j-1}.
 
     // Present time sample (t_j).
-    c_time = time; // c_time = t_{j-1}.
+    c_time = time; // c_time = t_j.
 
     if (deltaT < FLT_EPSILON)
       return;
 
     // Velocities at the present time sample xdot(t_j).
     auto velocities = GetVelocities();
+    auto velocities_forward_speed = GetVelocitiesForwardSpeed();
 
     if (abs(deltaT - c_deltaT) > 1E-6) {
       c_deltaT = deltaT;
@@ -248,9 +262,11 @@ namespace frydom {
 
     // Computation of u(p, t_j) at the present time sample.
     c_states = c_alpha * c_states + c_beta0 * c_velocities + c_beta1 * velocities;
+    c_states_forward_speed = c_alpha * c_states_forward_speed + c_beta0 * c_velocities_forward_speed + c_beta1 * velocities_forward_speed;
 
     // Velocities for the next time step.
     c_velocities = velocities;
+    c_velocities_forward_speed = velocities_forward_speed;
 
     int indice = 0;
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
@@ -313,8 +329,6 @@ namespace frydom {
     SpeedCorrection.SetNull();
     if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection_simple_model) {
 
-      std::cout << "" << std::endl;
-
       // Positions.
       auto positions = GetPositions();
 
@@ -322,7 +336,6 @@ namespace frydom {
 
       // Index of the body.
       int i_body = 0;
-      int indice_forward_speed = 0;
 
       // Radiation mask.
       auto radiationMask = body->GetRadiationMask(body);
@@ -346,13 +359,14 @@ namespace frydom {
 
             // Application of the matrix for selecting the poles and residues.
             hdb5_io::PoleResidue poleResidue;
+            int idof_coupling;
             if(idof == 4){ // Pitch.
-              poleResidue = body->GetModalCoefficients(body, 2, iforce);
-//              std::cout << iforce + 1 << " " << 2 + 1 << " " << idof + 1 << " " << epsilon << std::endl;
+              idof_coupling = 2;
             } else { // idof = 5 (yaw).
-              poleResidue = body->GetModalCoefficients(body, 1, iforce);
-//              std::cout << iforce + 1 << " " << 1 + 1 << " " << idof + 1 << " " << epsilon << std::endl;
+              idof_coupling = 1;
             }
+            poleResidue = body->GetModalCoefficients(body, idof_coupling, iforce);
+            auto indice_forward_speed = c_matrix_index(iforce, idof_coupling);
             auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
 
             // Because of the radiation mask, the number of poles may be zero?
@@ -363,22 +377,12 @@ namespace frydom {
               auto sum_residues_over_poles = residues_over_poles.sum();
               double position_dof = positions.at(i_body)(idof);
 
-//              std::cout << position_dof << std::endl;
-
-              std::complex<double> speed_correction = -residues_over_poles.transpose() * c_states.matrix().segment(indice_forward_speed, n_poles);
+              std::complex<double> speed_correction = -residues_over_poles.transpose() * c_states_forward_speed.matrix().segment(indice_forward_speed, n_poles);
               speed_correction += (position_dof - c_initial_positions.at(i_body)(idof)) * sum_residues_over_poles;
               SpeedCorrection[iforce] += meanSpeed.norm() * epsilon * speed_correction.real();
 
-//              std::cout << -residues_over_poles.transpose() * c_states.matrix().segment(indice_forward_speed, n_poles) << std::endl;
-//              std::cout << (position_dof - c_initial_positions.at(i_body)(idof)) * sum_residues_over_poles << std::endl;
-
             }
           }
-
-          // Udapte indice_forward_speed.
-          auto poleResidue_tmp = body->GetModalCoefficients(body, idof, iforce);
-          auto n_poles_tmp = poleResidue_tmp.nb_real_poles() + poleResidue_tmp.nb_cc_poles();
-          indice_forward_speed += n_poles_tmp;
         }
       }
 
@@ -389,7 +393,6 @@ namespace frydom {
       SpeedCorrection += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
     }
     radiationForce += SpeedCorrection;
-//    exit(0);
 
     return radiationForce;
   }
@@ -486,6 +489,51 @@ namespace frydom {
     return velocities;
   }
 
+  Eigen::ArrayXd FrRadiationRecursiveConvolutionModel::GetVelocitiesForwardSpeed() const {
+
+    // This method returns the velocities for every auxiliary variable.
+
+    Eigen::ArrayXd velocities(c_N_poles);
+
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+      for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
+        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+        auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
+
+        // Velocity of the body in the equilibrium frame.
+        auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBodyMotion->first);
+        auto currentVelocity = eqFrame->GetPerturbationGeneralizedVelocityInFrame(NWU);
+        for (auto idof : BodyMotionDOFMask.GetListDOF()) {
+
+          FrMask radiationMaskForIDOF;
+          radiationMaskForIDOF.SetMask(radiationMask.col(idof));
+
+          for (auto iforce : radiationMaskForIDOF.GetListDOF()) {
+
+            if(idof >= 4) { // Application of the matrix L.
+              int idof_coupling;
+              if (idof == 4) { // Pitch.
+                idof_coupling = 2;
+              } else { // idof = 5 (yaw).
+                idof_coupling = 1;
+              }
+
+              auto poleResidue = BEMBody->first->GetModalCoefficients(BEMBodyMotion->first, idof_coupling, iforce);
+              auto n_poles = poleResidue.nb_real_poles() + poleResidue.nb_cc_poles();
+              auto indice = c_matrix_index(iforce, idof_coupling);
+
+              // The same velocity is used for the all the poles / residues of a coefficient (the VF is vectorized).
+              velocities.segment(indice, n_poles) = Eigen::ArrayXd::Constant(n_poles, currentVelocity[idof]);
+
+            }
+          }
+        }
+      }
+    }
+
+    return velocities;
+  }
+
   std::vector<mathutils::Vector6d<double>> FrRadiationRecursiveConvolutionModel::GetPositions() const {
 
     // This method returns the positions in world of all bodies.
@@ -497,15 +545,7 @@ namespace frydom {
       auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody->first);
       auto position = eqFrame->GetPositionInWorld(NWU);
       double phi, theta, psi;
-      eqFrame->GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
-
-      std::cout << theta << " " << eqFrame->GetPerturbationAngularVelocityInFrame(NWU)(1) << std::endl;
-
-//      auto body = m_HDB->GetMapper()->GetBody(BEMBody->first);
-//      auto position_body = body->GetCOGPositionInWorld(NWU);
-//      double phi_body, theta_body, psi_body;
-//      body->GetRotation().GetCardanAngles_RADIANS(phi_body, theta_body, psi_body, NWU);
-
+      eqFrame->GetPerturbationFrame().GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
       positions.push_back(Vector6d(position(0), position(1), position(2), phi, theta, psi));
     }
 

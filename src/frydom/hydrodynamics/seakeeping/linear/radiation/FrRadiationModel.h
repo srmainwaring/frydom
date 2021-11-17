@@ -140,9 +140,11 @@ namespace frydom {
 
     // Storage of the velocities for the next time step.
     Eigen::ArrayXd c_velocities;
+    Eigen::ArrayXd c_velocities_forward_speed;
 
     // Auxiliary variables for the next time step.
     Eigen::ArrayXcd c_states;
+    Eigen::ArrayXcd c_states_forward_speed; // Application of the matrix L on the velocity.
 
     // Parameters for the time integration of the state variables.
     Eigen::ArrayXcd c_alpha;
@@ -160,6 +162,9 @@ namespace frydom {
 
     // Simple forward speed model.
     bool c_FScorrection_simple_model = false;
+
+    // Matrix to know the index of every radiation coefficient in the cached vectors of size c_N_poles.
+    mathutils::MatrixMN<double> c_matrix_index;
 
     // Residues over the poles.
     Eigen::VectorXcd c_residues_over_poles;
@@ -192,6 +197,9 @@ namespace frydom {
 
     // This method returns the velocities for every auxiliary variable.
     Eigen::ArrayXd GetVelocities() const;
+
+    // This method returns the velocities impacted by the matrix L for the forward speed for every auxiliary variable.
+    Eigen::ArrayXd GetVelocitiesForwardSpeed() const;
 
     // This method returns the positions in world of all bodies.
     std::vector<mathutils::Vector6d<double>> GetPositions() const;
