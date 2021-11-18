@@ -7,4 +7,5 @@ target_sources(frydom PRIVATE
         FrRadiationModelBase.cpp
         FrRadiationConvolutionModel.cpp
         FrRadiationRecursiveConvolutionModel.cpp
+        FrRadiationConvolutionModelForwardSpeedCorrection.cpp
         )

@@ -13,16 +13,15 @@
 #define FRYDOM_FRRADIATIONCONVOLUTIONMODEL_H
 
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
+#include "frydom/core/body/FrBody.h"
 
 namespace frydom {
 
   /// This class computes the convolution term by direct integration of the convolution of the IRF and the body velocity.
   class FrRadiationConvolutionModel : public FrRadiationModel{
 
-   private:
+   protected:
     std::unordered_map<FrBEMBody *, FrTimeRecorder<GeneralizedVelocity> > m_recorder;    ///< Recorder of the perturbation velocity of the body at COG
-    bool c_FScorrection_simple_model = false;
-    bool c_FScorrection_extended_model = false;
 
    public:
     /// Default constructor
@@ -68,24 +67,14 @@ namespace frydom {
     /// \param dt Time step
     void GetImpulseResponseSize(FrBody *body, double &Te, double &dt) const;
 
-    /// Setter for activated the forward-speed correction models.
-    void ActivateForwardSpeedCorrection(bool activation_simple_model, bool activation_extended_model) {
-      c_FScorrection_simple_model = activation_simple_model;
-      if(c_FScorrection_simple_model) {
-        c_FScorrection_extended_model = activation_extended_model;
-      }
-    }
-
-   private:
+   protected:
 
     /// Compute the radiation convolution.
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
 
-    /// Compute the the convolution part of the radiation force linked with steady speed
-    /// \param meanSpeed Steady speed of the body
-    /// \return Generalized force
-    GeneralizedForce ForwardSpeedCorrection(FrBEMBody *BEMBody) const;
+    /// This method performes the trapezoidal integration of a Vector6d.
+    Vector6d<double> TrapzLoc(std::vector<double> &x, std::vector<Vector6d<double>> &y) const;
 
   };
 

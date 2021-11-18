@@ -11,5 +11,6 @@
 #include "FrVariablesBEMBodyBase.h"
 #include "FrRadiationConvolutionModel.h"
 #include "FrRadiationRecursiveConvolutionModel.h"
+#include "FrRadiationConvolutionModelForwardSpeedCorrection.h"
 
 #endif //FRYDOM_FRLINEARRADIATIONINC_H
