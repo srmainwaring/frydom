@@ -293,11 +293,6 @@ int main(int argc, char *argv[]) {
   // -- Hydrodynamics
 
   std::string DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_IRF_from_VF.hdb5"});
-//  if(useIRF) {
-//    DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_IRF_from_VF.hdb5"});
-//  } else {
-//    DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_VF.hdb5"});
-//  }
   auto hdb = make_hydrodynamic_database(DTMB_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body, {0., 0., 0.03}, NWU);
