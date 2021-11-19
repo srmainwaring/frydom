@@ -26,6 +26,11 @@ namespace frydom {
 
     // This method computes the radiation loads with the forward speed correction.
 
+    // Computation of the radiation only once per time step.
+    if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
+        time > FLT_EPSILON)
+      return;
+
     // Computation of the zero forward speed convolution term.
     FrRadiationConvolutionModel::Compute(time);
 
@@ -41,7 +46,6 @@ namespace frydom {
       m_radiationForce[BEMBody->first] += -GeneralizedForce(forceInWorld, TorqueInWorld);
 
     }
-
 
   }
 
