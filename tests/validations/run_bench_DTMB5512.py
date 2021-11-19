@@ -73,7 +73,7 @@ data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.28.
 data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.34.csv", delimiter=';', skip_header=2))
 data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.41.csv", delimiter=';', skip_header=2))
 
-# Storage of the RAO amplitude.
+# Storage of the RAO amplitudes.
 # 3 for encounter frequency (0), heave (1) and pitch (2).
 # First 2 for no forward speed model (0) and the simple (1).
 # Second 2 is for direct convolution (0) and the recursive convvolution.
