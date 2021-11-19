@@ -89,7 +89,7 @@ namespace frydom {
 
   void FrRadiationConvolutionModel::Compute(double time) {
 
-    // Computation of the radiation only once per time step.
+    // Computation of the radiation loads only once per time step.
     if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
         time > FLT_EPSILON)
       return;

@@ -139,7 +139,9 @@ namespace frydom {
     // Present time sample (t_j).
     c_time = time; // c_time = t_j.
 
-    if (deltaT < FLT_EPSILON)
+    // Computation of the radiation loads only once per time step.
+    if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
+        time > FLT_EPSILON)
       return;
 
     // Velocities at the present time sample xdot(t_j).

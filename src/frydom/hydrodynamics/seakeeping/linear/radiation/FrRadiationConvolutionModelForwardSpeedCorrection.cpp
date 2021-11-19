@@ -26,7 +26,7 @@ namespace frydom {
 
     // This method computes the radiation loads with the forward speed correction.
 
-    // Computation of the radiation only once per time step.
+    // Computation of the radiation loads only once per time step.
     if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
         time > FLT_EPSILON)
       return;
