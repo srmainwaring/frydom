@@ -30,9 +30,9 @@ namespace frydom {
 
     // Interpolation of the excitation loads with respect to the wave direction.
     BuildHDBInterpolators();
-    if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
-      BuildHDBInterpolatorsXDerivative();
-    }
+//    if(m_HDB->GetIsXDerivative()) {
+//      BuildHDBInterpolatorsXDerivative();
+//    }
 
     // Frequency and wave direction discretization.
     auto freqs = waveField->GetWaveFrequencies(RADS);
@@ -41,9 +41,9 @@ namespace frydom {
     // Interpolation of the exciting loads if not already done.
     if (m_Fhdb.empty()) {
       m_Fhdb = GetHDBInterp(freqs, directions);
-      if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
-        m_Fhdb_forward_speed = GetHDBInterpXDerivative(freqs, directions);
-      }
+//      if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
+//        m_Fhdb_forward_speed = GetHDBInterpXDerivative(freqs, directions);
+//      }
     }
 
     // Initialization of the parent class.
@@ -206,50 +206,50 @@ namespace frydom {
     }
   }
 
-  void FrLinearHDBForce::BuildHDBInterpolatorsXDerivative() {
-
-    // This method creates the interpolator for the x-derivatives of the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
-
-    // BEMBody.
-    auto BEMBody = m_HDB->GetBody(GetBody());
-
-    // Parameters.
-    auto nbWaveDirections = m_HDB->GetWaveDirectionDiscretization().size(); //BEMBody->GetNbWaveDirections();
-    auto nbFreq = m_HDB->GetFrequencyDiscretization().size(); //BEMBody->GetNbFrequencies();
-    auto nbForceDOFs = GetBodyMask().GetNbDOF(); //BEMBody->GetNbForceMode();
-
-    // Initialization.
-    m_waveDirInterpolators_forward_speed.clear();
-    m_waveDirInterpolators_forward_speed.reserve(nbForceDOFs);
-
-    auto waveDirections = m_HDB->GetWaveDirectionDiscretization();
-    std::vector<double> vec(waveDirections.data(), waveDirections.data() + waveDirections.rows() * waveDirections.cols());
-    auto angles = std::make_shared<std::vector<double>>(vec);
-
-    auto interpolators = std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>();
-    interpolators.reserve(nbFreq);
-
-    for (unsigned int idof = 0; idof < nbForceDOFs; ++idof) {
-
-      interpolators.clear();
-
-      for (unsigned int ifreq = 0; ifreq < nbFreq; ++ifreq) {
-
-        auto coeffs = std::make_shared<std::vector<std::complex<double>>>();
-        coeffs->reserve(nbWaveDirections);
-
-        for (unsigned int iangle = 0; iangle < nbWaveDirections; ++iangle) {
-          auto data = GetHDBDataXDerivative(iangle);
-          coeffs->push_back(data(GetBodyMask().GetDOFs()[idof].GetIndex(), ifreq));
-        }
-
-        auto interpolator = mathutils::Interp1dLinear<double, std::complex<double>>();
-        interpolator.Initialize(angles, coeffs);
-        interpolators.push_back(interpolator);
-      }
-      m_waveDirInterpolators_forward_speed.push_back(interpolators);
-    }
-  }
+//  void FrLinearHDBForce::BuildHDBInterpolatorsXDerivative() {
+//
+//    // This method creates the interpolator for the x-derivatives of the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
+//
+//    // BEMBody.
+//    auto BEMBody = m_HDB->GetBody(GetBody());
+//
+//    // Parameters.
+//    auto nbWaveDirections = m_HDB->GetWaveDirectionDiscretization().size(); //BEMBody->GetNbWaveDirections();
+//    auto nbFreq = m_HDB->GetFrequencyDiscretization().size(); //BEMBody->GetNbFrequencies();
+//    auto nbForceDOFs = GetBodyMask().GetNbDOF(); //BEMBody->GetNbForceMode();
+//
+//    // Initialization.
+//    m_waveDirInterpolators_forward_speed.clear();
+//    m_waveDirInterpolators_forward_speed.reserve(nbForceDOFs);
+//
+//    auto waveDirections = m_HDB->GetWaveDirectionDiscretization();
+//    std::vector<double> vec(waveDirections.data(), waveDirections.data() + waveDirections.rows() * waveDirections.cols());
+//    auto angles = std::make_shared<std::vector<double>>(vec);
+//
+//    auto interpolators = std::vector<mathutils::Interp1dLinear<double, std::complex<double>>>();
+//    interpolators.reserve(nbFreq);
+//
+//    for (unsigned int idof = 0; idof < nbForceDOFs; ++idof) {
+//
+//      interpolators.clear();
+//
+//      for (unsigned int ifreq = 0; ifreq < nbFreq; ++ifreq) {
+//
+//        auto coeffs = std::make_shared<std::vector<std::complex<double>>>();
+//        coeffs->reserve(nbWaveDirections);
+//
+//        for (unsigned int iangle = 0; iangle < nbWaveDirections; ++iangle) {
+//          auto data = GetHDBDataXDerivative(iangle);
+//          coeffs->push_back(data(GetBodyMask().GetDOFs()[idof].GetIndex(), ifreq));
+//        }
+//
+//        auto interpolator = mathutils::Interp1dLinear<double, std::complex<double>>();
+//        interpolator.Initialize(angles, coeffs);
+//        interpolators.push_back(interpolator);
+//      }
+//      m_waveDirInterpolators_forward_speed.push_back(interpolators);
+//    }
+//  }
 
   void FrLinearHDBForce::Compute_F_HDB() {
 
@@ -290,15 +290,15 @@ namespace frydom {
       double tempforce = 0;
       for (unsigned int ifreq = 0; ifreq < nbFreq; ++ifreq) {
         for (unsigned int idir = 0; idir < nbWaveDir; ++idir) {
-          if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model and c_FScorrection_extended_model) {
-            auto omega = waveField->GetWaveFrequencies(RADS).at(ifreq);
-            tempforce += std::imag(complexElevations[idir][ifreq] * (m_Fhdb[idir](idof, ifreq)
-                + (meanSpeed.norm() / (JJ * omega)) * m_Fhdb_forward_speed[idir](idof, ifreq)));
+//          if(m_HDB->GetIsXDerivative() and c_FScorrection_simple_model) {
+//            auto omega = waveField->GetWaveFrequencies(RADS).at(ifreq);
 //            tempforce += std::imag(complexElevations[idir][ifreq] * (m_Fhdb[idir](idof, ifreq)
+//                + (meanSpeed.norm() / (JJ * omega)) * m_Fhdb_forward_speed[idir](idof, ifreq)));
+//            tempforce += std::imag(complexElevatextended_forward_speed_modelions[idir][ifreq] * (m_Fhdb[idir](idof, ifreq)
 //                - (meanSpeed.norm() / (JJ * omega)) * m_Fhdb_forward_speed[idir](idof, ifreq))); // Minus sign due to transformation from the body frame to the world frame.
-          } else {
-            tempforce += std::imag(complexElevations[idir][ifreq] * m_Fhdb[idir](idof, ifreq));
-          }
+//          } else {
+          tempforce += std::imag(complexElevations[idir][ifreq] * m_Fhdb[idir](idof, ifreq));
+//          }
         }
       }
       Direction direction = dof.GetDirection();

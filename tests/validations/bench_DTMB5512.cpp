@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
     std::cout << "    - the wave period (s);" << std::endl;
     std::cout << "    - the wave amplitude (m);" << std::endl;
-    std::cout << "    - an interger for using no forward speed model (0), the simple speed model (1) or the extended speed model (2);" << std::endl;
+    std::cout << "    - an interger for using no forward speed model (0) or the simple speed model (1);" << std::endl;
     std::cout << "    - an interger for using the direct convolution (0) or the recursive convolution (1);" << std::endl;
     std::cout << "    - the name of the ouput folder." << std::endl;
     exit(0);
@@ -224,12 +224,8 @@ int main(int argc, char *argv[]) {
   double ak = atof(argv[2]); // Wave amplitude (m).
   double Tk = atof(argv[3]); // Wave period (s).
   bool simple_forward_speed_model = false;
-  bool extended_forward_speed_model = false;
   if(atoi(argv[4]) == 1){
     simple_forward_speed_model = true;
-  } else if(atoi(argv[4]) == 2) {
-    simple_forward_speed_model = true;
-    extended_forward_speed_model = true;
   }
   bool useIRF = true; // Direct convolution.
   if(atoi(argv[5]) == 1){ // Recursive convolution.
@@ -243,11 +239,7 @@ int main(int argc, char *argv[]) {
   std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
                                    + "_Period_" + std::to_string(Tk);
   if(simple_forward_speed_model) {
-    if (extended_forward_speed_model) {
-      output_folder_name += "_Extended_forward_speed_model";
-    } else {
-      output_folder_name += "_Simple_forward_speed_model";
-    }
+    output_folder_name += "_Simple_forward_speed_model";
   } else {
     output_folder_name += "_No_forward_speed_model";
   }
@@ -323,10 +315,8 @@ int main(int argc, char *argv[]) {
   // -- Excitation.
 
   auto diffractionForce = make_linear_diffraction_force("linear_diffraction", body, hdb);
-  diffractionForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
   auto FroudeKrylovForce = make_linear_froude_krylov_force("linear_Froude_Krylov", body, hdb);
-  FroudeKrylovForce->ActivateForwardSpeedCorrection(simple_forward_speed_model, extended_forward_speed_model);
 
   // -- Wave Drift force.
 

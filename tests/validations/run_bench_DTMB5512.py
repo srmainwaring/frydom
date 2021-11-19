@@ -74,10 +74,10 @@ data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.34.
 data_exp.append(np.genfromtxt("../../data/ce/bench/DTMB5512/2008_IRVINE_Fr_0.41.csv", delimiter=';', skip_header=2))
 
 # Storage of the RAO amplitude.
-# First 3 for encounter frequency (0), heave (1) and pitch (2).
-# Second 3 for no forward speed model (0), the simple (1) and extended (2) forward speed models.
-# 2 is for direct convolution (0) and the recursive convvolution.
-RAO = np.zeros((len(period), len(Froude), 3, 3, 2))
+# 3 for encounter frequency (0), heave (1) and pitch (2).
+# First 2 for no forward speed model (0) and the simple (1).
+# Second 2 is for direct convolution (0) and the recursive convvolution.
+RAO = np.zeros((len(period), len(Froude), 3, 2, 2))
 
 # Loop over the Froude numbers.
 for iFr in range(0, len(Froude)):
@@ -102,11 +102,6 @@ for iFr in range(0, len(Froude)):
                         print("Fr = " + str(Fr) + " - A (m) = " + str(A) + " - T (s) = " + str(T) + " - Simple forward speed model - Direct convolution")
                     else:
                         print("Fr = " + str(Fr) + " - A (m) = " + str(A) + " - T (s) = " + str(T) + " - Simple forward speed model - Recursive convolution")
-                elif(imodel == 2):
-                    if (iconvolution == 0):
-                        print("Fr = " + str(Fr) + " - A (m) = " + str(A) + " - T (s) = " + str(T) + " - Extended forward speed model - Direct convolution")
-                    else:
-                        print("Fr = " + str(Fr) + " - A (m) = " + str(A) + " - T (s) = " + str(T) + " - Extended forward speed model - Recursive convolution")
                 else:
                     if (iconvolution == 0):
                         print("Fr = " + str(Fr) + " - A (m) = " + str(A) + " - T (s) = " + str(T) + " - No forward speed model - Direct convolution")
@@ -126,8 +121,6 @@ for iFr in range(0, len(Froude)):
                 log_folder = "../../cmake-build-release/logs/"+str(name)+"_Fr_%.6f_Amplitude_%.6f_Period_%.6f" % (Fr, A, T)
                 if(imodel == 1):
                     log_folder += "_Simple_forward_speed_model"
-                elif(imodel == 2):
-                    log_folder += "_Extended_forward_speed_model"
                 else:
                     log_folder += "_No_forward_speed_model"
                 if(iconvolution == 0):
@@ -156,7 +149,6 @@ for iFr in range(0, len(Froude)):
     plt.plot(RAO[:, iFr, 0, 0, 0], RAO[:, iFr, 1, 0, 0], color="r", linestyle='-', label="FRyDoM - No forward speed model")
     plt.plot(RAO[: , iFr, 0, 1, 0], RAO[: , iFr, 1, 1, 0], color="b", linestyle='-', label="FRyDoM - Simple forward speed model - Direct")
     plt.plot(RAO[:, iFr, 0, 1, 0], RAO[:, iFr, 1, 1, 1], color="g", linestyle='--', label="FRyDoM - Simple forward speed model - Recursive")
-    # plt.plot(RAO[:, iFr, 0, 2], RAO[:, iFr, 1, 2], color="g", linestyle='--', label="FRyDoM - Extended forward speed model")
     plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 1], color="k", linestyle='', marker = '+', label="Experiments [Irvine2008]")
     plt.ylabel(r'$|RAO_{z}|$ (-)')
     plt.xlabel(r"$f_e$ (Hz)")
@@ -171,7 +163,6 @@ for iFr in range(0, len(Froude)):
     plt.plot(RAO[:, iFr, 0, 0, 0], RAO[:, iFr, 2, 0, 0], color="r", linestyle='-', label="FRyDoM - No forward speed model")
     plt.plot(RAO[:, iFr, 0, 1, 0], RAO[:, iFr, 2, 1, 0], color="b", linestyle='-', label="FRyDoM - Simple forward speed model - Direct")
     plt.plot(RAO[:, iFr, 0, 1, 0], RAO[:, iFr, 2, 1, 1], color="g", linestyle='--', label="FRyDoM - Simple forward speed model - Recursive")
-    # plt.plot(RAO[:, iFr, 0, 2], RAO[:, iFr, 2, 2], color="g", linestyle='--', label="FRyDoM - Extended forward speed model")
     plt.plot(data_exp[iFr][:, 0], data_exp[iFr][:, 2], color="k", linestyle='', marker='+', label="Experiments [Irvine2008]")
     plt.ylabel(r'$|RAO_{\theta}|$ (/rad)')
     plt.xlabel(r"$f_e$ (Hz)")
