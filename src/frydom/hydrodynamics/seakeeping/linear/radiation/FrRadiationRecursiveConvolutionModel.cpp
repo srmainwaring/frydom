@@ -122,8 +122,8 @@ namespace frydom {
     c_time = time; // c_time = t_j.
 
     // Computation of the radiation loads only once per time step.
-    if (std::abs(time - GetSystem()->GetTime()) < 0.1 * GetSystem()->GetTimeStep() and
-        time > FLT_EPSILON)
+    // The condition of the direct convolution does not work here at the initialization.
+    if (deltaT < FLT_EPSILON)
       return;
 
     // Velocities at the present time sample xdot(t_j).
