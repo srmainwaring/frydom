@@ -17,6 +17,9 @@
 
 namespace frydom {
 
+  /// This function performes the trapezoidal integration of a Vector6d.
+  Vector6d<double> TrapzLoc(std::vector<double> &x, std::vector<Vector6d<double>> &y);
+
   /// This class computes the convolution term by direct integration of the convolution of the IRF and the body velocity.
   class FrRadiationConvolutionModel : public FrRadiationModel{
 
@@ -72,9 +75,6 @@ namespace frydom {
     /// Compute the radiation convolution.
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
-
-    /// This method performes the trapezoidal integration of a Vector6d.
-    Vector6d<double> TrapzLoc(std::vector<double> &x, std::vector<Vector6d<double>> &y) const;
 
   };
 

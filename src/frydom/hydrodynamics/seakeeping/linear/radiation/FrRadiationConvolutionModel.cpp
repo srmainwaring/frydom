@@ -16,6 +16,40 @@
 
 namespace frydom {
 
+  Vector6d<double> TrapzLoc(std::vector<double> &x, std::vector<Vector6d<double>> &y) {
+
+    // TODO : generaliser la méthode de mathutils pour les vecteurs Eigen
+
+    unsigned long N = y.size();
+
+    //assert(N > 1);
+    if (N <= 1) {
+      auto res = Vector6d<double>();
+      res.SetNull();
+      return res;
+    }
+
+    assert(x.size() == N);
+
+    double dx1 = x[1] - x[0];
+    double dxN_1 = x[N - 1] - x[N - 2];
+
+    Vector6d<double> sum;
+    sum.SetNull();
+    double dxi, dxii;
+
+    dxii = dx1;
+
+    for (unsigned long i = 1; i < N - 1; i++) {
+      dxi = dxii;
+      dxii = x[i + 1] - x[i];
+      sum += y[i] * (dxi + dxii);
+    }
+
+    return 0.5 * (sum + y[0] * dx1 + y[N - 1] * dxN_1);
+
+  }
+
   FrRadiationConvolutionModel::FrRadiationConvolutionModel(const std::string &name,
                                                            FrOffshoreSystem *system,
                                                            std::shared_ptr<FrHydroDB> HDB) :
@@ -104,40 +138,6 @@ namespace frydom {
       // Application of the minus sign.
       m_radiationForce[BEMBody->first] = -GeneralizedForce(forceInWorld, TorqueInWorld);
     }
-  }
-
-  Vector6d<double> FrRadiationConvolutionModel::TrapzLoc(std::vector<double> &x, std::vector<Vector6d<double>> &y) const {
-
-    // TODO : generaliser la méthode de mathutils pour les vecteurs Eigen
-
-    unsigned long N = y.size();
-
-    //assert(N > 1);
-    if (N <= 1) {
-      auto res = Vector6d<double>();
-      res.SetNull();
-      return res;
-    }
-
-    assert(x.size() == N);
-
-    double dx1 = x[1] - x[0];
-    double dxN_1 = x[N - 1] - x[N - 2];
-
-    Vector6d<double> sum;
-    sum.SetNull();
-    double dxi, dxii;
-
-    dxii = dx1;
-
-    for (unsigned long i = 1; i < N - 1; i++) {
-      dxi = dxii;
-      dxii = x[i + 1] - x[i];
-      sum += y[i] * (dxi + dxii);
-    }
-
-    return 0.5 * (sum + y[0] * dx1 + y[N - 1] * dxN_1);
-
   }
 
   void FrRadiationConvolutionModel::StepFinalize() {
