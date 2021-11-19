@@ -183,6 +183,8 @@ namespace frydom {
     auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
     SpeedCorrection += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
 
+    return SpeedCorrection;
+
   }
 
 
