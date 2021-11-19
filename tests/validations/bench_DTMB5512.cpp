@@ -313,8 +313,11 @@ int main(int argc, char *argv[]) {
       auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
     }
   } else {
-    auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
-    radiationModel->ActivateForwardSpeedCorrection(simple_forward_speed_model);
+    if(simple_forward_speed_model) {
+      auto radiationModel = make_recursive_convolution_model_with_forward_speed_correction("radiation_convolution", &system, hdb);
+    } else {
+      auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
+    }
   }
 
   // -- Excitation.

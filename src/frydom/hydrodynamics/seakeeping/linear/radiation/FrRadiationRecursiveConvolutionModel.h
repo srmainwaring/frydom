@@ -27,12 +27,15 @@ namespace frydom {
     /// Constructor of the class.
     FrRadiationRecursiveConvolutionModel(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB);
 
-    /// Setter for activated the forward-speed correction model.
-    void ActivateForwardSpeedCorrection(bool activation_simple_model) {
-      c_FScorrection_simple_model = activation_simple_model;
-    }
+   protected:
 
-   private:
+    /// This method computes the recursive convolution..
+    void Compute(double time) override;
+
+    /// Method to initialize the radiation model
+    void Initialize() override;
+
+   protected:
 
     // Poles.
     Eigen::VectorXcd c_poles;
@@ -42,11 +45,9 @@ namespace frydom {
 
     // Storage of the velocities for the next time step.
     Eigen::ArrayXd c_velocities;
-    Eigen::ArrayXd c_velocities_forward_speed;
 
     // Auxiliary variables for the next time step.
     Eigen::ArrayXcd c_states;
-    Eigen::ArrayXcd c_states_forward_speed; // Application of the matrix L on the velocity.
 
     // Parameters for the time integration of the state variables.
     Eigen::ArrayXcd c_alpha;
@@ -62,23 +63,7 @@ namespace frydom {
     // Sum of all vector fitting orders for all coefficients.
     unsigned int c_N_poles;
 
-    // Simple forward speed model.
-    bool c_FScorrection_simple_model = false;
-
-    // Matrix to know the index of every radiation coefficient in the cached vectors of size c_N_poles.
-    mathutils::MatrixMN<double> c_matrix_index;
-
-    // Residues over the poles.
-    Eigen::VectorXcd c_residues_over_poles;
-
-    // Storage of the initial positions.
-    std::vector<mathutils::Vector6d<double>> c_initial_positions;
-
-    /// Method to initialize the radiation model
-    void Initialize() override;
-
-    /// This method computes the recursive convolution..
-    void Compute(double time) override;
+   private:
 
     template<typename T>
     T TrapezoidaleIntegration(T previousState, double velocity, double previousVelocity,
@@ -100,21 +85,13 @@ namespace frydom {
     // This method returns the velocities for every auxiliary variable.
     Eigen::ArrayXd GetVelocities() const;
 
-    // This method returns the velocities impacted by the matrix L for the forward speed for every auxiliary variable.
-    Eigen::ArrayXd GetVelocitiesForwardSpeed() const;
-
-    // This method returns the positions in world of all bodies.
-    std::vector<mathutils::Vector6d<double>> GetPositions() const;
-
     /// This method computes the convolution term based on the recursive convolution.
     // TODO:: Add const to FrBEMBody
     GeneralizedForce Compute_RadiationForce(FrBEMBody* body, int &indice) const;
 
-    /// This method computes the forward speed correction based on the recursive convolution.
-    GeneralizedForce ComputeForwardSpeedCorrection(FrBEMBody* body, int &indice) const;
-
   };
 
+  /// This function creates and adds the radiation recursive convolution model to the offshore system from the HDB.
   std::shared_ptr<FrRadiationRecursiveConvolutionModel>
   make_recursive_convolution_model(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB);
 
