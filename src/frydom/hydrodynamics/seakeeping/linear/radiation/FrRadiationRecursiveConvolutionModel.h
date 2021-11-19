@@ -106,8 +106,12 @@ namespace frydom {
     // This method returns the positions in world of all bodies.
     std::vector<mathutils::Vector6d<double>> GetPositions() const;
 
+    /// This method computes the convolution term based on the recursive convolution.
     // TODO:: Add const to FrBEMBody
     GeneralizedForce Compute_RadiationForce(FrBEMBody* body, int &indice) const;
+
+    /// This method computes the forward speed correction based on the recursive convolution.
+    GeneralizedForce ComputeForwardSpeedCorrection(FrBEMBody* body, int &indice) const;
 
   };
 

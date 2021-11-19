@@ -187,10 +187,6 @@ namespace frydom {
     auto radiationForce = GeneralizedForce();
     radiationForce.SetNull();
 
-    // Forward speed.
-    auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(body);
-    auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
-
     int i_BEMBodyMotion = 0;
     for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
@@ -219,8 +215,19 @@ namespace frydom {
     }
 
     // Forward speed correction.
+    radiationForce += ComputeForwardSpeedCorrection(body, indice);
+
+    return radiationForce;
+  }
+
+  GeneralizedForce FrRadiationRecursiveConvolutionModel::ComputeForwardSpeedCorrection(FrBEMBody* body, int &indice) const {
+
+    // This method computes the forward speed correction based on the recursive convolution.
+
     auto SpeedCorrection = GeneralizedForce();
     SpeedCorrection.SetNull();
+    auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(body);
+    auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
     if (meanSpeed.squaredNorm() > FLT_EPSILON and c_FScorrection_simple_model) {
 
       // Positions.
@@ -286,9 +293,7 @@ namespace frydom {
       auto damping = Ainf.col(2) * angular.y() - Ainf.col(1) * angular.z(); // -A(inf)*L*V.
       SpeedCorrection += meanSpeed.norm() * damping; // -U*A(inf)*L*V.
     }
-    radiationForce += SpeedCorrection;
 
-    return radiationForce;
   }
 
   template<typename T>
