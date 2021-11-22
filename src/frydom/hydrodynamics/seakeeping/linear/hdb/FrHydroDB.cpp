@@ -44,6 +44,14 @@ namespace frydom {
     return m_mapper->GetBody(body);
   }
 
+  int FrHydroDB::GetBEMBodyNumber() {
+
+    // This method returns the number of BEM bodies.
+
+    return m_HDB->GetNbBodies();
+
+  }
+
   FrHydroMapper *FrHydroDB::GetMapper() {
     return m_mapper.get();
   }

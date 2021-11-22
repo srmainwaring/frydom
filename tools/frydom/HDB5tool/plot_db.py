@@ -469,7 +469,7 @@ def plot_irf(data, time, IRFtype, ibody_force, iforce, ibody_motion, idof, show=
         plt.savefig(filename)
     plt.close()
 
-def plot_irf_array(data, time, ibody_force, ibody_motion):
+def plot_irf_array(data, time, ibody_force, ibody_motion, IRFtype):
     """Plots ALL the impulse response functions of a body.
 
     Parameters
@@ -494,9 +494,14 @@ def plot_irf_array(data, time, ibody_force, ibody_motion):
     # Plot.
     for iforce in range(0, 6):
         for idof in range(0, 6):
-            labelA = r'$K_{%s} (t)$' % (
-                        Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(
-                    ibody_motion + 1))
+            if(IRFtype == 0):
+                labelA = r'$K_{%s} (t)$' % ( Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
+            elif(IRFtype == 1):
+                labelA = r'$Ku_{%s} (t)$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
+            elif (IRFtype == 2):
+                labelA = r'$Ku_{%s}^{x-diff} (t)$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
+            else:
+                labelA = r'$Ku2_{%s} (t)$' % (Dof_notation[iforce] + "_" + str(ibody_force + 1) + Dof_notation[idof] + "_" + str(ibody_motion + 1))
             axes[iforce, idof].plot(time, data[iforce, idof, :], linestyle="-", linewidth=2)
             axes[iforce, idof].grid()
             axes[iforce, idof].set_title(labelA)
