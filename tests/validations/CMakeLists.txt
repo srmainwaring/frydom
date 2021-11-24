@@ -14,7 +14,6 @@ set(VALIDATION_CASES
         MorisonSingleImmersedElement
         FixedJacketStructure
         SpreadMooredFPSO
-        PYW_Comparison_direct_recursive_convolutions
         )
 
 foreach (test ${VALIDATION_CASES})
