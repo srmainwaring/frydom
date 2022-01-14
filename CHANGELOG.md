@@ -6,6 +6,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 ## [Unreleased]
 
 ### Added
+- New Abkowitz manoeuvring model (Yoshimura 2012)
 ### Changed
 ### Fixed
 
