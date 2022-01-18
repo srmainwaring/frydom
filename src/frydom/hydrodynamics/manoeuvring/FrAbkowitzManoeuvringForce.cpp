@@ -304,13 +304,13 @@ namespace frydom {
       exit(EXIT_FAILURE);
     }
 
-    try {
-      auto wave_resistance_file = node["wave_resistance_file"].get<json::string_t>();
-      // TODO
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no wave_resistance_file in json file");
-      exit(EXIT_FAILURE);
-    }
+    //try {
+    //  auto wave_resistance_file = node["wave_resistance_file"].get<json::string_t>();
+    //  // TODO
+    //} catch (json::parse_error& err) {
+    //  event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no wave_resistance_file in json file");
+    //  exit(EXIT_FAILURE);
+    //}
 
     try {
       auto hull_resistance_filepath = node["hull_resistance_filepath"].get<json::string_t>();
