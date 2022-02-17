@@ -9,6 +9,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 - New Abkowitz manoeuvring model (Yoshimura 2012)
 ### Changed
 ### Fixed
+- Prop/Rudder interaction model : signs of prop to rudder and cog to rudder distance
 
 ## [3.5] - 2021-11-10
 
