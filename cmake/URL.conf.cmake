@@ -83,6 +83,6 @@ set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
 
 # Boost
-set(boost_URL https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz)
-set(boost_TAG 1.66 CACHE BOOL "")
+set(boost_URL https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz CACHE STRING "boost URL")
+set(boost_TAG 1.75 CACHE STRING "boost version")
 
