@@ -38,7 +38,7 @@ message(STATUS FRYDOM_USE_IRRLICHT: ${FRYDOM_USE_IRRLICHT})
 option(BUILD_BOOST "Build boost instead of finding it on the system" ON)
 
 option(FRYDOM_DOWNLOAD_DEMOS_DATA "Downloading demo data" ON)
-set(FRYDOM_DEMOS_DATA_VERSION "1.1.6" CACHE STRING "Data version")
+set(FRYDOM_DEMOS_DATA_VERSION "1.1.7" CACHE STRING "Data version")
 
 #=============================================================================
 # Retrieving the current Git revision

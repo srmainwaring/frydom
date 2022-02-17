@@ -42,11 +42,7 @@ namespace frydom {
 
     /// Hydrodynamic components.
     std::vector<Eigen::MatrixXcd> m_Fhdb; // Zero-speed component.
-    std::vector<Eigen::MatrixXcd> m_Fhdb_forward_speed; // Forward-speed correction.
-
-    // Forward-speed correction booleans.
-    bool c_FScorrection_simple_model = false;
-    bool c_FScorrection_extended_model = false;
+//    std::vector<Eigen::MatrixXcd> m_Fhdb_forward_speed; // Forward-speed correction.
 
    public:
 
@@ -71,8 +67,8 @@ namespace frydom {
     /// This method creates the interpolator for the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
     virtual void BuildHDBInterpolators();
 
-    /// This method creates the interpolator for the x-derivatives of the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
-    virtual void BuildHDBInterpolatorsXDerivative();
+//    /// This method creates the interpolator for the x-derivatives of the excitation loads (Froude-Krylov or diffraction) with respect to the wave frequencies and wave directions.
+//    virtual void BuildHDBInterpolatorsXDerivative();
 
     /// This method returns the Froude-Krylov, diffraction or excitation loads from the interpolator.
     std::vector<Eigen::MatrixXcd> GetHDBInterp(std::vector<double> waveFrequencies, std::vector<double> waveDirections);
@@ -81,14 +77,6 @@ namespace frydom {
     std::vector<Eigen::MatrixXcd> GetHDBInterpXDerivative(std::vector<double> waveFrequencies, std::vector<double> waveDirections);
 
     void Initialize() override;
-
-    /// Setter for activated the forward-speed correction models.
-    void ActivateForwardSpeedCorrection(bool activation_simple_model, bool activation_extended_model) {
-      c_FScorrection_simple_model = activation_simple_model;
-      if(c_FScorrection_simple_model) {
-        c_FScorrection_extended_model = activation_extended_model;
-      }
-    }
 
    protected:
 

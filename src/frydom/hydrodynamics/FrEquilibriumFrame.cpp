@@ -224,6 +224,12 @@ namespace frydom {
          [this]() { return GetPerturbationFrame().GetPosition(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("PerturbationVelocity", "ms", fmt::format(
+             "Perturbation velocity between the equilibrium frame and the body in the world reference frame in {}",
+             GetLogFC()),
+         [this]() { return GetPerturbationVelocityInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("PerturbationOrientation", "rad", fmt::format(
             "Perturbation orientation between the equilibrium frame and the body frame in the world reference frame in {}",
             GetLogFC()),

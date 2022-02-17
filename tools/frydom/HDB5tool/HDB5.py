@@ -372,17 +372,19 @@ class HDB5(object):
 
         if(self._pyHDB._has_x_derivatives):
 
-            # Data.
-            data = self._pyHDB.bodies[ibody_force].irf_ku_x_derivative[iforce, 6 * ibody_motion + idof, :]
+            if(self._pyHDB.bodies[ibody_force].irf_ku_x_derivative is not None):
+                # Data.
+                data = self._pyHDB.bodies[ibody_force].irf_ku_x_derivative[iforce, 6 * ibody_motion + idof, :]
 
-            # Plots.
-            plot_db.plot_irf(data, time, 1, ibody_force, iforce, ibody_motion, idof)
+                # Plots.
+                plot_db.plot_irf(data, time, 1, ibody_force, iforce, ibody_motion, idof)
 
-            # Data.
-            data = self._pyHDB.bodies[ibody_force].irf_ku2[iforce, 6 * ibody_motion + idof, :]
+            if(self._pyHDB.bodies[ibody_force].irf_ku2 is not None):
+                # Data.
+                data = self._pyHDB.bodies[ibody_force].irf_ku2[iforce, 6 * ibody_motion + idof, :]
 
-            # Plots.
-            plot_db.plot_irf(data, time, 3, ibody_force, iforce, ibody_motion, idof)
+                # Plots.
+                plot_db.plot_irf(data, time, 3, ibody_force, iforce, ibody_motion, idof)
 
     def Plot_Mesh(self, ibody = -1):
         """This function plots a mesh."""
@@ -636,7 +638,47 @@ class HDB5(object):
                     for idof in range(0, 6):
                         data[iforce, idof, :] = self._pyHDB.bodies[ibody_force].irf[iforce, 6 * ibody_motion + idof, :]
                 # Plot.
-                plot_db.plot_irf_array(data, time, ibody_force, ibody_motion)
+                plot_db.plot_irf_array(data, time, ibody_force, ibody_motion, 0)
+
+    def Plot_irf_speed_array(self):
+        """This method plots the impulse response functions per body."""
+
+        for ibody_force in range(0, self._pyHDB.nb_bodies):
+            for ibody_motion in range(0, self._pyHDB.nb_bodies):
+
+                # Time.
+                time = self._pyHDB.time
+
+                if(self._pyHDB.bodies[ibody_force].irf_ku is not None):
+                    # Data.
+                    data = np.zeros((6, 6, self._pyHDB.nb_time_samples), dtype=np.float)
+                    for iforce in range(0, 6):
+                        for idof in range(0, 6):
+                            data[iforce, idof, :] = self._pyHDB.bodies[ibody_force].irf_ku[iforce, 6 * ibody_motion + idof, :]
+                    # Plot.
+                    plot_db.plot_irf_array(data, time, ibody_force, ibody_motion, 1)
+
+                if (self._pyHDB._has_x_derivatives):
+
+                    if(self._pyHDB.bodies[ibody_force].irf_ku_x_derivative is not None):
+                        # Data.
+                        data = np.zeros((6, 6, self._pyHDB.nb_time_samples), dtype=np.float)
+                        for iforce in range(0, 6):
+                            for idof in range(0, 6):
+                                data[iforce, idof, :] = self._pyHDB.bodies[ibody_force].irf_ku_x_derivative[iforce, 6 * ibody_motion + idof, :]
+
+                        # Plot.
+                        plot_db.plot_irf_array(data, time, ibody_force, ibody_motion, 2)
+
+                    if(self._pyHDB.bodies[ibody_force].irf_ku2 is not None):
+                        # Data.
+                        data = np.zeros((6, 6, self._pyHDB.nb_time_samples), dtype=np.float)
+                        for iforce in range(0, 6):
+                            for idof in range(0, 6):
+                                data[iforce, idof, :] = self._pyHDB.bodies[ibody_force].irf_ku2[iforce,6 * ibody_motion + idof, :]
+
+                        # Plot.
+                        plot_db.plot_irf_array(data, time, ibody_force, ibody_motion, 3)
 
     def export_hdb5(self, output_file = None):
         """This function writes the hydrodynamic database into a *.hdb5 file.

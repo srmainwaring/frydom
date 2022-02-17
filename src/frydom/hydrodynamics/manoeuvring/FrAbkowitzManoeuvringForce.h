@@ -8,11 +8,12 @@
 #include "frydom/core/force/FrForce.h"
 
 namespace frydom {
-
+  /// Abkowitz manoeuvring model from Yoshimura (2012)
   class FrAbkowitzManoeuvringForce : public FrForce {
 
    public:
-    FrAbkowitzManoeuvringForce(const std::string &name, FrBody *body, const std::string &file);
+    FrAbkowitzManoeuvringForce(const std::string &name, FrBody *body, const std::string &file,
+                               const Position &mid_ship);
 
     void Initialize() override;
 
@@ -28,15 +29,19 @@ namespace frydom {
 
     double m_Lpp;
     double m_draft;
+    Position m_mid_ship;
 
-    double m_Xvv, m_Xvvvv, m_Xvvu, m_Xrr, m_Xrru, m_Xvr, m_Xvru;
-    double m_Yv, m_Yvvv, m_Yvrr, m_Yvu, m_Yvuu, m_Yr, m_Yrrr, m_Yvvr, m_Yru, m_Yruu;
-    double m_Nv, m_Nvvv, m_Nvrr, m_Nvu, m_Nvuu, m_Nr, m_Nrrr, m_Nvvr, m_Nru, m_Nruu;
+    double m_Xvv, m_Xvvvv, m_Xrr, m_Xvr;
+    double m_Yv, m_Yvvv, m_Yvrr, m_Yr, m_Yrrr, m_Yvvr;
+    double m_Nv, m_Nvvv, m_Nvrr, m_Nr, m_Nrrr, m_Nvvr;
 
   };
 
+  std::shared_ptr<FrAbkowitzManoeuvringForce>
+      make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
+                                      const std::string& file, const Position& mid_ship);
+
+
 }  // end namespace frydom
-
-
 
 #endif //FRYDOM_FRABKOWITZMANOEUVRINGFORCE_H
