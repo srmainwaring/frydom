@@ -34,9 +34,9 @@ def solve_wave_dispersion_relation(omega, depth, grav):
     """
 
     if np.isscalar(omega):
-        omega = np.array([omega], dtype=np.float)
+        omega = np.array([omega], dtype= float)
     else:
-        omega = np.asarray(omega, dtype=np.float)
+        omega = np.asarray(omega, dtype= float)
     omega2_g = omega * omega / grav
 
     if isinf(depth):
@@ -81,4 +81,4 @@ def solve_wave_dispersion_relation(omega, depth, grav):
                     return y
                 y = dx
 
-    return np.asarray(list(map(xtanhx, omega2h_g)), dtype=np.float) / depth
+    return np.asarray(list(map(xtanhx, omega2h_g)), dtype= float) / depth
