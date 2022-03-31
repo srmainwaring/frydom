@@ -77,6 +77,9 @@ namespace frydom {
 
     // Adim
     double vnorm2 = u*u + v*v;
+    if (vnorm2 == 0.)
+      return;
+
     double vnorm = std::sqrt(vnorm2);
     auto q = 0.5 *rho * m_Lpp * m_draft * vnorm2;
     u = u/vnorm;
