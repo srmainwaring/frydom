@@ -114,7 +114,7 @@ namespace frydom {
     Force forceInWorld = X * vessel_x_axis_world + Y * vessel_y_axis_world;
     Torque torqueInWorld = {0., 0., N};
 
-    SetForceTorqueInWorldAtCOG(forceInWorld, torqueInWorld, NWU);
+    SetForceTorqueInWorldAtPointInBody(forceInWorld, torqueInWorld, m_mid_ship, NWU);
 
   }
 
