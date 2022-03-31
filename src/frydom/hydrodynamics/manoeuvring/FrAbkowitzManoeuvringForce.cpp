@@ -224,6 +224,13 @@ namespace frydom {
     }
 
     try {
+      m_Xrr = node["coefficients"]["Xrr"].get<double>();
+    } catch (json::parse_error& err) {
+      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Xrr in json file");
+      exit(EXIT_FAILURE);
+    }
+
+    try {
       m_Yv = node["coefficients"]["Yv"].get<double>();
     } catch (json::parse_error& err) {
       event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yv in json file");
