@@ -16,7 +16,7 @@ namespace frydom {
    public:
 
     FrPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
-                const std::string &perf_data_json_string, PropellerModelType type);
+                PropellerModelType type);
 
     void SetRPM(double rpm);
 
