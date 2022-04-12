@@ -16,13 +16,8 @@ namespace frydom {
 
    public:
 
-    FrRudder(const std::string &name,
-             const std::shared_ptr<FrNode> &rudder_node,
-             RudderParams params,
-             const std::string &perf_data_json_string,
+    FrRudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
              RudderModelType type);
-
-    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
     double GetRudderAngle(ANGLE_UNIT unit) const;
 
@@ -32,6 +27,8 @@ namespace frydom {
     void SetRudderCommandAngle(double rudder_angle, ANGLE_UNIT unit);
 
    private:
+
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
     void Initialize() override;
 

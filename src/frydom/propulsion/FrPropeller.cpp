@@ -14,19 +14,19 @@
 namespace frydom {
 
   FrPropeller::FrPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
-                           PropellerParams params, const std::string &perf_data_json_string,
+                           PropellerParams params,
                            PropellerModelType type) :
       m_node(propeller_node), FrActuatorForceBase(name, "FrACMEPropeller", propeller_node->GetBody()) {
 
     switch (type) {
       case acme::PropellerModelType::E_FPP1Q :
-        m_acme_propeller = std::make_unique<acme::FPP1Q>(params, perf_data_json_string);
+        m_acme_propeller = std::make_unique<acme::FPP1Q>(params);
         break;
       case acme::PropellerModelType::E_FPP4Q :
-        m_acme_propeller = std::make_unique<acme::FPP4Q>(params, perf_data_json_string);
+        m_acme_propeller = std::make_unique<acme::FPP4Q>(params);
         break;
       case acme::PropellerModelType::E_CPP :
-        m_acme_propeller = std::make_unique<acme::CPP>(params, perf_data_json_string);
+        m_acme_propeller = std::make_unique<acme::CPP>(params);
         break;
     }
 
@@ -121,18 +121,13 @@ namespace frydom {
   make_propeller_model(const std::string &name, const std::shared_ptr<FrNode> &propeller_node, PropellerParams params,
                        const std::string &prop_input_filepath, PropellerModelType type) {
 
-    std::string tmp_string = prop_input_filepath;
-
-    if (!FrFileSystem::isfile(prop_input_filepath)) {
-      std::cerr << "make_propeller_model : perf_data_json_string is a filepath to a non existent file : " +
-                   prop_input_filepath << std::endl;
-      exit(1);
+    if (FrFileSystem::isfile(prop_input_filepath)) {
+      std::ifstream tmp_buffer(prop_input_filepath);
+      json node = json::parse(tmp_buffer);
+      params.m_thruster_perf_data_json_string = node["propeller"]["open_water_table"].dump();
     }
-    std::ifstream tmp_buffer(prop_input_filepath);
-    json node = json::parse(tmp_buffer);
-    tmp_string = node["propeller"]["open_water_table"].dump();
 
-    auto force = std::make_shared<FrPropeller>(name, propeller_node, params, tmp_string, type);
+    auto force = std::make_shared<FrPropeller>(name, propeller_node, params, type);
     propeller_node->GetBody()->AddExternalForce(force);
     return force;
   }

@@ -16,67 +16,16 @@ namespace frydom {
                                        PropellerModelType prop_type,
                                        const std::shared_ptr<FrNode> &propeller_node,
                                        PropellerParams prop_params,
-                                       const std::string &prop_perf_data_string,
                                        RudderModelType rudder_type,
                                        const std::shared_ptr<FrNode> &rudder_node,
-                                       RudderParams rudder_params,
-                                       const std::string &rudder_perf_data_string) :
+                                       RudderParams rudder_params) :
       FrActuatorForceBase(name, "FrACMEPropellerRudder", propeller_node->GetBody()),
       m_propeller_node(propeller_node), m_rudder_node(rudder_node) {
-
-    switch (prop_type) {
-      case E_FPP1Q:
-        switch (rudder_type) {
-          case E_SIMPLE_RUDDER:
-            m_acme_propeller_rudder = std::make_unique<PropellerRudder<FPP1Q, SimpleRudderModel>>(prop_params,
-                                                                                                  prop_perf_data_string,
-                                                                                                  rudder_params,
-                                                                                                  rudder_perf_data_string);
-
-            break;
-          case E_FLAP_RUDDER:
-            m_acme_propeller_rudder = std::make_unique<PropellerRudder<FPP1Q, FlapRudderModel>>(prop_params,
-                                                                                                prop_perf_data_string,
-                                                                                                rudder_params,
-                                                                                                rudder_perf_data_string);
-            break;
-        }
-        break;
-      case E_FPP4Q:
-        switch (rudder_type) {
-          case E_SIMPLE_RUDDER:
-            m_acme_propeller_rudder = std::make_unique<PropellerRudder<FPP4Q, SimpleRudderModel>>(prop_params,
-                                                                                                  prop_perf_data_string,
-                                                                                                  rudder_params,
-                                                                                                  rudder_perf_data_string);
-            break;
-          case E_FLAP_RUDDER:
-            m_acme_propeller_rudder = std::make_unique<PropellerRudder<FPP4Q, FlapRudderModel>>(prop_params,
-                                                                                                prop_perf_data_string,
-                                                                                                rudder_params,
-                                                                                                rudder_perf_data_string);
-            break;
-        }
-        break;
-      case E_CPP:
-        switch (rudder_type) {
-          case E_SIMPLE_RUDDER:
-            m_acme_propeller_rudder = std::make_unique<PropellerRudder<CPP, SimpleRudderModel>>(prop_params,
-                                                                                                prop_perf_data_string,
-                                                                                                rudder_params,
-                                                                                                rudder_perf_data_string);
-            break;
-          case E_FLAP_RUDDER:
-            m_acme_propeller_rudder = std::make_unique<PropellerRudder<CPP, FlapRudderModel>>(prop_params,
-                                                                                              prop_perf_data_string,
-                                                                                              rudder_params,
-                                                                                              rudder_perf_data_string);
-            break;
-        }
-        break;
-    }
+    m_acme_propeller_rudder = acme::build_pr(prop_type, prop_params, rudder_type, rudder_params);
   }
+
   void FrPropellerRudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
+
     if (unit == RAD) angle *= RAD2DEG;
 
     double actualRudderAngle = GetRudderAngle(DEG);
@@ -116,7 +65,8 @@ namespace frydom {
     if (ship_vel.isZero())
       return;
     auto ship_frame = GetBody()->GetFrameAtCOG();
-    Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel, WATER, NWU);
+    Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel,
+                                                                                                 WATER, NWU);
 
     auto u = ship_relative_velocity.GetVx();
     auto v = ship_relative_velocity.GetVy();
@@ -130,7 +80,8 @@ namespace frydom {
 
     auto r = GetBody()->GetAngularVelocityInWorld(NWU).GetWz();
 
-    m_acme_propeller_rudder->Compute(c_water_density, uP0, vP0, u, v, r, c_x_pr, c_x_gr, m_rpm, m_pitch_ratio, m_rudder_angle_deg);
+    m_acme_propeller_rudder->Compute(c_water_density, uP0, vP0, u, v, r, c_x_pr, c_x_gr, m_rpm, m_pitch_ratio,
+                                     m_rudder_angle_deg);
 
     auto Fx = m_acme_propeller_rudder->GetPropellerRudderFx();
     auto Fy = m_acme_propeller_rudder->GetPropellerRudderFy();
@@ -280,7 +231,7 @@ namespace frydom {
   }
 
   Torque FrPropellerRudder::GetRudderTorqueInWorldAtRudder(FRAME_CONVENTION fc) const {
-    return m_rudder_node->ProjectVectorInWorld(Torque(0.,0.,m_acme_propeller_rudder->GetRudderMz()), fc);
+    return m_rudder_node->ProjectVectorInWorld(Torque(0., 0., m_acme_propeller_rudder->GetRudderMz()), fc);
   }
 
   Torque FrPropellerRudder::GetRudderTorqueInBodyAtRudder(FRAME_CONVENTION fc) const {
@@ -301,43 +252,31 @@ namespace frydom {
                               PropellerModelType prop_type,
                               const std::shared_ptr<FrNode> &propeller_node,
                               PropellerParams prop_params,
-                              const std::string &prop_input_filepath,
                               RudderModelType rudder_type,
                               const std::shared_ptr<FrNode> &rudder_node,
                               RudderParams rudder_params,
+                              const std::string &prop_input_filepath,
                               const std::string &rudder_input_filepath) {
 
-    std::string rudder_tmp_string = rudder_input_filepath;
-
-    if (!FrFileSystem::isfile(rudder_input_filepath)) {
-      std::cerr << "make_propeller_rudder_model : rudder_input_filepath is a filepath to a non existent file : " +
-                   rudder_input_filepath << std::endl;
-      exit(1);
+    if (FrFileSystem::isfile(prop_input_filepath)) {
+      std::ifstream tmp_buffer = std::ifstream(prop_input_filepath);
+      json node = json::parse(tmp_buffer);
+      prop_params.m_thruster_perf_data_json_string = node["propeller"]["open_water_table"].dump();
     }
-    std::ifstream tmp_buffer(rudder_input_filepath);
-    json node = json::parse(tmp_buffer);
-    rudder_tmp_string = node["rudder"]["load_coefficients"].dump();
 
-    std::string prop_tmp_string = prop_input_filepath;
-
-    if (!FrFileSystem::isfile(prop_input_filepath)) {
-      std::cerr << "make_propeller_rudder_model : prop_input_filepath is a filepath to a non existent file : " +
-                   prop_input_filepath << std::endl;
-      exit(1);
+    if (FrFileSystem::isfile(rudder_input_filepath)) {
+      std::ifstream tmp_buffer(rudder_input_filepath);
+      json node = json::parse(tmp_buffer);
+      rudder_params.m_perf_data_json_string = node["rudder"]["load_coefficients"].dump();
     }
-    tmp_buffer = std::ifstream(prop_input_filepath);
-    node = json::parse(tmp_buffer);
-    prop_tmp_string = node["propeller"]["open_water_table"].dump();
 
     auto prop_rudder = std::make_shared<FrPropellerRudder>(name,
                                                            prop_type,
                                                            propeller_node,
                                                            prop_params,
-                                                           prop_tmp_string,
                                                            rudder_type,
                                                            rudder_node,
-                                                           rudder_params,
-                                                           rudder_tmp_string);
+                                                           rudder_params);
     propeller_node->GetBody()->AddExternalForce(prop_rudder);
     return prop_rudder;
   }

@@ -20,23 +20,20 @@ namespace frydom {
                       PropellerModelType prop_type,
                       const std::shared_ptr<FrNode> &propeller_node,
                       PropellerParams prop_params,
-                      const std::string &prop_perf_data_string,
                       RudderModelType rudder_type,
                       const std::shared_ptr<FrNode> &rudder_node,
-                      RudderParams rudder_params,
-                      const std::string &rudder_perf_data_string);
+                      RudderParams rudder_params);
 
     void SetRPM(double rpm);
 
     // For CPP only
     void SetPitchRatio(double pitch_ratio);
 
-    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
-
     double GetRudderAngle(ANGLE_UNIT unit) const;
 
     // TODO : move to VSL
     void SetRudderRampSlope(double slope) { m_ramp_slope = slope; }
+
     void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
 
     // Propeller Force
@@ -71,13 +68,15 @@ namespace frydom {
 
    private:
 
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
+
     void Initialize() override;
 
     void Compute(double time) override;
 
     void DefineLogMessages() override;
 
-    std::unique_ptr<acme::PropellerRudderBase> m_acme_propeller_rudder;
+    std::shared_ptr<acme::PropellerRudderBase> m_acme_propeller_rudder;
     std::shared_ptr<FrNode> m_propeller_node;
     std::shared_ptr<FrNode> m_rudder_node;
 
@@ -102,11 +101,11 @@ namespace frydom {
                               PropellerModelType prop_type,
                               const std::shared_ptr<FrNode> &propeller_node,
                               PropellerParams prop_params,
-                              const std::string &prop_input_filepath,
                               RudderModelType rudder_type,
                               const std::shared_ptr<FrNode> &rudder_node,
                               RudderParams rudder_params,
-                              const std::string &rudder_input_filepath);
+                              const std::string &prop_input_filepath = "",
+                              const std::string &rudder_input_filepath = "");
 
 }
 #endif //FRYDOM_FRPROPELLERRUDDER_H
