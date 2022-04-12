@@ -36,6 +36,7 @@ namespace frydom {
     double GetRudderAngle(ANGLE_UNIT unit) const;
 
     // TODO : move to VSL
+    void SetRudderRampSlope(double slope) { m_ramp_slope = slope; }
     void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
 
     // Propeller Force

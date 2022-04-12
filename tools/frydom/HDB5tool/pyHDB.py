@@ -111,6 +111,9 @@ class pyHDB(object):
         self.sym_y = False # Sym y.
         self.kochin_step = None # Kochin function angular step.
 
+        # Energy spectral moments.
+        self.has_EnergySpectralMoments = False
+
         # Vector fitting.
         self.has_VF = False
         self.max_order = None

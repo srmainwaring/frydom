@@ -148,6 +148,9 @@ class BodyDB(object):
         # Poles and residues.
         self.poles_residues = None
 
+        # Energy spectral moments.
+        self.EnergySpectralMoments = None
+
         # Diodore data.
         self.cog = None
         self.cob = None

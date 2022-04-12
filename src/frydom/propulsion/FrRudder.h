@@ -43,7 +43,7 @@ namespace frydom {
 
     std::shared_ptr<FrNode> m_node;
 
-    std::unique_ptr<acme::SimpleRudderModel> m_acme_rudder;
+    std::unique_ptr<acme::RudderBaseModel> m_acme_rudder;
 
     double m_rudder_angle_deg;
 

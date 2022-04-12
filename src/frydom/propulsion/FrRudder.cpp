@@ -7,7 +7,7 @@
 #include "frydom/environment/FrEnvironment.h"
 #include "frydom/core/common/FrNode.h"
 
-#include "acme/rudder/FlapRudderModel.h"
+#include "acme/rudder/rudder.h"
 
 #include "frydom/utils/FrFileSystem.h"
 
@@ -24,6 +24,9 @@ namespace frydom {
         break;
       case acme::RudderModelType::E_FLAP_RUDDER :
         m_acme_rudder = std::make_unique<acme::FlapRudderModel>(params, perf_data_json_string);
+        break;
+      case acme::RudderModelType::E_FUJII_RUDDER :
+        m_acme_rudder = std::make_unique<acme::FujiiRudderModel>(params);
         break;
     }
   }
@@ -163,16 +166,18 @@ namespace frydom {
                     const std::string &rudder_input_filepath, RudderModelType type) {
 
     std::string tmp_string = rudder_input_filepath;
+    if (type == RudderModelType::E_SIMPLE_RUDDER or type == RudderModelType::E_FLAP_RUDDER) {
 
-    if (!FrFileSystem::isfile(rudder_input_filepath)) {
-      std::cerr << "make_rudder_model : rudder_input_filepath is a filepath to a non existent file : " +
-                   rudder_input_filepath << std::endl;
-      exit(1);
+      if (!FrFileSystem::isfile(rudder_input_filepath)) {
+        std::cerr << "make_rudder_model : rudder_input_filepath is a filepath to a non existent file : " +
+                     rudder_input_filepath << std::endl;
+        exit(1);
+      }
+
+      std::ifstream tmp_buffer(rudder_input_filepath);
+      json node = json::parse(tmp_buffer);
+      tmp_string = node["rudder"]["load_coefficients"].dump();
     }
-
-    std::ifstream tmp_buffer(rudder_input_filepath);
-    json node = json::parse(tmp_buffer);
-    tmp_string = node["rudder"]["load_coefficients"].dump();
 
     auto force = std::make_shared<FrRudder>(name, rudder_node, params, tmp_string, type);
     rudder_node->GetBody()->AddExternalForce(force);

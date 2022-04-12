@@ -108,8 +108,13 @@ namespace frydom {
 
   void FrPropellerRudder::Compute(double time) {
 
+    //TODO : remove when command function is moved in VSL
+    SetRudderAngle(m_rudderAngleFunction->Get_y(time), DEG);
+
     // ship velocity at COG
     auto ship_vel = GetBody()->GetCOGLinearVelocityInWorld(NWU);
+    if (ship_vel.isZero())
+      return;
     auto ship_frame = GetBody()->GetFrameAtCOG();
     Velocity ship_relative_velocity = -GetSystem()->GetEnvironment()->GetRelativeVelocityInFrame(ship_frame, ship_vel, WATER, NWU);
 

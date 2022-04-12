@@ -65,7 +65,7 @@ def get_parser(parser):
                 Activate hydrostatics for the body of index given in argument.""")
 
     # Body - Hydrostatic matrix.
-    parser.add_argument('--hydrostatics', '-hs',
+    parser.add_argument('--hydrostatics', '-hst',
                         metavar=('id', 'k33', 'k44', 'k55', 'k34', 'k35', 'k45'), nargs=7, type=float, action="append",
                         help="""
     #             Hydrostatic coefficients (K33, K44, K55, K34, K35, K45) for the body of index given in first argument.""")

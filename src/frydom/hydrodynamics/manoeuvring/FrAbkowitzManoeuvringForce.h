@@ -8,6 +8,9 @@
 #include "frydom/core/force/FrForce.h"
 
 namespace frydom {
+
+  class FrHullResistance;
+
   /// Abkowitz manoeuvring model from Yoshimura (2012)
   class FrAbkowitzManoeuvringForce : public FrForce {
 
@@ -17,15 +20,25 @@ namespace frydom {
 
     void Initialize() override;
 
+    double GetUMin() const;
+
+    double GetUMax() const;
+
    private:
+
     void Compute(double time) override;
 
     void DefineLogMessages() override;
 
-    void LoadManoeuvringData();
+    void LoadResistanceCurve(const std::string& filepath);
+
+    void LoadManoeuvringData(const std::string& filepath);
 
    private:
+
     std::string c_filepath; ///< path to the JSON file containing the manoeuvring data
+
+    std::shared_ptr<FrHullResistance> m_hullResistance;
 
     double m_Lpp;
     double m_draft;
