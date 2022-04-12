@@ -13,6 +13,7 @@ using namespace acme;
 namespace frydom {
 
   FrPropellerRudder::FrPropellerRudder(const std::string &name,
+                                       PropellerRudderModelType proprudder_type,
                                        PropellerModelType prop_type,
                                        const std::shared_ptr<FrNode> &propeller_node,
                                        PropellerParams prop_params,
@@ -21,7 +22,14 @@ namespace frydom {
                                        RudderParams rudder_params) :
       FrActuatorForceBase(name, "FrACMEPropellerRudder", propeller_node->GetBody()),
       m_propeller_node(propeller_node), m_rudder_node(rudder_node) {
-    m_acme_propeller_rudder = acme::build_pr(prop_type, prop_params, rudder_type, rudder_params);
+    switch (proprudder_type) {
+      case acme::E_BRIX:
+        m_acme_propeller_rudder = acme::build_Brix_pr(prop_type, prop_params, rudder_type, rudder_params);
+        break;
+      case acme::E_MMG:
+        m_acme_propeller_rudder = acme::build_MMG_pr(prop_type, prop_params, rudder_type, rudder_params);
+        break;
+    }
   }
 
   void FrPropellerRudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
@@ -249,6 +257,7 @@ namespace frydom {
 
   std::shared_ptr<FrPropellerRudder>
   make_propeller_rudder_model(const std::string &name,
+                              PropellerRudderModelType proprudder_type,
                               PropellerModelType prop_type,
                               const std::shared_ptr<FrNode> &propeller_node,
                               PropellerParams prop_params,
@@ -271,6 +280,7 @@ namespace frydom {
     }
 
     auto prop_rudder = std::make_shared<FrPropellerRudder>(name,
+                                                           proprudder_type,
                                                            prop_type,
                                                            propeller_node,
                                                            prop_params,

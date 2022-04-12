@@ -17,6 +17,7 @@ namespace frydom {
    public:
 
     FrPropellerRudder(const std::string &name,
+                      PropellerRudderModelType proprudder_type,
                       PropellerModelType prop_type,
                       const std::shared_ptr<FrNode> &propeller_node,
                       PropellerParams prop_params,
@@ -98,6 +99,7 @@ namespace frydom {
 
   std::shared_ptr<FrPropellerRudder>
   make_propeller_rudder_model(const std::string &name,
+                              PropellerRudderModelType proprudder_type,
                               PropellerModelType prop_type,
                               const std::shared_ptr<FrNode> &propeller_node,
                               PropellerParams prop_params,
