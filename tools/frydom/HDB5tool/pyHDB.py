@@ -1739,7 +1739,10 @@ class pyHDB(object):
         # Environement.
         print("\nGravity acceleration (m/s2): " + str(self.grav))
         print("Water density (kg/m3): " + str(self.rho_water))
-        print("Water depth (m): " + str(self.depth))
+        if self.depth == np.inf or self.depth == 0:
+            print("Water depth (m): Infinite")
+        else:
+            print("Water depth (m): " + str(self.depth))
 
         # Discretization.
         print("\nNumber of wave frequencies: " + str(self.nb_wave_freq))
@@ -1750,9 +1753,21 @@ class pyHDB(object):
         print("Wave frequency direction (deg): " + str(self.max_wave_dir))
 
         # Symmetries.
-        print("\nBottom symmetry: " + str(self.bottom_sym))
-        print("(xOz) symmetry: " + str(self.xoz_sym))
-        print("(yOz) symmetry: " + str(self.yoz_sym))
+        if self.bottom_sym is not None:
+            if self.bottom_sym == 0:
+                print("\nBottom symmetry: No")
+            else:
+                print("\nBottom symmetry: Yes")
+        if self.bottom_sym is not None:
+            if self.xoz_sym == 0:
+                print("(xOz) symmetry: No")
+            else:
+                print("(xOz) symmetry: Yes")
+        if self.yoz_sym is not None:
+            if self.yoz_sym == 0:
+                print("(yOz) symmetry: No")
+            else:
+                print("(yOz) symmetry: Yes")
 
         # Bodies.
         print("\nNumber of bodies: " + str(self.nb_bodies))
