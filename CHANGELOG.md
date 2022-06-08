@@ -8,6 +8,8 @@ This file should be kept up to date following [these guidelines](https://keepach
 ### Added
 - New Abkowitz manoeuvring model (Yoshimura 2012)
 ### Changed
+- Propulsion models updated to follow acme evolution
+- Morison Model extended with a simple model for added mass
 ### Fixed
 - Prop/Rudder interaction model : signs of prop to rudder and cog to rudder distance
 
