@@ -240,8 +240,9 @@ int test_FPP4Q() {
   params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
   params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
   params.m_thrust_deduction_factor_0 = thrust_deduction_factor_0;
+  params.m_thruster_perf_data_json_string = open_water_data_table;
 
-  auto acme_FPP4Q = acme::FPP4Q(params, open_water_data_table);
+  auto acme_FPP4Q = acme::FPP4Q(params);
 
   system.Initialize();
   acme_FPP4Q.Initialize();
@@ -344,8 +345,9 @@ int test_CPP() {
   params.m_screw_direction = acme::SCREW_DIRECTION::RIGHT_HANDED;
   params.m_hull_wake_fraction_0 = hull_wake_fraction_0;
   params.m_thrust_deduction_factor_0 = thrust_deduction_factor_0;
+  params.m_thruster_perf_data_json_string = open_water_data_table;
 
-  auto acme_CPP = acme::CPP(params, open_water_data_table);
+  auto acme_CPP = acme::CPP(params);
 
   system.Initialize();
   acme_CPP.Initialize();
