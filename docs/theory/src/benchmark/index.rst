@@ -5,7 +5,7 @@ Benchmark cases
 
 
 Hydrostatics and stability
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
     :maxdepth: 2
 

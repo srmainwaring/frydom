@@ -26,9 +26,10 @@ namespace frydom {
                            FrBody *body,
                            const std::string &jsonFile) :
       FrForce(name, type_name, body),
+      m_table(mathutils::LINEAR),
       m_frontal_area(1.),
       m_lateral_area(1.),
-      m_length(1.) {
+      m_length(1.){
 
     this->ReadTable(jsonFile);
   }
@@ -96,6 +97,10 @@ namespace frydom {
       return a.first < b.first;
     });
 
+    // Ensuring first term is 0
+    assert(polar[0].first <= 1E-6);
+    polar[0].first = 0;
+
     // Adding last term for angle equal to 2pi
     new_element.first = 2. * MU_PI;
     new_element.second = polar.begin()->second;
@@ -151,7 +156,7 @@ namespace frydom {
 
     auto body = GetBody();
 
-    FrFrame FrameAtCOG = body->GetFrameAtCOG(NWU);
+    FrFrame FrameAtCOG = body->GetFrameAtCOG();
     Velocity VelocityInWorldAtCOG = body->GetCOGLinearVelocityInWorld(NWU);
 
     m_fluxVelocityInBody =
@@ -174,7 +179,7 @@ namespace frydom {
 
     auto body = GetBody();
 
-    FrFrame FrameAtCOG = body->GetFrameAtCOG(NWU);
+    FrFrame FrameAtCOG = body->GetFrameAtCOG();
     Velocity VelocityInWorldAtCOG = body->GetCOGLinearVelocityInWorld(NWU);
 
     m_fluxVelocityInBody =

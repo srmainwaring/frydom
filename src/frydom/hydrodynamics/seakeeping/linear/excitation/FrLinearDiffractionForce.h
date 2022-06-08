@@ -44,9 +44,17 @@ namespace frydom {
                                       FrBody *body,
                                       const std::shared_ptr<FrHydroDB> &HDB);
 
+    /// Getter for the diffraction loads for a given wave direction.
     Eigen::MatrixXcd GetHDBData(unsigned int iangle) const override;
 
+    /// Getter for the x-derivative of the diffraction loads for a given wave direction.
+    Eigen::MatrixXcd GetHDBDataXDerivative(unsigned int iangle) const override;
+
+    /// Getter for the diffraction loads for a given wave direction and dof.
     Eigen::VectorXcd GetHDBData(unsigned int iangle, unsigned int iforce) const override;
+
+    /// Getter for the x-derivative of the diffraction loads for a given wave direction and dof.
+    Eigen::VectorXcd GetHDBDataXDerivative(unsigned int iangle, unsigned int iforce) const override;
 
   };
 

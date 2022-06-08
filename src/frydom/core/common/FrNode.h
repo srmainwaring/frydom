@@ -19,7 +19,6 @@
 #include "FrObject.h"
 
 #include "frydom/core/link/links_lib/FrLink.h"
-#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/logging/FrLoggable.h"
 
@@ -287,8 +286,6 @@ namespace frydom {
     friend std::shared_ptr<internal::FrMarker> internal::GetChronoMarker(std::shared_ptr<FrNode> node);
 
     friend void FrLink::SetNodes(FrNode *, FrNode *);
-
-    friend chrono::ChMarker *internal::FrLMBoundaryNode::GetMarker() const;
 
   };
 

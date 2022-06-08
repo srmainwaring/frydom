@@ -57,16 +57,35 @@ namespace frydom {
     internal::GetChronoPhysicsItemFromAsset(this)->AddAsset(internal::GetChronoAsset(shape));
   }
 
-  void FrAssetOwner::AddMeshAsset(std::string obj_filename) {
+  void FrAssetOwner::AddMeshAsset(std::string obj_filename, Position pos, FrRotation rot) {
     auto mesh = std::make_shared<FrTriangleMeshConnected>();
     mesh->LoadWavefrontMesh(obj_filename);
+    mesh->Translate(pos);
+    mesh->Rotate(rot);
     AddMeshAsset(mesh);
+    m_filename = obj_filename;
+    m_mesh_offset_position = pos;
+    m_mesh_offset_rotation = rot;
   }
 
   void FrAssetOwner::AddMeshAsset(std::shared_ptr<frydom::FrTriangleMeshConnected> mesh) {
     auto shape = std::make_shared<FrTriangleMeshShape>(mesh);
     m_meshShapes.push_back(shape);
     internal::GetChronoPhysicsItemFromAsset(this)->AddAsset(internal::GetChronoAsset(shape));
+  }
+
+  const std::string& FrAssetOwner::GetMeshFilename() const {
+    return m_filename;
+  }
+
+  const Position& FrAssetOwner::GetMeshOffsetPosition(FRAME_CONVENTION fc) const {
+    auto mesh_offset_position = m_mesh_offset_position;
+    if (IsNED(fc)) internal::SwapFrameConvention<Position>(mesh_offset_position);
+    return m_mesh_offset_position;
+  }
+
+  const FrRotation& FrAssetOwner::GetMeshOffsetRotation() const {
+    return m_mesh_offset_rotation;
   }
 
   void FrAssetOwner::AddAsset(std::shared_ptr<FrAsset> asset) {
@@ -175,33 +194,36 @@ namespace frydom {
 
     std::shared_ptr<chrono::ChPhysicsItem> GetChronoPhysicsItemFromAsset(FrAssetOwner *assetOwner) {
 
+      std::shared_ptr<chrono::ChPhysicsItem> item;
+
       if (auto body = dynamic_cast<FrBody *>(assetOwner)) {
-        return internal::GetChronoBody(body);
+        item = internal::GetChronoBody(body);
       }
 
       // Links
 
       if (auto angular_actuator = dynamic_cast<FrAngularActuator *>(assetOwner)) {
-        return internal::GetChronoActuator(angular_actuator);
+        item = internal::GetChronoActuator(angular_actuator);
       }
 
       if (auto linear_actuator = dynamic_cast<FrLinearActuator *>(assetOwner)) {
-        return internal::GetChronoActuator(linear_actuator);
+        item = internal::GetChronoActuator(linear_actuator);
       }
 
       if (auto catenary_line_base = dynamic_cast<FrCatenaryLineBase *>(assetOwner)) {
         // FIXME: voir si on a besoin de differencier catenary line & hydro_mesh
-        return internal::GetChronoPhysicsItem(catenary_line_base);
+        item = internal::GetChronoPhysicsItem(catenary_line_base);
       }
 
 //      if (auto catenary_line = dynamic_cast<FrCatenaryLineBase *>(assetOwner)) {
-//        return internal::GetChronoPhysicsItem(catenary_line);
+//        item = internal::GetChronoPhysicsItem(catenary_line);
 //      }
 //
 //      if (auto hydro_mesh = dynamic_cast<FrHydroMesh *>(assetOwner)) {
-//        return internal::GetChronoPhysicsItem(hydro_mesh);
+//        item = internal::GetChronoPhysicsItem(hydro_mesh);
 //      }
 
+    return item;
 
     }
 

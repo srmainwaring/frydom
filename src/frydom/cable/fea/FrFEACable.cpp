@@ -44,6 +44,7 @@ namespace frydom {
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
     // TODO
+    return Force();
   }
 
   /*
@@ -74,6 +75,7 @@ namespace frydom {
 
   Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
     // TODO
+    return Position();
   }
 
   void FrFEACable::Initialize() {
@@ -118,6 +120,7 @@ namespace frydom {
 
   double FrFEACable::GetStaticResidual() {
     // TODO
+    return 0.;
   }
 
   unsigned int FrFEACable::GetNbNodes() const {

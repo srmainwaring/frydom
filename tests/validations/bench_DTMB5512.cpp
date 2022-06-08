@@ -118,19 +118,22 @@ class SteadyPitchTorque : public FrForce {
 
   void Compute(double time) override {
 
-    auto speed = GetBody()->GetLinearVelocityInWorld(NWU).GetVx();
-    auto torque = 4.332 * std::pow(speed, 6)
-                  - 9.1135 * std::pow(speed, 5)
-                  - 9.7756 * std::pow(speed, 4)
-                  + 34.232 * std::pow(speed, 3)
-                  - 22.7359 * std::pow(speed, 2);
+    auto meanSpeed = m_eqFrame->GetFrameVelocityInFrame(NWU).norm();
+    auto torque = 4.332 * std::pow(meanSpeed, 6)
+                  - 9.1135 * std::pow(meanSpeed, 5)
+                  - 9.7756 * std::pow(meanSpeed, 4)
+                  + 34.232 * std::pow(meanSpeed, 3)
+                  - 22.7359 * std::pow(meanSpeed, 2);
 
     SetTorqueInBodyAtCOG(Torque(0., -torque, 0.), NWU);
 
   }
 
  public:
-  SteadyPitchTorque(const std::string &name, FrBody *body) : FrForce(name, "SteadyPitchTorque", body) {}
+  SteadyPitchTorque(const std::string &name, FrBody *body, const std::shared_ptr<FrEquilibriumFrame> &eqFrame)
+  : FrForce(name, "SteadyPitchTorque", body), m_eqFrame(eqFrame) {}
+
+  std::shared_ptr<FrEquilibriumFrame> m_eqFrame;
 };
 
 // ----------------------------------------------------------
@@ -141,17 +144,21 @@ class SteadyHeaveForce : public FrForce {
 
   void Compute(double time) override {
 
-    auto speed = GetBody()->GetLinearVelocityInWorld(NWU).GetVx();
+    auto meanSpeed = m_eqFrame->GetFrameVelocityInFrame(NWU).norm();
 
-    auto force = -12.32426 * std::pow(speed, 3)
-                 - 2.8696 * std::pow(speed, 2);
+    auto force = -12.32426 * std::pow(meanSpeed, 3)
+                 - 2.8696 * std::pow(meanSpeed, 2);
 
     SetForceInWorldAtCOG(Force(0., 0., force), NWU);
 
   }
 
  public:
-  SteadyHeaveForce(const std::string &name, FrBody *body) : FrForce(name, "SteadyHeaveForce", body) {}
+  SteadyHeaveForce(const std::string &name, FrBody *body, const std::shared_ptr<FrEquilibriumFrame> &eqFrame)
+  : FrForce(name, "SteadyHeaveForce", body), m_eqFrame(eqFrame) {}
+
+  std::shared_ptr<FrEquilibriumFrame> m_eqFrame;
+
 };
 
 // -----------------------------------------------------------
@@ -168,10 +175,13 @@ double ResidualITTC(double speed) {
     return 1.6812e-3;
   } else if (std::abs(speed - 2.243) < 1E-2) {
     return 4.02529e-3;
+  } else if(std::abs(speed) < 1E-2) {
+    return 0.;
   } else {
-    std::cout << "warning : no residual coefficient for this speed value" << std::endl;
-    std::cout << "        : residual set to 0. " << std::endl;
+      std::cout << "ResidualITTC: Warning, no residual coefficient for this speed value." << std::endl;
+      std::cout << "            : residual set to 0. " << std::endl;
   }
+
   return 0.;
 };
 
@@ -183,23 +193,65 @@ double ResidualITTC(double speed) {
 int main(int argc, char *argv[]) {
 
   std::cout << " ======================================================= \n"
-               " Benchmark test : DTMB 5512 captive motion \n"
+               " Benchmark test : DTMB 5512 \n"
                " =======================================================" << std::endl;
 
-  // -- Input
+  // -- Inputs
+  if(argc != 7){
+    std::cout << "bench_DTMB5512 requires five input data:" << std::endl;
+    std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
+    std::cout << "    - the wave period (s);" << std::endl;
+    std::cout << "    - the wave amplitude (m);" << std::endl;
+    std::cout << "    - an interger for using no forward speed model (0) or the simple speed model (1);" << std::endl;
+    std::cout << "    - an interger for using the direct convolution (0) or the recursive convolution (1);" << std::endl;
+    std::cout << "    - the name of the ouput folder." << std::endl;
+    exit(0);
+  }
 
-  double speed = atof(argv[1]);   // Ship forward speed
-  double ak = 0.5 * atof(argv[2]);  // Wave amplitude (m)
-  double Tk = atof(argv[3]);      // Wave period (s)
-  char *name = argv[4];     // Output director prefix name
+  double Froude = atof(argv[1]); // Froude number.
+  double length = 3.048; // Length (m).
+  double gravity = 9.80665; // m/s^2.
+  double forward_speed = Froude * sqrt(gravity * length); // Ship forward speed (m/s).
 
-  bool captive_test = false;      // fixed heave and pitch motions
+  // Checking the Froude number.
+  if(!mathutils::IsClose(Froude, 0.) and !mathutils::IsClose(Froude, 0.19) and !mathutils::IsClose(Froude, 0.28)
+      and !mathutils::IsClose(Froude, 0.34) and !mathutils::IsClose(Froude, 0.41)) {
+    std::cout << "Possible Froude numbers are : 0. / 0.19 / 0.28 / 0.34 / 0.41" << std::endl;
+    std::cout << "Input Froude number = " << Froude << std::endl;
+    exit(0);
+  }
 
-  // -- System
+  double ak = atof(argv[2]); // Wave amplitude (m).
+  double Tk = atof(argv[3]); // Wave period (s).
+  bool simple_forward_speed_model = false;
+  if(atoi(argv[4]) == 1){
+    simple_forward_speed_model = true;
+  }
+  bool useIRF = true; // Direct convolution.
+  if(atoi(argv[5]) == 1){ // Recursive convolution.
+    useIRF = false;
+  }
+  char *name = argv[6]; // Output director prefix name.
 
-  FrOffshoreSystem system(name);
+  bool captive_test = false; // Fixed heave and pitch motions.
 
-  // -- Ocean
+  // -- System.
+  std::string output_folder_name = "bench_DTMB5512_Fr_" + std::to_string(Froude) + "_Amplitude_" + std::to_string(ak)
+                                   + "_Period_" + std::to_string(Tk);
+  if(simple_forward_speed_model) {
+    output_folder_name += "_Simple_forward_speed_model";
+  } else {
+    output_folder_name += "_No_forward_speed_model";
+  }
+  if(useIRF){
+    output_folder_name += "_Direct_convolution";
+  } else{
+    output_folder_name += "_Recursive_convolution";
+  }
+  FrOffshoreSystem system(name, FrOffshoreSystem::NONSMOOTH_CONTACT, FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::APGD, output_folder_name);
+
+  // -- Ocean.
   auto ocean = system.GetEnvironment()->GetOcean();
   ocean->SetDensity(1000.);
 
@@ -210,7 +262,7 @@ int main(int argc, char *argv[]) {
 
   system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(5., 0., 20., 1.);
 
-  // -- Body
+  // -- Body.
 
   auto body = system.NewBody("DTMB");
   Position COGPosition(0., 0., 0.03); // 0.03
@@ -219,7 +271,7 @@ int main(int argc, char *argv[]) {
   body->AddMeshAsset(DTMB_asset);
   body->SetColor(Yellow);
 
-  // -- Inertia
+  // -- Inertia.
 
   double mass = 86.0;
 
@@ -232,48 +284,61 @@ int main(int argc, char *argv[]) {
 
   // -- Hydrodynamics
 
-  auto DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512.hdb5"});
+  std::string DTMB_hdb = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/DTMB5512/DTMB5512_Helios_IRF_and_VF.hdb5"});
   auto hdb = make_hydrodynamic_database(DTMB_hdb);
 
   auto eqFrame = make_equilibrium_frame("EqFrame", body, {0., 0., 0.03}, NWU);
-  eqFrame->SetVelocityInWorld({speed, 0., 0.}, NWU);
+  eqFrame->SetVelocityInWorld({forward_speed, 0., 0.}, NWU);
 
   hdb->Map(0, body.get(), eqFrame);
 
-  // -- Hydrostatic
+  // -- Hydrostatic.
 
   auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
 
-  // -- Radiation
+  // -- Radiation.
 
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(body.get(), 50., 0.008);
+  if(useIRF) {
+    if(simple_forward_speed_model) {
+      auto radiationModel = make_radiation_convolution_model_with_forward_speed_correction("radiation_convolution", &system, hdb);
+    } else {
+      auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
+    }
+  } else {
+    if(simple_forward_speed_model) {
+      auto radiationModel = make_recursive_convolution_model_with_forward_speed_correction("radiation_convolution", &system, hdb);
+    } else {
+      auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
+    }
+  }
 
-  // -- Excitation
+  // -- Excitation.
 
-  auto excitationForce = make_linear_excitation_force("linear_excitation", body, hdb);
+  auto diffractionForce = make_linear_diffraction_force("linear_diffraction", body, hdb);
 
-  // -- Wave Drift force
+  auto FroudeKrylovForce = make_linear_froude_krylov_force("linear_Froude_Krylov", body, hdb);
+
+  // -- Wave Drift force.
 
   auto waveDriftForce = make_wave_drift_force("wave_drift", body, hdb);
 
-  // -- ITTC57
+  // -- ITTC57.
 
   auto lpp = 3.048;
   auto wettedSurfaceArea = 1.371;
 
-  auto ct = ResidualITTC(speed);
+  auto ct = ResidualITTC(forward_speed);
   auto forceResistance = make_ITTC_resistance_force("ITTC_resistance", body, lpp, wettedSurfaceArea, ct, 0.03);
 
-  // -- Steady force
+  // -- Steady force.
 
-  auto forcePitch = std::make_shared<SteadyPitchTorque>("forcePitch", body.get());
+  auto forcePitch = std::make_shared<SteadyPitchTorque>("forcePitch", body.get(), eqFrame);
   body->AddExternalForce(forcePitch);
 
-  auto forceHeave = std::make_shared<SteadyHeaveForce>("forceHeave", body.get());
+  auto forceHeave = std::make_shared<SteadyHeaveForce>("forceHeave", body.get(), eqFrame);
   body->AddExternalForce(forceHeave);
 
-  // -- Carriage and fixation point
+  // -- Carriage and fixation point.
 
   auto shipNode = body->NewNode("shipNode");
   shipNode->SetPositionInBody(body->GetCOG(NWU), NWU);
@@ -281,7 +346,7 @@ int main(int argc, char *argv[]) {
   shipNode->RotateAroundXInBody(90 * DEG2RAD, NWU);
 
   auto carriage = make_carriage(&system, shipNode, captive_test);
-  carriage->SetMotorFunction(FrConstantFunction(speed));
+  carriage->SetMotorFunction(FrConstantFunction(forward_speed));
 
   auto dt = 0.008;
 
@@ -289,7 +354,9 @@ int main(int argc, char *argv[]) {
   system.Initialize();
   system.DoAssembly();
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
+
+  clock_t begin = clock();
 
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false);
@@ -298,8 +365,12 @@ int main(int argc, char *argv[]) {
     while (time < 50.) {
       time += dt;
       system.AdvanceTo(time);
-      std::cout << "time : " << time << std::endl;
     }
   }
+
+  clock_t end = clock();
+  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+  std::cout << "Elapsed cpu time in seconds : " << elapsed_secs << std::endl;
+
   std::cout << "=============================== End ========================" << std::endl;
 }

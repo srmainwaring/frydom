@@ -12,7 +12,7 @@ if (NOT mathutils_POPULATED)
     FetchContent_Populate(mathutils)
 
     # MathUtils BUILD OPTIONS
-    set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 
     add_subdirectory(${mathutils_SOURCE_DIR} ${mathutils_BINARY_DIR})
 endif ()

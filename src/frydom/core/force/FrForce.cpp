@@ -80,7 +80,6 @@ namespace frydom {
                    const std::string &type_name,
                    FrBody *body) :
       FrLoggable(name, type_name, body) {
-    event_logger::info(GetTypeName(), GetName(), "Force created");
     m_chronoForce = std::make_shared<internal::FrForceBase>(this);
 
   }
@@ -117,9 +116,6 @@ namespace frydom {
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TorqueInWorldAtCOG", "Nm", fmt::format("torque at COG in world reference frame in {}", GetLogFC()),
          [this]() { return GetTorqueInWorldAtCOG(GetLogFC()); });
-
-    //msg->Initialize();
-    //msg->Send();
 
   }
 
@@ -442,19 +438,5 @@ namespace frydom {
       SetForceTorqueInBodyAtCOG(Force(), Torque(), NWU);
 
   }
-
-//    std::string FrForce::BuildPath(const std::string &rootPath) {
-//
-////        auto objPath = fmt::format("{}/Forces", rootPath);
-////
-////        auto logPath = GetPathManager()->BuildPath(objPath, fmt::format("{}_{}.csv", GetTypeName(), GetShortenUUID()));
-////
-////        // Add a serializer
-////        m_message->AddSerializer(FrSerializerFactory::instance().Create(this, logPath));
-////
-////        return objPath;
-//
-//    }
-
 
 }  // end namespace frydom

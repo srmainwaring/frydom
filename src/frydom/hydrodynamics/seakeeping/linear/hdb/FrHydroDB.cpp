@@ -25,6 +25,13 @@ namespace frydom {
 
   }
 
+  FrHydroDB::FrHydroDB(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) : m_HDB(hdb) {
+
+    // Creation of the mapper object for hydrodynamic bodies.
+    m_mapper = std::make_unique<FrHydroMapper>();
+
+  };
+
   FrBEMBody *FrHydroDB::GetBody(FrBody *body) {
     return m_mapper->GetBEMBody(body);
   }
@@ -35,6 +42,14 @@ namespace frydom {
 
   FrBody *FrHydroDB::GetBody(FrBEMBody *body) {
     return m_mapper->GetBody(body);
+  }
+
+  int FrHydroDB::GetBEMBodyNumber() {
+
+    // This method returns the number of BEM bodies.
+
+    return m_HDB->GetNbBodies();
+
   }
 
   FrHydroMapper *FrHydroDB::GetMapper() {
@@ -77,21 +92,20 @@ namespace frydom {
     return DOFMask&&BEMBody->GetForceMask();
   }
 
-  void FrHydroDB::GetImpulseResponseSize(double timeStep, double &Te, double &dt) const {
+  bool FrHydroDB::GetIsXDerivative() const {
 
-    // FIXME : check this
-    auto frequencies = m_HDB->GetFrequencyDiscretization();
-    auto freqStep = frequencies[1] - frequencies[0];
+    // This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
 
-    Te = 0.5 * MU_2PI / freqStep;
+    return m_HDB->GetIsXDerivative();
 
-    auto N = (unsigned int) floor(Te / timeStep);
-
-    dt = Te / double(N - 1);
-  };
+  }
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file) {
     return std::make_shared<FrHydroDB>(h5file);
+  }
+
+  std::shared_ptr<FrHydroDB> make_hydrodynamic_database(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) {
+    return std::make_shared<FrHydroDB>(hdb);
   }
 
 } //end namespace frydom

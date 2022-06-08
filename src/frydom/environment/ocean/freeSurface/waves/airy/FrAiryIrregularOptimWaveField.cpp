@@ -127,7 +127,7 @@ namespace frydom {
   }
 
   void FrAiryIrregularOptimWaveField::InternalUpdate() {
-    c_expJwt.empty();
+//    c_expJwt.empty();
     c_expJwt.reserve(m_nbFreq);
     c_expJwt.clear();
 

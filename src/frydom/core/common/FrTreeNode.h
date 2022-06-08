@@ -80,6 +80,6 @@ namespace frydom {
 
 }  // end namespace frydom
 
-#include "FrTreeNode.cpp"
+#include "FrTreeNode.hpp"
 
 #endif //FRYDOM_FRTREENODE_H

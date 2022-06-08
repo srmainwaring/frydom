@@ -13,6 +13,42 @@
 
 using namespace frydom;
 
+class FrlinearStiffnessForce : public FrForce {
+
+ public:
+
+  FrlinearStiffnessForce(const std::string& name, FrBody* body,
+                         const mathutils::Matrix33<double> &stiffness_matrix,
+                         const FrFrame& equilibriumFrameInWorld) :
+  FrForce(name, "LinearStiffnessForce", body),
+  m_stiffness_matrix(stiffness_matrix),
+  m_equilibrium_frame(equilibriumFrameInWorld) {}
+
+ private:
+
+  void Compute(double time) override {
+    auto frameAtCOGInWorld = GetBody()->GetFrameAtCOG();
+
+    double phi, theta, psi, psieq;
+    frameAtCOGInWorld.GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+    m_equilibrium_frame.GetRotation().GetCardanAngles_RADIANS(phi, theta, psieq, NWU);
+
+    auto x_xeq = frameAtCOGInWorld.GetPosition(NWU).GetX() - m_equilibrium_frame.GetX(NWU);
+    auto y_yeq = frameAtCOGInWorld.GetPosition(NWU).GetY() - m_equilibrium_frame.GetY(NWU);
+    mathutils::Vector3d<double> X(x_xeq, y_yeq, psi-psieq);
+
+    mathutils::Vector3d<double> generalForceInWorld = - m_stiffness_matrix*X;
+    SetForceTorqueInWorldAtCOG(Force(generalForceInWorld.x(), generalForceInWorld.y(), 0.),
+                               Torque(0., 0., generalForceInWorld.z()), NWU);
+
+  }
+
+  mathutils::Matrix33<double> m_stiffness_matrix;
+
+  FrFrame m_equilibrium_frame;
+
+};
+
 int main(int argc, char *argv[]) {
 
   /**
@@ -151,6 +187,15 @@ int main(int argc, char *argv[]) {
       {system.config_file().GetDataFolder(), "ce/platform/Platform_PolarWindCoeffs_NC.json"});
   auto windForce = make_wind_force("wind_force", platform, Platform_PolarWindCoeffs_NC);
   windForce->ShowAsset(true);
+
+  mathutils::Matrix33<double> stiffnessMatrix;
+  stiffnessMatrix.SetNull();
+  stiffnessMatrix(0,0) = 5E8;
+  stiffnessMatrix(1,1) = 5E8;
+  stiffnessMatrix(2,2) = 5E9;
+  auto linearStiffnessForce = std::make_shared<FrlinearStiffnessForce>("linearStiffnessForce", platform.get(),
+                                                                       stiffnessMatrix, platform->GetFrameAtCOG());
+  platform->AddExternalForce(linearStiffnessForce);
 
   // ------------------ Run with Irrlicht ------------------ //
 

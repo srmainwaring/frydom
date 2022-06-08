@@ -223,7 +223,7 @@ namespace frydom {
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
       m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
-      m_DOFMask(std::make_unique<FrDOFMask>()) {
+      m_DOFMask(std::make_unique<FrDOFMask>(this)) {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
@@ -745,15 +745,24 @@ namespace frydom {
     SetRotation(worldFrame.GetQuaternion());
   }
 
-  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) {
+  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) const {
     FrFrame pointFrame;
     pointFrame.SetPosition(GetPointPositionInWorld(bodyPoint, fc), fc);
     pointFrame.SetRotation(GetQuaternion());
     return pointFrame;
   }
 
-  FrFrame FrBody::GetFrameAtCOG(FRAME_CONVENTION fc) {
-    return GetFrameAtPoint(GetCOG(fc), fc);
+  FrFrame FrBody::GetFrameAtCOG() const {
+    return GetFrameAtPoint(GetCOG(NWU), NWU);
+  }
+
+  FrFrame FrBody::GetHeadingFrame() const {
+    FrFrame headingFrame;
+    double phi, theta, psi;
+    GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+    headingFrame.SetRotZ_RADIANS(psi, NWU);
+    headingFrame.SetPosition(GetCOGPositionInWorld(NWU), NWU);
+    return headingFrame;
   }
 
   Position FrBody::GetPointPositionInWorld(const Position &bodyPos, FRAME_CONVENTION fc) const {
@@ -891,6 +900,10 @@ namespace frydom {
 
   Velocity FrBody::GetCOGVelocityInBody(FRAME_CONVENTION fc) const {
     return ProjectVectorInBody<Velocity>(GetCOGLinearVelocityInWorld(fc), fc);
+  }
+
+  Velocity FrBody::GetVelocityInHeadingFrame(FRAME_CONVENTION fc) const {
+    return GetHeadingFrame().ProjectVectorParentInFrame(GetCOGLinearVelocityInWorld(fc), fc);
   }
 
   void FrBody::SetAccelerationInWorldNoRotation(const Acceleration &worldAcc, FRAME_CONVENTION fc) {
@@ -1116,35 +1129,42 @@ namespace frydom {
 
     // TODO : voir si n'accepte pas de definir des offset sur les ddl bloques...
 
-    // Getting the markers that enter in the link
+    if (m_DOFLink) {
+      // updating the link with the new mask
+      m_DOFLink->SetDOFMask(m_DOFMask.get());
+      m_DOFLink->Initialize();
+    }
+    else {
 
-    // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
-    auto bodyNode = NewNode(GetName() + "_locking_node");
+      // Getting the markers that enter in the link
 
-    auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
-    auto bodyOrientationInWorld = GetQuaternion();
+      // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
+      auto bodyNode = NewNode(GetName() + "_locking_node");
 
-    auto bodyNodeFrameInWorld = FrFrame(cogPositionInWorld, bodyOrientationInWorld, NWU);
-    bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
+      auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
+      auto bodyOrientationInWorld = GetQuaternion();
 
-    // World Marker placed at the current COG body position
-    auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
-    auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
-    worldNode->SetFrameInBody(bodyNodeFrameInWorld);
+      auto bodyNodeFrameInWorld = FrFrame(cogPositionInWorld, bodyOrientationInWorld, NWU);
+      bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
 
-    // Creating the link
-    auto DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
+      // World Marker placed at the current COG body position
+      auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
+      auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
+      worldNode->SetFrameInBody(bodyNodeFrameInWorld);
 
-    // Initializing the link with the DOFMask
-    DOFLink->SetDOFMask(m_DOFMask.get());
+      // Creating the link
+      m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), bodyNode, worldNode);
 
-    // Adding the link to the system
-    GetSystem()->Add(DOFLink);
+      // Initializing the link with the DOFMask
+      m_DOFLink->SetDOFMask(m_DOFMask.get());
 
-    bodyNode->LogThis(m_DOFMask->IsLogged());
-    worldNode->LogThis(m_DOFMask->IsLogged());
-    DOFLink->LogThis(m_DOFMask->IsLogged());
+      bodyNode->LogThis(m_DOFMask->IsLogged());
+      worldNode->LogThis(m_DOFMask->IsLogged());
+      m_DOFLink->LogThis(m_DOFMask->IsLogged());
 
+      // Adding the link to the system
+      GetSystem()->Add(m_DOFLink);
+    }
   }
 
   FrDOFMask *FrBody::GetDOFMask() {
@@ -1210,14 +1230,29 @@ namespace frydom {
          [this]() { return GetLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("LinearAccelerationInBody", "m/s2",
+         fmt::format("body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("COGLinearAccelerationInWorld", "m/s2",
          fmt::format("COG body linear acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetCOGLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("COGLinearAccelerationInBody", "m/s2",
+         fmt::format("COG body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetCOGAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("AngularAccelerationInWorld", "rad/s2",
          fmt::format("body angular acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetAngularAccelerationInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("AngularAccelerationInBody", "rad/s2",
+         fmt::format("body angular acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAngularAccelerationInBody(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TotalExtForceInBody", "N",

@@ -6,6 +6,30 @@ This file should be kept up to date following [these guidelines](https://keepach
 ## [Unreleased]
 
 ### Added
+- New Abkowitz manoeuvring model (Yoshimura 2012)
+### Changed
+### Fixed
+- Prop/Rudder interaction model : signs of prop to rudder and cog to rudder distance
+
+## [3.5] - 2021-11-10
+
+### Added
+- New propulsion and steering model forces, using the external library acme
+- New Sutulo manoeuvring model
+### Changed
+- Upgrading Geographiclib to 1.52 and patching it to disconnect useless targets such as examples, doc or js
+- Using tgz archive for chrono instead of directly git repository cloning so that patch can perform correctly during fetching
+- Making BUILD_SHARED_LIBS global CMake option better propagate on frydom and its dependencies
+### Fixed
+- FrRadiationConvolutionModel::SetImpulseResponseSize and Initialize concerning the size of the TimeRecorder
+- FrAiryIrregularWaveField::GetMeanWaveDirectionAngle
+- FrBody::GetHeadingFrame
+- BodyDOFMask: DOF locked are according to body frame, not world frame
+- missing breaks in switch statements
+
+## [3.4] - 2021-04-08
+
+### Added
 - New recursive convolution for the radiation model, based on modal coefficients
 - New catenary line model, replacing the old one : FrCatenaryLine
 - New finite element line model, FrFEACable, replacing the old one : FrDynamicCable
@@ -25,6 +49,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 - Excitation force computation for hdb with a forceMask
 - Forward speed correction for the radiation force
 - Added mass variables definition for morison elements (de-allocation problems)
+- FrRadiationConvolutionModel::SetImpulseResponseSize and Initialize concerning the size of the TimeRecorder, previously recalculated, now get it from the HDB IRF. It can't be larger than the IRF one.
 
 ## [3.1] - 2020-02-06
 

@@ -16,6 +16,8 @@
 
 namespace frydom {
 
+  class FrBody;
+
   /*
 * Defining a mask class to make the constraint on bodies WRT to world easier
 */
@@ -37,6 +39,7 @@ namespace frydom {
     bool m_RzLocked = false;
 
     bool m_log_this = true;
+    FrBody* m_body;
 
    public:
 
@@ -44,6 +47,8 @@ namespace frydom {
     /*
      * Pour les angles, un blocage en
      */
+
+    explicit FrDOFMask(FrBody* body);
 
     ~FrDOFMask() = default;
 

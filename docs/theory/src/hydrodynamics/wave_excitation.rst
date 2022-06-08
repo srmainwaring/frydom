@@ -22,7 +22,7 @@ with
 - :math:`A_{mn}` the wave amplitude for the wave frequency :math:`\omega_m` and the wave direction :math:`\theta_n`;
 - :math:`\mathbf{f}_e(\omega_m,\theta_n)` is the frequency-domain excitation force component (with both the diffraction and Froude-Krylov components) for the wave frequency :math:`\omega` and the wave direction :math:`\theta_n`.
 
-The frequency-domain excitation forces are obtained from a linear potential flow-based solver such as *Nemoh* or *WAMIT*.
+The frequency-domain excitation forces are obtained from a linear potential flow-based solver such as *Helios*, *Nemoh* or *WAMIT*.
 
 Froude-Krylov force
 -------------------
@@ -54,7 +54,7 @@ with
 - :math:`\mathbf{f}_{fk}(\omega_m,\theta_n)` is the frequency-domain Froude-Krylov force component for the wave frequency :math:`\omega` and the wave direction :math:`\theta_n`.
 
 .. note::
-    The frequency-domain Froude-Krylov forces are obtained from a linear potential flow-based solver such as *Nemoh* or *WAMIT*.
+    The frequency-domain Froude-Krylov forces are obtained from a linear potential flow-based solver such as *Helios*, *Nemoh* or *WAMIT*.
 
 
 Weakly nonlinear model
@@ -128,5 +128,5 @@ with
 - :math:`\mathbf{f}_D(\omega_m,\theta_n)` is the frequency-domain diffraction force component for the wave frequency :math:`\omega` and the wave direction :math:`\theta_n`.
 
 .. note::
-    The frequency-domain diffraction forces are obtained from a linear potential flow-based solver such as *Nemoh* or *WAMIT*.
+    The frequency-domain diffraction forces are obtained from a linear potential flow-based solver such as *Helios*, *Nemoh* or *WAMIT*.
 

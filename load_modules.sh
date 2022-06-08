@@ -1,4 +1,5 @@
 #!/bin/bash
-module load curl/7.52.1 zlib/1.2.11 gcc/7.4.0 cmake/3.16.5/gcc/8.3.0 boost/1.65.1/gcc-4.8.5-c7
-export CXX="/XF/Compilers/Gnu/8.3.0/Installed/bin/g++"
-export BOOST_ROOT="/XF/Libraries/Boost/1.65.1/Installed-c7/"
+module load curl/7.52.1 zlib/1.2.11 cmake/3.16.5/gcc/9.2.0-c7
+export CXX="/XF/Compilers/Gnu/9.2.0/Installed-c7/bin/g++"
+export CC="/XF/Compilers/Gnu/9.2.0/Installed-c7/bin/gcc"
+#export BOOST_ROOT="/XF/Libraries/Boost/1.65.1/Installed-c7/"

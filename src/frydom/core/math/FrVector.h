@@ -417,6 +417,10 @@ namespace frydom {
 
   const Direction NORTH_WEST(FRAME_CONVENTION fc);
 
+  const Direction UP(FRAME_CONVENTION fc);
+
+  const Direction DOWN(FRAME_CONVENTION fc);
+
 
   /**
    * \class Acceleration

@@ -470,11 +470,13 @@ namespace frydom {
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t(const double &s) const {
     assert(0. <= s && s <= 1.);
+    Tension tension;
     if (0. <= s && s <= m_Lb) {
-      return t_seabed(s);
+      tension = t_seabed(s);
     } else if (m_Lb < s && s <= 1.) {
-      return t_catenary(s);
+      tension = t_catenary(s);
     }
+    return tension;
   }
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t_seabed(const double &s) const {
