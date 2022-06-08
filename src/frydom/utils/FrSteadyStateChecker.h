@@ -14,6 +14,7 @@
 #define FRYDOM_FRSTEADYSTATECHECKER_H
 
 #include <iostream>
+#include <functional>
 #include "frydom/utils/FrRecorder.h"
 
 namespace frydom {

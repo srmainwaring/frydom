@@ -1739,7 +1739,10 @@ class pyHDB(object):
         # Environement.
         print("\nGravity acceleration (m/s2): " + str(self.grav))
         print("Water density (kg/m3): " + str(self.rho_water))
-        print("Water depth (m): " + str(self.depth))
+        if self.depth == np.inf or self.depth == 0:
+            print("Water depth (m): Infinite")
+        else:
+            print("Water depth (m): " + str(self.depth))
 
         # Discretization.
         print("\nNumber of wave frequencies: " + str(self.nb_wave_freq))
@@ -1750,9 +1753,21 @@ class pyHDB(object):
         print("Wave frequency direction (deg): " + str(self.max_wave_dir))
 
         # Symmetries.
-        print("\nBottom symmetry: " + str(self.bottom_sym))
-        print("(xOz) symmetry: " + str(self.xoz_sym))
-        print("(yOz) symmetry: " + str(self.yoz_sym))
+        if self.bottom_sym is not None:
+            if self.bottom_sym == 0:
+                print("\nBottom symmetry: No")
+            else:
+                print("\nBottom symmetry: Yes")
+        if self.bottom_sym is not None:
+            if self.xoz_sym == 0:
+                print("(xOz) symmetry: No")
+            else:
+                print("(xOz) symmetry: Yes")
+        if self.yoz_sym is not None:
+            if self.yoz_sym == 0:
+                print("(yOz) symmetry: No")
+            else:
+                print("(yOz) symmetry: Yes")
 
         # Bodies.
         print("\nNumber of bodies: " + str(self.nb_bodies))
@@ -1765,6 +1780,23 @@ class pyHDB(object):
                 print("    Horizontal position in world frame (m, m, deg): " + str(body.horizontal_position))
             if(body.computation_point is not None):
                 print("    Computation point in body frame (m, m, m): " + str(body.computation_point))
+            if body.horizontal_position is not None and body.computation_point is not None:
+                # Rotation of angle psi.
+                cpsi = np.cos(np.radians(body.horizontal_position[2]))
+                spsi = np.sin(np.radians(body.horizontal_position[2]))
+                Rot_psi = np.zeros((3, 3))
+                Rot_psi[0, 0] = cpsi
+                Rot_psi[0, 1] = -spsi
+                Rot_psi[1, 0] = spsi
+                Rot_psi[1, 1] = cpsi
+                Rot_psi[2, 2] = 1.
+                world_frame = np.matmul(Rot_psi, body.computation_point)
+
+                # Translation along x and y.
+                world_frame[0] += body.horizontal_position[0]
+                world_frame[1] += body.horizontal_position[1]
+
+                print("    Computation point in world frame (m, m, m): " + str(world_frame))
             if (body.wave_reference_point_in_body_frame is not None):
                 print("    Wave reference point in body frame (m, m): " + str(body.wave_reference_point_in_body_frame))
             if(body.mesh is not None):

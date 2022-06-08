@@ -288,7 +288,13 @@ class HDB5(object):
 
         # Data.
         body_force = self._pyHDB.bodies[ibody_force]
-        if (body_force.Zero_Added_mass is not None):
+
+        # If w_min is too far from w = 0, w = 0 is not displayed.
+        display_zero_frequency = False
+        if body_force.Zero_Added_mass is not None and self._pyHDB.wave_freq[0] < 1.:
+            display_zero_frequency = True
+
+        if display_zero_frequency is True:
             data = np.zeros((self._pyHDB.nb_wave_freq + 2, 2), dtype=np.float)  # 2 for added mass and damping coefficients, +2 for both the infinite and zero-frequency added mass.
 
             # Added mass.
