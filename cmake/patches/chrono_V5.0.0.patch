@@ -1,0 +1,362 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e40c40d96..3f0c56756 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,9 +14,9 @@ cmake_minimum_required(VERSION 3.0)
+ # Prevent in-source builds.
+ #-----------------------------------------------------------------------------
+ 
+-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
++if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+     message( FATAL_ERROR  "In-source build is not possible and not recommended. Choose an empty directory for build output.")
+-endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
++endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
+ 
+ #-----------------------------------------------------------------------------
+ 
+@@ -61,7 +61,7 @@ set(CH_VERSION 0x00050000)
+ # Location of additional CMake scripts
+ #-----------------------------------------------------------------------------
+ 
+-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
++list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+ include(GetGitRevisionDescription)
+ get_git_head_revision(GIT_REFSPEC VCS_REVISION)
+ 
+@@ -184,8 +184,8 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "ChronoEngine")
+ set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "ChronoEngine")
+ set(CPACK_PACKAGE_NAME "ChronoEngine")
+ set(CPACK_PACKAGE_VENDOR "UWSBEL")
+-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+-set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
++set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
++set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+ #set(CPACK_RESOURCE_FILE_WELCOME "/home/andy/vtk/CMake/Templates/CPack.GenericWelcome.txt")
+ set(CPACK_SOURCE_GENERATOR "TGZ")
+ #set(CPACK_SOURCE_PACKAGE_FILE_NAME "ChronoEngine")
+@@ -216,13 +216,13 @@ endif()
+ #------------------------------------------------------------
+ 
+ if(MSVC OR XCODE_VERSION)
+-    file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/bin/data/)
++    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/bin/data/)
+ else()
+-    file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
++    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
+ endif()
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CH_INSTALL_DATA})
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/template_project/ DESTINATION ${CH_INSTALL_SAMPLE_PROJ})
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${CH_INSTALL_DATA})
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/template_project/ DESTINATION ${CH_INSTALL_SAMPLE_PROJ})
+ 
+ #------------------------------------------------------------
+ # Defer configuration of all Chrono libraries and programs
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 32131aaaa..d9798ac4c 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -157,8 +157,8 @@ if(SSE_FOUND)
+ endif()
+   
+ # Figure out AVX level support
+-message(STATUS "Searching for AVX...")
+-find_package(AVX)
++#message(STATUS "Searching for AVX...")
++#find_package(AVX)
+ 
+ # Set substitution variables for configuration file
+ if(AVX_FOUND)
+@@ -173,8 +173,8 @@ if(AVX_FOUND)
+ endif()
+ 
+ # Figure out FMA level support
+-message(STATUS "Searching for FMA...")
+-find_package(FMA)
++#message(STATUS "Searching for FMA...")
++#find_package(FMA)
+ 
+ # Set substitution variables for configuration file
+ if(FMA_FOUND)
+@@ -294,7 +294,7 @@ if(CUDA_FOUND)
+     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --compiler-options -fPIC)
+   endif()
+ 
+-  include(${CMAKE_SOURCE_DIR}/cmake/FindCudaArch.cmake)
++  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindCudaArch.cmake)
+   SELECT_NVCC_ARCH_FLAGS(NVCC_FLAGS_EXTRA)
+   list(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
+ 
+diff --git a/src/chrono/fea/ChMesh.h b/src/chrono/fea/ChMesh.h
+index 255f78c3b..8aa3aa9fa 100644
+--- a/src/chrono/fea/ChMesh.h
++++ b/src/chrono/fea/ChMesh.h
+@@ -268,7 +268,7 @@ class ChApi ChMesh : public ChIndexedNodes {
+     /// Basically does nothing, but maybe that inherited classes may specialize this.
+     virtual void InjectVariables(ChSystemDescriptor& mdescriptor) override;
+ 
+-  private:
++  protected:
+     /// Initial setup (before analysis).
+     /// This function is called from ChSystem::SetupInitial, marking a point where system
+     /// construction is completed.
+diff --git a/src/chrono/physics/ChBodyAuxRef.cpp b/src/chrono/physics/ChBodyAuxRef.cpp
+index 9ec946534..8105d634c 100644
+--- a/src/chrono/physics/ChBodyAuxRef.cpp
++++ b/src/chrono/physics/ChBodyAuxRef.cpp
+@@ -49,6 +49,7 @@ void ChBodyAuxRef::SetFrame_COG_to_REF(const ChFrame<>& mloc) {
+ 
+     for (auto& marker : marklist) {
+         marker->ConcatenatePreTransformation(cog_oldnew);
++        marker->Impose_Rel_Coord(marker->GetCoord());
+         marker->Update(ChTime);
+     }
+ 
+diff --git a/src/chrono/physics/ChForce.h b/src/chrono/physics/ChForce.h
+index 43077f1cc..3eaad2e59 100644
+--- a/src/chrono/physics/ChForce.h
++++ b/src/chrono/physics/ChForce.h
+@@ -56,95 +56,95 @@ class ChApi ChForce : public ChObj {
+     virtual ChForce* Clone() const override { return new ChForce(*this); }
+ 
+     /// Return the parent body (the force belongs to this rigid body)
+-    ChBody* GetBody() { return Body; }
++    virtual ChBody* GetBody() { return Body; }
+     /// Sets the parent body (the force belongs to this rigid body)
+-    void SetBody(ChBody* newRB) { Body = newRB; }
++    virtual void SetBody(ChBody* newRB) { Body = newRB; }
+ 
+     /// Sets the mode (force or torque)
+-    void SetMode(ForceType m_mode) { mode = m_mode; }
+-    ForceType GetMode() const { return mode; }
++    virtual void SetMode(ForceType m_mode) { mode = m_mode; }
++    virtual ForceType GetMode() const { return mode; }
+ 
+     /// Sets the alignment method.
+     /// The force will rotate together with this reference.
+-    void SetAlign(AlignmentFrame m_align) { align = m_align; }
+-    AlignmentFrame GetAlign() const { return align; }
++    virtual void SetAlign(AlignmentFrame m_align) { align = m_align; }
++    virtual AlignmentFrame GetAlign() const { return align; }
+ 
+     /// Sets the alignment method.
+     /// The force application point will follow this reference.
+-    void SetFrame(ReferenceFrame m_frame) {
++    virtual void SetFrame(ReferenceFrame m_frame) {
+         frame = m_frame;
+         SetVpoint(vpoint);
+     }
+-    ReferenceFrame GetFrame() const { return frame; }
++    virtual ReferenceFrame GetFrame() const { return frame; }
+ 
+     /// Gets the application point, in absolute coordinates.
+-    ChVector<> GetVpoint() const { return vpoint; }
++    virtual ChVector<> GetVpoint() const { return vpoint; }
+     /// Gets the application point, in rigid body coordinates.
+-    ChVector<> GetVrelpoint() const { return vrelpoint; }
++    virtual ChVector<> GetVrelpoint() const { return vrelpoint; }
+ 
+     /// Gets the application point, in absolute coordinates.
+-    void SetVpoint(ChVector<> mypoint);
++    virtual void SetVpoint(ChVector<> mypoint);
+     /// Gets the application point, in rigid body coordinates.
+-    void SetVrelpoint(ChVector<> myrelpoint);
++    virtual void SetVrelpoint(ChVector<> myrelpoint);
+ 
+     /// Gets the force (or torque) direction, in absolute coordinates.
+-    ChVector<> GetDir() const { return vdir; }
++    virtual ChVector<> GetDir() const { return vdir; }
+     /// Gets the force (or torque) direction, in rigid body coordinates.
+-    ChVector<> GetRelDir() const { return vreldir; }
++    virtual ChVector<> GetRelDir() const { return vreldir; }
+     /// Sets the force (or torque) direction, in absolute coordinates.
+-    void SetDir(ChVector<> newf);
++    virtual void SetDir(ChVector<> newf);
+     /// Sets the force (or torque) direction, in rigid body coordinates.
+-    void SetRelDir(ChVector<> newf);
++    virtual void SetRelDir(ChVector<> newf);
+ 
+     /// Sets force (or torque) modulus.
+-    void SetMforce(double newf);
++    virtual void SetMforce(double newf);
+     /// Gets force (or torque) modulus.
+-    double GetMforce() const { return mforce; }
++    virtual double GetMforce() const { return mforce; }
+ 
+     /// Sets a f(t) function for time-modulation of the force.
+-    void SetModulation(std::shared_ptr<ChFunction> m_funct) { modula = m_funct; }
+-    std::shared_ptr<ChFunction> GetModulation() const { return modula; }
++    virtual void SetModulation(std::shared_ptr<ChFunction> m_funct) { modula = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetModulation() const { return modula; }
+ 
+     /// Sets a f(t) function for time dependency of position (on x axis)
+-    void SetMove_x(std::shared_ptr<ChFunction> m_funct) { move_x = m_funct; }
+-    std::shared_ptr<ChFunction> GetMove_x() const { return move_x; }
++    virtual void SetMove_x(std::shared_ptr<ChFunction> m_funct) { move_x = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetMove_x() const { return move_x; }
+     /// Sets a f(t) function for time dependency of position (on y axis)
+-    void SetMove_y(std::shared_ptr<ChFunction> m_funct) { move_y = m_funct; }
+-    std::shared_ptr<ChFunction> GetMove_y() const { return move_y; }
++    virtual void SetMove_y(std::shared_ptr<ChFunction> m_funct) { move_y = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetMove_y() const { return move_y; }
+     /// Sets a f(t) function for time dependency of position (on z axis)
+-    void SetMove_z(std::shared_ptr<ChFunction> m_funct) { move_z = m_funct; }
+-    std::shared_ptr<ChFunction> GetMove_z() const { return move_z; }
++    virtual void SetMove_z(std::shared_ptr<ChFunction> m_funct) { move_z = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetMove_z() const { return move_z; }
+ 
+     /// Sets a f(t) function for time dependency of force X component.
+-    void SetF_x(std::shared_ptr<ChFunction> m_funct) { f_x = m_funct; }
+-    std::shared_ptr<ChFunction> GetF_x() const { return f_x; }
++    virtual void SetF_x(std::shared_ptr<ChFunction> m_funct) { f_x = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetF_x() const { return f_x; }
+     /// Sets a f(t) function for time dependency of force Y component.
+-    void SetF_y(std::shared_ptr<ChFunction> m_funct) { f_y = m_funct; }
+-    std::shared_ptr<ChFunction> GetF_y() const { return f_y; }
++    virtual void SetF_y(std::shared_ptr<ChFunction> m_funct) { f_y = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetF_y() const { return f_y; }
+     /// Sets a f(t) function for time dependency of force Z component.
+-    void SetF_z(std::shared_ptr<ChFunction> m_funct) { f_z = m_funct; }
+-    std::shared_ptr<ChFunction> GetF_z() const { return f_z; }
++    virtual void SetF_z(std::shared_ptr<ChFunction> m_funct) { f_z = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetF_z() const { return f_z; }
+ 
+     /// Gets the instant force vector -or torque vector- in absolute coordinates.
+-    ChVector<> GetForce() const { return force; }
++    virtual ChVector<> GetForce() const { return force; }
+     /// Gets the instant force vector -or torque vector- in rigid body coordinates.
+-    ChVector<> GetRelForce() const { return relforce; }
++    virtual ChVector<> GetRelForce() const { return relforce; }
+     /// Gets the instant force vector -or torque vector- modulus.
+-    double GetForceMod() const { return force.Length(); }
++    virtual double GetForceMod() const { return force.Length(); }
+ 
+     /// Gets force-torque applied to rigid body, as lagrangian generalized force (7x1 matrix).
+-    const ChVectorN<double, 7>& GetQf() const { return Qf; }
++    virtual const ChVectorN<double, 7>& GetQf() const { return Qf; }
+     /// Gets force-torque applied to rigid body, as force vector (in absol.coords)
+     /// and torque vector (in body coords).
+-    void GetBodyForceTorque(ChVector<>& body_force, ChVector<>& body_torque) const;
++    virtual void GetBodyForceTorque(ChVector<>& body_force, ChVector<>& body_torque) const;
+ 
+     //
+     // UPDATING
+     //
+ 
+-    void UpdateTime(double mytime);
+-    void UpdateState();
+-    void Update(double mytime);
++    virtual void UpdateTime(double mytime);
++    virtual void UpdateState();
++    virtual void Update(double mytime);
+ 
+     //
+     // SERIALIZATION
+@@ -172,7 +172,7 @@ class ChApi ChForce : public ChObj {
+     CH_ENUM_VAL(WORLD_DIR);
+     CH_ENUM_MAPPER_END(AlignmentFrame);
+ 
+-  private:
++  protected:
+     ChBody* Body;  ///< object of application
+ 
+     ForceType mode;        ///< force or torque
+diff --git a/src/chrono/physics/ChLinkLock.h b/src/chrono/physics/ChLinkLock.h
+index c58cef229..d91d9cd90 100644
+--- a/src/chrono/physics/ChLinkLock.h
++++ b/src/chrono/physics/ChLinkLock.h
+@@ -246,12 +246,11 @@ class ChApi ChLinkLock : public ChLinkMarkers {
+     void BuildLink();
+ 
+     /// Set the mask and then resize matrices.
+-    void BuildLinkType(LinkType link_type);
+-    void BuildLink(bool x, bool y, bool z, bool e0, bool e1, bool e2, bool e3);
++    virtual void BuildLinkType(LinkType link_type);
++    virtual void BuildLink(bool x, bool y, bool z, bool e0, bool e1, bool e2, bool e3);
+ 
+     void ChangeLinkType(LinkType new_link_type);
+ 
+-
+     // Extend parent functions to account for any ChLinkLimit objects.
+     ////virtual void IntLoadResidual_F(const unsigned int off,	ChVectorDynamic<>& R, const double c );
+     virtual void IntStateScatterReactions(const unsigned int off_L, const ChVectorDynamic<>& L) override;
+diff --git a/src/chrono/physics/ChLinkMask.h b/src/chrono/physics/ChLinkMask.h
+index 7c658878d..9c026d126 100644
+--- a/src/chrono/physics/ChLinkMask.h
++++ b/src/chrono/physics/ChLinkMask.h
+@@ -59,7 +59,7 @@ class ChApi ChLinkMask {
+     /// Utility: to change the size of the mask, reallocating constraints
+     /// (all of type ChConstraintTwo).
+     /// No action if newnconstr == nconstr
+-    void ResetNconstr(int newnconstr);
++    virtual void ResetNconstr(int newnconstr);
+ 
+     /// Add a ChConstraintTwoBodies to mask (NOTE: later, the constraint will
+     /// be automatically deleted when the mask will be deleted)
+diff --git a/src/chrono/physics/ChPhysicsItem.h b/src/chrono/physics/ChPhysicsItem.h
+index 4e533bb49..344d355dc 100644
+--- a/src/chrono/physics/ChPhysicsItem.h
++++ b/src/chrono/physics/ChPhysicsItem.h
+@@ -43,7 +43,6 @@ class ChApi ChPhysicsItem : public ChObj {
+     unsigned int offset_w;  ///< offset in vector of state (speed part)
+     unsigned int offset_L;  ///< offset in vector of lagrangian multipliers
+ 
+-  private:
+     virtual void SetupInitial() {}
+ 
+   public:
+diff --git a/src/chrono/physics/ChSystem.h b/src/chrono/physics/ChSystem.h
+index 5ef5c2a99..6cf2b1c08 100644
+--- a/src/chrono/physics/ChSystem.h
++++ b/src/chrono/physics/ChSystem.h
+@@ -564,6 +564,7 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
+     /// because the sleeping policy changed the totalDOFs and offsets.
+     bool ManageSleepingBodies();
+ 
++  protected:
+     /// Performs a single dynamical simulation step, according to
+     /// current values of:  Y, time, step  (and other minor settings)
+     /// Depending on the integration type, it switches to one of the following:
+@@ -701,7 +702,7 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
+     /// Solve the position of static equilibrium (and the reactions).
+     /// This is a one-step only approach that solves the **linear** equilibrium.
+     /// Appropriate mostly for FEM problems with small deformations.
+-    bool DoStaticLinear();
++    virtual bool DoStaticLinear();
+ 
+     /// Solve the position of static equilibrium (and the reactions).
+     /// This function solves the equilibrium for the nonlinear problem (large displacements).
+diff --git a/src/chrono/solver/ChSolver.h b/src/chrono/solver/ChSolver.h
+index 59cc4ed38..6ae8eacd1 100644
+--- a/src/chrono/solver/ChSolver.h
++++ b/src/chrono/solver/ChSolver.h
+@@ -89,14 +89,27 @@ class ChApi ChSolver {
+     /// Method to allow de-serialization of transient data from archives.
+     virtual void ArchiveIN(ChArchiveIn& marchive);
+ 
++    //##CC
++    int GetIterLog() const { return m_iter_log; }
++    double GetResidualLog() const { return m_residual_log; }
++    double GetMaxDeltaUnknowns() const { return m_maxdeltaunknowns_log; }
++    //##
++
+   protected:
+     ChSolver() : verbose(false) {}
+ 
+     bool verbose;
++
++    //##CC
++    int m_iter_log;
++    double m_residual_log;
++    double m_maxdeltaunknowns_log;
++    //##
++
+ };
+ 
+ /// @} chrono_solver
+ 
+ }  // end namespace chrono
+ 
+-#endif
+\ No newline at end of file
++#endif
