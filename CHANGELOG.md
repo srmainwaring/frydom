@@ -12,6 +12,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 - Morison Model extended with a simple model for added mass
 ### Fixed
 - Prop/Rudder interaction model : signs of prop to rudder and cog to rudder distance
+- Added mass radiation model : fix the projection of the added mass when the body frame is not aligned with the world reference frame
 
 ## [3.5] - 2021-11-10
 

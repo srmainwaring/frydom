@@ -16,6 +16,7 @@
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 #include "FrVariablesBEMBodyBase.h"
+#include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 
 
 namespace frydom {
@@ -62,8 +63,11 @@ namespace frydom {
 
               Eigen::VectorXd q(6);
               for (int i = 0; i < 6; i++) { q(i) = w(bodyOffset + i); }
+              SetInBody(q, BEMBody->first);
 
               Eigen::VectorXd Mv = c * infiniteAddedMass * q;
+              SetInWorld(Mv, BEMBody->first);
+
               auto Mw = chrono::ChVector<>(Mv(0), Mv(1), Mv(2));
               auto Iw = chrono::ChVector<>(Mv(3), Mv(4), Mv(5));
 
@@ -180,6 +184,22 @@ namespace frydom {
       }
 
       return generalizedMass;
+    }
+
+    void FrRadiationModelBase::SetInBody(Eigen::VectorXd &vect, hdb5_io::Body* body) {
+
+      auto eq_frame = m_frydomRadiationModel->GetHydroDB()->GetMapper()->GetEquilibriumFrame(body);
+      auto v_loc = eq_frame->GetFrame().ProjectVectorParentInFrame(Vector3d(vect(0), vect(1), vect(2)), NWU);
+      for (int i=0; i<3; i++) vect[i] = v_loc[i];
+
+    }
+
+    void FrRadiationModelBase::SetInWorld(Eigen::VectorXd &vect, hdb5_io::Body* body) {
+
+      auto eq_frame = m_frydomRadiationModel->GetHydroDB()->GetMapper()->GetEquilibriumFrame(body);
+      auto v_world = eq_frame->GetFrame().ProjectVectorFrameInParent(Vector3d(vect(0), vect(1), vect(2)), NWU);
+      for (int i=0; i<3; i++) vect[i] = v_world[i];
+
     }
 
   }  // end namespace frydom::internal

@@ -58,6 +58,12 @@ namespace frydom {
     auto force = m_radiationModel->GetRadiationForce(body);
     auto torque = m_radiationModel->GetRadiationTorque(body);
 
+    //##CC
+    auto inertia_part = m_radiationModel->GetRadiationSteadyInertiaPart(body);
+    force += inertia_part.GetForce();
+    torque += inertia_part.GetTorque();
+    //##
+
     SetForceTorqueInWorldAtCOG(force, torque, NWU);
 
     this->UpdateForceInertiaPart();

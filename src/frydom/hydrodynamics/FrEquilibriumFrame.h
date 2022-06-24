@@ -50,6 +50,9 @@ namespace frydom {
 
     double c_prevTime;
 
+    Acceleration c_LinearAcceleration;
+    AngularAcceleration c_AngularAcceleration;
+
    public:
 
     /// Constructor of a new equilibrium frame with default position and zero speed
@@ -102,8 +105,39 @@ namespace frydom {
     Velocity GetFrameVelocityInWorld(FRAME_CONVENTION fc) const;
 
     /// Get the linear velocity of the equilibrium frame in frame coordinates
+    /// \param fc frame convention
     /// \return Velocity vector
     Velocity GetFrameVelocityInFrame(FRAME_CONVENTION fc) const;
+
+    /// Get the generalized acceleration (linear + angular) of the equilibrium frame in world frame coordinates
+    /// \param fc frame convention
+    /// \return Acceleration vector 6DOF
+    GeneralizedAcceleration GetGeneralizedAccelerationInWorld(FRAME_CONVENTION fc) const;
+
+    /// Get the generalized acceleration (linear + angular) fof the equilibrium frame in frame coordinates
+    /// \param fc frame convention
+    /// \return Acceleration vector 6DOF
+    GeneralizedAcceleration GetGeneralizedAccelerationInFrame(FRAME_CONVENTION fc);
+
+    /// Get the linear acceleration of the equilibrium frame in world reference coordinates
+    /// \param fc frame convention
+    /// \return Linear acceleration vector 3DOF
+    Acceleration GetLinearAccelerationInWorld(FRAME_CONVENTION fc) const;
+
+    /// Get the linear acceleration of the equilibrium frame in frame coordinates
+    /// \param fc frame convention
+    /// \return Linear acceleration vector 3DOF
+    Acceleration GetLinearAccelerationInFrame(FRAME_CONVENTION fc);
+
+    /// Get the angular acceleration of the equilibrium frame in world reference frame coordinates
+    /// \param fc frame convention
+    /// \return Angular acceleration vector 3DOF
+    AngularAcceleration GetAngularAccelerationInWorld(FRAME_CONVENTION fc) const;
+
+    /// Get the angular acceleration of the equilibrium frame in frame coordinates
+    /// \param fc frame convention
+    /// \return Angular acceleration vector 3DOF
+    AngularAcceleration GetAngularAccelerationInFrame(FRAME_CONVENTION fc);
 
     /// Get the perturbation frame  corresponding to the instantaneous position and orientation
     /// of the node attached to the body into equilibrium frame coordinate
@@ -153,18 +187,28 @@ namespace frydom {
     /// Method to be applied after each time steps
     void StepFinalize() override;
 
+    /// Set the position and angular rotation of the equilibrium frame equal to the position
+    /// and orientation of the body frame at COG
     void SetEqFramePositionOrientation();
 
+    /// Set the position and angular rotation of the equilibrium frame with given position
+    /// Orientation set equal to the orientation of the body frame (x-axis align with heading)
+    /// \param localPos Position of the equilibrium frame in body frame coordinates
+    /// \param fc Frame convention
     void SetEqFramePositionOrientation(const Position &localPos, FRAME_CONVENTION fc);
 
    protected:
 
+    /// Set messages for logging
     void DefineLogMessages() override;
 
+    /// Align the equilibrium frame with body heading frame
     void ApplyFrameProjection();
 
    private:
 
+    /// Update the equilibrium frame position and velocity
+    /// \param time Current time of the simulation in seconds from beginning
     void Compute(double time) override;
 
   };

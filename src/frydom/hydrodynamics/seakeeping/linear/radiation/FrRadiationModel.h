@@ -91,6 +91,11 @@ namespace frydom {
     /// \return Part the the radiation force linked with the acceleration of the body
     GeneralizedForce GetRadiationInertiaPart(FrBody *body) const;
 
+    //##CC
+    GeneralizedForce GetRadiationSteadyInertiaPart(FrBody *body) const;
+    //##
+
+
     /// Method to initialize the radiation model
     void Initialize() override;
 
