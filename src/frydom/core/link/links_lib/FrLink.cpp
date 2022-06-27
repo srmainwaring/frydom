@@ -13,7 +13,9 @@
 #include "FrLink.h"
 
 #include "chrono/solver/ChSystemDescriptor.h"
-#include "chrono/physics/ChLinkMasked.h"
+#include "chrono/physics/ChLinkForce.h"
+#include "chrono/physics/ChLinkMarkers.h"
+#include "chrono/physics/ChLinkMask.h"
 
 #include "frydom/core/common/FrNode.h"
 #include "frydom/core/body/FrBody.h"
@@ -142,8 +144,18 @@ namespace frydom {
     void FrLinkLockBase::SetMask(FrDOFMask *vmask) {
 
       if (vmask->GetLinkType() == LINK_TYPE::CUSTOM) {
-        FrLinkMaskBase chronoMask;
-        chronoMask.SetLockMask(
+        //FrLinkMaskBase chronoMask;
+        //chronoMask.SetLockMask(
+        //    vmask->GetLock_X(),  // x
+        //    vmask->GetLock_Y(),  // y
+        //    vmask->GetLock_Z(),  // z
+        //    false,              // e0
+        //    vmask->GetLock_Rx(), // e1
+        //    vmask->GetLock_Ry(), // e2
+        //    vmask->GetLock_Rz()  // e3
+        //);
+        //BuildLink(&chronoMask);
+        BuildLink(
             vmask->GetLock_X(),  // x
             vmask->GetLock_Y(),  // y
             vmask->GetLock_Z(),  // z
@@ -151,8 +163,7 @@ namespace frydom {
             vmask->GetLock_Rx(), // e1
             vmask->GetLock_Ry(), // e2
             vmask->GetLock_Rz()  // e3
-        );
-        BuildLink(&chronoMask);
+            );
       } else {
         this->SetLinkType(vmask->GetLinkType());
       }
@@ -191,67 +202,63 @@ namespace frydom {
       return internal::ChVectorToVector3d<Torque>(C_torque);
     }
 
-    FrFrame
-    FrLinkLockBase::GetConstraintViolation() { // TODO : voir si c'est bien la violation de 2 par rapport a 1, dans 1 !! sinon, renvoyer l'inverse
-      return internal::ChCoordsys2FrFrame(GetRelC());
-    }
+    //##CC FrFrame
+    //FrLinkLockBase::GetConstraintViolation() { // TODO : voir si c'est bien la violation de 2 par rapport a 1, dans 1 !! sinon, renvoyer l'inverse
+    //  return internal::ChCoordsys2FrFrame(GetRelC());
+    //##CC }
 
     void FrLinkLockBase::BuildLinkType(chrono::ChLinkLock::LinkType link_type) {
 
       type = link_type;
 
-      FrLinkMaskBase m_mask;
-
       // SetLockMask() sets the constraints for the link coordinates: (X,Y,Z, E0,E1,E2,E3)
       switch (type) {
         case LinkType::FREE:
-          m_mask.SetLockMask(false, false, false, false, false, false, false);
+          BuildLink(false, false, false, false, false, false, false);
           break;
         case LinkType::LOCK:
-          m_mask.SetLockMask(true, true, true, false, true, true, true);
+          BuildLink(true, true, true, false, true, true, true);
           break;
         case LinkType::SPHERICAL:
-          m_mask.SetLockMask(true, true, true, false, false, false, false);
+          BuildLink(true, true, true, false, false, false, false);
           break;
         case LinkType::POINTPLANE:
-          m_mask.SetLockMask(false, false, true, false, false, false, false);
+          BuildLink(false, false, true, false, false, false, false);
           break;
         case LinkType::POINTLINE:
-          m_mask.SetLockMask(false, true, true, false, false, false, false);
+          BuildLink(false, true, true, false, false, false, false);
           break;
         case LinkType::REVOLUTE:
-          m_mask.SetLockMask(true, true, true, false, true, true, false);
+          BuildLink(true, true, true, false, true, true, false);
           break;
         case LinkType::CYLINDRICAL:
-          m_mask.SetLockMask(true, true, false, false, true, true, false);
+          BuildLink(true, true, false, false, true, true, false);
           break;
         case LinkType::PRISMATIC:
-          m_mask.SetLockMask(true, true, false, false, true, true, true);
+          BuildLink(true, true, false, false, true, true, true);
           break;
         case LinkType::PLANEPLANE:
-          m_mask.SetLockMask(false, false, true, false, true, true, false);
+          BuildLink(false, false, true, false, true, true, false);
           break;
         case LinkType::OLDHAM:
-          m_mask.SetLockMask(false, false, true, false, true, true, true);
+          BuildLink(false, false, true, false, true, true, true);
           break;
         case LinkType::ALIGN:
-          m_mask.SetLockMask(false, false, false, false, true, true, true);
+          BuildLink(false, false, false, false, true, true, true);
           break;
         case LinkType::PARALLEL:
-          m_mask.SetLockMask(false, false, false, false, true, true, false);
+          BuildLink(false, false, false, false, true, true, false);
           break;
         case LinkType::PERPEND:
-          m_mask.SetLockMask(false, false, false, false, true, false, true);
+          BuildLink(false, false, false, false, true, false, true);
           break;
         case LinkType::REVOLUTEPRISMATIC:
-          m_mask.SetLockMask(false, true, true, false, true, true, false);
+          BuildLink(false, true, true, false, true, true, false);
           break;
         default:
-          m_mask.SetLockMask(false, false, false, false, false, false, false);
+          BuildLink(false, false, false, false, false, false, false);
           break;
       }
-
-      BuildLink(&m_mask);
     }
 
 
@@ -623,9 +630,9 @@ namespace frydom {
            + GetSpringDamperTorqueOnNode2(NWU).dot(GetAngularVelocityOfNode2WRTNode1(NWU));
   }
 
-  FrFrame FrLink::GetConstraintViolation() const {
-    return m_chronoLink->GetConstraintViolation();
-  }
+  //##CC FrFrame FrLink::GetConstraintViolation() const {
+  //##CC  return m_chronoLink->GetConstraintViolation();
+  //##CC }
 
   void FrLink::UpdateCache() {}
 

@@ -124,7 +124,7 @@ namespace frydom {
       /// Get the link torque applying on node 2 by the spring damper addon
       Torque GetLinkTorqueOnNode2() const;
 
-      FrFrame GetConstraintViolation();
+      //##CC FrFrame GetConstraintViolation();
 
       void BuildLinkType(chrono::ChLinkLock::LinkType link_type) override;
 
@@ -348,8 +348,8 @@ namespace frydom {
     virtual double GetLinkPower() const; // tested
 
     /// Get the constraint violation of the link (ie the
-    FrFrame
-    GetConstraintViolation() const;  // FIXME : verifier que cette violation ne prend pas en compte la position relative normale de la liaison
+    //##CC FrFrame
+    //##CC GetConstraintViolation() const;  // FIXME : verifier que cette violation ne prend pas en compte la position relative normale de la liaison
 
     /// Initialize the link by setting the markers
     void Initialize() override;

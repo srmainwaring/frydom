@@ -12,14 +12,13 @@
 #include <chrono/physics/ChLinkMotorRotation.h>
 #include <chrono/physics/ChLinkMotorLinear.h>
 #include <frydom/mesh/FrHydroMesh.h>
-#include <chrono/solver/ChSolverMINRES.h>
 
 
 #include "FrOffshoreSystem.h"
 
 #include "chrono/utils/ChProfiler.h"
 #include "chrono/physics/ChLinkMate.h"
-#include "chrono/solver/ChIterativeSolver.h"
+#include "chrono/solver/ChIterativeSolverVI.h"
 
 #include "frydom/core/link/links_lib/FrLink.h"
 #include "frydom/core/link/links_lib/actuators/FrActuator.h"
@@ -75,13 +74,13 @@ namespace frydom {
 
       CH_PROFILE("Update");
 
+      if (!SystemType::is_initialized)
+        SystemType::SetupInitial();
+
       SystemType::timer_update.start();  // Timer for profiling
 
       // Pre updates that are not about multibody dynamics
       m_offshoreSystem->PreUpdate();
-
-      // Executes the "forUpdate" in all controls of controlslist
-      SystemType::ExecuteControlsForUpdate();
 
       // Physics item that have to be updated before all
       m_offshoreSystem->PrePhysicsUpdate(SystemType::ChTime, update_assets);
@@ -624,7 +623,7 @@ namespace frydom {
     msg->AddField<double>("time", "s", "Current time of the simulation", [this]() { return GetTime(); });
 
     msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
-      return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetTotalIterations();
+      return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
     });
 
     msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); }); 
@@ -633,13 +632,13 @@ namespace frydom {
 
     msg->AddField<double>("max_delta_unknowns", "", "", [this]() { return m_chronoSystem->GetSolver()->GetMaxDeltaUnknowns(); });
 
-    if (dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
+    if (dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
       msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
-        return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
+        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
       });
 
       msg->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
-        return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
+        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
       });
 
     }
@@ -732,32 +731,29 @@ namespace frydom {
     using SOLVERS = chrono::ChSolver::Type;
 
     switch (solver) {
-      case SOR:
-        m_chronoSystem->SetSolverType(SOLVERS::SOR);
+      case PSOR:
+        m_chronoSystem->SetSolverType(SOLVERS::PSOR);
         break;
-      case SYMMSOR:
-        m_chronoSystem->SetSolverType(SOLVERS::SYMMSOR);
+      case PSSOR:
+        m_chronoSystem->SetSolverType(SOLVERS::PSSOR);
         break;
-      case JACOBI:
-        m_chronoSystem->SetSolverType(SOLVERS::JACOBI);
-        break;
-      case BARZILAIBORWEIN:
-        m_chronoSystem->SetSolverType(SOLVERS::BARZILAIBORWEIN);
-        break;
-      case PCG:
-        m_chronoSystem->SetSolverType(SOLVERS::PCG);
-        break;
-      case APGD:
-        m_chronoSystem->SetSolverType(SOLVERS::APGD);
-        break;
-      case MINRES:
-        m_chronoSystem->SetSolverType(SOLVERS::MINRES);
+      case PJACOBI:
+        m_chronoSystem->SetSolverType(SOLVERS::PJACOBI);
         break;
       case PMINRES:
         m_chronoSystem->SetSolverType(SOLVERS::PMINRES);
         break;
-      case SOLVER_SMC:
-        m_chronoSystem->SetSolverType(SOLVERS::SOLVER_SMC);
+      case BARZILAIBORWEIN:
+        m_chronoSystem->SetSolverType(SOLVERS::BARZILAIBORWEIN);
+        break;
+      case APGD:
+        m_chronoSystem->SetSolverType(SOLVERS::APGD);
+        break;
+      case GMRES:
+        m_chronoSystem->SetSolverType(SOLVERS::GMRES);
+        break;
+      case MINRES:
+        m_chronoSystem->SetSolverType(SOLVERS::MINRES);
         break;
     }
 
@@ -766,27 +762,28 @@ namespace frydom {
     if (checkCompat) CheckCompatibility();
   }
 
-  void FrOffshoreSystem::SetSolverWarmStarting(bool useWarm) {
-    m_chronoSystem->SetSolverWarmStarting(useWarm);
-    std::string active;
-    if (useWarm) {
-      active = "activated";
-    } else {
-      active = "deactivated";
-    }
-    event_logger::info(GetTypeName(), GetName(), "Solver warm start {}", active);
+  void FrOffshoreSystem::SetSolverMaxIterations(int max_iters) {
+    m_chronoSystem->SetSolverMaxIterations(max_iters);
+    event_logger::info(GetTypeName(), GetName(), "Set Solver max iterations {}", max_iters);
   }
 
-  void FrOffshoreSystem::SetSolverOverrelaxationParam(double omega) {
-    m_chronoSystem->SetSolverOverrelaxationParam(omega);
-    event_logger::info(GetTypeName(), GetName(),
-        "Solver over relaxation parameter set to {}", omega);
+  int FrOffshoreSystem::GetSolverMaxIterations() const {
+    return m_chronoSystem->GetSolverMaxIterations();
+  }
+
+  void FrOffshoreSystem::SetSolverTolerance(double tolerance) {
+    m_chronoSystem->SetSolverTolerance(tolerance);
+    event_logger::info(GetTypeName(), GetName(), "Set solver tolerance {}", tolerance);
+  }
+
+  double FrOffshoreSystem::GetSolverTolerance() const {
+    return m_chronoSystem->GetSolverTolerance();
   }
 
   void FrOffshoreSystem::SetSolverDiagonalPreconditioning(bool val) {
     if (m_solverType == MINRES) {
-      auto solver = std::static_pointer_cast<chrono::ChSolverMINRES>(m_chronoSystem->GetSolver());
-      solver->SetDiagonalPreconditioning(val);
+      auto solver = dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get());
+      solver->EnableDiagonalPreconditioner(val);
       std::string active;
       if (val) {
         active = "activated";
@@ -800,29 +797,8 @@ namespace frydom {
     }
   }
 
-  void FrOffshoreSystem::SetSolverSharpnessParam(double momega) {
-    m_chronoSystem->SetSolverSharpnessParam(momega);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver sharpness parameter set to {}", momega);
-  }
 
-  void FrOffshoreSystem::SetParallelThreadNumber(int nbThreads) {
-    m_chronoSystem->SetParallelThreadNumber(nbThreads);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Number of threads for simulation set to {}", nbThreads);
-  }
 
-  void FrOffshoreSystem::SetSolverMaxIterSpeed(int maxIter) {
-    m_chronoSystem->SetMaxItersSolverSpeed(maxIter);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver maximum number of iterations for speed set to {}", maxIter);
-  }
-
-  void FrOffshoreSystem::SetSolverMaxIterStab(int maxIter) {
-    m_chronoSystem->SetMaxItersSolverStab(maxIter);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver maximum number of iterations for stabilization set to {}", maxIter);
-  }
 
   void FrOffshoreSystem::SetSolverMaxIterAssembly(int maxIter) {
     m_chronoSystem->SetMaxiter(maxIter);
@@ -830,14 +806,14 @@ namespace frydom {
                        "Solver maximum number of iterations for constraint assembly the system set to {}", maxIter);
   }
 
-  void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
-    m_chronoSystem->SetTol(tol);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver geometric tolerance set to {}", tol);
-  }
+  //##CC void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
+  //##CC   m_chronoSystem->GetSolver()->SetTol(tol);
+  //##CC   event_logger::info(GetTypeName(), GetName(),
+  //##CC                      "Solver geometric tolerance set to {}", tol);
+  //##CC }
 
   void FrOffshoreSystem::SetSolverForceTolerance(double tol) {
-    m_chronoSystem->SetTolForce(tol);
+    m_chronoSystem->SetSolverForceTolerance(tol);
     event_logger::info(GetTypeName(), GetName(),
                        "Solver force tolerance set to {}", tol);
   }
@@ -1404,7 +1380,7 @@ namespace frydom {
 
   void FrOffshoreSystem::SetSolverVerbose(bool verbose) {
     m_chronoSystem->GetSolver()->SetVerbose(verbose);
-    dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->SetRecordViolation(verbose);
+    dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->SetRecordViolation(verbose);
   }
 
 

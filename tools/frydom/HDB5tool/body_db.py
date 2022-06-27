@@ -156,6 +156,8 @@ class BodyDB(object):
         self.cob = None
         self.underwater_volume = None
 
+        self.position = np.zeros(3)
+
     def _compute_nds(self):
         """Computes the term n dS for each force mode of the body."""
 

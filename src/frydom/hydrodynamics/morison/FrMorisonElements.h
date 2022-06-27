@@ -14,7 +14,6 @@
 #define FRYDOM_FRMORISONELEMENTS_H
 
 #include <memory>
-#include <Eigen/Sparse> // FIXME : a passer dans mathutils ?
 
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrFrame.h"

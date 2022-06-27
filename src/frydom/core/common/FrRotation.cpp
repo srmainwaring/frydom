@@ -70,7 +70,7 @@ namespace frydom {
   }
 
   void FrUnitQuaternion::Set(const mathutils::Matrix33<double> &matrix, FRAME_CONVENTION fc) {
-    chrono::ChMatrix33<double> chronoMatrix = internal::Matrix33ToChMatrix33(matrix);
+    chrono::ChMatrix33<double> chronoMatrix = matrix;
     auto quaternion = chronoMatrix.Get_A_quaternion();
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quaternion);
     m_chronoQuaternion = quaternion;
@@ -197,13 +197,13 @@ namespace frydom {
   mathutils::Matrix33<double> FrUnitQuaternion::GetRotationMatrix() const {
     chrono::ChMatrix33<double> chronoMatrix;
     chronoMatrix.Set_A_quaternion(m_chronoQuaternion);
-    return internal::ChMatrix33ToMatrix33(chronoMatrix);
+    return chronoMatrix;
   }
 
   mathutils::Matrix33<double> FrUnitQuaternion::GetInverseRotationMatrix() const {
     chrono::ChMatrix33<double> chronoMatrix;
     chronoMatrix.Set_A_quaternion(m_chronoQuaternion.GetInverse());
-    return internal::ChMatrix33ToMatrix33(chronoMatrix);
+    return chronoMatrix;
   }
 
   mathutils::Matrix33<double> FrUnitQuaternion::LeftMultiply(const mathutils::Matrix33<double> &matrix) const {

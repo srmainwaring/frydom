@@ -306,10 +306,18 @@ index 4e533bb49..344d355dc 100644
  
    public:
 diff --git a/src/chrono/physics/ChSystem.h b/src/chrono/physics/ChSystem.h
-index 5ef5c2a99..6cf2b1c08 100644
+index 5ef5c2a99..b7e123ae5 100644
 --- a/src/chrono/physics/ChSystem.h
 +++ b/src/chrono/physics/ChSystem.h
-@@ -564,6 +564,7 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
+@@ -304,7 +304,6 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
+     /// Pushes all ChConstraints and ChVariables contained in links, bodies, etc. into the system descriptor.
+     virtual void DescriptorPrepareInject(ChSystemDescriptor& mdescriptor);
+ 
+-  private:
+     // Note: SetupInitial need not be typically called by a user, so it is currently marked private.
+ 
+     /// Initial system setup before analysis.
+@@ -564,6 +563,7 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
      /// because the sleeping policy changed the totalDOFs and offsets.
      bool ManageSleepingBodies();
  
@@ -317,7 +325,7 @@ index 5ef5c2a99..6cf2b1c08 100644
      /// Performs a single dynamical simulation step, according to
      /// current values of:  Y, time, step  (and other minor settings)
      /// Depending on the integration type, it switches to one of the following:
-@@ -701,7 +702,7 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
+@@ -701,7 +701,7 @@ class ChApi ChSystem : public ChAssembly, public ChIntegrableIIorder {
      /// Solve the position of static equilibrium (and the reactions).
      /// This is a one-step only approach that solves the **linear** equilibrium.
      /// Appropriate mostly for FEM problems with small deformations.
@@ -326,6 +334,19 @@ index 5ef5c2a99..6cf2b1c08 100644
  
      /// Solve the position of static equilibrium (and the reactions).
      /// This function solves the equilibrium for the nonlinear problem (large displacements).
+diff --git a/src/chrono/solver/ChIterativeSolverVI.h b/src/chrono/solver/ChIterativeSolverVI.h
+index 2c87ff4eb..de15fd774 100644
+--- a/src/chrono/solver/ChIterativeSolverVI.h
++++ b/src/chrono/solver/ChIterativeSolverVI.h
+@@ -73,6 +73,8 @@ class ChApi ChIterativeSolverVI : public ChSolverVI, public ChIterativeSolver {
+     /// GetViolationHistory).
+     void SetRecordViolation(bool mval) { record_violation_history = mval; }
+ 
++    bool GetRecordViolation() const { return record_violation_history; }
++
+     /// Return the current value of the overrelaxation factor.
+     double GetOmega() const { return m_omega; }
+ 
 diff --git a/src/chrono/solver/ChSolver.h b/src/chrono/solver/ChSolver.h
 index 59cc4ed38..6ae8eacd1 100644
 --- a/src/chrono/solver/ChSolver.h

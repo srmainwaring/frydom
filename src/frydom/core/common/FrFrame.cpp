@@ -13,8 +13,6 @@
 #include "FrFrame.h"
 #include "frydom/core/math/FrMatrix.h"
 
-#include "chrono/core/ChMatrixDynamic.h" // TODO : voir pourquoi on doit avoir cet include...
-
 
 namespace frydom {
 
@@ -104,7 +102,7 @@ namespace frydom {
         e1.Getuy(), e2.Getuy(), e3.Getuy(),
         e1.Getuz(), e2.Getuz(), e3.Getuz();
 
-    m_chronoFrame.SetRot(internal::Matrix33ToChMatrix33(matrix));
+    m_chronoFrame.SetRot(matrix);
   }
 
   void FrFrame::SetRotation(const FrRotation &rotation) {  // OK

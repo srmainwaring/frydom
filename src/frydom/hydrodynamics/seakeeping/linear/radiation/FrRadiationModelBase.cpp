@@ -67,8 +67,8 @@ namespace frydom {
               auto Mw = chrono::ChVector<>(Mv(0), Mv(1), Mv(2));
               auto Iw = chrono::ChVector<>(Mv(3), Mv(4), Mv(5));
 
-              R.PasteSumVector(Mw, residualOffset, 0);
-              R.PasteSumVector(Iw, residualOffset + 3, 0);
+              R.segment(residualOffset, 3) += Mw.eigen();
+              R.segment(residualOffset + 3, 3) += Iw.eigen();
             }
           }
         }

@@ -26,7 +26,7 @@ namespace frydom {
       /// Copy constructor
       FrLinkMaskBase(const FrLinkMaskBase &source) : chrono::ChLinkMaskLF(source) {}
 
-      virtual FrLinkMaskBase *Clone() const override { return new FrLinkMaskBase(*this); }
+      //##CC virtual FrLinkMaskBase *Clone() const override { return new FrLinkMaskBase(*this); }
 
       void ResetNconstr(int newnconstr) override;
 
