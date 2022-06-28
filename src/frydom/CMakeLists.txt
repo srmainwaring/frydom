@@ -52,6 +52,9 @@ target_compile_options(frydom PUBLIC -Wno-deprecated-declarations)
 target_compile_options(frydom PUBLIC -Wimplicit-fallthrough)
 #target_compile_options(frydom PRIVATE -Wextra)
 
+if (NOT BUILD_SHARED_LIBS)
+    set_property(TARGET frydom PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif()
 
 if (FRYDOM_USE_IRRLICHT)
     target_link_libraries(frydom PUBLIC ChronoEngine_irrlicht)
