@@ -121,6 +121,8 @@ namespace frydom {
     chrono::ChVariables &FrBodyBase::Variables() {
 
       if (m_variables_ptr) {
+
+
         return *m_variables_ptr.get();
       } else {
         return chrono::ChBody::variables;
@@ -132,8 +134,10 @@ namespace frydom {
     }
 
     void FrBodyBase::SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables) {
-      m_variables_ptr = new_variables;
-      variables.SetDisabled(true);
+      if (variables.IsActive()) {
+        m_variables_ptr = new_variables;
+        variables.SetDisabled(true);
+      }
     }
 
     void FrBodyBase::InjectVariables(chrono::ChSystemDescriptor &mdescriptor) {

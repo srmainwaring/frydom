@@ -70,7 +70,7 @@ namespace frydom {
     void FrVariablesBodyBase::MultiplyAndAdd(chrono::ChVectorRef result,
                                              chrono::ChVectorConstRef vect,
                                              const double c_a) const {
-      assert(result.size() == 1 && vect.GetColumns() == 1);
+      assert(result.size() == 1 && vect.size() == 1);
 
       mathutils::Vector6d<double> q;
       for (unsigned int i = 0; i < 6; ++i) {

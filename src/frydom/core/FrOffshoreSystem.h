@@ -48,6 +48,8 @@ namespace frydom {
       /// \param offshoreSystem pointer to the offshore system
       explicit FrSystemBase(FrOffshoreSystem *offshoreSystem);
 
+      void Initialize();
+
       /// Update the state of the systemBase, called from chrono, call the Update of the offshore system
       /// \param update_assets check if the assets are updated
       void Update(bool update_assets) override;

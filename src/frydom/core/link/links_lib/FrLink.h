@@ -88,6 +88,8 @@ namespace frydom {
       /// Set the link type based on LINK_TYPE enum
       void SetLinkType(LINK_TYPE lt);
 
+      void BuildLink(chrono::ChLinkMaskLF* new_mask);
+
       /// Initialize the link (calls the Initialize method of FrLink
       void SetupInitial() override;
 

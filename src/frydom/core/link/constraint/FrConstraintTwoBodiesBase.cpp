@@ -23,10 +23,12 @@ namespace frydom {
       // Off-diagonal mass-matrix coefficients
       if (variables_a->IsActive() and variables_b->IsActive()) {
 
+
         auto varBEM_a = dynamic_cast<FrVariablesBEMBodyBase *>(variables_a);
         auto varBEM_b = dynamic_cast<FrVariablesBEMBodyBase *>(variables_b);
 
         if (varBEM_a and varBEM_b) {
+
           varBEM_a->Compute_inc_invMb_v(Eq_a, Cq_b.transpose(), variables_b);
           varBEM_b->Compute_inc_invMb_v(Eq_b, Cq_a.transpose(), variables_a);
         }

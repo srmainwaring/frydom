@@ -87,6 +87,15 @@ namespace frydom {
       }
     }
 
+    void FrLinkLockBase::BuildLink(chrono::ChLinkMaskLF *new_mask) {
+      if (mask != NULL)
+        delete mask;
+
+      mask = new_mask->Clone();
+
+      chrono::ChLinkLock::BuildLink();
+    }
+
     void FrLinkLockBase::SetupInitial() {
 
     }
@@ -144,18 +153,8 @@ namespace frydom {
     void FrLinkLockBase::SetMask(FrDOFMask *vmask) {
 
       if (vmask->GetLinkType() == LINK_TYPE::CUSTOM) {
-        //FrLinkMaskBase chronoMask;
-        //chronoMask.SetLockMask(
-        //    vmask->GetLock_X(),  // x
-        //    vmask->GetLock_Y(),  // y
-        //    vmask->GetLock_Z(),  // z
-        //    false,              // e0
-        //    vmask->GetLock_Rx(), // e1
-        //    vmask->GetLock_Ry(), // e2
-        //    vmask->GetLock_Rz()  // e3
-        //);
-        //BuildLink(&chronoMask);
-        BuildLink(
+        FrLinkMaskBase chronoMask;
+        chronoMask.SetLockMask(
             vmask->GetLock_X(),  // x
             vmask->GetLock_Y(),  // y
             vmask->GetLock_Z(),  // z
@@ -163,7 +162,17 @@ namespace frydom {
             vmask->GetLock_Rx(), // e1
             vmask->GetLock_Ry(), // e2
             vmask->GetLock_Rz()  // e3
-            );
+        );
+        BuildLink(&chronoMask);
+        //BuildLink(
+        //    vmask->GetLock_X(),  // x
+        //    vmask->GetLock_Y(),  // y
+        //    vmask->GetLock_Z(),  // z
+        //    false,              // e0
+        //    vmask->GetLock_Rx(), // e1
+        //    vmask->GetLock_Ry(), // e2
+        //    vmask->GetLock_Rz()  // e3
+        //    );
       } else {
         this->SetLinkType(vmask->GetLinkType());
       }
@@ -211,54 +220,74 @@ namespace frydom {
 
       type = link_type;
 
+      auto m_mask = FrLinkMaskBase(7);
+
       // SetLockMask() sets the constraints for the link coordinates: (X,Y,Z, E0,E1,E2,E3)
       switch (type) {
         case LinkType::FREE:
-          BuildLink(false, false, false, false, false, false, false);
+          //BuildLink(false, false, false, false, false, false, false);
+          m_mask.SetLockMask(false, false, false, false, false, false, false);
           break;
         case LinkType::LOCK:
-          BuildLink(true, true, true, false, true, true, true);
+          //BuildLink(true, true, true, false, true, true, true);
+          m_mask.SetLockMask(true, true, true, false, true, true, true);
           break;
         case LinkType::SPHERICAL:
-          BuildLink(true, true, true, false, false, false, false);
+          //BuildLink(true, true, true, false, false, false, false);
+          m_mask.SetLockMask(true, true, true, false, false, false, false);
           break;
         case LinkType::POINTPLANE:
-          BuildLink(false, false, true, false, false, false, false);
+          //BuildLink(false, false, true, false, false, false, false);
+          m_mask.SetLockMask(false, false, true, false, false, false, false);
           break;
         case LinkType::POINTLINE:
-          BuildLink(false, true, true, false, false, false, false);
+          //BuildLink(false, true, true, false, false, false, false);
+          m_mask.SetLockMask(false, true, true, false, false, false, false);
           break;
         case LinkType::REVOLUTE:
-          BuildLink(true, true, true, false, true, true, false);
+          //BuildLink(true, true, true, false, true, true, false);
+          m_mask.SetLockMask(true, true, true, false, true, true, false);
           break;
         case LinkType::CYLINDRICAL:
-          BuildLink(true, true, false, false, true, true, false);
+          //BuildLink(true, true, false, false, true, true, false);
+          m_mask.SetLockMask(true, true, false, false, true, true, false);
           break;
         case LinkType::PRISMATIC:
-          BuildLink(true, true, false, false, true, true, true);
+          //BuildLink(true, true, false, false, true, true, true);
+          m_mask.SetLockMask(true, true, false, false, true, true, true);
           break;
         case LinkType::PLANEPLANE:
-          BuildLink(false, false, true, false, true, true, false);
+          //BuildLink(false, false, true, false, true, true, false);
+          m_mask.SetLockMask(false, false, true, false, true, true, false);
           break;
         case LinkType::OLDHAM:
-          BuildLink(false, false, true, false, true, true, true);
+          //BuildLink(false, false, true, false, true, true, true);
+          m_mask.SetLockMask(false, false, true, false, true, true, true);
           break;
         case LinkType::ALIGN:
-          BuildLink(false, false, false, false, true, true, true);
+          //BuildLink(false, false, false, false, true, true, true);
+          m_mask.SetLockMask(false, false, false, false, true, true, true);
           break;
         case LinkType::PARALLEL:
-          BuildLink(false, false, false, false, true, true, false);
+          //BuildLink(false, false, false, false, true, true, false);
+          m_mask.SetLockMask(false, false, false, false, true, true, false);
           break;
         case LinkType::PERPEND:
-          BuildLink(false, false, false, false, true, false, true);
+          //BuildLink(false, false, false, false, true, false, true);
+          m_mask.SetLockMask(false, false, false, false, true, false, true);
           break;
         case LinkType::REVOLUTEPRISMATIC:
-          BuildLink(false, true, true, false, true, true, false);
+          //BuildLink(false, true, true, false, true, true, false);
+          m_mask.SetLockMask(false, true, true, false, true, true, false);
           break;
         default:
-          BuildLink(false, false, false, false, false, false, false);
+          //BuildLink(false, false, false, false, false, false, false);
+          m_mask.SetLockMask(false, false, false, false, false, false, false);
           break;
       }
+
+      BuildLink(&m_mask);
+
     }
 
 

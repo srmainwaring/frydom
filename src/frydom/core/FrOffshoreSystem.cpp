@@ -68,6 +68,11 @@ namespace frydom {
         m_offshoreSystem(offshoreSystem) {}
 
     template <class SystemType>
+    void FrSystemBase<SystemType>::Initialize() {
+      SystemType::SetupInitial();
+    }
+
+    template <class SystemType>
     void FrSystemBase<SystemType>::Update(bool update_assets) {
 
       // Note : there is no ChAssembly::Update() as it is better expanded here...
@@ -178,6 +183,7 @@ namespace frydom {
 
     template <class SystemType>
     bool FrSystemBase<SystemType>::Integrate_Y() {
+      chrono::ChSystem::ForceUpdate();
       auto output = chrono::ChSystem::Integrate_Y();
       m_offshoreSystem->StepFinalize();
       return output;
@@ -567,6 +573,7 @@ namespace frydom {
 
     if (m_isInitialized)
       return;
+
 
     event_logger::info(GetTypeName(), GetName(), "BEGIN OffshoreSystem initialization");
     event_logger::flush();
