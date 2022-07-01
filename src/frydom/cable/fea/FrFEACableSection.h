@@ -15,15 +15,18 @@ namespace frydom {
 
      public:
       explicit FrFEACableSection(
-          std::shared_ptr<chrono::fea::ChElasticityCosserat> melasticity  /// the elasticity model for this section, ex.ChElasticityCosseratSimple
+          std::shared_ptr<chrono::fea::ChInertiaCosserat> minertia,         /// the inertia of the section of the cable element
+          std::shared_ptr<chrono::fea::ChElasticityCosserat> melasticity   /// the elasticity model for this section, ex.ChElasticityCosseratSimple
       );
 
       FrFEACableSection(
+          std::shared_ptr<chrono::fea::ChInertiaCosserat> minertia,       /// the inertia of this section
           std::shared_ptr<chrono::fea::ChElasticityCosserat> melasticity,  /// the elasticity model for this section, ex.ChElasticityCosseratSimple
-          std::shared_ptr<chrono::fea::ChPlasticityCosserat> mplasticity /// the plasticity model for this section, if any
+          std::shared_ptr<chrono::fea::ChPlasticityCosserat> mplasticity  /// the plasticity model for this section, if any
       );
 
       FrFEACableSection(
+          std::shared_ptr<chrono::fea::ChInertiaCosserat> minertia,        /// the inertia of this section
           std::shared_ptr<chrono::fea::ChElasticityCosserat> melasticity,  /// the elasticity model for this section, ex.ChElasticityCosseratSimple
           std::shared_ptr<chrono::fea::ChPlasticityCosserat> mplasticity, /// the plasticity model for this section, if any
           std::shared_ptr<chrono::fea::ChDampingCosserat> mdamping /// the damping model for this section, if any

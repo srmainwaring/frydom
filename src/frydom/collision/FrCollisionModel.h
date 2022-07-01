@@ -2,7 +2,7 @@
 // Created by lletourn on 21/05/19.
 //
 
-#include "chrono/collision/ChCModelBullet.h"
+#include "chrono/collision/ChCollisionModelBullet.h"
 
 #ifndef FRYDOM_FRCOLLISIONMODEL_H
 #define FRYDOM_FRCOLLISIONMODEL_H
@@ -23,7 +23,7 @@ namespace frydom {
   namespace internal {
 
 
-    class FrCollisionModelBase : public chrono::collision::ChModelBullet {
+    class FrCollisionModelBase : public chrono::collision::ChCollisionModelBullet {
 
      private:
 
