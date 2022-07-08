@@ -152,9 +152,9 @@ def plot_loads(data, w, DiffOrFKOrExc, ibody, iforce, beta, x_derivative, show=T
             ylabel1 += r' $(N/m)$' # Because it is divided by the wave amplitude.
     else:
         if (x_derivative):
-            ylabel1 += r' $(N/m)$'
+            ylabel1 += r' $(N.m/m^2)$'
         else:
-            ylabel1 += r' $(N)$' # Because it is divided by the wave amplitude.
+            ylabel1 += r' $(N.m/m)$' # Because it is divided by the wave amplitude.
 
     # Plots.
     if (save == False):
