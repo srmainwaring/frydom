@@ -458,7 +458,7 @@ namespace frydom {
     //##CC auto ms = m_chronoBody->GetMaterialSurfaceNSC();
 
     for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
-      auto ms = dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(shape->GetMaterial());
+      auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(shape->GetMaterial());
 
       ms->SetSfriction(p->static_friction);
       ms->SetKfriction(p->sliding_friction);
@@ -486,7 +486,7 @@ namespace frydom {
     //##CC auto ms = m_chronoBody->GetMaterialSurfaceNSC();
 
     for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
-      auto ms = dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(shape->GetMaterial());
+      auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(shape->GetMaterial());
       ms->SetSfriction(p->static_friction);
       ms->SetKfriction(p->sliding_friction);
       ms->SetRollingFriction(p->rolling_friction);
@@ -1129,11 +1129,11 @@ namespace frydom {
   void FrBody::SetContactMethod() {
     switch (GetSystem()->GetSystemType()) {
       case FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT:
-        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceSMC>());
+        m_chronoBody->GetCollisionModel()->SetAllShapesMaterial(std::make_shared<chrono::ChMaterialSurfaceSMC>());
         event_logger::info(GetTypeName(), GetName(), "Contact method set to SMOOTH");
         break;
       case FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT:
-        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceNSC>());
+        m_chronoBody->GetCollisionModel()->SetAllShapesMaterial(std::make_shared<chrono::ChMaterialSurfaceNSC>());
         event_logger::info(GetTypeName(), GetName(), "Contact method set to NON SMOOTH");
         break;
     };

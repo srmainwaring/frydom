@@ -32,11 +32,13 @@ namespace frydom {
     // Building the chrono body
     body->SetInertiaTensor(FrInertiaTensor(mass, Ixx, Iyy, Izz, 0., 0., 0., Position(), NWU));
 
-
     // Collision
+    auto contact_method = internal::GetChronoBody(body)->GetSystem()->GetContactMethod();
+    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
+
     auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
     collisionModel->ClearModel();
-    collisionModel->AddBox(xSize * 0.5, ySize * 0.5, zSize * 0.5,
+    collisionModel->AddBox(mat, xSize * 0.5, ySize * 0.5, zSize * 0.5,
                            chrono::ChVector<double>()); // TODO: permettre de specifier une position relative (et orientation ?)
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ??
@@ -60,9 +62,12 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, Ixx, Iyy, Izz, 0., 0., 0., Position(), NWU));
 
     // Collision
+    auto contact_method = internal::GetChronoBody(body)->GetSystem()->GetContactMethod();
+    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
+
     auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
     collisionModel->ClearModel();
-    collisionModel->AddCylinder(radius, radius, height * 0.5,
+    collisionModel->AddCylinder(mat, radius, radius, height * 0.5,
                                 chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ?
@@ -82,10 +87,13 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, inertia, inertia, inertia, 0., 0., 0., Position(), NWU));
 
     // Collision
+    auto contact_method = internal::GetChronoBody(body)->GetSystem()->GetContactMethod();
+    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
+
     auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
     collisionModel->ClearModel();
     // TODO: permettre de specifier les coords relatives dans le modele !!
-    collisionModel->AddSphere(radius, chrono::ChVector<double>());
+    collisionModel->AddSphere(mat, radius, chrono::ChVector<double>());
     collisionModel->BuildModel();
     body->AllowCollision(true);  // A retirer ?
 //    body->SetSmoothContact();  // Smooth contact by default

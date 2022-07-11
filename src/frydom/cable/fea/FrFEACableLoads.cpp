@@ -114,7 +114,8 @@ namespace frydom {
       auto rho_f = environment->GetFluidDensity(fluid_type);
 
       // From element
-      double section_area = el_section->GetArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
+      double section_area = std::dynamic_pointer_cast<chrono::fea::ChInertiaCosseratSimple>   // FIXME (CC) : error si inertia not uniform
+          (el_section->GetInertia())->GetArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
       double diameter = std::sqrt(4. * section_area / MU_PI);
 
 
@@ -302,7 +303,8 @@ namespace frydom {
       auto rho_f = environment->GetFluidDensity(fluid_type);
 
       // From element
-      double section_area = el_section->GetArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
+      double section_area = std::dynamic_pointer_cast<chrono::fea::ChInertiaCosseratSimple>   // FIXME (CC) : error si inertia not uniform
+          (el_section->GetInertia())->GetArea(); // TODO: voir si on ne prend pas un diameter hydro plutot...
       double diameter = std::sqrt(4. * section_area / MU_PI);
 
 
