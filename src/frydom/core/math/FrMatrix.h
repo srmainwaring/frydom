@@ -19,7 +19,7 @@
 
 namespace frydom {
 
-  using Matrix33 = mathutils::Matrix33<double>;
+  using Matrix33 = chrono::ChMatrix33<double>;
 
 
   void SplitMatrix33IntoCoeffs(const Matrix33 &matrix,

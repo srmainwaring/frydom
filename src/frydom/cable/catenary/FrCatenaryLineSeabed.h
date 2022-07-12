@@ -23,7 +23,7 @@ namespace frydom {
 
       static void dp_dt(const FrCatenaryLineSeabed &sl,
                         const FrCatenaryLine &cl,
-                        mathutils::Matrix33<double> &mat);
+                        Matrix33 &mat);
 
       static void dp_dLb(const FrCatenaryLineSeabed &sl,
                          const FrCatenaryLine &cl,

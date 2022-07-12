@@ -390,7 +390,7 @@ namespace frydom {
 
   void FrCatenaryLineSeabed::GetJacobian(Jacobian44 &jacobian) const {
 
-    mathutils::Matrix33<double> jac_dp_Lb_dt;
+    Matrix33 jac_dp_Lb_dt;
     internal::JacobianBuilder::dp_dt(*this, *m_catenary_line, jac_dp_Lb_dt);
     jacobian.topLeftCorner(3, 3) = jac_dp_Lb_dt;
 
@@ -528,7 +528,7 @@ namespace frydom {
 
     void JacobianBuilder::dp_dt(const FrCatenaryLineSeabed &sl,
                                 const FrCatenaryLine &cl,
-                                mathutils::Matrix33<double> &mat) {
+                                Matrix33 &mat) {
 
       mat = cl.GetJacobian();  // FIXME: renormaliser fonction de la longueur totale (* L_catenary / L_total un truc du genre...)
 

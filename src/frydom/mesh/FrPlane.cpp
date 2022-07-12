@@ -138,10 +138,10 @@ namespace frydom {
       Direction y = z.cross(x);
       y.normalize();
 
-      Matrix33<double> matrix;
+      Matrix33 matrix;
       matrix << x.Getux(), y.Getux(), z.Getux(),
-          x.Getuy(), y.Getuy(), z.Getuy(),
-          x.Getuz(), y.Getuz(), z.Getuz();
+                x.Getuy(), y.Getuy(), z.Getuy(),
+                x.Getuz(), y.Getuz(), z.Getuz();
 
       FrUnitQuaternion quat;
       quat.Set(matrix, NWU);
