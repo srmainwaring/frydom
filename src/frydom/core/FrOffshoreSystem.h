@@ -756,7 +756,7 @@ namespace frydom {
     /// Add an optional asset (it can be used to define visualization shapes, or textures, or custom attached
     /// properties that the user can define by creating his class inherited from FrAssetComponent)
     /// \param asset asset to be added to the offshore system
-    void AddAsset(std::shared_ptr<chrono::ChAsset> asset);  // TODO : mettre en prive
+    //##CC void AddAsset(std::shared_ptr<chrono::ChAsset> asset);  // TODO : mettre en prive
 
     /// Get a pointer to the log manager
     FrLogManager *GetLogManager() const;

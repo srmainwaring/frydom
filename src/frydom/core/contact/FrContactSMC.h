@@ -44,7 +44,7 @@ namespace frydom {
   std::shared_ptr<FrContactParamsSMC> MakeDefaultContactParamsSMC();
 
   namespace internal {
-    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialSMC(const FrContactParamsSMC& params);
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialSMC(const FrContactParamsSMC* params);
   }
 
 } // end namespace frydom

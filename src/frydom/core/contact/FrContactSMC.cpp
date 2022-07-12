@@ -57,17 +57,17 @@ FrContactParamsSMC::FrContactParamsSMC()
     return std::make_shared<FrContactParamsSMC>();
   }
 
-  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialSMC(const FrContactParamsSMC& params){
+  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialSMC(const FrContactParamsSMC* params){
 
     auto chrono_mat = std::make_shared<chrono::ChMaterialSurfaceSMC>();
 
-    chrono_mat->SetYoungModulus(params.young_modulus);
-    chrono_mat->SetPoissonRatio(params.poisson_ratio);
-    chrono_mat->SetSfriction(params.static_friction);
-    chrono_mat->SetKfriction(params.sliding_friction);
-    chrono_mat->SetRestitution(params.restitution);
-    chrono_mat->SetAdhesion(params.constant_adhesion);
-    chrono_mat->SetAdhesionMultDMT(params.adhesionMultDMT);
+    chrono_mat->SetYoungModulus(params->young_modulus);
+    chrono_mat->SetPoissonRatio(params->poisson_ratio);
+    chrono_mat->SetSfriction(params->static_friction);
+    chrono_mat->SetKfriction(params->sliding_friction);
+    chrono_mat->SetRestitution(params->restitution);
+    chrono_mat->SetAdhesion(params->constant_adhesion);
+    chrono_mat->SetAdhesionMultDMT(params->adhesionMultDMT);
 
     return chrono_mat;
   }

@@ -67,23 +67,23 @@ namespace frydom {
     return std::make_shared<FrContactParamsNSC>();
   }
 
-  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialNSC(const FrContactParamsNSC& params) {
+  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialNSC(const FrContactParamsNSC* params) {
 
     // FIXME (CC) : regarder pour faire de la composition de ChMaterialSurface avec FrContactParams
 
     auto chrono_mat = std::make_shared<chrono::ChMaterialSurfaceNSC>();
 
-    chrono_mat->SetSfriction(params.static_friction);
-    chrono_mat->SetKfriction(params.sliding_friction);
-    chrono_mat->SetRollingFriction(params.rolling_friction);
-    chrono_mat->SetSpinningFriction(params.spinning_friction);
-    chrono_mat->SetRestitution(params.restitution);
-    chrono_mat->SetCohesion(params.cohesion);
-    chrono_mat->SetDampingF(params.dampingf);
-    chrono_mat->SetCompliance(params.compliance);
-    chrono_mat->SetComplianceT(params.complianceT);
-    chrono_mat->SetComplianceRolling(params.complianceRoll);
-    chrono_mat->SetComplianceSpinning(params.complianceSpin);
+    chrono_mat->SetSfriction(params->static_friction);
+    chrono_mat->SetKfriction(params->sliding_friction);
+    chrono_mat->SetRollingFriction(params->rolling_friction);
+    chrono_mat->SetSpinningFriction(params->spinning_friction);
+    chrono_mat->SetRestitution(params->restitution);
+    chrono_mat->SetCohesion(params->cohesion);
+    chrono_mat->SetDampingF(params->dampingf);
+    chrono_mat->SetCompliance(params->compliance);
+    chrono_mat->SetComplianceT(params->complianceT);
+    chrono_mat->SetComplianceRolling(params->complianceRoll);
+    chrono_mat->SetComplianceSpinning(params->complianceSpin);
 
     return chrono_mat;
 
