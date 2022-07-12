@@ -65,11 +65,11 @@ namespace frydom {
     // Projection to the planar frame
     Direction vessel_x_axis_world = body->GetFrame().GetXAxisInParent(NWU);
     vessel_x_axis_world[2] = 0;
-    vessel_x_axis_world.Normalize();
+    vessel_x_axis_world.normalize();
 
     Direction vessel_y_axis_world = body->GetFrame().GetYAxisInParent(NWU);
     vessel_y_axis_world[2] = 0;
-    vessel_y_axis_world.Normalize();
+    vessel_y_axis_world.normalize();
 
     double u = vessel_vel_world.dot(vessel_x_axis_world);
     double v = vessel_vel_world.dot(vessel_y_axis_world);

@@ -176,7 +176,7 @@ namespace frydom {
 
   void FrNode::TranslateInBody(const Direction &directionBody, double distance, FRAME_CONVENTION fc) {
     auto tmpDirection = directionBody;
-    tmpDirection.Normalize();
+    tmpDirection.normalize();
     TranslateInBody(distance * tmpDirection, fc);
   }
 
@@ -192,7 +192,7 @@ namespace frydom {
 
   void FrNode::TranslateInWorld(const Direction &directionWorld, double distance, FRAME_CONVENTION fc) {
     auto tmpDirection = directionWorld;
-    tmpDirection.Normalize();
+    tmpDirection.normalize();
     TranslateInWorld(distance * tmpDirection, fc);
   }
 

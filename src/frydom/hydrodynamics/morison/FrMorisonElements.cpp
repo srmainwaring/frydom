@@ -366,8 +366,8 @@ namespace frydom {
     auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
 
     // Nullify initial values of force and torque
-    m_force_added_mass.SetNull();
-    m_torque_added_mass.SetNull();
+    m_force_added_mass.setZero();
+    m_torque_added_mass.setZero();
 
     // Check if the element is immerged
     CheckImmersion();
@@ -445,8 +445,8 @@ namespace frydom {
     auto rho = body->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
 
     // Initialize force and torque with null value
-    m_force_added_mass.SetNull();
-    m_torque_added_mass.SetNull();
+    m_force_added_mass.setZero();
+    m_torque_added_mass.setZero();
 
     // Compute force with local node acceleration (in world reference frame)
     Acceleration node_acc = GetNodeAcceleration();
@@ -522,8 +522,8 @@ namespace frydom {
 
   void FrMorisonCompositeElement::Update(double time) {
 
-    m_force.SetNull();
-    m_torque.SetNull();
+    m_force.setZero();
+    m_torque.setZero();
     m_isImmerged = false;
 
     for (auto &element : m_morison) {
@@ -554,8 +554,8 @@ namespace frydom {
   void FrMorisonCompositeElement::ComputeForceAddedMass() {
     // FIXME : a voir si on utilise la matrice de masse d'eau ajoutée ou le calcul direct
     // Added mass force and torque
-    m_force_added_mass.SetNull();
-    m_torque_added_mass.SetNull();
+    m_force_added_mass.setZero();
+    m_torque_added_mass.setZero();
 
     for (auto &element: m_morison) {
       if (element->IsImmerged()) {

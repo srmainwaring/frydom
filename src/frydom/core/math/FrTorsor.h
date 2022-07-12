@@ -20,7 +20,7 @@ namespace frydom {
 
    public:
 
-    FrTorsor(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
+    FrTorsor(const Force &resultant, const Torque &moment,
              const Position &point, FRAME_CONVENTION fc);
 
     Position GetPoint(FRAME_CONVENTION fc) const;
@@ -29,14 +29,14 @@ namespace frydom {
    protected:
 
     void
-    Set(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment, const Position &point,
+    Set(const Force &resultant, const Torque &moment, const Position &point,
         FRAME_CONVENTION fc);
 
-    mathutils::Vector3d<double> m_resultant;  ///< resultant of the torsor
-    mathutils::Vector3d<double> m_moment;     ///< moment of the torsor, expressed at the point
+    Force m_resultant;  ///< resultant of the torsor
+    Torque m_moment;     ///< moment of the torsor, expressed at the point
     Position m_point;                         ///< Application point, where the torsor is expressed
 
-    mathutils::Vector3d<double> TransportMomentAtPoint(const Position &newPoint, FRAME_CONVENTION fc) const;
+    Torque TransportMomentAtPoint(const Position &newPoint, FRAME_CONVENTION fc) const;
 
 //    FrFrame m_frame;
 

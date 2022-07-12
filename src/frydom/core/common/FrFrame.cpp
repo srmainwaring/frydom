@@ -59,7 +59,7 @@ namespace frydom {
   }
 
   Position FrFrame::GetPosition(FRAME_CONVENTION fc) const {  // OK
-    auto pos = internal::ChVectorToVector3d<Position>(m_chronoFrame.GetPos()); // In NWU
+    auto pos = m_chronoFrame.GetPos().eigen(); // In NWU
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(pos);
     return pos;
   }
@@ -246,7 +246,7 @@ namespace frydom {
   void FrFrame::TranslateInParent(const Translation &translation, FRAME_CONVENTION fc) {
     auto tmpTranslation = translation;
     if (IsNED(fc)) internal::SwapFrameConvention<Translation>(tmpTranslation);
-    m_chronoFrame.Move(internal::Vector3dToChVector(tmpTranslation));
+    m_chronoFrame.Move(chrono::ChVector<double>(tmpTranslation));
   }
 
   void FrFrame::TranslateInParent(const Direction &direction, double distance, FRAME_CONVENTION fc) {

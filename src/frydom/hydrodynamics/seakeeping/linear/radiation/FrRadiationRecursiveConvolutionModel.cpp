@@ -164,7 +164,7 @@ namespace frydom {
 
     // Initization.
     auto radiationForce = GeneralizedForce();
-    radiationForce.SetNull();
+    radiationForce.setZero();
 
     int i_BEMBodyMotion = 0;
     for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {

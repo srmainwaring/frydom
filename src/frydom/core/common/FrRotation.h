@@ -204,8 +204,9 @@ namespace frydom {
       if (IsNED(fc)) internal::SwapFrameConvention<Vector>(vectorTmp);
 
       auto chronoVector = internal::Vector3dToChVector(vectorTmp);
+      auto chronoVectorRot = m_chronoQuaternion.Rotate(chronoVector);
 
-      vectorTmp = internal::ChVectorToVector3d<Vector>(m_chronoQuaternion.Rotate(chronoVector));
+      vectorTmp = chronoVectorRot.eigen();
 
       if (IsNED(fc)) internal::SwapFrameConvention<Vector>(vectorTmp);
 

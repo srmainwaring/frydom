@@ -124,7 +124,7 @@ namespace frydom {
     // This method computes the the forward speed dependent part of the convolution term.
 
     auto SpeedCorrection = GeneralizedForce();
-    SpeedCorrection.SetNull();
+    SpeedCorrection.setZero();
     auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(body);
     auto meanSpeed = eqFrame->GetFrameVelocityInFrame(NWU);
 

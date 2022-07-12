@@ -59,7 +59,7 @@ namespace frydom {
 
     // Initialization.
     auto radiationForce = GeneralizedForce();
-    radiationForce.SetNull();
+    radiationForce.setZero();
 
     // Forward speed.
     auto eqFrame = m_HDB->GetMapper()->GetEquilibriumFrame(BEMBody);
@@ -83,7 +83,7 @@ namespace frydom {
       auto interpKu = BEMBody->GetIRFInterpolator("KU")->at(idof); // The matrix L has already been applied in hdb5tool.
       std::vector<mathutils::Vector6d<double>> kernel;
       for (unsigned int it = 0; it < vtime.size(); ++it) {
-        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it].at(idof)); // int(KU(t-tau)*L*v(tau)).
+        kernel.push_back(interpKu->Eval(BEMBody->GetName(), vtime[it]) * velocity[it](idof)); // int(KU(t-tau)*L*v(tau)).
       }
       radiationForce += meanSpeed.norm() * TrapzLoc(vtime, kernel); // U*int(KU(t-tau)*L*v(tau)).
     }

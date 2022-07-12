@@ -399,7 +399,7 @@ namespace frydom {
 
     /// Converts a ChFrame into a FrFrame
     inline FrFrame ChFrame2FrFrame(const chrono::ChFrame<double> &chFrame) {  // OK
-      return FrFrame(ChVectorToVector3d<Position>(chFrame.GetPos()),  // In NWU
+      return FrFrame(chFrame.GetPos().eigen(),  // In NWU
                      Ch2FrQuaternion(chFrame.GetRot()), // In NWU
                      NWU);
     }
@@ -421,7 +421,7 @@ namespace frydom {
     /// Converts a ChCoordsys to a FrFrame
     inline FrFrame ChCoordsys2FrFrame(const chrono::ChCoordsys<double> &chCoordsys) {
       return FrFrame(
-          ChVectorToVector3d<Position>(chCoordsys.pos), // In NWU
+          chCoordsys.pos.eigen(), // In NWU
           Ch2FrQuaternion(chCoordsys.rot),
           NWU
       );

@@ -124,7 +124,7 @@ namespace frydom {
 
     auto body = GetBody();
 
-    double alpha = m_fluxVelocityInBody.GetProjectedAngleAroundZ(mathutils::RAD);
+    double alpha = GetProjectedAngleAroundZ(m_fluxVelocityInBody, mathutils::RAD);
     alpha = mathutils::Normalize_0_2PI(alpha);
 
     auto coeff = m_table.Eval("coeff", alpha);

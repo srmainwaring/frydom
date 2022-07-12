@@ -281,9 +281,9 @@ namespace frydom {
 
     // From vector to force and torque structures.
     Force force;
-    force.SetNull();
+    force.setZero();
     Torque torque;
-    torque.SetNull();
+    torque.setZero();
 
     unsigned int idof = 0;
     for (auto &dof:GetBodyMask().GetDOFs()) {

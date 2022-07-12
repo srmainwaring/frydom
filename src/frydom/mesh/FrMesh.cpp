@@ -786,7 +786,7 @@ namespace frydom {
       Position G(Sux2 * Inv2Volume, Svy2 * Inv2Volume, Swz2 * Inv2Volume);
 
       Position Gcorr;
-      Gcorr.SetNull();
+      Gcorr.setZero();
 
       for (auto &polygon : polygonSet) {
 

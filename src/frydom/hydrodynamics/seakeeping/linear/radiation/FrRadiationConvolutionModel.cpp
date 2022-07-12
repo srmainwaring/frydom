@@ -103,7 +103,7 @@ namespace frydom {
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
 
       auto radiationForce = GeneralizedForce();
-      radiationForce.SetNull();
+      radiationForce.setZero();
 
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
@@ -124,7 +124,7 @@ namespace frydom {
           std::vector<mathutils::Vector6d<double>> kernel;
           kernel.reserve(vtime.size());
           for (unsigned int it = 0; it < vtime.size(); ++it) {
-            auto irf = interpK->Eval(BEMBodyMotion->first->GetName(), vtime[it]) * velocity.at(it).at(idof);
+            auto irf = interpK->Eval(BEMBodyMotion->first->GetName(), vtime[it]) * velocity.at(it)(idof);
             // radiation mask applied
             kernel.push_back(irf.cwiseProduct(radiationMask.col(idof).cast<double>()));
           }

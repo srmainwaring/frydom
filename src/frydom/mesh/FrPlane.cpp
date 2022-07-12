@@ -37,7 +37,7 @@ namespace frydom {
       G /= cloudPoint.size();
       m_origin = G;
 
-      m_normal.SetNull();
+      m_normal.setZero();
 
       for (int i = 0; i < cloudPoint.size() - 1; i++) {
         Position vec1 = G - cloudPoint[i];

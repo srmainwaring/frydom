@@ -105,28 +105,28 @@ namespace frydom {
   void FrUnitQuaternion::Get(Direction &axis, double &angleRAD, FRAME_CONVENTION fc) const {
     chrono::ChVector<double> chronoAxis;
     chrono::Q_to_AngAxis(m_chronoQuaternion, angleRAD, chronoAxis); // In NWU
-    axis = internal::ChVectorToVector3d<Direction>(chronoAxis); // In NWU
+    axis = chronoAxis.eigen(); // In NWU
     if (IsNED(fc)) internal::SwapFrameConvention<Direction>(axis);
   }
 
   Direction FrUnitQuaternion::GetXAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = internal::ChVectorToVector3d<Direction>(quat.GetXaxis());
+    auto axis = quat.GetXaxis().eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetYAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = internal::ChVectorToVector3d<Direction>(quat.GetYaxis());
+    auto axis = quat.GetYaxis().eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetZAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = internal::ChVectorToVector3d<Direction>(quat.GetZaxis());
+    auto axis = quat.GetZaxis().eigen();
     return axis;
   }
 

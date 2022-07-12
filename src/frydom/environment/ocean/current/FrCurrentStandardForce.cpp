@@ -88,7 +88,7 @@ namespace frydom {
     fluxVelocityInBody = internal::SwapFrameConvention(fluxVelocityInBody);
     fluxVelocityInBody = -fluxVelocityInBody;       // Swap convention GOTO/COMEFROM
 
-    double alpha = fluxVelocityInBody.GetProjectedAngleAroundZ(RAD);
+    double alpha = GetProjectedAngleAroundZ(fluxVelocityInBody, RAD);
     alpha = Normalize_0_2PI(alpha);
 
     auto ak = 0.5 * rho * fluxVelocityInBody.squaredNorm();

@@ -53,7 +53,7 @@ namespace frydom {
 
       element->EvaluateSectionFrame(U, position_, quaternion_);
 
-      auto position = internal::ChVectorToVector3d<Position>(position_);
+      auto position = position_.eigen();
 
       // Getting the tangent direction of cable at U
       chrono::ChVector<double> tangent = quaternion_.GetXaxis();
@@ -282,7 +282,7 @@ namespace frydom {
 
       element->EvaluateSectionFrame(U, position_, quaternion_);
 
-      auto position = internal::ChVectorToVector3d<Position>(position_);
+      auto position = position_.eigen();
 
       // Getting the tangent direction of cable at U
       chrono::ChVector<double> tangent = quaternion_.GetXaxis();

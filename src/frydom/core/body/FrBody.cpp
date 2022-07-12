@@ -609,7 +609,7 @@ namespace frydom {
   }
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
-    auto force = internal::ChVectorToVector3d<Force>(m_chronoBody->Get_Xforce());
+    Force force = m_chronoBody->Get_Xforce().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(force);
     return force;
   }
@@ -619,7 +619,7 @@ namespace frydom {
   }
 
   Torque FrBody::GetTotalExtTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
-    auto torque = internal::ChVectorToVector3d<Torque>(m_chronoBody->Get_Xtorque());
+    auto torque = m_chronoBody->Get_Xtorque().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(torque);
     return torque;
   }
@@ -661,13 +661,13 @@ namespace frydom {
   }
 
   Position FrBody::GetCOG(FRAME_CONVENTION fc) const {
-    Position cogPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetFrame_COG_to_REF().GetPos()); // In NWU
+    Position cogPos = m_chronoBody->GetFrame_COG_to_REF().GetPos().eigen(); // In NWU
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 
   Position FrBody::GetPosition(FRAME_CONVENTION fc) const {
-    Position refPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetFrame_REF_to_abs().GetPos());
+    Position refPos = m_chronoBody->GetFrame_REF_to_abs().GetPos().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(refPos);
     return refPos;
   }

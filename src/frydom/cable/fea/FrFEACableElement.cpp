@@ -184,10 +184,7 @@ namespace frydom {
          */
 
         double fluid_density = m_environment->GetFluidDensity(
-            internal::ChVectorToVector3d<Position>(nodes[i]->coord.pos),
-            NWU,
-            true
-        );
+           nodes[i]->coord.pos.eigen(),NWU,true);
 
         auto node = std::dynamic_pointer_cast<chrono::fea::ChNodeFEAxyzrot>(GetNodeN(i));
         auto tangent = node->Frame().GetRot().GetXaxis();
