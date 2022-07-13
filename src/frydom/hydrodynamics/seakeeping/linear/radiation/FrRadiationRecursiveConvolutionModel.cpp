@@ -170,6 +170,13 @@ namespace frydom {
     for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
       auto radiationMask = body->GetRadiationMask(BEMBodyMotion->first);
+        // Applying the BEMBody DOFMask also on the radiationMask to ensure all forces on locked dofs are zero
+        hdb5_io::Mask DOFMask;
+        DOFMask.SetMask(m_HDB->GetBody(body)->GetDOFMask()->GetLockedDOFs());
+        for (auto idof : DOFMask.GetListDOF()) {
+          radiationMask.row(idof) *= false;
+        }
+
       auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
       for (auto idof : BodyMotionDOFMask.GetListDOF()) {
