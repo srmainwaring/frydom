@@ -1206,20 +1206,38 @@ namespace frydom {
   void FrOffshoreSystem::RunInViewer(double endTime, double dist, bool recordVideo, int videoFrameSaveInterval) {
 
     // Initialization of the system if not already done.
+    //##CC
+    std::cout << "debug : RunInViewer : Initialize ..." << std::endl;
+    //##CC
     Initialize();
+    //##CC
+    std::cout << "debug : RunInView : Init done." << std::endl;
+    //##CC
 
     // Definition and initialization of the Irrlicht application.
+    std::cout << "debug : RunInView : Irr App instanciate." << std::endl; //##CC
     m_irrApp = std::make_unique<FrIrrApp>(this, m_chronoSystem.get(), dist);
 
+    std::cout << "debug : RunInView : Irr App set timestep." << std::endl; //##CC
     m_irrApp->SetTimestep(m_chronoSystem->GetStep());
+    std::cout << "debug : RunInView : Irr App set video frame record." << std::endl; //##CC
     m_irrApp->SetVideoframeSave(recordVideo);
+    std::cout << "debug : RunInView : Irr App set video frame save interval." << std::endl; //##CC
     m_irrApp->SetVideoframeSaveInterval(videoFrameSaveInterval);
+
+    //##CC debug
+    std::cout << "debug : IrrApp set done" << std::endl;
+    //##CC
 
     event_logger::info(GetTypeName(), GetName(),
                        "Dynamic simulation STARTED in viewer with endTime = {} s, video recording set to {}",
                        endTime, recordVideo);
     event_logger::switch_to_simulation_formatter(this);
     event_logger::flush();
+
+    //##CC debug
+    std::cout << "debug : Irr App run" << std::endl;
+    //##CC
 
     m_irrApp->Run(endTime); // The temporal loop is here.
 

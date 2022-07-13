@@ -13,7 +13,7 @@
 #ifndef FRYDOM_FRVECTOR_H
 #define FRYDOM_FRVECTOR_H
 
-#include <cmath>
+#include <cfloat>
 
 #include "chrono/core/ChVector.h"
 #include "MathUtils/Unit.h"
@@ -251,6 +251,10 @@ namespace frydom {
       return this->z();
     }
 
+    bool IsUnit() const {
+      return std::abs(this->norm() - 1.) < DBL_EPSILON;
+    }
+
   };
 
 //    #define XDIR Direction(1., 0., 0.);
@@ -307,6 +311,10 @@ namespace frydom {
       return this->z();
     }
 
+    bool IsUnit() const {
+      return std::abs(this->norm() - 1.) < DBL_EPSILON;
+    }
+
   };
 
   /**
@@ -355,6 +363,11 @@ namespace frydom {
     double &GetWz() {
       return this->z();
     }
+
+    bool IsUnit() const {
+      return std::abs(this->norm() - 1.) < DBL_EPSILON;
+    }
+
   };
 
   /**

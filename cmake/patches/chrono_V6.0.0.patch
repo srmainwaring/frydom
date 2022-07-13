@@ -1021,9 +1021,22 @@ index 45d9f1f82..5685b1ce0 100644
  
      friend class ChSystem;
 diff --git a/src/chrono/physics/ChSystem.h b/src/chrono/physics/ChSystem.h
-index 67dd6bc02..f229ffcd7 100644
+index 67dd6bc02..0d58ab003 100644
 --- a/src/chrono/physics/ChSystem.h
 +++ b/src/chrono/physics/ChSystem.h
+@@ -498,10 +498,10 @@ class ChApi ChSystem : public ChIntegrableIIorder {
+ 
+     /// Updates all the auxiliary data and children of
+     /// bodies, forces, links, given their current state.
+-    void Update(double mytime, bool update_assets = true);
++    virtual void Update(double mytime, bool update_assets = true);
+ 
+     /// Updates all the auxiliary data and children of bodies, forces, links, given their current state.
+-    void Update(bool update_assets = true);
++    virtual void Update(bool update_assets = true);
+ 
+     /// In normal usage, no system update is necessary at the beginning of a new dynamics step (since an update is
+     /// performed at the end of a step). However, this is not the case if external changes to the system are made. Most
 @@ -699,7 +699,7 @@ class ChApi ChSystem : public ChIntegrableIIorder {
      /// Tell if the system will put to sleep the bodies whose motion has almost come to a rest.
      bool GetUseSleeping() const { return use_sleeping; }

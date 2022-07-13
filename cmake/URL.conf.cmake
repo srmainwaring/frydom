@@ -71,3 +71,6 @@ set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 # Boost
 set(boost_URL https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz CACHE STRING "boost URL")
 set(boost_TAG 1.75 CACHE STRING "boost version")
+
+# eigen
+#set(eigen_TAG 3.4.0 CACHE STRING "eigen version")

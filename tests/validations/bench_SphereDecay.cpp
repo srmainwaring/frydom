@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
 
   // -- System
 
+  std::cout << "debug : Set system " << std::endl; //##CC
+
   bool recursive_radiation = true;
 
   FrOffshoreSystem system("Sphere_Decay", FrOffshoreSystem::SMOOTH_CONTACT);
@@ -30,6 +32,8 @@ int main(int argc, char *argv[]) {
 
   // -- Body
 
+  std::cout << "debug : Set body " << std::endl; //##CC
+
   auto body = system.NewBody("sphere");
 
   Position COGPosition(0., 0., -2.);
@@ -37,6 +41,8 @@ int main(int argc, char *argv[]) {
   body->SetPosition(Position(0., 0., 0.), NWU);
 
   // -- Inertia
+
+  std::cout << "debug : Set inertia  " << std::endl; //##CC
 
   double mass = 2.618E5;
 
@@ -48,6 +54,8 @@ int main(int argc, char *argv[]) {
 
   body->SetInertiaTensor(InertiaTensor);
 
+  std::cout << "debug : set lock " << std::endl; //##CC
+
   body->GetDOFMask()->SetLock_X(true);
   body->GetDOFMask()->SetLock_Y(true);
   body->GetDOFMask()->SetLock_Rx(true);
@@ -55,6 +63,8 @@ int main(int argc, char *argv[]) {
   body->GetDOFMask()->SetLock_Rz(true);
 
   // -- Hydrodynamics
+
+  std::cout << "debug : Set hydrodynamic " << std::endl; //##CC
 
   //auto hdb = make_hydrodynamic_database(resources_path.resolve("sphere_hdb.h5").path());
   auto sphere_HDB = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/bench/sphere/sphere_hdb.hdb5"});
@@ -66,6 +76,8 @@ int main(int argc, char *argv[]) {
   hdb->Map(0, body.get(), eqFrame);
 
   // -- Linear hydrostatics
+
+  std::cout << "debug : Set hydrostatics " << std::endl; //##CC
 
   auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, hdb);
 
@@ -83,6 +95,8 @@ int main(int argc, char *argv[]) {
 
   // -- Radiation
 
+  std::cout << "debug : Set radiation " << std::endl; //##CC
+
   if (recursive_radiation) {
     auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
   } else {
@@ -90,6 +104,8 @@ int main(int argc, char *argv[]) {
     radiationModel->SetImpulseResponseSize(body.get(), 6., 0.01);
   }
   // -- Simulation
+
+  std::cout << "debug : Set simulation " << std::endl; //##CC
 
   auto dt = 0.01;
 
