@@ -1145,23 +1145,18 @@ namespace frydom {
 
     // TODO : voir si n'accepte pas de definir des offset sur les ddl bloques...
 
-    std::cout << "debug : InitializedLockDOF" << std::endl; //##CC
-
     if (m_DOFLink) {
 
-      std::cout << "debug : m_DOFLink" << std::endl; //##CC
       // updating the link with the new mask
       m_DOFLink->SetDOFMask(m_DOFMask.get());
       m_DOFLink->Initialize();
     }
     else {
 
-      std::cout << "debug : else " << std::endl; //##CC
 
       // Getting the markers that enter in the link
 
       // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
-      std::cout << "debug : set body node " << std::endl; //##CC
       auto bodyNode = NewNode(GetName() + "_locking_node");
 
       auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
@@ -1171,26 +1166,21 @@ namespace frydom {
       bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
 
       // World Marker placed at the current COG body position
-      std::cout << "debug : set world node " << std::endl; //##CC
       auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
       auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
       worldNode->SetFrameInBody(bodyNodeFrameInWorld);
 
       // Creating the link
-      std::cout << "debug : create link " << std::endl; //##CC
       m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), bodyNode, worldNode);
 
       // Initializing the link with the DOFMask
-      std::cout << "debug : set mask " << std::endl; //##CC
       m_DOFLink->SetDOFMask(m_DOFMask.get());
 
-      std::cout << "debug : set log " << std::endl; //##CC
       bodyNode->LogThis(m_DOFMask->IsLogged());
       worldNode->LogThis(m_DOFMask->IsLogged());
       m_DOFLink->LogThis(m_DOFMask->IsLogged());
 
       // Adding the link to the system
-      std::cout << "debug : add link to the system " << std::endl; //##CC
       GetSystem()->Add(m_DOFLink);
     }
   }

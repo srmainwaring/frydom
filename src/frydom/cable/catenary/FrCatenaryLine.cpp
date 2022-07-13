@@ -68,6 +68,10 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
+    //##CC
+    std::cout << "debug : FrCatenaryLine : Initialize" << std::endl;
+    //##
+
     // TODO : check avec Francois pour l'hydrostatique
     // TODO : ajouter un assert sur la grandeur de q
     m_q = m_properties->GetLinearDensity() -

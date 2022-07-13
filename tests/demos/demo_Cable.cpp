@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   DIRECTION_CONVENTION dc = GOTO;
 
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
-  FrOffshoreSystem system("demo_Cable", FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT);
+  FrOffshoreSystem system("demo_Cable", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // Hide the free surface and seabed visual assets.
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(false);
@@ -259,9 +259,9 @@ int main(int argc, char *argv[]) {
 
   // You can modify solver and time stepper parameters :
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(200);
-  system.SetSolverMaxIterStab(200);
+  //system.SetSolverWarmStarting(true);
+  //system.SetSolverMaxIterSpeed(200);
+  //system.SetSolverMaxIterStab(200);
   system.SetSolverForceTolerance(1e-13);
 
 //    system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT);
@@ -270,6 +270,13 @@ int main(int argc, char *argv[]) {
   // Now you are ready to perform the simulation and you can watch its progression in the viewer. You can adjust
   // the time length of the simulation (here infinite) and the distance from the camera to the objective (50).
   // For saving snapshots of the simulation, just turn the boolean to true.
-  system.RunInViewer(0., 50, false);
+  //system.RunInViewer(0., 50, false);
+
+  double time = 0.;
+  while (time < 50.) {
+    time += 0.01;
+    std::cout << "debug : time = " << time << std::endl;
+    system.AdvanceTo(time);
+  }
 
 }

@@ -372,7 +372,9 @@ int main(int argc, char *argv[]) {
   system.SetTimeStep(dt);
   system.Initialize();
 
-  bool is_irrlicht = true;
+  system.Visualize();
+
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false, 5);

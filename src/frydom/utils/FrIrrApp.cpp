@@ -100,16 +100,23 @@ namespace frydom {
 
   void FrIrrApp::Run(double endTime) {
 
+    std::cout << "debug : FrIrrApp : Bind" << std::endl; //##CC
     AssetBindAll();
+    std::cout << "debug : FrIrrApp : Update" << std::endl; //##CC
     AssetUpdateAll();
 
     // Temporal loop.
+    std::cout << "debug : FrIrrApp : run" << std::endl;
     while (GetDevice()->run()) {
 //        std::cout << "Time : " << GetSystem()->GetTime() << std::endl;
+      std::cout << "debug : begin scene" << std::endl; //##CC
       BeginScene();
+      std::cout << "debug : draw" << std::endl; //##CC
       DrawAll();
       // Time-stepping.
+      std::cout << "debug : do step" << std::endl; //##CC
       DoStep(); // m_system->GetChTime() is also updated here.
+      std::cout << "debug : end scene" << std::endl; //##CC
       EndScene();
 
       // Condition to stop the time-domain simulation using the time after time-stepping.
