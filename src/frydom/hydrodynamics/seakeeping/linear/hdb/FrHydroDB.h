@@ -87,13 +87,20 @@ namespace frydom {
 
     FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
 
+    mathutils::Matrix66<bool> GetBodyRadiationMask(FrBEMBody* BEMBody, FrBEMBody* BEMBodyMotion);
+
     /// This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
     bool GetIsXDerivative() const;
+
+    void ActivateDOFMask(bool dofMaskApplied) {
+      m_dofMaskApplied = dofMaskApplied;
+    }
 
    private:
 
     std::shared_ptr<hdb5_io::HydrodynamicDataBase> m_HDB;
     std::unique_ptr<FrHydroMapper> m_mapper;            ///< Mapper between bodies and hdb body database
+    bool m_dofMaskApplied = true;
 
   };
 
