@@ -62,31 +62,18 @@ index b2cb792c7..5e80ed6a1 100644
  #------------------------------------------------------------
  # Defer configuration of all Chrono libraries and programs
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 4a6494c2d..323980237 100644
+index 4a6494c2d..4c1b96c3a 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -183,8 +183,8 @@ if(USE_SIMD)
-    endif()
-    
-    # Figure out AVX level support
--   message(STATUS "Searching for AVX...")
--   find_package(AVX)
-+   #message(STATUS "Searching for AVX...")
-+   #find_package(AVX)
-    
-    # Set substitution variables for configuration file
-    if(AVX_FOUND)
-@@ -199,8 +199,8 @@ if(USE_SIMD)
-    endif()
+@@ -153,7 +153,7 @@ endif()
+ # SSE / AVX / FMA / NEON support
+ #-----------------------------------------------------------------------------
  
-    # Figure out FMA level support
--   message(STATUS "Searching for FMA...")
--   find_package(FMA)
-+   #message(STATUS "Searching for FMA...")
-+   #find_package(FMA)
-    
-    # Set substitution variables for configuration file
-    if(FMA_FOUND)
+-option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" ON)
++option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" OFF)
+ 
+ if(USE_SIMD)
+ 
 @@ -334,7 +334,7 @@ if(CUDA_FOUND)
      set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --compiler-options -fPIC)
    endif()

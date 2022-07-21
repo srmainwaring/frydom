@@ -68,11 +68,16 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
+    //std::cout << "debug : FrCatenaryLine : Initialize : start" << std::endl; //##CC debug
+
     // TODO : check avec Francois pour l'hydrostatique
     // TODO : ajouter un assert sur la grandeur de q
     m_q = m_properties->GetLinearDensity() -
           m_properties->GetSectionArea() * GetSystem()->GetEnvironment()->GetFluidDensity(c_fluid);
     m_q *= GetSystem()->GetGravityAcceleration();
+
+    //std::cout << "debug : FrCatenaryLine : Initialize : m_q = " << m_q << std::endl; //##CC debug
+
 //    m_q = m_properties->GetLinearDensity() *
 //          GetSystem()->GetEnvironment()->GetGravityAcceleration(); // FIXME: reintroduire l'hydrostatique !!!
     m_pi = {0., 0., -1.}; // FIXME: en dur pour le moment... (voir aussi dans FrCatenaryLineSeabed::Initialize())
@@ -87,6 +92,9 @@ namespace frydom {
     solve();
 
     FrCatenaryLineBase::Initialize();
+
+    //std::cout << "debug : FrCatenaryLine : Initialize : end" << std::endl; //##CC debug
+
   }
 //  void FrCatenaryLine::StepFinalize() {}
 
@@ -130,10 +138,14 @@ namespace frydom {
 
   void FrCatenaryLine::solve() {
 
+    //std::cout << "debug : FrCatenaryLine : solve : start" << std::endl; //##CC debug
+
     // Defining the linear solver
     Eigen::FullPivLU<Eigen::Matrix3d> linear_solver;
 
     Tension t0_prec = m_t0;
+
+    //std::cout << "debug : FrCatenaryLine : solver : t0_prec = " << t0_prec << std::endl; //##CC debug
 
     Residue3 residue = GetResidue();
 
@@ -141,6 +153,8 @@ namespace frydom {
     Tension dt0 = linear_solver.solve(-residue);
 
     m_t0 += dt0;
+
+    //std::cout << "debug : FrCatenaryLine : solver : m_t0 = " << m_t0 << std::endl; //##CC debug
 
     double tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /
                                 (1. + m_t0.array().abs().min(t0_prec.array().abs()))).maxCoeff();
@@ -161,7 +175,19 @@ namespace frydom {
       tension_criterion = ((m_t0.array() - t0_prec.array()).abs() /
                            (1. + m_t0.array().abs().min(t0_prec.array().abs()))).maxCoeff();
 
+      //##CC debug
+      //std::cout << "debug : bla" << std::endl;
+      //std::cout << "debug : solver : iter = " << iter << "maxiter = " << m_maxiter << " ; residue = " << residue <<
+      //          "tension_criterion = " << tension_criterion << " ; tolerance = " << m_tolerance << " dt0 = " << dt0 << std::endl;
+      //##
+
     }
+
+    //##CC debug
+    //std::cout << "debug : FrCatenaryLine : solver : n_iter = " << iter << std::endl;
+    //std::cout << "debug : FrCatenaryLine : solver :n_maxiter = " << m_maxiter << std::endl;
+    //std::cout << "debug : FrCatenaryLine : solver : m_t0 = " << m_t0 << std::endl;
+    //##CC
 
     c_iter = iter;
     c_pos_error = pos_error;
@@ -174,8 +200,6 @@ namespace frydom {
     } else {
 //      std::cout << "CONVERGENCE IN " << iter << std::endl;
     }
-
-
 
 //    unsigned int iter = 0;
 //
@@ -214,6 +238,8 @@ namespace frydom {
 //    } else {
 ////      std::cout << "CONVERGENCE IN " << iter << std::endl;
 //    }
+
+  //std::cout << "debug : FrCatenenaryLine : solve : end" << std::endl; //##CC debug
 
   }
 
@@ -389,6 +415,7 @@ namespace frydom {
 
   Position FrCatenaryLine::p(const double &s) const {
     Position position;
+    position.setZero();
     p(s, position);
     return position;
   }
@@ -398,6 +425,9 @@ namespace frydom {
   }
 
   void FrCatenaryLine::FirstGuess() {
+
+    //std::cout << "debug : FrCatenaryLine : FirstGuess : start" << std::endl; //##CC debug
+
     // Peyrot et goulois
 
     Position p0pL = m_endingNode->GetPositionInWorld(NWU) - m_startingNode->GetPositionInWorld(NWU);
@@ -405,11 +435,17 @@ namespace frydom {
     double ly = p0pL(1);
     double lz = p0pL(2);
 
+    //std::cout << "debug : FrCatenaryLine : FirstGuess : lx = " << lx << " ; ly = " << ly << " ; lz = " << lz << std::endl; //##CC debug
+
 //    double V = lz;
     double H = sqrt(lx * lx + ly * ly);
 
+    //std::cout << "debug : FrCatenaryLine : FirstGuess : H = " << H << std::endl; //##CC debug
+
     auto chord_length = p0pL.norm();
     Direction v_horiz = (m_pi.cross(p0pL).cross(m_pi)).normalized();
+
+    //std::cout << "debug : FrCatenaryLine : FirstGuess : chord_length = " << chord_length << std::endl; //##CC
 
     double lu = GetUnstretchedLength();
     double lambda = 0;
@@ -428,6 +464,9 @@ namespace frydom {
     double f_horiz = std::max(0.5 * m_q * H / lambda, 1e-3); // Attention au signe
 
     m_t0 = (f_vert * m_pi + f_horiz * v_horiz) / c_qL;
+
+    //std::cout << "debug : FrCatenaryLine : FirstGuess : m_t0 = " << m_t0 << std::endl; //##CC debug
+    //std::cout << "debug : FrCatenaryLine : FirstGuess : end" << std::endl; //##CC debug
   }
 
   FrCatenaryLine::Residue3 FrCatenaryLine::GetResidue() const {
@@ -481,11 +520,16 @@ namespace frydom {
   }
 
   void FrCatenaryLine::Compute(double time) { // TODO: voir si on passe pas dans la classe de base...
+
+    //std::cout << "debug : FrCatenaryLine : Compute : start" << std::endl; //##CC debug
+
     solve(); // FIXME: c'est la seule chose à faire ??? Pas de rebuild de cache ?
     if (c_iter == m_maxiter) {
       FirstGuess();
       solve();
     }
+
+    //std::cout << "debug : FrCatenaryLine : Compute : end" << std::endl; //##CC debug
   }
 
   void FrCatenaryLine::DefineLogMessages() {
@@ -518,6 +562,9 @@ namespace frydom {
 
   void FrCatenaryLine::BuildCache() {
     c_U.SetIdentity();
+
+    //std::cout << "debug : FrCatenaryLine : BuildCache : cU = Identity : " << c_U << std::endl; //##CC debug
+
     c_U -= m_pi * m_pi.transpose();
 
     c_qL = m_q * m_unstretchedLength;
@@ -531,7 +578,16 @@ namespace frydom {
       auto point_force = m_point_forces[i + 1];
       c_Fi.emplace_back(c_Fi[i] + point_force.force());
       c_sum_fs.emplace_back(c_sum_fs[i] + point_force.force() * point_force.s());
+      //##CC debug
+      //std::cout << "debug : FrCatenaryLine : BuildCache : c_Fi <- " << c_Fi[i] + point_force.force() << std::endl;
+      //std::cout << "debug : FrCatenaryLine : BuildCache : c_sum_fs <- " << c_sum_fs[i] + point_force.force() * point_force.s() << std::endl;
+      //##
     }
+
+    //##CC debug
+    //std::cout << "debug : FrCatenaryLine : BuildCache : c_U = " << c_U << std::endl;
+    //std::cout << "debug : FrCatenaryLine : BuildCache : c_qL = " << c_qL << std::endl;
+    //##
   }
 
   std::shared_ptr<FrCatenaryLine>
@@ -546,7 +602,7 @@ namespace frydom {
     auto line = std::make_shared<FrCatenaryLine>(name,
                                                  startingNode,
                                                  endingNode,
-                                                 properties,
+                                                  properties,
                                                  elastic,
                                                  unstretchedLength,
                                                  fluid_type);

@@ -88,10 +88,12 @@ int main(int argc, char *argv[]) {
     }
       // This case features a pendulum : a sphere balancing at the end of a line, with its other end fixed.
     case Pendulum: {
+
       // Create the moving sphere, from the system
       auto sphere = system.NewBody("sphere");
       // make it a sphere : gives an asset, a collision box, and its inertia parameters
       makeItSphere(sphere, 1, 1000);
+
 
       // Set its initial position and velocity
       double alpha = 30 * DEG2RAD;
@@ -101,7 +103,7 @@ int main(int argc, char *argv[]) {
 
       // create the nodes from the sphere and the world body.
       auto sphereNode = sphere->NewNode("sphereNode");
-//            sphereNode->SetPositionInBody({0.,0.,1.},NWU);
+      //sphereNode->SetPositionInBody({0.,0.,1.},NWU);
       auto worldNode = system.GetWorldBody()->NewNode("WBNode");
       worldNode->SetPositionInBody(Position(-2., 0., 50.), NWU);
 
@@ -111,6 +113,7 @@ int main(int argc, char *argv[]) {
       double RayleighDamping = 0.;                            //  Rayleigh damping
 
       // Create the catenary line, using the nodes and line properties previously defined
+
       auto CatenaryLine = make_catenary_line("CatenaryLine", sphereNode, worldNode, cableProp, elastic,
                                              unstrainedLength,
                                              WATER);
@@ -264,6 +267,9 @@ int main(int argc, char *argv[]) {
   //system.SetSolverMaxIterSpeed(200);
   //system.SetSolverMaxIterStab(200);
   system.SetSolverForceTolerance(1e-13);
+
+  //system.Initialize();
+  //system.Visualize();
 
 //    system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT);
 //    system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT_LINEARIZED);
