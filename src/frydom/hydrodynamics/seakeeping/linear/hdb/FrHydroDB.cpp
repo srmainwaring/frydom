@@ -86,10 +86,28 @@ namespace frydom {
 
   FrMask FrHydroDB::GetBodyDOFMask(FrBEMBody *BEMBody) const {
 
-    auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
-    DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
+    auto mask = BEMBody->GetForceMask();
 
-    return DOFMask&&BEMBody->GetForceMask();
+    if (m_dofMaskApplied) {
+      hdb5_io::Mask DOFMask;
+      DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
+      mask = mask&&DOFMask;
+    }
+
+    return mask;
+  }
+
+  mathutils::Matrix66<bool> FrHydroDB::GetBodyRadiationMask(FrBEMBody* BEMBody, FrBEMBody* BEMBodyMotion) {
+    auto mask = BEMBody->GetRadiationMask(BEMBodyMotion);
+    if (m_dofMaskApplied) {
+      // Applying the BEMBody DOFMask also on the radiationMask to ensure all forces on locked dofs are zero
+      hdb5_io::Mask DOFMask;
+      DOFMask.SetMask(this->GetBody(BEMBody)->GetDOFMask()->GetLockedDOFs());
+      for (auto idof : DOFMask.GetListDOF()) {
+        mask.row(idof) *= false;
+      }
+    }
+    return mask;
   }
 
   bool FrHydroDB::GetIsXDerivative() const {
