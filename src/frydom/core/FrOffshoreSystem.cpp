@@ -629,17 +629,18 @@ namespace frydom {
 
     msg->AddField<double>("time", "s", "Current time of the simulation", [this]() { return GetTime(); });
 
-    msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
-      return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
-    });
-
-    msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); }); 
+    msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); });
 
     msg->AddField<double>("residual_log", "", "residual of the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetResidualLog(); }); 
 
     msg->AddField<double>("max_delta_unknowns", "", "", [this]() { return m_chronoSystem->GetSolver()->GetMaxDeltaUnknowns(); });
 
-    if (dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
+    if (auto solver_iter = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+
+      msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
+        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
+      });
+
       msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
         return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
       });
@@ -1125,9 +1126,7 @@ namespace frydom {
   }
 
   bool FrOffshoreSystem::AdvanceTo(double nextTime) {
-    std::cout << "debug : FrOffshoreSystem : Initialize" << std::endl; //##CC
     Initialize();
-    std::cout << "debug : FROffshoreSystem : DoFrameDynamics" << std::endl; //##CC
     return m_chronoSystem->DoFrameDynamics(nextTime);
   }
 

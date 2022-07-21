@@ -28,10 +28,6 @@ namespace frydom {
 
   void FrCatenaryForce::Compute(double time) {
 
-    //##CC
-    std::cout << "debug : FrCatenaryForce : Compute " << std::endl;
-    //##CC
-
     Position relative_position;
     Force force_in_world;
 

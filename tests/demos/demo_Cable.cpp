@@ -115,6 +115,7 @@ int main(int argc, char *argv[]) {
                                              unstrainedLength,
                                              WATER);
 
+
       // Same with a Dynamic cable
       // Create the moving sphere, from the system
       auto sphere2 = system.NewBody("sphere2");
@@ -270,13 +271,13 @@ int main(int argc, char *argv[]) {
   // Now you are ready to perform the simulation and you can watch its progression in the viewer. You can adjust
   // the time length of the simulation (here infinite) and the distance from the camera to the objective (50).
   // For saving snapshots of the simulation, just turn the boolean to true.
-  //system.RunInViewer(0., 50, false);
+  system.RunInViewer(0., 50, false);
 
-  double time = 0.;
-  while (time < 50.) {
-    time += 0.01;
-    std::cout << "debug : time = " << time << std::endl;
-    system.AdvanceTo(time);
-  }
+  //double time = 0.;
+  //while (time < 50.) {
+  //  time += 0.01;
+  //  std::cout << "debug : time = " << time << std::endl;
+  //  system.AdvanceTo(time);
+  //}
 
 }

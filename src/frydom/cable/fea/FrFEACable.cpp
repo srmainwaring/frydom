@@ -307,6 +307,7 @@ namespace frydom {
       elasticity->SetYoungModulus(props->GetYoungModulus());
       // FIXME: voir a importer cela aussi depuis les props
       elasticity->SetGshearModulus(props->GetYoungModulus() * 0.3);
+      elasticity->SetAsCircularSection(props->GetDiameter());
 
       // Set Rayleigh Damping model
       auto damping = std::make_shared<chrono::fea::ChDampingCosseratRayleigh>(elasticity,

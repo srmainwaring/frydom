@@ -82,7 +82,6 @@ namespace frydom {
     chrono::ChColor color;
     p0 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(s0, NWU));
 
-
     auto index = m_chronoAsset->GetAssets().size();
 
     while (s1 <= m_catenaryLine->GetUnstretchedLength() - ds) {
@@ -119,6 +118,7 @@ namespace frydom {
       m_elements.push_back(make_triplet(s0, s1, index));
       m_chronoAsset->AddAsset(newElement);
     }
+
   }
 
   void FrCatenaryLineAsset::StepFinalize() {
@@ -127,6 +127,7 @@ namespace frydom {
     double s0, s1;
 
     p0 = internal::Vector3dToChVector(m_catenaryLine->GetPositionInWorld(0., NWU));
+
 
     for (auto &element : m_elements) {
 
@@ -148,6 +149,7 @@ namespace frydom {
       p0 = p1;
 
     }
+
   }
 
   void FrCatenaryLineAsset::InitRangeTensionColor() {

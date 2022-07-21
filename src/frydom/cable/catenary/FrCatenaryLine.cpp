@@ -68,10 +68,6 @@ namespace frydom {
 
   void FrCatenaryLine::Initialize() {
 
-    //##CC
-    std::cout << "debug : FrCatenaryLine : Initialize" << std::endl;
-    //##
-
     // TODO : check avec Francois pour l'hydrostatique
     // TODO : ajouter un assert sur la grandeur de q
     m_q = m_properties->GetLinearDensity() -
@@ -119,6 +115,7 @@ namespace frydom {
 
   Position FrCatenaryLine::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
     Position position;
+    position.setZero();
     p(s / m_unstretchedLength, position);
     if (IsNED(fc))
       internal::SwapFrameConvention(position);
