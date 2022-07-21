@@ -428,3 +428,13 @@ class BodyDB(object):
         """
 
         self._extra_damping = value
+
+    def set_extra_roll_damping(self, value):
+        """This method sets the extra roll damping."""
+
+        self._extra_damping[3, 3] = value
+
+    def extra_roll_damping(self):
+        """This method returns the extra roll damping."""
+
+        return self._extra_damping[3, 3]
