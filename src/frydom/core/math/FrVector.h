@@ -74,7 +74,7 @@ namespace frydom {
 
    public:
 
-    Position() : chrono::ChVectorN<double, 3>() {}
+    Position() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Position(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -121,7 +121,7 @@ namespace frydom {
 
    public:
 
-    CardanAngles() : chrono::ChVectorN<double, 3>() {}
+    CardanAngles() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     CardanAngles(double roll, double pitch, double yaw) : chrono::ChVectorN<double, 3>(roll, pitch, yaw) {}
 
@@ -212,7 +212,7 @@ namespace frydom {
 
    public:
 
-    Direction() : chrono::ChVectorN<double, 3>() {}
+    Direction() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Direction(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -272,7 +272,7 @@ namespace frydom {
 
    public:
 
-    Velocity() : chrono::ChVectorN<double, 3>() {}
+    Velocity() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Velocity(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -325,7 +325,7 @@ namespace frydom {
 
    public:
 
-    AngularVelocity() : chrono::ChVectorN<double, 3>() {}
+    AngularVelocity() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     AngularVelocity(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -378,7 +378,9 @@ namespace frydom {
 
    public:
 
-    GeneralizedVelocity() : chrono::ChVectorN<double, 6>() {}
+    GeneralizedVelocity() : chrono::ChVectorN<double, 6>() {
+      this->setZero();
+    }
 
     GeneralizedVelocity(const Velocity &vel, const AngularVelocity &rotVel) {
       *this << vel[0], vel[1], vel[2], rotVel[0], rotVel[1], rotVel[2];
@@ -446,7 +448,7 @@ namespace frydom {
 
    public:
 
-    Acceleration() : chrono::ChVectorN<double, 3>() {}
+    Acceleration() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Acceleration(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -494,7 +496,7 @@ namespace frydom {
 
    public:
 
-    AngularAcceleration() : chrono::ChVectorN<double, 3>() {}
+    AngularAcceleration() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     AngularAcceleration(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -542,7 +544,9 @@ namespace frydom {
 
    public:
 
-    GeneralizedAcceleration() : chrono::ChVectorN<double, 6>() {}
+    GeneralizedAcceleration() : chrono::ChVectorN<double, 6>() {
+      this->setZero();
+    }
 
     GeneralizedAcceleration(const Acceleration &acc, const AngularAcceleration &rotAcc) {
       *this << acc[0], acc[1], acc[2], rotAcc[0], rotAcc[1], rotAcc[2];
@@ -585,7 +589,7 @@ namespace frydom {
 
    public:
 
-    Force() : chrono::ChVectorN<double, 3>() {}
+    Force() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Force(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -633,7 +637,7 @@ namespace frydom {
 
    public:
 
-    Torque() : chrono::ChVectorN<double, 3>() {}
+    Torque() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Torque(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -681,7 +685,9 @@ namespace frydom {
 
    public:
 
-    GeneralizedForce() : chrono::ChVectorN<double, 6>() {}
+    GeneralizedForce() : chrono::ChVectorN<double, 6>() {
+      this->setZero();
+    }
 
     GeneralizedForce(const Force &force, const Torque &torque) {
       *this << force[0], force[1], force[2], torque[0], torque[1], torque[2];

@@ -641,13 +641,13 @@ namespace frydom {
         return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
       });
 
-      msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
-        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
-      });
+      //msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
+      //  return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
+      //});
 
-      msg->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
-        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
-      });
+      //msg->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
+      //  return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
+      //});
 
     }
 

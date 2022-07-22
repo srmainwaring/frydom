@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
   //                        FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
   //                        FrOffshoreSystem::MINRES);
 
-  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy");
+  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // Environment
   SetUpEnvironment(&system);
@@ -372,9 +372,7 @@ int main(int argc, char *argv[]) {
   system.SetTimeStep(dt);
   system.Initialize();
 
-  system.Visualize();
-
-  bool is_irrlicht = false;
+  bool is_irrlicht = true;
 
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false, 5);

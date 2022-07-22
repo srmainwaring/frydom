@@ -38,7 +38,7 @@ namespace frydom {
                          elastic,
                          unstretchedLength),
       c_qL(0.), c_fluid(fluid_type) {
-    m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
+      m_point_forces.emplace_back(internal::PointForce(this, 0., Force().setZero()));
   }
 
   FrCatenaryLine::FrCatenaryLine(const std::string &name, FrCableBase *cable, bool elastic, FLUID_TYPE fluid_type) :
