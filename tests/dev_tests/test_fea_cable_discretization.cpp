@@ -129,9 +129,7 @@ int main() {
   // pour toute simulation
 
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(500);
-  system.SetSolverMaxIterStab(500);
+  system.SetSolverMaxIterations(500);
   system.SetSolverForceTolerance(1e-14);
   system.SetSolverDiagonalPreconditioning(true);
 

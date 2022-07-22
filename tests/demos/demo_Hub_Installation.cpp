@@ -307,9 +307,7 @@ int main(int argc, char *argv[]) {
 
   // simulation parameters for dynamic cables
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(false);
-  system.SetSolverMaxIterSpeed(200);
-  system.SetSolverMaxIterStab(200);
+  system.SetSolverMaxIterations(200);
   system.SetSolverForceTolerance(1e-13);
 
   // ------------------ Static equilibrium ------------------ //

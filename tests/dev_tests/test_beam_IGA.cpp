@@ -632,9 +632,7 @@ int main() {
 
   // Solver default settings for all the sub demos:
   my_system.SetSolverType(ChSolver::Type::MINRES);
-  my_system.SetSolverWarmStarting(true);  // this helps a lot to speedup convergence in this class of problems
-  my_system.SetMaxItersSolverSpeed(500);
-  my_system.SetMaxItersSolverStab(500);
+  my_system.SetSolverMaxIteractions(500);
   my_system.SetTolForce(1e-14);
 
 
