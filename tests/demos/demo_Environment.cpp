@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 
     // For this kind of filed, you need to specify the velocity profile, either by directly setting it in the main, or
     // reading a JSON file.
-    auto current_file = FrFileSystem::join({system.config_file().GetDataFolder(), "current.json"});
+    auto current_file = FrFileSystem::join({system.config_file().GetDataFolder(), "ce/environment/current.json"});
     current->ReadJSON(current_file);
 
 //    current->Set({-30,-15,0}, {0,0.5,1}, MS, EAST(NWU), NWU, GOTO);
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
     auto timeRamp = system.GetEnvironment()->GetTimeRamp();
 
     // By default this function is deactivated.
-    timeRamp->SetActive(true);
+    timeRamp->SetActive(false);
 
     // You can set its starting (t0) and ending (t1) times as well as its intercept and slope values so that it starts
     // at 0. and finish at 1. after t1 seconds.

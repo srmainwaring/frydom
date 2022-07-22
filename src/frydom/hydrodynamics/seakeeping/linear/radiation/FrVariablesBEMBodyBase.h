@@ -48,25 +48,25 @@ namespace frydom {
 
       void SetVariablesBodyOwnMass(chrono::ChVariablesBodyOwnMass *variables);
 
-      void Compute_invMb_v(chrono::ChMatrix<double> &result, const chrono::ChMatrix<double> &vect) const override;
+      void Compute_invMb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect) const override;
 
-      void Compute_inc_invMb_v(chrono::ChMatrix<double> &result, const chrono::ChMatrix<double> &vect) const override;
+      void Compute_inc_invMb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect) const override;
 
-      void Compute_inc_invMb_v(chrono::ChMatrix<double> &result, const chrono::ChMatrix<double> &vect,
+      void Compute_inc_invMb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect,
                                chrono::ChVariables *variable) const;
 
-      void Compute_inc_Mb_v(chrono::ChMatrix<double> &result, const chrono::ChMatrix<double> &vect) const override;
+      void Compute_inc_Mb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect) const override;
 
-      void MultiplyAndAdd(chrono::ChMatrix<double> &result, const chrono::ChMatrix<double> &vect,
+      void MultiplyAndAdd(chrono::ChVectorRef result, chrono::ChVectorConstRef vect,
                           const double c_a) const override;
 
-      void DiagonalAdd(chrono::ChMatrix<double> &result, const double c_a) const override;
+      void DiagonalAdd(chrono::ChVectorRef result, const double c_a) const override;
 
       void Build_M(chrono::ChSparseMatrix &storage, int insrow, int inscol, const double c_a) override;
 
-      chrono::ChMatrix<double> GetVariablesFb(FrBody *body) const;
+      chrono::ChVectorRef GetVariablesFb(FrBody *body) const;
 
-      chrono::ChMatrix<double> GetVariablesQb(FrBody *body) const;
+      chrono::ChVectorRef GetVariablesQb(FrBody *body) const;
 
       //
       // VIRTUAL FUNCTION

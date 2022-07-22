@@ -21,7 +21,7 @@ namespace frydom {
       m_mass(0, 0) = m_variablesBodyOwnMass->GetBodyMass();
       m_mass(1, 1) = m_variablesBodyOwnMass->GetBodyMass();
       m_mass(2, 2) = m_variablesBodyOwnMass->GetBodyMass();
-      m_mass.block<3, 3>(3, 3) = ChMatrix33ToMatrix33(m_variablesBodyOwnMass->GetBodyInertia());
+      m_mass.block<3, 3>(3, 3) = m_variablesBodyOwnMass->GetBodyInertia();
 
       // Compute the inverse mass matrix
       m_inv_mass = m_mass.inverse();
@@ -30,12 +30,12 @@ namespace frydom {
       //internal::GetChronoBody(body)->SetVariables(std::shared_ptr<FrVariablesBodyBase>(this));
     }
 
-    void FrVariablesBodyBase::Compute_invMb_v(chrono::ChMatrix<double> &result,
-                                              const chrono::ChMatrix<double> &vect) const {
-      assert(vect.GetRows() == Get_ndof());
-      assert(result.GetRows() == Get_ndof());
+    void FrVariablesBodyBase::Compute_invMb_v(chrono::ChVectorRef result,
+                                              chrono::ChVectorConstRef vect) const {
+      assert(vect.size() == Get_ndof());
+      assert(result.size() == Get_ndof());
 
-      result.Reset();
+      result.setZero();
       for (unsigned int i = 0; i < 6; i++) {
         for (unsigned int j = 0; j < 6; j++) {
           result(i) += m_inv_mass(i, j) * vect(j);
@@ -43,10 +43,10 @@ namespace frydom {
       }
     }
 
-    void FrVariablesBodyBase::Compute_inc_invMb_v(chrono::ChMatrix<double> &result,
-                                                  const chrono::ChMatrix<double> &vect) const {
-      assert(vect.GetRows() == Get_ndof());
-      assert(result.GetRows() == Get_ndof());
+    void FrVariablesBodyBase::Compute_inc_invMb_v(chrono::ChVectorRef result,
+                                                  chrono::ChVectorConstRef vect) const {
+      assert(vect.size() == Get_ndof());
+      assert(result.size() == Get_ndof());
 
       for (unsigned int i = 0; i < 6; i++) {
         for (unsigned int j = 0; j < 6; j++) {
@@ -55,10 +55,10 @@ namespace frydom {
       }
     }
 
-    void FrVariablesBodyBase::Compute_inc_Mb_v(chrono::ChMatrix<double> &result,
-                                               const chrono::ChMatrix<double> &vect) const {
-      assert(vect.GetRows() == Get_ndof());
-      assert(result.GetRows() == Get_ndof());
+    void FrVariablesBodyBase::Compute_inc_Mb_v(chrono::ChVectorRef result,
+                                               chrono::ChVectorConstRef vect) const {
+      assert(vect.size() == Get_ndof());
+      assert(result.size() == Get_ndof());
 
       for (unsigned int i = 0; i < 6; i++) {
         for (unsigned int j = 0; j < 6; j++) {
@@ -67,9 +67,10 @@ namespace frydom {
       }
     }
 
-    void FrVariablesBodyBase::MultiplyAndAdd(chrono::ChMatrix<double> &result, const chrono::ChMatrix<double> &vect,
+    void FrVariablesBodyBase::MultiplyAndAdd(chrono::ChVectorRef result,
+                                             chrono::ChVectorConstRef vect,
                                              const double c_a) const {
-      assert(result.GetColumns() == 1 && vect.GetColumns() == 1);
+      assert(result.size() == 1 && vect.size() == 1);
 
       mathutils::Vector6d<double> q;
       for (unsigned int i = 0; i < 6; ++i) {
@@ -83,8 +84,8 @@ namespace frydom {
       }
     }
 
-    void FrVariablesBodyBase::DiagonalAdd(chrono::ChMatrix<double> &result, const double c_a) const {
-      assert(result.GetColumns() == 1);
+    void FrVariablesBodyBase::DiagonalAdd(chrono::ChVectorRef result, const double c_a) const {
+      assert(result.size() == 1);
       for (unsigned int i = 0; i < 6; ++i) {
         result(this->offset + i) += c_a * m_mass(i, i);
       }

@@ -34,7 +34,7 @@ namespace frydom {
 
       /// Sets H as the global stiffness matrix K, scaled  by Kfactor. Optionally, also
       /// superimposes global damping matrix R, scaled by Rfactor, and global mass matrix M multiplied by Mfactor.
-      void ComputeKRMmatricesGlobal(chrono::ChMatrix<> &H,
+      void ComputeKRMmatricesGlobal(chrono::ChMatrixRef H,
                                     double Kfactor,
                                     double Rfactor = 0,
                                     double Mfactor = 0) override;

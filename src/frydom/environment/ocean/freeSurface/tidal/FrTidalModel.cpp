@@ -10,7 +10,6 @@
 // ==========================================================================
 
 
-#include "chrono/core/ChMatrixDynamic.h"  // TODO : voir pourquoi on est oblige d'inclure ca...
 #include "chrono/core/ChFrame.h"
 
 #include "FrTidalModel.h"

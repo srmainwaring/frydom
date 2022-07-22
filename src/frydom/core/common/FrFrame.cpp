@@ -13,8 +13,6 @@
 #include "FrFrame.h"
 #include "frydom/core/math/FrMatrix.h"
 
-#include "chrono/core/ChMatrixDynamic.h" // TODO : voir pourquoi on doit avoir cet include...
-
 
 namespace frydom {
 
@@ -61,7 +59,7 @@ namespace frydom {
   }
 
   Position FrFrame::GetPosition(FRAME_CONVENTION fc) const {  // OK
-    auto pos = internal::ChVectorToVector3d<Position>(m_chronoFrame.GetPos()); // In NWU
+    auto pos = m_chronoFrame.GetPos().eigen(); // In NWU
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(pos);
     return pos;
   }
@@ -104,7 +102,7 @@ namespace frydom {
         e1.Getuy(), e2.Getuy(), e3.Getuy(),
         e1.Getuz(), e2.Getuz(), e3.Getuz();
 
-    m_chronoFrame.SetRot(internal::Matrix33ToChMatrix33(matrix));
+    m_chronoFrame.SetRot(matrix);
   }
 
   void FrFrame::SetRotation(const FrRotation &rotation) {  // OK
@@ -248,7 +246,7 @@ namespace frydom {
   void FrFrame::TranslateInParent(const Translation &translation, FRAME_CONVENTION fc) {
     auto tmpTranslation = translation;
     if (IsNED(fc)) internal::SwapFrameConvention<Translation>(tmpTranslation);
-    m_chronoFrame.Move(internal::Vector3dToChVector(tmpTranslation));
+    m_chronoFrame.Move(chrono::ChVector<double>(tmpTranslation));
   }
 
   void FrFrame::TranslateInParent(const Direction &direction, double distance, FRAME_CONVENTION fc) {

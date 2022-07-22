@@ -395,15 +395,15 @@ namespace frydom {
                              Real &r00, Real &r01, Real &r02,
                              Real &r10, Real &r11, Real &r12,
                              Real &r20, Real &r21, Real &r22) {
-      r00 = mat.Get33Element(0, 0);
-      r01 = mat.Get33Element(0, 1);
-      r02 = mat.Get33Element(0, 2);
-      r10 = mat.Get33Element(1, 0);
-      r11 = mat.Get33Element(1, 1);
-      r12 = mat.Get33Element(1, 2);
-      r20 = mat.Get33Element(2, 0);
-      r21 = mat.Get33Element(2, 1);
-      r22 = mat.Get33Element(2, 2);
+      r00 = mat(0, 0);
+      r01 = mat(0, 1);
+      r02 = mat(0, 2);
+      r10 = mat(1, 0);
+      r11 = mat(1, 1);
+      r12 = mat(1, 2);
+      r20 = mat(2, 0);
+      r21 = mat(2, 1);
+      r22 = mat(2, 2);
     }
 
 

@@ -66,9 +66,9 @@ namespace frydom {
       }
     }
 
-    void FrFEACableElementBase::ComputeKRMmatricesGlobal(chrono::ChMatrix<> &H, double Kfactor, double Rfactor,
+    void FrFEACableElementBase::ComputeKRMmatricesGlobal(chrono::ChMatrixRef H, double Kfactor, double Rfactor,
                                                          double Mfactor) {
-      assert((H.GetRows() == 6 * (int) nodes.size()) && (H.GetColumns() == 6 * (int) nodes.size()));
+      assert((H.rows() == 6 * (int) nodes.size()) && (H.cols() == 6 * (int) nodes.size()));
       assert(section);
 
       // BRUTE FORCE METHOD: USE NUMERICAL DIFFERENTIATION!
@@ -90,33 +90,32 @@ namespace frydom {
       chrono::ChMatrixDynamic<> K(mrows_w, mrows_w);
 
       // compute Q at current speed & position, x_0, v_0
-      chrono::ChMatrixDynamic<> Q0(mrows_w, 1);
+      chrono::ChVectorDynamic<> Q0(mrows_w);
       this->ComputeInternalForces_impl(Q0, state_x, state_w, true);     // Q0 = Q(x, v)
 
-      chrono::ChMatrixDynamic<> Q1(mrows_w, 1);
+      chrono::ChVectorDynamic<> Q1(mrows_w, 1);
       chrono::ChVectorDynamic<> Jcolumn(mrows_w);
       chrono::ChState state_x_inc(mrows_x, nullptr);
       chrono::ChStateDelta state_delta(mrows_w, nullptr);
 
       // Compute K=-dQ(x,v)/dx by backward differentiation
+      state_delta.setZero(mrows_w, nullptr);
+
       for (int i = 0; i < mrows_w; ++i) {
         state_delta(i) += Delta;
         this->LoadableStateIncrement(0, state_x_inc, state_x, 0,
                                      state_delta);  // exponential, usually state_x_inc(i) = state_x(i) + Delta;
 
-        Q1.Reset(mrows_w, 1);
+        Q1.setZero(mrows_w);
         this->ComputeInternalForces_impl(Q1, state_x_inc, state_w, true);   // Q1 = Q(x+Dx, v)
         state_delta(i) -= Delta;
 
         Jcolumn = (Q1 - Q0) * (-1.0 / Delta);   // - sign because K=-dQ/dx
-        K.PasteMatrix(Jcolumn, 0, i);
+        K.col(i) = Jcolumn;
       }
 
       // finally, store K into H:
-
-      K.MatrScale(Kfactor);
-
-      H.PasteMatrix(K, 0, 0);
+      H.block(0, 0, mrows_w, mrows_w) = Kfactor * K;
 
       // Compute R=-dQ(x,v)/dv by backward differentiation
       if (this->section->GetDamping()) {
@@ -125,27 +124,25 @@ namespace frydom {
         chrono::ChMatrixDynamic<> R(mrows_w, mrows_w);
 
         for (int i = 0; i < mrows_w; ++i) {
-          Q1.Reset(mrows_w, 1);
+          Q1.setZero(mrows_w);
 
           state_w_inc(i) += Delta;
           this->ComputeInternalForces_impl(Q1, state_x, state_w_inc, true); // Q1 = Q(x, v+Dv)
           state_w_inc(i) -= Delta;
 
           Jcolumn = (Q1 - Q0) * (-1.0 / Delta);   // - sign because R=-dQ/dv
-          R.PasteMatrix(Jcolumn, 0, i);
+          R.col(i) = Jcolumn;
         }
 
-        R.MatrScale(Rfactor);
-
-        H.PasteSumMatrix(R, 0, 0);
+        H.block(0, 0, mrows_w, mrows_w) += Rfactor * R;
       }
-
 
       //
       // The M mass matrix of this element span: (lumped version)
       //
 
-      chrono::ChMatrixDynamic<> Mloc(6 * (int) nodes.size(), 6 * (int) nodes.size());
+      chrono::ChMatrixDynamic<> Mloc(6 * nodes.size(), 6 * nodes.size());
+      Mloc.setZero();
 
       double nmass = mass / (double) nodes.size();
 
@@ -187,10 +184,7 @@ namespace frydom {
          */
 
         double fluid_density = m_environment->GetFluidDensity(
-            internal::ChVectorToVector3d<Position>(nodes[i]->coord.pos),
-            NWU,
-            true
-        );
+           nodes[i]->coord.pos.eigen(),NWU,true);
 
         auto node = std::dynamic_pointer_cast<chrono::fea::ChNodeFEAxyzrot>(GetNodeN(i));
         auto tangent = node->Frame().GetRot().GetXaxis();
@@ -219,7 +213,7 @@ namespace frydom {
 
       }
 
-      H.PasteSumMatrix(Mloc, 0, 0);
+      H.block(0, 0, Mloc.rows(), Mloc.cols()) += Mloc;
 
     }
 

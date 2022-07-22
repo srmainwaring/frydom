@@ -14,12 +14,12 @@
 namespace frydom {
 
 
-  FrTorsor::FrTorsor(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
+  FrTorsor::FrTorsor(const Force &resultant, const Torque &moment,
                      const Position &point, FRAME_CONVENTION fc) {
     Set(resultant, moment, point, fc);
   }
 
-  void FrTorsor::Set(const mathutils::Vector3d<double> &resultant, const mathutils::Vector3d<double> &moment,
+  void FrTorsor::Set(const Force &resultant, const Torque &moment,
                      const Position &point, FRAME_CONVENTION fc) {
     m_resultant = resultant;
     m_moment = moment;
@@ -31,11 +31,11 @@ namespace frydom {
     }
   }
 
-  mathutils::Vector3d<double> FrTorsor::TransportMomentAtPoint(const Position &newPoint, FRAME_CONVENTION fc) const {
+  Torque FrTorsor::TransportMomentAtPoint(const Position &newPoint, FRAME_CONVENTION fc) const {
     Position tempPos = newPoint;
     if (IsNED(fc)) internal::SwapFrameConvention(tempPos);
     Position newToOld = m_point - tempPos;
-    mathutils::Vector3d<double> tempMoment = m_moment + newToOld.cross(m_resultant);
+    Torque tempMoment = m_moment + newToOld.cross(m_resultant);
     if (IsNED(fc)) internal::SwapFrameConvention(tempMoment);
     return tempMoment;
   }

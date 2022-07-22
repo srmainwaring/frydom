@@ -37,7 +37,7 @@ namespace frydom {
       G /= cloudPoint.size();
       m_origin = G;
 
-      m_normal.SetNull();
+      m_normal.setZero();
 
       for (int i = 0; i < cloudPoint.size() - 1; i++) {
         Position vec1 = G - cloudPoint[i];
@@ -138,10 +138,10 @@ namespace frydom {
       Direction y = z.cross(x);
       y.normalize();
 
-      Matrix33<double> matrix;
+      Matrix33 matrix;
       matrix << x.Getux(), y.Getux(), z.Getux(),
-          x.Getuy(), y.Getuy(), z.Getuy(),
-          x.Getuz(), y.Getuz(), z.Getuz();
+                x.Getuy(), y.Getuy(), z.Getuy(),
+                x.Getuz(), y.Getuz(), z.Getuz();
 
       FrUnitQuaternion quat;
       quat.Set(matrix, NWU);

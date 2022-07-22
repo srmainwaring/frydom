@@ -57,8 +57,8 @@ namespace frydom {
       auto Mw = chrono::ChVector<>(Mv(0), Mv(1), Mv(2));
       auto Iw = chrono::ChVector<>(Mv(3), Mv(4), Mv(5));
 
-      R.PasteSumVector(Mw, bodyOffset, 0);
-      R.PasteSumVector(Iw, bodyOffset + 3, 0);
+      R.segment(bodyOffset, 3) += Mw.eigen();
+      R.segment(bodyOffset + 3, 3) += Iw.eigen();
     }
 
     unsigned int FrMorisonModelBase::GetBodyOffset() const {

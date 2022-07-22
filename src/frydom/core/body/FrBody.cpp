@@ -103,15 +103,15 @@ namespace frydom {
                                      const unsigned int off_L,
                                      const chrono::ChVectorDynamic<> &L,
                                      const chrono::ChVectorDynamic<> &Qc) {
-      Variables().Get_qb().PasteClippedMatrix(v, off_v, 0, 6, 1, 0, 0);
-      Variables().Get_fb().PasteClippedMatrix(R, off_v, 0, 6, 1, 0, 0);
+      Variables().Get_qb() = v.segment(off_v, 6);
+      Variables().Get_fb() = R.segment(off_v, 6);
     }
 
     void FrBodyBase::IntFromDescriptor(const unsigned int off_v,
                                        chrono::ChStateDelta &v,
                                        const unsigned int off_L,
                                        chrono::ChVectorDynamic<> &L) {
-      v.PasteMatrix(Variables().Get_qb(), off_v, 0);
+        v.segment(off_v, 6) = Variables().Get_qb();
     }
 
     //
@@ -121,6 +121,8 @@ namespace frydom {
     chrono::ChVariables &FrBodyBase::Variables() {
 
       if (m_variables_ptr) {
+
+
         return *m_variables_ptr.get();
       } else {
         return chrono::ChBody::variables;
@@ -132,8 +134,10 @@ namespace frydom {
     }
 
     void FrBodyBase::SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables) {
-      m_variables_ptr = new_variables;
-      variables.SetDisabled(true);
+      if (variables.IsActive()) {
+        m_variables_ptr = new_variables;
+        variables.SetDisabled(true);
+      }
     }
 
     void FrBodyBase::InjectVariables(chrono::ChSystemDescriptor &mdescriptor) {
@@ -142,18 +146,18 @@ namespace frydom {
     }
 
     void FrBodyBase::VariablesFbReset() {
-      Variables().Get_fb().FillElem(0.0);
+      Variables().Get_fb().setZero();
     }
 
     void FrBodyBase::VariablesFbLoadForces(double factor) {
       // add applied forces to 'fb' vector
-      this->Variables().Get_fb().PasteSumVector(Xforce * factor, 0, 0);
+      this->Variables().Get_fb().segment(0, 3) += factor * Xforce.eigen();
 
       // add applied torques to 'fb' vector, including gyroscopic torque
       if (this->GetNoGyroTorque())
-        this->Variables().Get_fb().PasteSumVector((Xtorque) * factor, 3, 0);
+        this->Variables().Get_fb().segment(3, 3) += factor * Xtorque.eigen();
       else
-        this->Variables().Get_fb().PasteSumVector((Xtorque - gyro) * factor, 3, 0);
+        this->Variables().Get_fb().segment(3, 3) += factor * (Xtorque - gyro).eigen();
     }
 
     void FrBodyBase::VariablesFbIncrementMq() {
@@ -161,16 +165,16 @@ namespace frydom {
     }
 
     void FrBodyBase::VariablesQbLoadSpeed() {
-      this->Variables().Get_qb().PasteVector(GetCoord_dt().pos, 0, 0);
-      this->Variables().Get_qb().PasteVector(GetWvel_loc(), 3, 0);
+      this->Variables().Get_qb().segment(0 ,3) = GetCoord_dt().pos.eigen();
+      this->Variables().Get_qb().segment(3, 3) = GetWvel_loc().eigen();
     }
 
     void FrBodyBase::VariablesQbSetSpeed(double step) {
       chrono::ChCoordsys<> old_coord_dt = this->GetCoord_dt();
 
       // from 'qb' vector, sets body speed, and updates auxiliary data
-      this->SetPos_dt(this->Variables().Get_qb().ClipVector(0, 0));
-      this->SetWvel_loc(this->Variables().Get_qb().ClipVector(3, 0));
+      this->SetPos_dt(this->Variables().Get_qb().segment(0, 3));
+      this->SetPos_dt(this->Variables().Get_qb().segment(3, 3));
 
       // apply limits (if in speed clamping mode) to speeds.
       ClampSpeed();
@@ -192,8 +196,8 @@ namespace frydom {
       // Updates position with incremental action of speed contained in the
       // 'qb' vector:  pos' = pos + dt * speed   , like in an Eulero step.
 
-      chrono::ChVector<> newspeed = Variables().Get_qb().ClipVector(0, 0);
-      chrono::ChVector<> newwel = Variables().Get_qb().ClipVector(3, 0);
+      chrono::ChVector<> newspeed(Variables().Get_qb().segment(0, 3));
+      chrono::ChVector<> newwel(Variables().Get_qb().segment(3, 3));
 
       // ADVANCE POSITION: pos' = pos + dt * vel
       this->SetPos(this->GetPos() + newspeed * dt_step);
@@ -387,7 +391,7 @@ namespace frydom {
 
   FrInertiaTensor FrBody::GetInertiaTensor() const {
     double Ixx, Iyy, Izz, Ixy, Ixz, Iyz;
-    SplitMatrix33IntoCoeffs(internal::ChMatrix33ToMatrix33(m_chronoBody->GetInertia()),
+    SplitMatrix33IntoCoeffs(m_chronoBody->GetInertia(),
                             Ixx, Ixy, Ixz, Ixy, Iyy, Iyz, Ixz, Iyz, Izz);
 
     return {GetMass(), Ixx, Iyy, Izz, Ixy, Ixz, Iyz, GetCOG(NWU), NWU};
@@ -605,7 +609,7 @@ namespace frydom {
   }
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
-    auto force = internal::ChVectorToVector3d<Force>(m_chronoBody->Get_Xforce());
+    Force force = m_chronoBody->Get_Xforce().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(force);
     return force;
   }
@@ -615,7 +619,7 @@ namespace frydom {
   }
 
   Torque FrBody::GetTotalExtTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
-    auto torque = internal::ChVectorToVector3d<Torque>(m_chronoBody->Get_Xtorque());
+    auto torque = m_chronoBody->Get_Xtorque().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(torque);
     return torque;
   }
@@ -657,13 +661,13 @@ namespace frydom {
   }
 
   Position FrBody::GetCOG(FRAME_CONVENTION fc) const {
-    Position cogPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetFrame_COG_to_REF().GetPos()); // In NWU
+    Position cogPos = m_chronoBody->GetFrame_COG_to_REF().GetPos().eigen(); // In NWU
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 
   Position FrBody::GetPosition(FRAME_CONVENTION fc) const {
-    Position refPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetFrame_REF_to_abs().GetPos());
+    Position refPos = m_chronoBody->GetFrame_REF_to_abs().GetPos().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Position>(refPos);
     return refPos;
   }

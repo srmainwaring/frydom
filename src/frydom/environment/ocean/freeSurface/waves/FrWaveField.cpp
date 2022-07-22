@@ -116,6 +116,7 @@ namespace frydom {
 //    }
 
   void FrWaveField::Update(double time) {
+
     c_time = time;
     if (m_freeSurface->GetOcean()->GetEnvironment()->GetTimeRamp()->IsActive()) {
       c_ramp = m_freeSurface->GetOcean()->GetEnvironment()->GetTimeRamp()->Get_y(c_time);

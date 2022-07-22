@@ -15,6 +15,8 @@
 
 #include <random>
 
+#include "MathUtils/Vector3d.h"
+
 #include "frydom/environment/ocean/freeSurface/waves/FrWaveSpectrum.h"
 #include "frydom/environment/ocean/freeSurface/waves/FrWaveField.h"
 #include "frydom/environment/ocean/freeSurface/waves/FrKinematicStretching.h"

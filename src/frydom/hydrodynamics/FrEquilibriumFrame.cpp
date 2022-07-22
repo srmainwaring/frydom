@@ -181,7 +181,7 @@ namespace frydom {
 
   double FrEquilibriumFrame::GetDriftAngle(FRAME_CONVENTION fc, ANGLE_UNIT unit) const {
     auto velocity = GetFrameVelocityInFrame(fc);
-    return velocity.GetProjectedAngleAroundZ(unit);
+    return GetProjectedAngleAroundZ(velocity, unit);
   }
 
   void FrEquilibriumFrame::Initialize() {

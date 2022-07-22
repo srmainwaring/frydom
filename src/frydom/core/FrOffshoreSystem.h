@@ -48,6 +48,8 @@ namespace frydom {
       /// \param offshoreSystem pointer to the offshore system
       explicit FrSystemBase(FrOffshoreSystem *offshoreSystem);
 
+      void Initialize();
+
       /// Update the state of the systemBase, called from chrono, call the Update of the offshore system
       /// \param update_assets check if the assets are updated
       void Update(bool update_assets) override;
@@ -224,24 +226,17 @@ namespace frydom {
 
     /// enum for solvers aimed at solving complementarity problems arising from QP optimization problems.
     enum SOLVER {
-      SOR,                ///< An iterative solver based on projective fixed point method, with overrelaxation and
-      ///< immediate variable update as in SOR methods.
-      SYMMSOR,            ///< An iterative solver based on symmetric projective fixed point method, with
-      ///< overrelaxation and immediate variable update as in SSOR methods.
-      JACOBI,             ///< An iterative solver for VI (VI/CCP/LCP/linear problems,..) based on projective
-      ///< fixed point method, similar to a projected Jacobi method. Note: this method is here
-      ///< mostly for comparison and tests: we suggest you to use the more efficient ChSolverSOR
-      ///< - similar, but faster & converges better.
-//            SOR_MULTITHREAD,
-//            PMINRES,
-      BARZILAIBORWEIN,    ///< An iterative solver based on modified Krylov iteration of spectral projected
-      ///< gradients with Barzilai-Borwein.
-      PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
-      APGD,               ///< An iterative solver based on Nesterov's Projected Gradient Descent.
-      MINRES,             ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
-      PMINRES,
+      // Iterative VI solvers
+      PSOR,                ///< Projected SOR (Successive Over-Relaxation)
+      PSSOR,               ///< Projected symmetric SOR
+      PJACOBI,             ///< Projected Jacobi
+      PMINRES,             ///< Projected MINRES
+      BARZILAIBORWEIN,     ///< Barzilai-Borwein
+      APGD,                ///< An iterative solver based on Nesterov's Projected Gradient Descent.
+      // Iterative linear solvers
+      GMRES,               ///< Generalized Minimal RESidual Algorithm
+      MINRES,              ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
       ///< with gradient projection (active set).
-      SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
     };
 
     /// enum for smooth contact models (SMC)
@@ -463,32 +458,20 @@ namespace frydom {
     /// \param checkCompat if true, compatibility check between contact method, solver and time stepper is performed.
     void SetSolver(SOLVER solver, bool checkCompat = true);
 
+    void SetSolverMaxIterations(int max_iters);
+
+    int GetSolverMaxIterations() const;
+
+    void SetSolverTolerance(double tolerance);
+
+    double GetSolverTolerance() const;
+
     void SetSolverVerbose(bool verbose);
 
-    /// Turn ON/OFF the warm starting feature of both iterative solvers (the one for speed and the other for
-    /// pos.stabilization).
-    /// \param useWarm warm starting if true
-    void SetSolverWarmStarting(bool useWarm);
 
-    /// Adjust the omega overrelaxation parameter of both iterative solvers (the one for speed and the other for
-    /// position stabilization) Note, usually a good omega for Jacobi or GPU solver is 0.2;
-    /// for other iter.solvers can be up to 1.0
-    /// \param omega overrelaxation parameter of both iterative solvers
-    void SetSolverOverrelaxationParam(double omega);
 
     void SetSolverDiagonalPreconditioning(bool val);
 
-    /// Adjust the 'sharpness lambda' parameter of both iterative solvers (the one for speed and the other for
-    /// pos.stabilization). Note, usually a good sharpness value is in 1..0.8 range (the lower, the more it helps
-    /// exact convergence, but overall convergence gets also much slower so maybe better to tolerate some error)
-    /// \param momega 'sharpness lambda' parameter of both iterative solvers
-    void SetSolverSharpnessParam(double momega);
-
-    /// Changes the number of parallel threads (by default is n.of cores).
-    /// Note that not all solvers use parallel computation.
-    /// If you have a N-core processor, this should be set at least =N for maximum performance.
-    /// \param nbThreads number of parallel threads (by default is n.of cores)
-    void SetParallelThreadNumber(int nbThreads);
 
     /// When using an iterative solver (es. SOR) set the maximum number of iterations.
     /// The higher the iteration number, the more precise the simulation (but more CPU time).
@@ -510,7 +493,7 @@ namespace frydom {
     /// Sets tolerance (in m) for assembly constraints. When trying to keep constraints together,
     /// the iterative process is stopped if this tolerance (or max.number of iterations ) is reached
     /// \param tol tolerance (in m) for assembly constraints
-    void SetSolverGeometricTolerance(double tol);
+    //##CC void SetSolverGeometricTolerance(double tol);
 
     /// Sets tolerance for satisfying constraints at the velocity level.
     /// The tolerance specified here is in fact a tolerance at the force level.

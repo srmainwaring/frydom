@@ -37,14 +37,14 @@ namespace frydom {
       m_variablesBodyOwnMass = variables;
     }
 
-    void FrVariablesBEMBodyBase::Compute_invMb_v(chrono::ChMatrix<double> &result,
-                                                 const chrono::ChMatrix<double> &vect) const {
+    void FrVariablesBEMBodyBase::Compute_invMb_v(chrono::ChVectorRef result,
+                                                 chrono::ChVectorConstRef vect) const {
 
-      result.Reset();
+      result.setZero();
 
       auto HDB = m_radiationModelBase->GetRadiationModel()->GetHydroDB();
 
-      if (vect.Equals(GetVariablesFb(HDB->GetBody(m_BEMBody)))) {
+      if (vect == GetVariablesFb(HDB->GetBody(m_BEMBody))) {
 
         for (auto bodyMotion = HDB->begin(); bodyMotion != HDB->end(); bodyMotion++) {
 
@@ -87,12 +87,12 @@ namespace frydom {
 
     }
 
-    void FrVariablesBEMBodyBase::Compute_inc_invMb_v(chrono::ChMatrix<double> &result,
-                                                     const chrono::ChMatrix<double> &vect) const {
+    void FrVariablesBEMBodyBase::Compute_inc_invMb_v(chrono::ChVectorRef result,
+                                                     chrono::ChVectorConstRef vect) const {
 
       auto HDB = m_radiationModelBase->GetRadiationModel()->GetHydroDB();
 
-      if (vect.Equals(GetVariablesFb(HDB->GetBody(m_BEMBody)))) {
+      if (vect == GetVariablesFb(HDB->GetBody(m_BEMBody))) {
 
         for (auto bodyMotion = HDB->begin(); bodyMotion != HDB->end(); bodyMotion++) {
 
@@ -134,8 +134,8 @@ namespace frydom {
       }
     }
 
-    void FrVariablesBEMBodyBase::Compute_inc_invMb_v(chrono::ChMatrix<double> &result,
-                                                     const chrono::ChMatrix<double> &vect,
+    void FrVariablesBEMBodyBase::Compute_inc_invMb_v(chrono::ChVectorRef result,
+                                                     chrono::ChVectorConstRef vect,
                                                      chrono::ChVariables *variable) const {
 
       auto BEMBody2 = dynamic_cast<FrVariablesBEMBodyBase *>(variable)->m_BEMBody;
@@ -155,12 +155,12 @@ namespace frydom {
 
     }
 
-    void FrVariablesBEMBodyBase::Compute_inc_Mb_v(chrono::ChMatrix<double> &result,
-                                                  const chrono::ChMatrix<double> &vect) const {
+    void FrVariablesBEMBodyBase::Compute_inc_Mb_v(chrono::ChVectorRef result,
+                                                  chrono::ChVectorConstRef vect) const {
 
       auto HDB = m_radiationModelBase->GetRadiationModel()->GetHydroDB();
 
-      if (vect.Equals(GetVariablesQb(HDB->GetBody(m_BEMBody)))) {
+      if (vect == GetVariablesQb(HDB->GetBody(m_BEMBody))) {
 
         for (auto bodyMotion = HDB->begin(); bodyMotion != HDB->end(); bodyMotion++) {
           if (bodyMotion->second->IsActive()) {
@@ -201,8 +201,8 @@ namespace frydom {
       }
     }
 
-    void FrVariablesBEMBodyBase::MultiplyAndAdd(chrono::ChMatrix<double> &result,
-                                                const chrono::ChMatrix<double> &vect, const double c_a) const {
+    void FrVariablesBEMBodyBase::MultiplyAndAdd(chrono::ChVectorRef result,
+                                                chrono::ChVectorConstRef vect, const double c_a) const {
 
       auto v_loc = vect;
       SetInBody(v_loc);
@@ -220,7 +220,7 @@ namespace frydom {
 
     }
 
-    void FrVariablesBEMBodyBase::DiagonalAdd(chrono::ChMatrix<double> &result, const double c_a) const {
+    void FrVariablesBEMBodyBase::DiagonalAdd(chrono::ChVectorRef result, const double c_a) const {
 
       auto generalizedMass = m_radiationModelBase->GetGeneralizedMass(m_BEMBody, m_BEMBody);
 
@@ -241,11 +241,11 @@ namespace frydom {
       }
     }
 
-    chrono::ChMatrix<double> FrVariablesBEMBodyBase::GetVariablesFb(frydom::FrBody *body) const {
+    chrono::ChVectorRef FrVariablesBEMBodyBase::GetVariablesFb(frydom::FrBody *body) const {
       return internal::GetChronoBody(body)->Variables().Get_fb();
     }
 
-    chrono::ChMatrix<double> FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *body) const {
+    chrono::ChVectorRef FrVariablesBEMBodyBase::GetVariablesQb(frydom::FrBody *body) const {
       return internal::GetChronoBody(body)->Variables().Get_qb();
     }
 

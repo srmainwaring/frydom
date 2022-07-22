@@ -33,9 +33,9 @@ namespace frydom {
   void FrWaveDriftForce::Compute(double time) {
 
     auto force = Force();
-    force.SetNull();
+    force.setZero();
     auto torque = Torque();
-    torque.SetNull();
+    torque.setZero();
 
     auto body = GetBody();
 

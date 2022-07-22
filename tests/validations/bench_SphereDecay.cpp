@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
   bool recursive_radiation = true;
 
-  FrOffshoreSystem system("Sphere_Decay");
+  FrOffshoreSystem system("Sphere_Decay", FrOffshoreSystem::SMOOTH_CONTACT);
 
   auto Ocean = system.GetEnvironment()->GetOcean();
   Ocean->SetDensity(1000);

@@ -58,18 +58,19 @@ namespace frydom {
           double abscyssa = ((double) i_node / (double) (nb_ctrl_points - 1));
 
           // position of node
-          chrono::ChVector<double> pos = internal::Vector3dToChVector(bspline.GetCtrlPoint(i_node));
+          Position pos = bspline.GetCtrlPoint(i_node);
 
           // rotation of node, x aligned to tangent at input spline
           chrono::ChMatrix33<> mrot;
-          chrono::ChVector<double> tangent = internal::Vector3dToChVector(bspline.EvalDeriv(abscyssa).normalized());
+          Direction derive = bspline.EvalDeriv(abscyssa);
+          auto tangent = derive.normalized();
 
           // Computing ydir:
           // this is the direction normal to the vertical plane that owns the cable under the gravity field only
           Direction u = (bspline.Eval(1.) - bspline.Eval(0.));
           u.z() = 0.;
-          u.Normalize();
-          chrono::ChVector<double> ydir = internal::Vector3dToChVector(u.cross(Direction{0., 0., 1.}));
+          u.normalize();
+          auto ydir = u.cross(Direction{0., 0., 1.});
 
           // Set the rotation matrix
           mrot.Set_A_Xdir(tangent, ydir);
