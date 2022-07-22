@@ -53,8 +53,7 @@ int main() {
 
   system.SetSolver(FrOffshoreSystem::SOLVER::BARZILAIBORWEIN);
   system.SetSolverVerbose(true);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(10);
+  system.SetSolverMaxIterations(10);
 
   system.Initialize();
   system.DoAssembly();

@@ -5,7 +5,7 @@
 
 
 #include "chrono/physics/ChSystemNSC.h"
-#include "chrono/solver/ChSolverMINRES.h"
+#include "chrono/solver/ChSolverPMINRES.h"
 //#include "chrono/physics/ChBodyEasy.h"
 #include "chrono_irrlicht/ChIrrApp.h"
 #include "chrono/fea/ChVisualizationFEAmesh.h"
@@ -55,7 +55,7 @@ class MyElementBeamIGA : public chrono::fea::ChElementBeamIGA {
 
     // compute parameter in knot space from eta-1..+1
     double u1 = knots(order); // extreme of span
-    double u2 = knots(knots.GetRows() - order - 1);
+    double u2 = knots(knots.rows() - order - 1);
     double u = u1 + ((eta + 1) / 2.0) * (u2 - u1);
     int nspan = order;
 
@@ -81,7 +81,7 @@ class MyElementBeamIGA : public chrono::fea::ChElementBeamIGA {
 
     // compute parameter in knot space from eta-1..+1
     double u1 = knots(order); // extreme of span
-    double u2 = knots(knots.GetRows() - order - 1);
+    double u2 = knots(knots.rows() - order - 1);
     double u = u1 + ((eta + 1) / 2.0) * (u2 - u1);
     int nspan = order;
 
@@ -269,15 +269,15 @@ class MyLoader : public chrono::ChLoaderUdistributed {
 
     // FIXME: a retirer
     if (element->m_system->GetChTime() > 5.) {
-      unit_force.SetNull();
+      unit_force.setZero();
     }
 
 
 
     // Pasting the results
 
-    F.PasteVector(internal::Vector3dToChVector(unit_force), 0, 0);   // load, force part
-    F.PasteVector(chrono::VNULL, 3, 0);  // No torque
+    F.segment(0, 3) = unit_force; // load, force part
+    F.segment(3, 0) = chrono::VNULL.eigen(); // No torque
 
   }
 
@@ -387,7 +387,7 @@ class MyFEACableBuilder {
     int p = spline.GetOrder();
 
     // compute N of spans (excluding start and end multiple knots with zero lenght span):
-    int N = spline.Knots().GetRows() - p - p - 1;  // = n+p+1 -p-p-1 = n-p
+    int N = spline.Knots().rows() - p - p - 1;  // = n+p+1 -p-p-1 = n-p
 
     // Create the 'complete' stl vector of control points, with uniform distribution
     std::vector <std::shared_ptr<chrono::fea::ChNodeFEAxyzrot>> mynodes;
@@ -632,13 +632,13 @@ int main() {
 
   // Solver default settings for all the sub demos:
   my_system.SetSolverType(ChSolver::Type::MINRES);
-  my_system.SetSolverMaxIteractions(500);
-  my_system.SetTolForce(1e-14);
+  my_system.SetSolverMaxIterations(500);
+  my_system.SetSolverTolerance(1e-14);
 
 
-  auto msolver = std::static_pointer_cast<ChSolverMINRES>(my_system.GetSolver());
+  auto msolver = std::static_pointer_cast<ChSolverPMINRES>(my_system.GetSolver());
   msolver->SetVerbose(false);
-  msolver->SetDiagonalPreconditioning(true);
+  //msolver->SetDiagonalPreconditioning(true);
 
   application.SetTimestep(0.01);
 
@@ -655,7 +655,7 @@ int main() {
   application.AssetUpdateAll();
 
   // Mark completion of system construction
-  application.GetSystem()->SetupInitial();
+  application.GetSystem()->Setup();
 
   while (application.GetDevice()->run()) {
     application.BeginScene();

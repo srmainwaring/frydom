@@ -103,7 +103,7 @@ TEST(FrQuaternion, Quaternion) {
   }
 
   // Test of GetXAxis, GetYAxis, GetZAxis
-  QuatDir.Set(1., 0., 0.);
+  QuatDir = {1., 0., 0.};
   QuatAngle = 90. * DEG2RAD;
   Quat.Set(QuatDir, QuatAngle, fc);
   EXPECT_NEAR(0, ((Quat.GetXAxis(fc)).cross(Direction(1, 0, 0))).norm(), eps);
@@ -136,7 +136,7 @@ TEST(FrQuaternion, Quaternion) {
   EXPECT_TRUE(TotalRot == FrUnitQuaternion(1, 0, 0, 0, fc));
 
   // Test Rotate
-  testDirection.Set(0., 1., 0.);
+  testDirection = {0., 1., 0.};
   testDirection = xRot.Rotate(testDirection, fc);
   testDirection -= Direction(0., 0., 1.);
   EXPECT_TRUE(testDirection.isZero());
@@ -147,23 +147,23 @@ TEST(FrQuaternion, Quaternion) {
 
   // Test LeftMultiplyInverse
   auto testMatrix = xRot.LeftMultiplyInverse(xRotMatrix);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test RightMultiplyInverse
   testMatrix = xRot.RightMultiplyInverse(xRotMatrix);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test LeftMultiply
   testMatrix = xRot.LeftMultiply(xRotMatrixInv);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test RightMultiply
   testMatrix = xRot.RightMultiply(xRotMatrixInv);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test GetRotationMatrix and RightMultiply
   auto NewRot = xRot * yRot;
-  EXPECT_TRUE(NewRot.GetRotationMatrix().IsEqual(yRot.RightMultiply(xRotMatrix)));
+  EXPECT_TRUE(NewRot.GetRotationMatrix() == yRot.RightMultiply(xRotMatrix));
 
   // Test set rotation from matrix
   Quat.SetNullRotation();
@@ -245,7 +245,7 @@ TEST(FrRotation, Rotation) {
   EXPECT_TRUE(testDirection.isZero());
 
   // Test Rotate
-  testDirection.Set(0., 1., 0.);
+  testDirection = {0., 1., 0.};
   testDirection = XRotation.Rotate(testDirection, fc);
   testDirection -= Direction(0., 0., 1.);
   EXPECT_TRUE(testDirection.isZero());
@@ -256,22 +256,22 @@ TEST(FrRotation, Rotation) {
 
   // Test LeftMultiplyInverse
   auto testMatrix = AxisAngleRot.LeftMultiplyInverse(AxisAngleMatrix);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test RightMultiplyInverse
   testMatrix = AxisAngleRot.RightMultiplyInverse(AxisAngleMatrix);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test LeftMultiply
   testMatrix = AxisAngleRot.LeftMultiply(AxisAnglMatrixInv);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test RightMultiply
   testMatrix = AxisAngleRot.RightMultiply(AxisAnglMatrixInv);
-  EXPECT_TRUE(testMatrix.IsIdentity());
+  EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test GetRotationMatrix and RightMultiply
-  EXPECT_TRUE(TotalRotation.GetRotationMatrix().IsEqual(YRotation.RightMultiply(XRotation.GetRotationMatrix())));
+  EXPECT_TRUE(TotalRotation.GetRotationMatrix() == YRotation.RightMultiply(XRotation.GetRotationMatrix()));
 
 
   // Test RotAxisAngle_DEGREES

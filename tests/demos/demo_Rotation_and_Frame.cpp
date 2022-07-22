@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   Quat.Set(QuatDir, M_PI, fc);
 
   // Remember that the quaternion can be composed, but their product is not commutable.
-  QuatDir.Set(1., 0., 0.);
+  QuatDir = {1., 0., 0.};
   FrUnitQuaternion QuatA(QuatDir, M_PI, fc);
 
   auto QuatB = Quat * QuatA;

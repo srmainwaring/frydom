@@ -156,7 +156,7 @@ TEST(FrNode, FrNode_COGModification_Test) {
   // body orientation
   Direction rotDirection;
   rotDirection.setRandom();
-  rotDirection.Normalize();
+  rotDirection.normalize();
   double rotAngle = 1.03654;
   FrUnitQuaternion bodyRot;
   bodyRot.Set(rotDirection, rotAngle, fc);
