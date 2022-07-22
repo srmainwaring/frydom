@@ -86,9 +86,9 @@ namespace frydom {
 
      protected:
 
-      void UpdateResult(chrono::ChMatrix<double> &result, mathutils::Vector6d<double> &vect, int offset=0) const;
+      void UpdateResult(chrono::ChVectorRef result, mathutils::Vector6d<double> &vect, int offset=0) const;
 
-      void SetInBody(chrono::ChMatrix<double> &vect) const;
+      void SetInBody(chrono::ChVectorN<double, 3> vect) const;
 
     };
 

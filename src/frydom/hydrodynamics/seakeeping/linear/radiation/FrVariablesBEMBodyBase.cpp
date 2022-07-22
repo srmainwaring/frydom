@@ -69,7 +69,7 @@ namespace frydom {
 
       } else {
 
-        auto v_loc = vect;
+        chrono::ChVectorN<double, 3> v_loc = vect;
         SetInBody(v_loc);
 
         auto invGeneralizedMass = m_radiationModelBase->GetInverseGeneralizedMass(m_BEMBody, m_BEMBody);
@@ -252,7 +252,7 @@ namespace frydom {
 
     // protected
 
-    void FrVariablesBEMBodyBase::UpdateResult(chrono::ChMatrix<double>& result, mathutils::Vector6d<double> &vect, int offset) const {
+    void FrVariablesBEMBodyBase::UpdateResult(chrono::ChVectorRef result, mathutils::Vector6d<double> &vect, int offset) const {
 
       auto eq_frame = m_radiationModelBase->GetRadiationModel()->GetHydroDB()->GetMapper()->GetEquilibriumFrame(m_BEMBody);
       auto vect_world = eq_frame->GetFrame().ProjectVectorFrameInParent(Position(vect(0), vect(1) ,vect(2)), NWU);
@@ -261,13 +261,13 @@ namespace frydom {
 
     }
 
-    void FrVariablesBEMBodyBase::SetInBody(chrono::ChMatrix<double> &vect) const {
+    void FrVariablesBEMBodyBase::SetInBody(chrono::ChVectorN<double, 3> vect) const {
 
       auto eq_frame = m_radiationModelBase->GetRadiationModel()->GetHydroDB()->GetMapper()->GetEquilibriumFrame(m_BEMBody);
 
       auto v_loc = Position(vect(0), vect(1), vect(2));
       auto vect_loc = eq_frame->GetFrame().ProjectVectorParentInFrame(v_loc, NWU);
-      for (int i =0; i<3; i++) vect(i) = vect_loc[i];
+      for (int i =0; i<3; i++) vect(i) = vect_loc(i);
 
     }
 
