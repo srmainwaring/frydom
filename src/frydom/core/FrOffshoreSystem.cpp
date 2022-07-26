@@ -650,7 +650,6 @@ namespace frydom {
       //});
 
     }
-
   }
 
   void FrOffshoreSystem::StepFinalize() {
@@ -1122,7 +1121,9 @@ namespace frydom {
 
   bool FrOffshoreSystem::AdvanceOneStep(double stepSize) {
     Initialize();
-    return (bool) m_chronoSystem->DoStepDynamics(stepSize);
+    auto is_advance =  m_chronoSystem->DoStepDynamics(stepSize);
+    m_chronoSystem->Update(true);
+    return is_advance;
   }
 
   bool FrOffshoreSystem::AdvanceTo(double nextTime) {

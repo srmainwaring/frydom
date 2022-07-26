@@ -28,7 +28,7 @@ namespace frydom {
     Position cogPosTmp = cogPosition;
     if (IsNED(fc)) {
       internal::SwapInertiaFrameConvention(Ixx, Iyy, Izz, Ixy, Ixz, Iyz); // Convert to NWU
-      internal::SwapFrameConvention<Position>(cogPosTmp);
+      cogPosTmp = internal::SwapFrameConvention<Position>(cogPosTmp);
     }
 
     auto rot_rp = coeffsFrame.GetRotation().GetRotationMatrix();
@@ -53,7 +53,7 @@ namespace frydom {
         Ixz, Iyz, Izz;
 
     m_cogPosition = cogPos;
-    if (IsNED(fc)) internal::SwapFrameConvention(m_cogPosition);
+    if (IsNED(fc)) m_cogPosition = internal::SwapFrameConvention(m_cogPosition);
 
     m_mass = mass;
 
@@ -71,7 +71,7 @@ namespace frydom {
 
   const Position FrInertiaTensor::GetCOGPosition(FRAME_CONVENTION fc) const {
     auto cogPos = m_cogPosition;
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
+    if (IsNED(fc)) cogPos = internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 

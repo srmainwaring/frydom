@@ -80,7 +80,7 @@ namespace frydom {
 
   const Position& FrAssetOwner::GetMeshOffsetPosition(FRAME_CONVENTION fc) const {
     auto mesh_offset_position = m_mesh_offset_position;
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(mesh_offset_position);
+    if (IsNED(fc)) mesh_offset_position = internal::SwapFrameConvention<Position>(mesh_offset_position);
     return m_mesh_offset_position;
   }
 

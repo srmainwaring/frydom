@@ -53,9 +53,20 @@ index e40c40d96..3f0c56756 100644
  #------------------------------------------------------------
  # Defer configuration of all Chrono libraries and programs
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 32131aaaa..d9798ac4c 100644
+index 32131aaaa..59f5e3209 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
+@@ -132,8 +132,8 @@ endif()
+ #-----------------------------------------------------------------------------
+ 
+ # Figure out SIMD level support
+-message(STATUS "Seaching for SSE...")
+-find_package(SSE)
++#message(STATUS "Seaching for SSE...")
++#find_package(SSE)
+ 
+ # Set substitution variables for configuration file
+ if(SSE_FOUND)
 @@ -157,8 +157,8 @@ if(SSE_FOUND)
  endif()
    
@@ -91,6 +102,15 @@ diff --git a/src/chrono/fea/ChElementBeamIGA.h b/src/chrono/fea/ChElementBeamIGA
 index 0980f5e05..2e018114a 100644
 --- a/src/chrono/fea/ChElementBeamIGA.h
 +++ b/src/chrono/fea/ChElementBeamIGA.h
+@@ -42,7 +42,7 @@ class  ChElementBeamIGA :   public ChElementBeam,
+   public:
+     ChElementBeamIGA() {
+         order = 3;
+-        nodes.resize(4); // controllare se ordine = -> 2 nodi, 2 control points, o di più
++        nodes.resize(4); // controllare se ordine = -> 2 nodi, 2 control points, o di piï¿½
+         knots.resize(8);
+         int_order_s = 1;
+         int_order_b = 1;
 @@ -881,6 +881,8 @@ class  ChElementBeamIGA :   public ChElementBeam,
          this->mass = this->length * this->section->GetArea() * this->section->GetDensity();
      }

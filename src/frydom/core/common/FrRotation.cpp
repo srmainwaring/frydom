@@ -64,7 +64,7 @@ namespace frydom {
   void FrUnitQuaternion::Set(const Direction &axis, double angleRAD, FRAME_CONVENTION fc) {
     assert((axis.norm() - 1.) < 1e-8);
     auto axisTmp = axis;
-    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(axisTmp);
+    if (IsNED(fc)) axisTmp = internal::SwapFrameConvention<Direction>(axisTmp);
     m_chronoQuaternion = chrono::Q_from_AngAxis(angleRAD, internal::Vector3dToChVector(axisTmp));
     assert(IsRotation());
   }
@@ -106,27 +106,30 @@ namespace frydom {
     chrono::ChVector<double> chronoAxis;
     chrono::Q_to_AngAxis(m_chronoQuaternion, angleRAD, chronoAxis); // In NWU
     axis = chronoAxis.eigen(); // In NWU
-    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(axis);
+    if (IsNED(fc)) axis = internal::SwapFrameConvention<Direction>(axis);
   }
 
   Direction FrUnitQuaternion::GetXAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = quat.GetXaxis().eigen();
+    auto ch_axis = quat.GetXaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetYAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = quat.GetYaxis().eigen();
+    auto ch_axis = quat.GetYaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetZAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = quat.GetZaxis().eigen();
+    auto ch_axis = quat.GetZaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
@@ -312,9 +315,9 @@ namespace frydom {
     assert(mathutils::IsClose<double>(yaxis.dot(zaxis), 0.));
 
     // Verifying the directions are unit vectors
-    assert(xaxis.IsUnit());
-    assert(yaxis.IsUnit());
-    assert(zaxis.IsUnit());
+    assert(xaxis.norm() - 1 == 0);
+    assert(yaxis.norm() - 1 == 0);
+    assert(zaxis.norm()  -1 == 0);
 
     // Verifying the directions form a direct frame
     assert((xaxis.cross(yaxis) - zaxis).isZero());

@@ -28,7 +28,7 @@ namespace frydom {
 
    public:
 
-    Translation() : chrono::ChVectorN<double, 3>() {}
+    Translation() : chrono::ChVectorN<double, 3>(0., 0., 0.) {}
 
     Translation(double x, double y, double z) : chrono::ChVectorN<double, 3>(x, y, z) {}
 
@@ -168,7 +168,9 @@ namespace frydom {
 
    public:
 
-    GeneralizedPosition() : chrono::ChVectorN<double, 6>() {}
+    GeneralizedPosition() : chrono::ChVectorN<double, 6>() {
+      this->setZero();
+    }
 
     GeneralizedPosition(const Position &pos, const CardanAngles &cardanAngles) {
       *this << pos[0], pos[1], pos[2], cardanAngles[0], cardanAngles[1], cardanAngles[2];
@@ -724,7 +726,7 @@ namespace frydom {
 
   template<class Vector>
   double GetProjectedAngleAroundZ(const Vector vector, mathutils::ANGLE_UNIT unit) {
-    auto angle = atan2(vector.x(), vector.y());
+    auto angle = atan2(vector.y(), vector.x());
     if (unit == mathutils::DEG) { angle *= RAD2DEG; }
     return angle;
   }
@@ -743,7 +745,7 @@ namespace frydom {
     template<class Vector>
     inline Vector SwapFrameConvention(const Vector &vector) {
       Vector out = vector;
-      SwapFrameConvention<Vector>(out);
+      out = SwapFrameConvention<Vector>(out);
       return out;
     }
 

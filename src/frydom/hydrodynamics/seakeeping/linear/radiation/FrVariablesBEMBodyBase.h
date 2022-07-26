@@ -9,6 +9,7 @@
 #include "chrono/solver/ChVariablesBodyOwnMass.h"
 
 #include "MathUtils/Matrix66.h"
+#include "MathUtils/Vector6d.h"
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
 
 namespace frydom {
@@ -82,6 +83,12 @@ namespace frydom {
 
       const chrono::ChMatrix33<> &
       GetBodyInvInertia() const override { return m_variablesBodyOwnMass->GetBodyInvInertia(); }
+
+     protected:
+
+      void UpdateResult(chrono::ChVectorRef result, mathutils::Vector6d<double> &vect, int offset=0) const;
+
+      void SetInBody(chrono::ChVectorN<double, 3> vect) const;
 
     };
 

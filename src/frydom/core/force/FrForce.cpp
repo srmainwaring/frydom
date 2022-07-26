@@ -174,7 +174,7 @@ namespace frydom {
     m_chronoForce->GetForceInWorldNWU(force);  // NWU
 
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Force>(force);
+      force = internal::SwapFrameConvention<Force>(force);
     }
   }
 
@@ -231,7 +231,7 @@ namespace frydom {
     m_chronoForce->GetTorqueInBodyNWU(torque);
 
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Torque>(torque);
+      torque = internal::SwapFrameConvention<Torque>(torque);
     }
   }
 
@@ -330,7 +330,7 @@ namespace frydom {
 
     // Transformation if not in NWU.
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Force>(forceTmp);  // In NWU
+      forceTmp = internal::SwapFrameConvention<Force>(forceTmp);  // In NWU
     }
 
     m_chronoForce->SetForceInWorldNWU(forceTmp);
@@ -381,7 +381,7 @@ namespace frydom {
 
     // Transformation if not in NWU.
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Torque>(torqueTmp);  // In NWU
+      torqueTmp = internal::SwapFrameConvention<Torque>(torqueTmp);  // In NWU
     }
 
     m_chronoForce->SetTorqueInBodyNWU(torqueTmp);

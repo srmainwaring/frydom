@@ -35,13 +35,13 @@ namespace frydom {
 
   Force FrConstraint::GetForceInConstraint(FRAME_CONVENTION fc) const {
     auto force = internal::ChVectorToVector3d<Force>(internal::GetChronoConstraint(this)->Get_react_force());
-    if (IsNED(fc)) internal::SwapFrameConvention(force);
+    if (IsNED(fc)) force = internal::SwapFrameConvention(force);
     return force;
   }
 
   Torque FrConstraint::GetTorqueInConstraint(FRAME_CONVENTION fc) const {
     auto torque = internal::ChVectorToVector3d<Torque>(internal::GetChronoConstraint(this)->Get_react_torque());
-    if (IsNED(fc)) internal::SwapFrameConvention(torque);
+    if (IsNED(fc)) torque = internal::SwapFrameConvention(torque);
     return torque;
   }
 

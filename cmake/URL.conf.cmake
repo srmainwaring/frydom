@@ -72,5 +72,6 @@ set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 set(boost_URL https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.gz CACHE STRING "boost URL")
 set(boost_TAG 1.75 CACHE STRING "boost version")
 
-# eigen
-#set(eigen_TAG 3.4.0 CACHE STRING "eigen version")
+# Eigen
+set(eigen_URL https://gitlab.com/libeigen/eigen.git  CACHE STRING "eigen repository URL")
+set(eigen_TAG 3.3.7 CACHE STRING "eigen version")

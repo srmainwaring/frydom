@@ -202,14 +202,14 @@ namespace frydom {
     Rotate(const Vector &vector, FRAME_CONVENTION fc) const {  // TODO : voir si on a pas qqch de plus optimise...
       auto vectorTmp = vector;
 
-      if (IsNED(fc)) internal::SwapFrameConvention<Vector>(vectorTmp);
+      if (IsNED(fc)) vectorTmp = internal::SwapFrameConvention<Vector>(vectorTmp);
 
       auto chronoVector = internal::Vector3dToChVector(vectorTmp);
       auto chronoVectorRot = m_chronoQuaternion.Rotate(chronoVector);
 
       vectorTmp = chronoVectorRot.eigen();
 
-      if (IsNED(fc)) internal::SwapFrameConvention<Vector>(vectorTmp);
+      if (IsNED(fc)) vectorTmp = internal::SwapFrameConvention<Vector>(vectorTmp);
 
       return vectorTmp;
     }

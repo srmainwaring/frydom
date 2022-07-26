@@ -101,7 +101,7 @@ namespace frydom {
   Force FrCatenaryLine::GetTension(const double &s, FRAME_CONVENTION fc) const {
     Tension tension = t(s / m_unstretchedLength) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
   }
 
@@ -116,7 +116,7 @@ namespace frydom {
   Direction FrCatenaryLine::GetTangent(const double s, FRAME_CONVENTION fc) const {
     Direction direction = t(s / m_unstretchedLength).normalized();
     if (IsNED(fc)) {
-      internal::SwapFrameConvention(direction);
+      direction = internal::SwapFrameConvention(direction);
     }
     return direction;
   }
@@ -126,7 +126,7 @@ namespace frydom {
     position.setZero();
     p(s / m_unstretchedLength, position);
     if (IsNED(fc))
-      internal::SwapFrameConvention(position);
+      position = internal::SwapFrameConvention(position);
 
     Position pos = position * m_unstretchedLength; // FIXME retirer
     return m_startingNode->GetPositionInWorld(fc) + position * m_unstretchedLength;

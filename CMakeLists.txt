@@ -60,6 +60,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+include(Add_Eigen3)
+message(STATUS "eigen3 : "${eigen3_SOURCE_DIR})
+set(EIGEN3_INCLUDE_DIR ${eigen3_SOURCE_DIR})
 include(Add_mathutils)
 include(Add_Boost)
 include(Add_chrono)

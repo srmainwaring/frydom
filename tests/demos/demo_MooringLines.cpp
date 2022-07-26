@@ -78,9 +78,7 @@ int main(int argc, char *argv[]) {
 
   // Change solver settings, for dynamic cable modeling
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(200);
-  system.SetSolverMaxIterStab(200);
+  system.SetSolverMaxIterations(200);
   system.SetSolverForceTolerance(1e-13);
 
   // Set the dynamic simulation time step

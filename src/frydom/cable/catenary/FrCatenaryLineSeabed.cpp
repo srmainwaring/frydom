@@ -86,7 +86,7 @@ namespace frydom {
   Force FrCatenaryLineSeabed::GetTension(const double &s, FRAME_CONVENTION fc) const {
     Force tension = t(s / m_unstretchedLength) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
   }
 
@@ -107,14 +107,14 @@ namespace frydom {
   Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION fc) const {
     Force tension = t_seabed(m_Lb) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
   }
 
   Force FrCatenaryLineSeabed::GetTensionAtAnchor(FRAME_CONVENTION fc) const {
     Force tension = t_seabed(0.) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
 
   }
@@ -138,7 +138,7 @@ namespace frydom {
     // (0, 0, 0) point as starting node in adim
     Position position = p(s / m_unstretchedLength) * m_unstretchedLength + m_startingNode->GetPositionInWorld(NWU);
     if (IsNED(fc))
-      internal::SwapFrameConvention(position);
+      position = internal::SwapFrameConvention(position);
 
     return position;
   }

@@ -340,11 +340,9 @@ int main(int argc, char* argv[]) {
   }
 
   //system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(1000);
-  system.SetSolverMaxIterStab(1000);
+  system.SetSolverMaxIterations(1000);
   system.SetSolverForceTolerance(1e-9);
-  system.SetSolverDiagonalPreconditioning(true);
+  //system.SetSolverDiagonalPreconditioning(true);
 
   // Time step
   double dt = 0.01;

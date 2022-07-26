@@ -45,6 +45,7 @@ TEST(FrWaveField, regularWaveField) {
   waveField->SetWavePeriod(wavePeriod);
   waveField->SetDirection(waveDirection, fc, dc);
 
+  system.SetTimeStep(0.25 * wavePeriod);
   system.Initialize();
 
   // Test getters
@@ -88,7 +89,7 @@ TEST(FrWaveField, regularWaveField) {
   EXPECT_NEAR(waveHeight * omega * omega, waveField->GetAcceleration(0., 0., 0., fc).GetAccZ(), 1e-8);
 
   // test GOTO
-  system.AdvanceOneStep(0.25 * wavePeriod); // to be sure the wave is not symmetric around the origin
+  system.AdvanceOneStep(0.5 * wavePeriod); // to be sure the wave is not symmetric around the origin
   auto testElevation = waveField->GetElevation(-0.1 * waveLength, 0., fc);
   system.AdvanceOneStep(0.1 * wavePeriod);
   EXPECT_NEAR(testElevation, waveField->GetElevation(0., 0., fc), 1e-8);
