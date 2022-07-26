@@ -713,7 +713,7 @@ namespace frydom {
 
   template<class Vector>
   double GetProjectedAngleAroundZ(const Vector vector, mathutils::ANGLE_UNIT unit) {
-    auto angle = atan2(vector.x(), vector.y());
+    auto angle = atan2(vector.y(), vector.x());
     if (unit == mathutils::DEG) { angle *= RAD2DEG; }
     return angle;
   }
@@ -732,7 +732,7 @@ namespace frydom {
     template<class Vector>
     inline Vector SwapFrameConvention(const Vector &vector) {
       Vector out = vector;
-      SwapFrameConvention<Vector>(out);
+      out = SwapFrameConvention<Vector>(out);
       return out;
     }
 

@@ -14,7 +14,7 @@ namespace frydom {
 
     Position pos = relative_position;
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Position>(pos);
+      pos = internal::SwapFrameConvention<Position>(pos);
     }
     m_box->GetBoxGeometry().Pos = internal::Vector3dToChVector(pos);
 

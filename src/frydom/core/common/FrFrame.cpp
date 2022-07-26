@@ -41,7 +41,7 @@ namespace frydom {
 
   void FrFrame::SetPosition(const Position &position, FRAME_CONVENTION fc) {  // OK
     auto posTmp = position;
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(posTmp);
+    if (IsNED(fc)) posTmp = internal::SwapFrameConvention<Position>(posTmp);
     m_chronoFrame.SetPos(internal::Vector3dToChVector(posTmp));
   }
 
@@ -60,7 +60,7 @@ namespace frydom {
 
   Position FrFrame::GetPosition(FRAME_CONVENTION fc) const {  // OK
     auto pos = m_chronoFrame.GetPos().eigen(); // In NWU
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(pos);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(pos);
     return pos;
   }
 
@@ -235,7 +235,7 @@ namespace frydom {
   }
 
   void FrFrame::TranslateInFrame(const Direction &direction, double distance, FRAME_CONVENTION fc) {
-    assert(direction.IsUnit());
+    assert(direction.norm() - 1 == 0);
     TranslateInFrame(direction * distance, fc);
   }
 
@@ -245,12 +245,12 @@ namespace frydom {
 
   void FrFrame::TranslateInParent(const Translation &translation, FRAME_CONVENTION fc) {
     auto tmpTranslation = translation;
-    if (IsNED(fc)) internal::SwapFrameConvention<Translation>(tmpTranslation);
+    if (IsNED(fc)) tmpTranslation = internal::SwapFrameConvention<Translation>(tmpTranslation);
     m_chronoFrame.Move(chrono::ChVector<double>(tmpTranslation));
   }
 
   void FrFrame::TranslateInParent(const Direction &direction, double distance, FRAME_CONVENTION fc) {
-    assert(direction.IsUnit());
+    assert(direction.norm() - 1 == 0);
     TranslateInParent(direction * distance, fc);
   }
 
@@ -356,7 +356,7 @@ namespace frydom {
     xaxis.normalize();
 
     Direction zaxis = Direction(0., 0., 1.);
-    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(zaxis);
+    if (IsNED(fc)) zaxis = internal::SwapFrameConvention<Direction>(zaxis);
 
     Direction yaxis = zaxis.cross(xaxis);
 

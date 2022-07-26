@@ -28,8 +28,8 @@ TEST(FrNode, Position) {
 
   ///         Set Orientation
   FrRotation BodyRotationInWorld;
-  BodyRotationInWorld.SetCardanAngles_DEGREES(1., 2., 3., fc);
-  body->SetRotation(BodyRotationInWorld);
+  //BodyRotationInWorld.SetCardanAngles_DEGREES(1., 2., 3., fc);
+  //body->SetRotation(BodyRotationInWorld);
 
   ///         Set Velocity
   body->SetGeneralizedVelocityInWorld(Velocity(6., 5., 9.), AngularVelocity(8., 5., 1.), fc);

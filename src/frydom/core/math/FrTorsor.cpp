@@ -25,18 +25,18 @@ namespace frydom {
     m_moment = moment;
     m_point = point;
     if (IsNED(fc)) {
-      internal::SwapFrameConvention(m_resultant);
-      internal::SwapFrameConvention(m_moment);
-      internal::SwapFrameConvention(m_point);
+      m_resultant = internal::SwapFrameConvention(m_resultant);
+      m_moment = internal::SwapFrameConvention(m_moment);
+      m_point = internal::SwapFrameConvention(m_point);
     }
   }
 
   Torque FrTorsor::TransportMomentAtPoint(const Position &newPoint, FRAME_CONVENTION fc) const {
     Position tempPos = newPoint;
-    if (IsNED(fc)) internal::SwapFrameConvention(tempPos);
+    if (IsNED(fc)) tempPos = internal::SwapFrameConvention(tempPos);
     Position newToOld = m_point - tempPos;
     Torque tempMoment = m_moment + newToOld.cross(m_resultant);
-    if (IsNED(fc)) internal::SwapFrameConvention(tempMoment);
+    if (IsNED(fc)) tempMoment = internal::SwapFrameConvention(tempMoment);
     return tempMoment;
   }
 

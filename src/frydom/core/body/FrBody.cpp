@@ -610,7 +610,7 @@ namespace frydom {
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
     Force force = m_chronoBody->Get_Xforce().eigen();
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(force);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(force);
     return force;
   }
 
@@ -620,7 +620,7 @@ namespace frydom {
 
   Torque FrBody::GetTotalExtTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
     auto torque = m_chronoBody->Get_Xtorque().eigen();
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(torque);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(torque);
     return torque;
   }
 
@@ -662,13 +662,13 @@ namespace frydom {
 
   Position FrBody::GetCOG(FRAME_CONVENTION fc) const {
     Position cogPos = m_chronoBody->GetFrame_COG_to_REF().GetPos().eigen(); // In NWU
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 
   Position FrBody::GetPosition(FRAME_CONVENTION fc) const {
     Position refPos = m_chronoBody->GetFrame_REF_to_abs().GetPos().eigen();
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(refPos);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(refPos);
     return refPos;
   }
 
@@ -779,7 +779,7 @@ namespace frydom {
 
   Position FrBody::GetCOGPositionInWorld(FRAME_CONVENTION fc) const {
     Position cogPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetPos());
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 
@@ -874,7 +874,7 @@ namespace frydom {
 
   Velocity FrBody::GetLinearVelocityInWorld(FRAME_CONVENTION fc) const {
     Velocity bodyVel = internal::ChVectorToVector3d<Velocity>(m_chronoBody->GetFrame_REF_to_abs().GetPos_dt());
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(bodyVel);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Velocity>(bodyVel);
     return bodyVel;
   }
 
@@ -884,7 +884,7 @@ namespace frydom {
 
   void FrBody::SetVelocityInWorldNoRotation(const Velocity &worldVel, FRAME_CONVENTION fc) {
     auto worldVelTmp = worldVel;
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(worldVelTmp);
+    if (IsNED(fc)) worldVelTmp = internal::SwapFrameConvention<Velocity>(worldVelTmp);
     chrono::ChCoordsys<double> coord;
     coord.pos = internal::Vector3dToChVector(worldVelTmp);
     coord.rot.SetNull();

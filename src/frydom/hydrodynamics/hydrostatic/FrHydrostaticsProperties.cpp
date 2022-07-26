@@ -23,7 +23,7 @@ namespace frydom {
       m_clippedMesh(clipped_mesh),
       m_centerOfGravity(cog) {
     if (IsNED(fc)) {
-      internal::SwapFrameConvention(m_centerOfGravity);
+      m_centerOfGravity = internal::SwapFrameConvention(m_centerOfGravity);
     }
   }
 
@@ -36,8 +36,8 @@ namespace frydom {
       m_centerOfGravity(cog),
       m_reductionPoint(out) {
     if (IsNED(fc)) {
-      internal::SwapFrameConvention(m_centerOfGravity);
-      internal::SwapFrameConvention(m_reductionPoint);
+      m_centerOfGravity = internal::SwapFrameConvention(m_centerOfGravity);
+      m_reductionPoint = internal::SwapFrameConvention(m_reductionPoint);
     }
   }
 

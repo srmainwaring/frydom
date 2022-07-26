@@ -94,7 +94,7 @@ namespace frydom {
     bodyPos.GetZ() = 0.;
     CoBInWorld += bodyPos;
 
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(CoBInWorld);
+    if (IsNED(fc)) CoBInWorld = internal::SwapFrameConvention<Position>(CoBInWorld);
 
     return CoBInWorld;
   }
@@ -131,7 +131,7 @@ namespace frydom {
     // Multiplication by rho*g
     hydrostaticForce *= system->GetGravityAcceleration() * system->GetEnvironment()->GetFluidDensity(WATER);
 
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(hydrostaticForce);
+    if (IsNED(fc)) hydrostaticForce = internal::SwapFrameConvention<Position>(hydrostaticForce);
 
     return hydrostaticForce;
   }
@@ -165,7 +165,7 @@ namespace frydom {
     // Multiplication by rho*g
     Ms *= system->GetGravityAcceleration() * system->GetEnvironment()->GetFluidDensity(WATER);
 
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(Ms);
+    if (IsNED(fc)) Ms = internal::SwapFrameConvention<Position>(Ms);
 
     return Ms;
 

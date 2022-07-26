@@ -23,11 +23,11 @@ using namespace frydom;
 template<class Vector>
 inline Vector &EasyRotate(Vector &vector, FRAME_CONVENTION fc) {
   Vector vecTem;
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vector); }
+  if (IsNED(fc)) { vector = internal::SwapFrameConvention<Vector>(vector); }
   vecTem[0] = vector[2];
   vecTem[1] = vector[0];
   vecTem[2] = vector[1];
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vecTem); }
+  if (IsNED(fc)) { vecTem = internal::SwapFrameConvention<Vector>(vecTem); }
   return vector = vecTem;
 }
 
@@ -41,11 +41,11 @@ inline Vector EasyRotate(const Vector &vector, FRAME_CONVENTION fc) {
 template<class Vector>
 inline Vector &EasyRotateInv(Vector &vector, FRAME_CONVENTION fc) {
   Vector vecTem;
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vector); }
+  if (IsNED(fc)) { vector = internal::SwapFrameConvention<Vector>(vector); }
   vecTem[0] = vector[1];
   vecTem[1] = vector[2];
   vecTem[2] = vector[0];
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vecTem); }
+  if (IsNED(fc)) { vecTem = internal::SwapFrameConvention<Vector>(vecTem); }
   return vector = vecTem;
 }
 
@@ -163,7 +163,7 @@ TEST(FrQuaternion, Quaternion) {
 
   // Test GetRotationMatrix and RightMultiply
   auto NewRot = xRot * yRot;
-  EXPECT_TRUE(NewRot.GetRotationMatrix() == yRot.RightMultiply(xRotMatrix));
+  EXPECT_TRUE(NewRot.GetRotationMatrix().isApprox(yRot.RightMultiply(xRotMatrix)));
 
   // Test set rotation from matrix
   Quat.SetNullRotation();
@@ -271,7 +271,7 @@ TEST(FrRotation, Rotation) {
   EXPECT_TRUE(testMatrix.isIdentity());
 
   // Test GetRotationMatrix and RightMultiply
-  EXPECT_TRUE(TotalRotation.GetRotationMatrix() == YRotation.RightMultiply(XRotation.GetRotationMatrix()));
+  EXPECT_TRUE(TotalRotation.GetRotationMatrix().isApprox(YRotation.RightMultiply(XRotation.GetRotationMatrix())));
 
 
   // Test RotAxisAngle_DEGREES

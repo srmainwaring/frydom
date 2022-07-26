@@ -19,11 +19,11 @@ using namespace frydom;
 template<class Vector>
 inline Vector &EasyRotate(Vector &vector, FRAME_CONVENTION fc) {
   Vector vecTem;
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vector); }
+  if (IsNED(fc)) { vector = internal::SwapFrameConvention<Vector>(vector); }
   vecTem[0] = vector[2];
   vecTem[1] = vector[0];
   vecTem[2] = vector[1];
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vecTem); }
+  if (IsNED(fc)) { vecTem = internal::SwapFrameConvention<Vector>(vecTem); }
   return vector = vecTem;
 }
 
@@ -37,11 +37,11 @@ inline Vector EasyRotate(const Vector &vector, FRAME_CONVENTION fc) {
 template<class Vector>
 inline Vector &EasyRotateInv(Vector &vector, FRAME_CONVENTION fc) {
   Vector vecTem;
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vector); }
+  if (IsNED(fc)) { vector = internal::SwapFrameConvention<Vector>(vector); }
   vecTem[0] = vector[1];
   vecTem[1] = vector[2];
   vecTem[2] = vector[0];
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vecTem); }
+  if (IsNED(fc)) { return vector = internal::SwapFrameConvention<Vector>(vecTem); }
   return vector = vecTem;
 }
 
@@ -57,8 +57,8 @@ void Test_AllGetPosition(const std::shared_ptr<FrBody> body,
                          bool is_Orientation, FRAME_CONVENTION out_fc) {
 
   if (out_fc != in_fc) {
-    internal::SwapFrameConvention<Position>(RefPositionInWorld);
-    internal::SwapFrameConvention<Position>(COGPositionInWorld);
+    RefPositionInWorld = internal::SwapFrameConvention<Position>(RefPositionInWorld);
+    COGPositionInWorld = internal::SwapFrameConvention<Position>(COGPositionInWorld);
   }
 
   // Test body reference frame position in world reference frame
@@ -72,7 +72,7 @@ void Test_AllGetPosition(const std::shared_ptr<FrBody> body,
   //-----------------COG-----------------//
   // Test COG position in body reference frame
   Position TempPos = COGPositionInWorld - RefPositionInWorld;
-  if (is_Orientation) EasyRotateInv(TempPos, out_fc);
+  if (is_Orientation) TempPos = EasyRotateInv(TempPos, out_fc);
   testPosition = body->GetCOG(out_fc) - TempPos;
   EXPECT_TRUE(testPosition.isZero());
   if (not(testPosition.isZero())) {
@@ -151,7 +151,7 @@ TEST(FrBodyTest, PositionNED) {
 }
 
 TEST(FrBodyTest, Translation) {
-  FRAME_CONVENTION fc = NED;
+  FRAME_CONVENTION fc = NED; //##CC FIXME : ne passe pas en NED ! (pb ecriture du test)
 
   FrOffshoreSystem system("system");
 
@@ -172,7 +172,7 @@ TEST(FrBodyTest, Translation) {
 
   //-----------------Translate Body-----------------//
   Translation BodyTranslationInWorld(1., 4., 7.);
-  if (IsNED(fc)) { internal::SwapFrameConvention<Translation>(BodyTranslationInWorld); }
+  if (IsNED(fc)) { BodyTranslationInWorld = internal::SwapFrameConvention<Translation>(BodyTranslationInWorld); }
   Position BodyPosition = RefPositionInWorld + BodyTranslationInWorld;
   Position COGPosition = COGPositionInWorld + BodyTranslationInWorld;
 
@@ -235,7 +235,7 @@ void Test_AllGetRotation(const std::shared_ptr<FrBody> body, const FrRotation &B
 }
 
 TEST(FrBodyTest, Orientation) {
-  FRAME_CONVENTION fc = NED;
+  FRAME_CONVENTION fc = NED; //CC FIXME : ne passe pas en NED ! (revoir ecriture test)
 
   FrOffshoreSystem system("system");
 

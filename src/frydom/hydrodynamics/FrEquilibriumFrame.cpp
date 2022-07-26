@@ -81,8 +81,8 @@ namespace frydom {
   }
 
   void FrEquilibriumFrame::SetVelocityInWorld(const Velocity &velocity, FRAME_CONVENTION fc) {
-    if (IsNED(fc)) internal::SwapFrameConvention(velocity);
     m_velocity = velocity;
+    if (IsNED(fc)) m_velocity = internal::SwapFrameConvention(m_velocity);
     m_initSpeedFromBody = false;
   }
 

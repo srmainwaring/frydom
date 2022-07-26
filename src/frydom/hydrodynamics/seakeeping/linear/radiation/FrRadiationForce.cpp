@@ -78,13 +78,13 @@ namespace frydom {
 
   Force FrRadiationConvolutionForce::GetForceInertiaPartInBody(FRAME_CONVENTION fc) const {
     auto force = c_forceInertiaPart;
-    if (IsNED(fc)) { internal::SwapFrameConvention<Force>(force); }
+    if (IsNED(fc)) { force = internal::SwapFrameConvention<Force>(force); }
     return force;
   }
 
   Torque FrRadiationConvolutionForce::GetTorqueInertiaPartInBody(FRAME_CONVENTION fc) const {
     auto torque = c_torqueInertiaPart;
-    if (IsNED(fc)) { internal::SwapFrameConvention<Torque>(torque); }
+    if (IsNED(fc)) { torque = internal::SwapFrameConvention<Torque>(torque); }
     return torque;
   }
 

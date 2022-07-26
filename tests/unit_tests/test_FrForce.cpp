@@ -200,16 +200,16 @@ void TestFrForce::LoadData(std::string filename) {
   m_torqueInBodyAtPoint_NED = m_torqueInBodyAtPoint;
   m_torqueInWorldAtCOG_NED = m_torqueInWorldAtCOG;
   m_torqueInBodyAtCOG_NED = m_torqueInBodyAtCOG;
-  internal::SwapFrameConvention(m_PointInBody_NED);
-  internal::SwapFrameConvention(m_PointInWorld_NED);
-  internal::SwapFrameConvention(m_forceInWorldAtPoint_NED);
-  internal::SwapFrameConvention(m_forceInBodyAtPoint_NED);
-  internal::SwapFrameConvention(m_forceInWorldAtCOG_NED);
-  internal::SwapFrameConvention(m_forceInBodyAtCOG_NED);
-  internal::SwapFrameConvention(m_torqueInWorldAtPoint_NED);
-  internal::SwapFrameConvention(m_torqueInBodyAtPoint_NED);
-  internal::SwapFrameConvention(m_torqueInWorldAtCOG_NED);
-  internal::SwapFrameConvention(m_torqueInBodyAtCOG_NED);
+  m_PointInBody_NED = internal::SwapFrameConvention(m_PointInBody_NED);
+  m_PointInWorld_NED = internal::SwapFrameConvention(m_PointInWorld_NED);
+  m_forceInWorldAtPoint_NED = internal::SwapFrameConvention(m_forceInWorldAtPoint_NED);
+  m_forceInBodyAtPoint_NED = internal::SwapFrameConvention(m_forceInBodyAtPoint_NED);
+  m_forceInWorldAtCOG_NED = internal::SwapFrameConvention(m_forceInWorldAtCOG_NED);
+  m_forceInBodyAtCOG_NED = internal::SwapFrameConvention(m_forceInBodyAtCOG_NED);
+  m_torqueInWorldAtPoint_NED = internal::SwapFrameConvention(m_torqueInWorldAtPoint_NED);
+  m_torqueInBodyAtPoint_NED = internal::SwapFrameConvention(m_torqueInBodyAtPoint_NED);
+  m_torqueInWorldAtCOG_NED = internal::SwapFrameConvention(m_torqueInWorldAtCOG_NED);
+  m_torqueInBodyAtCOG_NED = internal::SwapFrameConvention(m_torqueInBodyAtCOG_NED);
 
   m_forceLimitUser = H5Easy::load<double>(file, group + "ForceLimit");
   m_torqueLimitUser = H5Easy::load<double>(file, group + "TorqueLimit");

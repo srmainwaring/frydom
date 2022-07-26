@@ -119,7 +119,7 @@ namespace frydom {
 
   Force FrMorisonElement::GetForceInWorld(FRAME_CONVENTION fc) const {
     auto force = m_force;
-    if (IsNED(fc)) internal::SwapFrameConvention(force);
+    if (IsNED(fc)) force = internal::SwapFrameConvention(force);
     return force;
   }
 
@@ -129,7 +129,7 @@ namespace frydom {
 
   Force FrMorisonElement::GetForceAddedMassInWorld(FRAME_CONVENTION fc) const {
     auto force = m_force_added_mass;
-    if (IsNED(fc)) internal::SwapFrameConvention(force);
+    if (IsNED(fc)) force = internal::SwapFrameConvention(force);
     return force;
   }
 

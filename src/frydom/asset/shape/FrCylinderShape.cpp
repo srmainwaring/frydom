@@ -12,7 +12,7 @@ namespace frydom {
 
     Position pos = relative_position;
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Position>(pos);
+      pos = internal::SwapFrameConvention<Position>(pos);
     }
     m_cylinder->GetCylinderGeometry().p1 = pos + Position(0., -height*0.5, 0.);
     m_cylinder->GetCylinderGeometry().p2 = pos + Position(0., height*0.5, 0.);
