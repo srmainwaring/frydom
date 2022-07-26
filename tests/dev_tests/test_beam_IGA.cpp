@@ -147,7 +147,7 @@ class MyLoader : public chrono::ChLoaderUdistributed {
     // Temporaire
     double gravity = 9.81;
     double fluid_density = 1023.;
-    double section = element->GetSection()->Area;
+    double section = std::dynamic_pointer_cast<fea::ChInertiaCosseratSimple>(element->GetSection()->GetInertia())->GetArea();
 
 
     Force hydrostatic_force = {0., 0., fluid_density * section * gravity};
@@ -484,13 +484,18 @@ int main() {
   auto melasticity = std::make_shared<chrono::fea::ChElasticityCosseratSimple>();
   melasticity->SetYoungModulus(E);
   melasticity->SetGshearModulus(E * 0.3); // Jouer avec...
-  melasticity->SetBeamRaleyghDamping(1e3);
+  //melasticity->SetBeamRaleyghDamping(1e3);
+
+  // Damping
+  auto mdamping = std::make_shared<chrono::fea::ChDampingCosseratRayleigh>(melasticity, 1e3);
+
+  // Inertia
+  auto minertia = std::make_shared<chrono::fea::ChInertiaCosseratSimple>();
+  minertia->SetAsCircularSection(diameter, density);
 
   // Section definition
-  auto msection = std::make_shared<chrono::fea::ChBeamSectionCosserat>(melasticity);
-  msection->SetDensity(density);
-  msection->SetAsCircularSection(diameter);
-
+  auto msection = std::make_shared<chrono::fea::ChBeamSectionCosserat>(minertia, melasticity);
+  msection->SetDamping(mdamping);
 
 
   // Building the BSpline to initialize

@@ -45,7 +45,8 @@ int main(int argc, char *argv[]) {
   system.GetEnvironment()->GetOcean()->GetSeabed()->Show(true);
 
   auto seabedCollision = std::make_shared<FrCollisionModel>();
-  seabedCollision->AddBox(150, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
+  auto mat = std::make_shared<FrContactParamsSMC>();
+  seabedCollision->AddBox(mat.get(), 50, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
   seabedCollision->BuildModel();
   system.GetWorldBody()->SetCollisionModel(seabedCollision);
 
@@ -88,7 +89,7 @@ int main(int argc, char *argv[]) {
   barge->SetColor(Yellow);
 
   auto collisionModel = std::make_shared<FrCollisionModel>();
-  collisionModel->AddBox(17.5, 8, 2, Position(), FrRotation());
+  collisionModel->AddBox(steel.get(), 17.5, 8, 2, Position(), FrRotation());
 //    collisionModel->AddTriangleMesh("barge.obj",Position(),FrRotation());
   collisionModel->BuildModel();
   barge->SetCollisionModel(collisionModel);

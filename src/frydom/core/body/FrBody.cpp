@@ -621,7 +621,7 @@ namespace frydom {
   }
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
-    Force force = m_chronoBody->Get_Xforce().eigen();
+    Force force = m_chronoBody->GetAppliedForce().eigen();
     if (IsNED(fc)) return internal::SwapFrameConvention<Position>(force);
     return force;
   }
@@ -631,7 +631,7 @@ namespace frydom {
   }
 
   Torque FrBody::GetTotalExtTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
-    auto torque = m_chronoBody->Get_Xtorque().eigen();
+    auto torque = m_chronoBody->GetAppliedTorque().eigen();
     if (IsNED(fc)) return internal::SwapFrameConvention<Position>(torque);
     return torque;
   }
