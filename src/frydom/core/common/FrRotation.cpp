@@ -112,21 +112,24 @@ namespace frydom {
   Direction FrUnitQuaternion::GetXAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = quat.GetXaxis().eigen();
+    auto ch_axis = quat.GetXaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetYAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = quat.GetYaxis().eigen();
+    auto ch_axis = quat.GetYaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetZAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = quat.GetZaxis().eigen();
+    auto ch_axis = quat.GetZaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 

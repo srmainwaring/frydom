@@ -151,7 +151,7 @@ TEST(FrBodyTest, PositionNED) {
 }
 
 TEST(FrBodyTest, Translation) {
-  FRAME_CONVENTION fc = NED; //##CC FIXME : ne passe pas en NED ! (pb ecriture du test)
+  FRAME_CONVENTION fc = NED;
 
   FrOffshoreSystem system("system");
 
@@ -235,7 +235,7 @@ void Test_AllGetRotation(const std::shared_ptr<FrBody> body, const FrRotation &B
 }
 
 TEST(FrBodyTest, Orientation) {
-  FRAME_CONVENTION fc = NED; //CC FIXME : ne passe pas en NED ! (revoir ecriture test)
+  FRAME_CONVENTION fc = NED;
 
   FrOffshoreSystem system("system");
 
