@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   DIRECTION_CONVENTION dc = GOTO;
 
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
-  FrOffshoreSystem system("Hub_Installation");
+  FrOffshoreSystem system("Hub_Installation", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // --------------------------------------------------
   // Environment

@@ -204,7 +204,7 @@ namespace frydom {
     void FrVariablesBEMBodyBase::MultiplyAndAdd(chrono::ChVectorRef result,
                                                 chrono::ChVectorConstRef vect, const double c_a) const {
 
-      auto v_loc = vect;
+      auto v_loc = vect.segment(this->offset, 6);
       SetInBody(v_loc);
 
       auto generalizedMass = m_radiationModelBase->GetGeneralizedMass(m_BEMBody, m_BEMBody);

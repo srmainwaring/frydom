@@ -354,7 +354,7 @@ int main(int argc, char *argv[]) {
   system.Initialize();
   system.DoAssembly();
 
-  bool is_irrlicht = false;
+  bool is_irrlicht = true;
 
   clock_t begin = clock();
 
