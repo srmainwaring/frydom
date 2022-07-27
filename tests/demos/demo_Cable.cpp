@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   };
 
   // Chose the one you want to run
-  cableCase Case = Pendulum;
+  cableCase Case = FixedLine;
 
   // Line properties :
   bool elastic = true;                      //  non elastic catenary lines are only available for non strained lines

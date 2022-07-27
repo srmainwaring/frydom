@@ -153,7 +153,7 @@ namespace frydom {
     void FrLinkLockBase::SetMask(FrDOFMask *vmask) {
 
       if (vmask->GetLinkType() == LINK_TYPE::CUSTOM) {
-        FrLinkMaskBase chronoMask;
+        FrLinkMaskBase chronoMask(7);
         chronoMask.SetLockMask(
             vmask->GetLock_X(),  // x
             vmask->GetLock_Y(),  // y

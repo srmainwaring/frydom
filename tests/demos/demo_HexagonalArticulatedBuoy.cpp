@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
   //                        FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
   //                        FrOffshoreSystem::MINRES);
 
-  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy");
+  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // Environment
   SetUpEnvironment(&system);

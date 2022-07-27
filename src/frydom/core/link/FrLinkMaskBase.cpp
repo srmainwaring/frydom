@@ -11,7 +11,11 @@ namespace frydom {
   namespace internal {
 
     FrLinkMaskBase::FrLinkMaskBase() {
-      ResetNconstr(7);
+      nconstr = 7;
+
+      constraints.resize(nconstr);
+      for (int i = 0; i < nconstr; i++)
+        constraints[i] = new FrConstraintTwoBodiesBase;
     }
 
     FrLinkMaskBase::FrLinkMaskBase(int mnconstr) {

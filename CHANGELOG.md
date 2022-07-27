@@ -11,7 +11,7 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Fixed
 
-## [4.0] 2022-07-26
+## [4.0] 2022-07-27
 
 ### Major change
 

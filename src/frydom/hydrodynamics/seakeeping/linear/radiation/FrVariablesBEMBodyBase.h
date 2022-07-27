@@ -88,7 +88,7 @@ namespace frydom {
 
       void UpdateResult(chrono::ChVectorRef result, mathutils::Vector6d<double> &vect, int offset=0) const;
 
-      void SetInBody(chrono::ChVectorN<double, 3> vect) const;
+      void SetInBody(chrono::ChVectorN<double, 6> vect) const;
 
     };
 
