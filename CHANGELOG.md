@@ -13,10 +13,15 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ## [4.0] 2022-07-26
 
+### Major change
+
+Update the chrono version to v5.0
+
 ### Added
 
 - New Abkowitz manoeuvring model (Yoshimura 2012)
 - New solver type from chrono v5 : `GMRES`
+- Add solver max iterations and tolerance setters/getters in `FrOffshoreSystem` (consequently of the update to chrono v5) : `SetSolverMaxIterations` and `GetSolverMaxIterations` set and get the maximum number of iterations of the iterative solver. `SetSolverTolerance` and `GetSolverTolerance` set and get the maximum tolerance threshold of the iterative solver (definition depends on the iterative solver type).
 
 ### Changed
 - Update to chrono v5 :
@@ -29,6 +34,9 @@ With this update, the vectors `Translation`, `Position`, `CardanAngles`, `Genera
 - The log of `violationResidual` and `LagrangeResidual` are deactivated in offshore system log since there are not present in the base class.
 - The list of solver name has been updated to be consistent with the new solver names used by chrono (`SOR`->`PSOR`, `SYMMSOR`->`PSSOR`, `JACOBI`->`PJACOBI`). Solvers `PCG` and `SOLVER_SMC` are no longer used and have been removed from the list.
 - The method `GetProjectedAngleAroundZ` which was previously a method of vector (`Direction`) is now a static method applied to a vector. 
+- The function `SetSolverMaxIterSpeed` in `FrOffshoreSystem` has been deactivated and replaced by `SetSolverMaxIterations` (consequently of the update to chrono v5)
+- The function `SetSolverMaxIterStab` in `FrOffshoreSystem` has been removed (seems it was not used).
+- The function `SetSolverGeometricToloreance`in `FrOffshoreSystem` has been removed (seems it was not used).
 - Propulsion models updated to follow acme evolution
 - Morison Model extended with a simple model for added mass
 
