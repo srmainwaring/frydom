@@ -455,8 +455,6 @@ namespace frydom {
 
   void FrBody::SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p) {
 
-    //##CC auto ms = m_chronoBody->GetMaterialSurfaceNSC();
-
     for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
       auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(shape->GetMaterial());
 
@@ -482,8 +480,6 @@ namespace frydom {
   }
 
   void FrBody::SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p) {
-
-    //##CC auto ms = m_chronoBody->GetMaterialSurfaceNSC();
 
     for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
       auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(shape->GetMaterial());
@@ -1146,13 +1142,11 @@ namespace frydom {
     // TODO : voir si n'accepte pas de definir des offset sur les ddl bloques...
 
     if (m_DOFLink) {
-
       // updating the link with the new mask
       m_DOFLink->SetDOFMask(m_DOFMask.get());
       m_DOFLink->Initialize();
     }
     else {
-
 
       // Getting the markers that enter in the link
 

@@ -848,7 +848,7 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::SetParallelThreadNumber(int nbThreads) {
-    chrono::CHOMPfunctions::SetNumThreads(nbThreads);
+    m_chronoSystem->SetNumThreads(nbThreads);
     event_logger::info(GetTypeName(), GetName(),
                        "Number of threads for simulation set to {}", nbThreads);
   }
@@ -1264,6 +1264,7 @@ namespace frydom {
 
     // Definition and initialization of the Irrlicht application.
     m_irrApp = std::make_unique<FrIrrApp>(this, m_chronoSystem.get(), dist);
+
     m_irrApp->SetTimestep(m_chronoSystem->GetStep());
     m_irrApp->SetVideoframeSave(recordVideo);
     m_irrApp->SetVideoframeSaveInterval(videoFrameSaveInterval);
@@ -1337,9 +1338,6 @@ namespace frydom {
   }
 #endif
 
-  //void FrOffshoreSystem::AddAsset(std::shared_ptr<chrono::ChAsset> asset) {
-  //  m_chronoSystem->AddAsset(std::move(asset));
-  //}
 
   FrLogManager *FrOffshoreSystem::GetLogManager() const {
     return m_logManager.get();

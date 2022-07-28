@@ -54,8 +54,6 @@ namespace frydom {
 
   void FrCatenaryLineBase::Initialize() {
 
-    //std::cout << "debug : FrCatenaryLineBase : Initialise : start" << std::endl; //##CC debug
-
     if (!m_use_for_shape_initialization) {
       // Building the catenary forces and adding them to bodies
       if (!m_startingForce) {
@@ -76,19 +74,10 @@ namespace frydom {
     }
 
     FrCableBase::Initialize();
-
-    //##CC debug
-    //std::cout << "debug : FrCatenaryLineBase : Initialize : m_startingForce = " << m_startingForce->GetForceInWorld(NWU) << std::endl;
-    //std::cout << "debug : FrCatenaryLineBase : Initialize : m_endingForce = " << m_endingForce->GetForceInWorld(NWU) << std::endl;
-
-    //std::cout << "debug : FrCatenaryLineBase : Initialise : end" << std::endl;
-    //##
   }
 
   void FrCatenaryLineBase::StepFinalize() {
-    //std::cout << "debug : FrCatenaryLineBase : StepFinalize : start" << std::endl; //##CC debug
     UpdateAsset();
-    //std::cout << "debug : FrCatenaryLineBase : StepFinalize : end" << std::endl; //##CC debug
   }
 
   FrCatenaryLineBase::FrCatenaryLineBase(const std::string &name, const std::string &type,
