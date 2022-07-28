@@ -38,7 +38,7 @@ namespace frydom {
                          elastic,
                          unstretchedLength),
       c_qL(0.), c_fluid(fluid_type) {
-    m_point_forces.emplace_back(internal::PointForce{this, 0., Force()});
+      m_point_forces.emplace_back(internal::PointForce(this, 0., Force().setZero()));
   }
 
   FrCatenaryLine::FrCatenaryLine(const std::string &name, FrCableBase *cable, bool elastic, FLUID_TYPE fluid_type) :
@@ -115,6 +115,7 @@ namespace frydom {
 
   Position FrCatenaryLine::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
     Position position;
+    position.setZero();
     p(s / m_unstretchedLength, position);
     if (IsNED(fc))
       position = internal::SwapFrameConvention(position);
@@ -173,8 +174,6 @@ namespace frydom {
     } else {
 //      std::cout << "CONVERGENCE IN " << iter << std::endl;
     }
-
-
 
 //    unsigned int iter = 0;
 //
@@ -388,6 +387,7 @@ namespace frydom {
 
   Position FrCatenaryLine::p(const double &s) const {
     Position position;
+    position.setZero();
     p(s, position);
     return position;
   }

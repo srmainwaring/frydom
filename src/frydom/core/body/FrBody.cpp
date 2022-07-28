@@ -444,7 +444,7 @@ namespace frydom {
   }
 
   std::shared_ptr<FrContactParamsSMC> FrBody::GetContactParamsSMC() {
-    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT) {
+    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT) {
       event_logger::error(GetTypeName(), GetName(),
                           "Attemping to get non-NSC contact parameters while body is NSC");
       exit(EXIT_FAILURE);

@@ -46,7 +46,9 @@ namespace frydom {
     }
 
     // Set the tension in the world reference frame and NWU frame convention
-    SetForceTorqueInWorldAtPointInWorld(force_in_world, Torque(), relative_position, NWU);
+    auto torque = Torque();
+    torque.setZero();
+    SetForceTorqueInWorldAtPointInWorld(force_in_world, torque, relative_position, NWU);
 
   }
 

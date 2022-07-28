@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   DIRECTION_CONVENTION dc = GOTO;
 
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
-  FrOffshoreSystem system("demo_Cable", FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT);
+  FrOffshoreSystem system("demo_Cable", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // Hide the free surface and seabed visual assets.
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(false);

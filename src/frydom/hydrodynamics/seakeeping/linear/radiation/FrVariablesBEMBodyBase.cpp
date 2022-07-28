@@ -69,7 +69,7 @@ namespace frydom {
 
       } else {
 
-        chrono::ChVectorN<double, 3> v_loc = vect;
+        auto v_loc = vect;
         SetInBody(v_loc);
 
         auto invGeneralizedMass = m_radiationModelBase->GetInverseGeneralizedMass(m_BEMBody, m_BEMBody);
@@ -204,7 +204,7 @@ namespace frydom {
     void FrVariablesBEMBodyBase::MultiplyAndAdd(chrono::ChVectorRef result,
                                                 chrono::ChVectorConstRef vect, const double c_a) const {
 
-      auto v_loc = vect;
+      auto v_loc = vect.segment(this->offset, 6);
       SetInBody(v_loc);
 
       auto generalizedMass = m_radiationModelBase->GetGeneralizedMass(m_BEMBody, m_BEMBody);
@@ -261,7 +261,7 @@ namespace frydom {
 
     }
 
-    void FrVariablesBEMBodyBase::SetInBody(chrono::ChVectorN<double, 3> vect) const {
+    void FrVariablesBEMBodyBase::SetInBody(chrono::ChVectorN<double, 6> vect) const {
 
       auto eq_frame = m_radiationModelBase->GetRadiationModel()->GetHydroDB()->GetMapper()->GetEquilibriumFrame(m_BEMBody);
 
