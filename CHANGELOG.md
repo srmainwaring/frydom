@@ -11,6 +11,13 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Fixed
 
+## [4.2] 2022-07-28
+
+### Changed
+
+- Update to chrono v7.0.3
+- Irrlicht view is now on the right handed with z-vertical direction.
+
 ## [4.1] 2022-07-28
 
 ### Major change
