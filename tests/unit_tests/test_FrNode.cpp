@@ -28,8 +28,8 @@ TEST(FrNode, Position) {
 
   ///         Set Orientation
   FrRotation BodyRotationInWorld;
-  BodyRotationInWorld.SetCardanAngles_DEGREES(1., 2., 3., fc);
-  body->SetRotation(BodyRotationInWorld);
+  //BodyRotationInWorld.SetCardanAngles_DEGREES(1., 2., 3., fc);
+  //body->SetRotation(BodyRotationInWorld);
 
   ///         Set Velocity
   body->SetGeneralizedVelocityInWorld(Velocity(6., 5., 9.), AngularVelocity(8., 5., 1.), fc);
@@ -156,7 +156,7 @@ TEST(FrNode, FrNode_COGModification_Test) {
   // body orientation
   Direction rotDirection;
   rotDirection.setRandom();
-  rotDirection.Normalize();
+  rotDirection.normalize();
   double rotAngle = 1.03654;
   FrUnitQuaternion bodyRot;
   bodyRot.Set(rotDirection, rotAngle, fc);

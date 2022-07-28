@@ -48,6 +48,9 @@ namespace frydom {
       /// \param offshoreSystem pointer to the offshore system
       explicit FrSystemBase(FrOffshoreSystem *offshoreSystem);
 
+      /// Initialize the systemBase 
+      void Initialize();
+
       /// Update the state of the systemBase, called from chrono, call the Update of the offshore system
       /// \param update_assets check if the assets are updated
       void Update(bool update_assets) override;
@@ -161,7 +164,7 @@ namespace frydom {
     class FrFEALinkBase;
   }
 
-  class FrLumpedMassCable;
+//  class FrLumpedMassCable;
 
   /// Main class for a FRyDoM offshore system. This class is used to represent a multibody physical system,
   /// so it acts also as a database for most items involved in simulations, most noticeably objects of FrBody and FrLink
@@ -193,7 +196,8 @@ namespace frydom {
       ///< drifting 'closed' by using a projection. If using an underlying CCP
       ///< complementarity solver, this is the typical Tasora stabilized timestepper for DVIs.
 
-      EULER_IMPLICIT,             ///< Performs a step of Euler implicit for II order systems.
+      ///< FIXME: This time-stepper does not work with the computation of the radiation loads.
+      //EULER_IMPLICIT,             ///< Performs a step of Euler implicit for II order systems.
 
       TRAPEZOIDAL,                ///< Performs a step of trapezoidal implicit for II order systems.
       ///< NOTE this is a modified version of the trapezoidal for DAE: the original
@@ -223,24 +227,17 @@ namespace frydom {
 
     /// enum for solvers aimed at solving complementarity problems arising from QP optimization problems.
     enum SOLVER {
-      SOR,                ///< An iterative solver based on projective fixed point method, with overrelaxation and
-      ///< immediate variable update as in SOR methods.
-      SYMMSOR,            ///< An iterative solver based on symmetric projective fixed point method, with
-      ///< overrelaxation and immediate variable update as in SSOR methods.
-      JACOBI,             ///< An iterative solver for VI (VI/CCP/LCP/linear problems,..) based on projective
-      ///< fixed point method, similar to a projected Jacobi method. Note: this method is here
-      ///< mostly for comparison and tests: we suggest you to use the more efficient ChSolverSOR
-      ///< - similar, but faster & converges better.
-//            SOR_MULTITHREAD,
-//            PMINRES,
-      BARZILAIBORWEIN,    ///< An iterative solver based on modified Krylov iteration of spectral projected
-      ///< gradients with Barzilai-Borwein.
-      PCG,                ///< An iterative solver based on modified Krylov iteration of projected conjugate gradient.
-      APGD,               ///< An iterative solver based on Nesterov's Projected Gradient Descent.
-      MINRES,             ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
-      PMINRES,
+      // Iterative VI solvers
+      PSOR,                ///< Projected SOR (Successive Over-Relaxation)
+      PSSOR,               ///< Projected symmetric SOR
+      PJACOBI,             ///< Projected Jacobi
+      PMINRES,             ///< Projected MINRES
+      BARZILAIBORWEIN,     ///< Barzilai-Borwein
+      APGD,                ///< An iterative solver based on Nesterov's Projected Gradient Descent.
+      // Iterative linear solvers
+      GMRES,               ///< Generalized Minimal RESidual Algorithm
+      MINRES,              ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
       ///< with gradient projection (active set).
-      SOLVER_SMC,         ///< A solver for problems arising in SMooth Contact (SMC) i.e. penalty formulations.
     };
 
     /// enum for smooth contact models (SMC)
@@ -489,17 +486,20 @@ namespace frydom {
     /// \param nbThreads number of parallel threads (by default is n.of cores)
     void SetParallelThreadNumber(int nbThreads);
 
-    /// When using an iterative solver (es. SOR) set the maximum number of iterations.
-    /// The higher the iteration number, the more precise the simulation (but more CPU time).
-    /// \param maxIter maximum number of iterations od the iterative solver
-    void SetSolverMaxIterSpeed(int maxIter);
+    /// Set the maximum number of iterations, if using an iterative solver.
+    /// \deprecated Prefer using SetSolver and setting solver parameters directly.
+    void SetSolverMaxIterations(int max_iters);
 
-    /// When using an iterative solver (es. SOR) and a timestepping method
-    /// requiring post-stabilization (e.g., EULER_IMPLICIT_PROJECTED), set the
-    /// the maximum number of stabilization iterations. The higher the iteration
-    /// number, the more precise the simulation (but more CPU time).
-    /// \param maxIter maximum number of stabilization iterations
-    void SetSolverMaxIterStab(int maxIter);
+    /// Get the current maximum number of iterations, if using an iterative solver.
+    /// \deprecated Prefer using GetSolver and accessing solver statistics directly.
+    int GetSolverMaxIterations() const;
+
+    /// Set the solver tolerance threshold (used with iterative solvers only).
+    /// Note that the stopping criteria differs from solver to solver.
+    void SetSolverTolerance(double tolerance);
+
+    /// Get the current tolerance value (used with iterative solvers only).
+    double GetSolverTolerance() const;
 
     /// Sets outer iteration limit for assembly constraints. When trying to keep constraints together,
     /// the iterative process is stopped if this max.number of iterations (or tolerance) is reached.
@@ -509,7 +509,7 @@ namespace frydom {
     /// Sets tolerance (in m) for assembly constraints. When trying to keep constraints together,
     /// the iterative process is stopped if this tolerance (or max.number of iterations ) is reached
     /// \param tol tolerance (in m) for assembly constraints
-    void SetSolverGeometricTolerance(double tol);
+    //##CC void SetSolverGeometricTolerance(double tol);
 
     /// Sets tolerance for satisfying constraints at the velocity level.
     /// The tolerance specified here is in fact a tolerance at the force level.
@@ -858,13 +858,13 @@ namespace frydom {
     /// \param cable fea cable to be added
     void RemoveFEACable(std::shared_ptr<FrFEACable> cable);
 
-    /// Add a lumped mass node to the offshore system
-    void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);
-
-    /// Add a lumped mass element to the offshore system
-    void AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element);
-
-    void AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable);
+//    /// Add a lumped mass node to the offshore system
+//    void AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node);
+//
+//    /// Add a lumped mass element to the offshore system
+//    void AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element);
+//
+//    void AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable);
 
    private:
 

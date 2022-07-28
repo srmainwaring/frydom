@@ -25,6 +25,8 @@
 #include "FrLoggable.h"
 #include "FrEventLogger.h"
 
+#include "FrCastorManager.h"
+
 
 #define META_FILE_NAME "meta.json"
 #define DATE_FOLDER_FORMAT "%Y-%m-%d_%Hh%Mm%Ss"
@@ -38,7 +40,8 @@ namespace frydom {
       m_log_CSV(true),
       m_system(system),
       m_nfreq_output(1),
-      m_ifreq_output(0) { // FIXME : Du coup LogManager devrait etre un TreeNode...
+      m_ifreq_output(0),
+      m_castor(system) { // FIXME : Du coup LogManager devrait etre un TreeNode...
 
     Add(system);
     m_log_folder = FrFileSystem::join({system->config_file().GetLogFolder(), logFolderName});
@@ -49,7 +52,7 @@ namespace frydom {
     event_logger::info("LogManager", "", "Logging into directory \"{}\".", m_log_folder);
 
     // Event Logger initialization
-    event_logger::init(system, "FRYDOM", FrFileSystem::join({m_log_folder, "events.txt"}));
+    event_logger::init(system, GetSystem()->GetName(), FrFileSystem::join({m_log_folder, "events.txt"}));
 
   }
 
@@ -94,7 +97,7 @@ namespace frydom {
     j["username@hostname"] = FrFileSystem::get_login() + "@" + FrFileSystem::get_hostname();
     j["project_name"] = GetSystem()->GetName();
     j["frydom_git_revision"] = git::GetNormalizedVersionString();
-    j["platform"] = GetPlatformName(); //##CC GetPlatformName();
+    j["platform"] = GetPlatformName();
 
 
     std::ofstream file;
@@ -102,6 +105,10 @@ namespace frydom {
     file << j.dump(2);
     file.close();
 
+  }
+
+  void FrLogManager::WriteCastorFile() {
+    m_castor.Write(m_log_folder);
   }
 
   std::string FrLogManager::now() { // TODO : voir a faire avec fmt...
@@ -152,9 +159,11 @@ namespace frydom {
     return format;
   }
 
-  void FrLogManager::Initialize() { // TODO : retirer la necessite d'avoir cette methode friend de FrLoggableBase
+  FrCastorManager& FrLogManager::GetCastorParameters() {
+    return m_castor;
+  }
 
-//    auto path_manager = GetSystem()->GetPathManager();
+  void FrLogManager::Initialize() { // TODO : retirer la necessite d'avoir cette methode friend de FrLoggableBase
 
     if (m_log_CSV) {
       event_logger::info("FrLogManager", "", "CSV logging *IS* activated");
@@ -193,6 +202,7 @@ namespace frydom {
       obj->SendLogMessages();
 
     }
+    WriteCastorFile();
   }
 
   void FrLogManager::StepFinalize() {
@@ -216,6 +226,10 @@ namespace frydom {
   }
 
   void FrLogManager::NoCSVLlog() { m_log_CSV = false; }
+
+  void FrLogManager::LogCSV(bool val) { m_log_CSV = val; }
+
+  void FrLogManager::LogHDF5(bool val) { m_log_HDF5 = true; }
 
   unsigned int FrLogManager::GetNumberOfLoggables() const {
     return m_loggable_list.size();

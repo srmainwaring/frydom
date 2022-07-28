@@ -144,7 +144,7 @@ namespace frydom {
 
     void switch_to_simulation_formatter(FrOffshoreSystem *system);
 
-    void back_to_default_formatter();
+    void back_to_default_formatter(const std::string& loggerName);
 
     void reset_to_default_logger();
 

@@ -5,8 +5,10 @@ set(MPFR_LIBRARIES "")
 include(FetchContent)
 
 FetchContent_Declare(GeographicLib
-        GIT_REPOSITORY ${geographiclib_URL}
-        GIT_TAG ${geographiclib_TAG}
+        URL ${geographiclib_URL}
+#        GIT_TAG ${geographiclib_TAG}
+        PATCH_COMMAND patch -p1 < ${PROJECT_SOURCE_DIR}/cmake/patches/${geographiclib_PATCH}
+#        PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${geographiclib_PATCH}"
 #        PATCH_COMMAND patch < "${PROJECT_SOURCE_DIR}/cmake/patches/${geographiclib_PATCH}"
         )
 
@@ -16,9 +18,6 @@ if (NOT geographiclib_POPULATED)
     FetchContent_Populate(GeographicLib)
 
     # GeographicLib BUILD OPTIONS
-    set(GEOGRAPHICLIB_LIB_TYPE SHARED CACHE BOOL "")
-    set(GEOGRAPHICLIB_DOCUMENTATION OFF CACHE BOOL "")
-
     add_subdirectory(${geographiclib_SOURCE_DIR} ${geographiclib_BINARY_DIR})
 
 endif ()

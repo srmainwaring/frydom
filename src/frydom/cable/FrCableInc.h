@@ -16,7 +16,6 @@
 #include "frydom/cable/catenary/FrCatenaryLine.h"
 #include "frydom/cable/catenary/FrCatenaryLineSeabed.h"
 #include "frydom/cable/mooring_components/FrMooringBuoy.h"
-#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/cable/fea/FrFEACable.h"
 #include "frydom/cable/fea/FrFEALink.h"

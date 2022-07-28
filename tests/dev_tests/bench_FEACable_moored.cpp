@@ -161,11 +161,9 @@ int main() {
 
   // Solver
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(1000);
-  system.SetSolverMaxIterStab(1000);
+  system.SetSolverMaxIterations(1000);
   system.SetSolverForceTolerance(1e-7);
-  system.SetSolverDiagonalPreconditioning(true);
+  //system.SetSolverDiagonalPreconditioning(true);
 
   system.SetTimeStep(0.01);
 

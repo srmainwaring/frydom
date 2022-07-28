@@ -47,8 +47,8 @@ namespace frydom {
 
   void FrUnitQuaternion::Set(double q0, double q1, double q2, double q3, bool non_normalized, FRAME_CONVENTION fc) {
     if (IsNED(fc))
-      internal::SwapQuaternionElementsFrameConvention(q0, q1, q2,
-                                                      q3); // Internal chrono quaternion must always be in NWU convention
+      // Internal chrono quaternion must always be in NWU convention
+      internal::SwapQuaternionElementsFrameConvention(q0, q1, q2, q3);
     m_chronoQuaternion.Set(q0, q1, q2, q3);
     if (non_normalized) Normalize();
     else
@@ -64,13 +64,13 @@ namespace frydom {
   void FrUnitQuaternion::Set(const Direction &axis, double angleRAD, FRAME_CONVENTION fc) {
     assert((axis.norm() - 1.) < 1e-8);
     auto axisTmp = axis;
-    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(axisTmp);
+    if (IsNED(fc)) axisTmp = internal::SwapFrameConvention<Direction>(axisTmp);
     m_chronoQuaternion = chrono::Q_from_AngAxis(angleRAD, internal::Vector3dToChVector(axisTmp));
     assert(IsRotation());
   }
 
-  void FrUnitQuaternion::Set(const mathutils::Matrix33<double> &matrix, FRAME_CONVENTION fc) {
-    chrono::ChMatrix33<double> chronoMatrix = internal::Matrix33ToChMatrix33(matrix);
+  void FrUnitQuaternion::Set(const Matrix33 &matrix, FRAME_CONVENTION fc) {
+    chrono::ChMatrix33<double> chronoMatrix = matrix;
     auto quaternion = chronoMatrix.Get_A_quaternion();
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quaternion);
     m_chronoQuaternion = quaternion;
@@ -105,28 +105,31 @@ namespace frydom {
   void FrUnitQuaternion::Get(Direction &axis, double &angleRAD, FRAME_CONVENTION fc) const {
     chrono::ChVector<double> chronoAxis;
     chrono::Q_to_AngAxis(m_chronoQuaternion, angleRAD, chronoAxis); // In NWU
-    axis = internal::ChVectorToVector3d<Direction>(chronoAxis); // In NWU
-    if (IsNED(fc)) internal::SwapFrameConvention<Direction>(axis);
+    axis = chronoAxis.eigen(); // In NWU
+    if (IsNED(fc)) axis = internal::SwapFrameConvention<Direction>(axis);
   }
 
   Direction FrUnitQuaternion::GetXAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = internal::ChVectorToVector3d<Direction>(quat.GetXaxis());
+    auto ch_axis = quat.GetXaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetYAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = internal::ChVectorToVector3d<Direction>(quat.GetYaxis());
+    auto ch_axis = quat.GetYaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
   Direction FrUnitQuaternion::GetZAxis(FRAME_CONVENTION fc) const {
     auto quat = m_chronoQuaternion;
     if (IsNED(fc)) internal::SwapChQuaternionFrameConvention(quat);
-    auto axis = internal::ChVectorToVector3d<Direction>(quat.GetZaxis());
+    auto ch_axis = quat.GetZaxis();
+    auto axis = ch_axis.eigen();
     return axis;
   }
 
@@ -194,31 +197,31 @@ namespace frydom {
     return quaternion.cout(os);
   }
 
-  mathutils::Matrix33<double> FrUnitQuaternion::GetRotationMatrix() const {
+  Matrix33 FrUnitQuaternion::GetRotationMatrix() const {
     chrono::ChMatrix33<double> chronoMatrix;
     chronoMatrix.Set_A_quaternion(m_chronoQuaternion);
-    return internal::ChMatrix33ToMatrix33(chronoMatrix);
+    return chronoMatrix;
   }
 
-  mathutils::Matrix33<double> FrUnitQuaternion::GetInverseRotationMatrix() const {
+  Matrix33 FrUnitQuaternion::GetInverseRotationMatrix() const {
     chrono::ChMatrix33<double> chronoMatrix;
     chronoMatrix.Set_A_quaternion(m_chronoQuaternion.GetInverse());
-    return internal::ChMatrix33ToMatrix33(chronoMatrix);
+    return chronoMatrix;
   }
 
-  mathutils::Matrix33<double> FrUnitQuaternion::LeftMultiply(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrUnitQuaternion::LeftMultiply(const Matrix33 &matrix) const {
     return GetRotationMatrix() * matrix;
   }
 
-  mathutils::Matrix33<double> FrUnitQuaternion::RightMultiply(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrUnitQuaternion::RightMultiply(const Matrix33 &matrix) const {
     return matrix * GetRotationMatrix();
   }
 
-  mathutils::Matrix33<double> FrUnitQuaternion::LeftMultiplyInverse(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrUnitQuaternion::LeftMultiplyInverse(const Matrix33 &matrix) const {
     return GetInverseRotationMatrix() * matrix;
   }
 
-  mathutils::Matrix33<double> FrUnitQuaternion::RightMultiplyInverse(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrUnitQuaternion::RightMultiplyInverse(const Matrix33 &matrix) const {
     return matrix * GetInverseRotationMatrix();
   }
 
@@ -296,11 +299,11 @@ namespace frydom {
     return angle;
   }
 
-  mathutils::Matrix33<double> FrRotation::GetRotationMatrix() const {
+  Matrix33 FrRotation::GetRotationMatrix() const {
     return m_frQuaternion.GetRotationMatrix();
   }
 
-  mathutils::Matrix33<double> FrRotation::GetInverseRotationMatrix() const {
+  Matrix33 FrRotation::GetInverseRotationMatrix() const {
     return m_frQuaternion.GetInverseRotationMatrix();
   }
 
@@ -312,14 +315,14 @@ namespace frydom {
     assert(mathutils::IsClose<double>(yaxis.dot(zaxis), 0.));
 
     // Verifying the directions are unit vectors
-    assert(xaxis.IsUnit());
-    assert(yaxis.IsUnit());
-    assert(zaxis.IsUnit());
+    assert(xaxis.norm() - 1 == 0);
+    assert(yaxis.norm() - 1 == 0);
+    assert(zaxis.norm()  -1 == 0);
 
     // Verifying the directions form a direct frame
     assert((xaxis.cross(yaxis) - zaxis).isZero());
 
-    mathutils::Matrix33<double> matrix;
+    Matrix33 matrix;
     matrix << xaxis.Getux(), yaxis.Getux(), zaxis.Getux(),
         xaxis.Getuy(), yaxis.Getuy(), zaxis.Getuy(),
         xaxis.Getuz(), yaxis.Getuz(), zaxis.Getuz();
@@ -454,19 +457,19 @@ namespace frydom {
     return m_frQuaternion == other.m_frQuaternion;
   }
 
-  mathutils::Matrix33<double> FrRotation::LeftMultiply(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrRotation::LeftMultiply(const Matrix33 &matrix) const {
     return GetRotationMatrix() * matrix;
   }
 
-  mathutils::Matrix33<double> FrRotation::LeftMultiplyInverse(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrRotation::LeftMultiplyInverse(const Matrix33 &matrix) const {
     return GetInverseRotationMatrix() * matrix;
   }
 
-  mathutils::Matrix33<double> FrRotation::RightMultiply(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrRotation::RightMultiply(const Matrix33 &matrix) const {
     return matrix * GetRotationMatrix();
   }
 
-  mathutils::Matrix33<double> FrRotation::RightMultiplyInverse(const mathutils::Matrix33<double> &matrix) const {
+  Matrix33 FrRotation::RightMultiplyInverse(const Matrix33 &matrix) const {
     return matrix * GetInverseRotationMatrix();
   }
 

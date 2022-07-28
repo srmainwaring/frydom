@@ -167,6 +167,8 @@ namespace frydom {
 
     std::unique_ptr<FrDOFMask> m_DOFMask;
 
+    std::shared_ptr<FrDOFMaskLink> m_DOFLink;
+
    public:
 
     /// Default constructor
@@ -290,14 +292,14 @@ namespace frydom {
 
     /// Add an external force to the body
     /// \param force force to be added to the body
-    void AddExternalForce(std::shared_ptr<FrForce> force);
+    virtual void AddExternalForce(std::shared_ptr<FrForce> force);
 
     /// Remove an external force to the body
     /// \param force force to be removed to the body
-    void RemoveExternalForce(std::shared_ptr<FrForce> force);
+    virtual void RemoveExternalForce(std::shared_ptr<FrForce> force);
 
     /// Remove all forces from the body
-    void RemoveAllForces();
+    virtual void RemoveAllForces();
 
     /// Remove a node from the body
     void RemoveNode(std::shared_ptr<FrNode> node);
@@ -413,12 +415,15 @@ namespace frydom {
     /// \param bodyPoint origin of the frame to return
     /// \param fc frame convention (NED/NWU)
     /// \return body frame
-    FrFrame GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc);
+    FrFrame GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) const;
 
     /// Get a frame object whose origin is locate at COG and orientation is that of the body reference frame
-    /// \param fc frame convention (NED/NWU)
     /// \return body frame
-    FrFrame GetFrameAtCOG(FRAME_CONVENTION fc);
+    FrFrame GetFrameAtCOG() const;
+
+    /// Get a frame object whose origin is locate at COG and orientation is that of the heading reference frame
+    /// \return body frame
+    FrFrame GetHeadingFrame() const;
 
 
     /// Get the position in world frame of a body fixed point whose position is given in body reference frame
@@ -606,6 +611,8 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return COG velocity in body reference frame
     Velocity GetCOGVelocityInBody(FRAME_CONVENTION fc) const;
+
+    Velocity GetVelocityInHeadingFrame(FRAME_CONVENTION fc) const;
 
     /// Set the acceleration of the body COG with a vector expressed in WORLD frame
     /// \param worldAcc body acceleration in world reference frame
@@ -824,7 +831,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in body reference frame
     template<class Vector>
-    Vector &ProjectVectorInBody(Vector &worldVector, FRAME_CONVENTION fc) const {
+    Vector ProjectVectorInBody(Vector &worldVector, FRAME_CONVENTION fc) const {
       worldVector = GetQuaternion().GetInverse().Rotate<Vector>(worldVector, fc);
       return worldVector;
     }
@@ -835,7 +842,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in world reference frame
     template<class Vector>
-    Vector ProjectGenerallizedVectorInWorld(const Vector &bodyVector, FRAME_CONVENTION fc) const {
+    Vector ProjectGeneralizedVectorInWorld(const Vector &bodyVector, FRAME_CONVENTION fc) const {
       return GetQuaternion().Rotate<Vector>(bodyVector, fc);
     }
 
@@ -845,7 +852,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in world reference frame
     template<class Vector>
-    Vector &ProjectGenerallizedVectorInWorld(Vector &bodyVector, FRAME_CONVENTION fc) const {
+    Vector &ProjectGeneralizedVectorInWorld(Vector &bodyVector, FRAME_CONVENTION fc) const {
       bodyVector = GetQuaternion().Rotate<Vector>(bodyVector, fc);
       return bodyVector;
     }
@@ -856,7 +863,7 @@ namespace frydom {
     /// \param fc frame convention (NED/NWU)
     /// \return vector in body reference frame
     template<class Vector>
-    Vector ProjectGenerallizedVectorInBody(const Vector &worldVector, FRAME_CONVENTION fc) const {
+    Vector ProjectGeneralizedVectorInBody(const Vector &worldVector, FRAME_CONVENTION fc) const {
       return GetQuaternion().GetInverse().Rotate<Vector>(worldVector, fc);
     }
 
@@ -987,6 +994,8 @@ namespace frydom {
     friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(std::shared_ptr<FrBody> body);
 
     friend std::shared_ptr<internal::FrBodyBase> internal::GetChronoBody(FrBody *body);
+
+    friend FrDOFMask;
 
   };
 

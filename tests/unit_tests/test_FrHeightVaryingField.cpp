@@ -47,7 +47,7 @@ TEST(FrHeightVaryingField, SetAndGet) {
 
   for (int i=0; i<heights.size();i++) {
     auto dirTmp = direction;
-    if (IsNED(fc)) internal::SwapFrameConvention(dirTmp);
+    if (IsNED(fc)) dirTmp = internal::SwapFrameConvention(dirTmp);
     if (IsCOMEFROM(dc)) dirTmp = -dirTmp;
     double velocityOut = field.GetFluxVelocityInWorld(Position(0,0,heights[i]), fc).transpose() * dirTmp;
     EXPECT_FLOAT_EQ(velocities[i], velocityOut);

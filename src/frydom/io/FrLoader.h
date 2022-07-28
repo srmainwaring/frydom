@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "MathUtils/LookupTable1D.h"
 #include "MathUtils/Vector3d.h"
 
 #include "frydom/core/common/FrConvention.h"

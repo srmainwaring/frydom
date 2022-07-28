@@ -103,15 +103,15 @@ namespace frydom {
                                      const unsigned int off_L,
                                      const chrono::ChVectorDynamic<> &L,
                                      const chrono::ChVectorDynamic<> &Qc) {
-      Variables().Get_qb().PasteClippedMatrix(v, off_v, 0, 6, 1, 0, 0);
-      Variables().Get_fb().PasteClippedMatrix(R, off_v, 0, 6, 1, 0, 0);
+      Variables().Get_qb() = v.segment(off_v, 6);
+      Variables().Get_fb() = R.segment(off_v, 6);
     }
 
     void FrBodyBase::IntFromDescriptor(const unsigned int off_v,
                                        chrono::ChStateDelta &v,
                                        const unsigned int off_L,
                                        chrono::ChVectorDynamic<> &L) {
-      v.PasteMatrix(Variables().Get_qb(), off_v, 0);
+        v.segment(off_v, 6) = Variables().Get_qb();
     }
 
     //
@@ -121,6 +121,8 @@ namespace frydom {
     chrono::ChVariables &FrBodyBase::Variables() {
 
       if (m_variables_ptr) {
+
+
         return *m_variables_ptr.get();
       } else {
         return chrono::ChBody::variables;
@@ -132,8 +134,10 @@ namespace frydom {
     }
 
     void FrBodyBase::SetVariables(const std::shared_ptr<chrono::ChVariables> new_variables) {
-      m_variables_ptr = new_variables;
-      variables.SetDisabled(true);
+      if (variables.IsActive()) {
+        m_variables_ptr = new_variables;
+        variables.SetDisabled(true);
+      }
     }
 
     void FrBodyBase::InjectVariables(chrono::ChSystemDescriptor &mdescriptor) {
@@ -142,18 +146,18 @@ namespace frydom {
     }
 
     void FrBodyBase::VariablesFbReset() {
-      Variables().Get_fb().FillElem(0.0);
+      Variables().Get_fb().setZero();
     }
 
     void FrBodyBase::VariablesFbLoadForces(double factor) {
       // add applied forces to 'fb' vector
-      this->Variables().Get_fb().PasteSumVector(Xforce * factor, 0, 0);
+      this->Variables().Get_fb().segment(0, 3) += factor * Xforce.eigen();
 
       // add applied torques to 'fb' vector, including gyroscopic torque
       if (this->GetNoGyroTorque())
-        this->Variables().Get_fb().PasteSumVector((Xtorque) * factor, 3, 0);
+        this->Variables().Get_fb().segment(3, 3) += factor * Xtorque.eigen();
       else
-        this->Variables().Get_fb().PasteSumVector((Xtorque - gyro) * factor, 3, 0);
+        this->Variables().Get_fb().segment(3, 3) += factor * (Xtorque - gyro).eigen();
     }
 
     void FrBodyBase::VariablesFbIncrementMq() {
@@ -161,16 +165,16 @@ namespace frydom {
     }
 
     void FrBodyBase::VariablesQbLoadSpeed() {
-      this->Variables().Get_qb().PasteVector(GetCoord_dt().pos, 0, 0);
-      this->Variables().Get_qb().PasteVector(GetWvel_loc(), 3, 0);
+      this->Variables().Get_qb().segment(0 ,3) = GetCoord_dt().pos.eigen();
+      this->Variables().Get_qb().segment(3, 3) = GetWvel_loc().eigen();
     }
 
     void FrBodyBase::VariablesQbSetSpeed(double step) {
       chrono::ChCoordsys<> old_coord_dt = this->GetCoord_dt();
 
       // from 'qb' vector, sets body speed, and updates auxiliary data
-      this->SetPos_dt(this->Variables().Get_qb().ClipVector(0, 0));
-      this->SetWvel_loc(this->Variables().Get_qb().ClipVector(3, 0));
+      this->SetPos_dt(this->Variables().Get_qb().segment(0, 3));
+      this->SetPos_dt(this->Variables().Get_qb().segment(3, 3));
 
       // apply limits (if in speed clamping mode) to speeds.
       ClampSpeed();
@@ -192,8 +196,8 @@ namespace frydom {
       // Updates position with incremental action of speed contained in the
       // 'qb' vector:  pos' = pos + dt * speed   , like in an Eulero step.
 
-      chrono::ChVector<> newspeed = Variables().Get_qb().ClipVector(0, 0);
-      chrono::ChVector<> newwel = Variables().Get_qb().ClipVector(3, 0);
+      chrono::ChVector<> newspeed(Variables().Get_qb().segment(0, 3));
+      chrono::ChVector<> newwel(Variables().Get_qb().segment(3, 3));
 
       // ADVANCE POSITION: pos' = pos + dt * vel
       this->SetPos(this->GetPos() + newspeed * dt_step);
@@ -223,7 +227,7 @@ namespace frydom {
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),
       m_chronoBody(std::make_shared<internal::FrBodyBase>(this)),
-      m_DOFMask(std::make_unique<FrDOFMask>()) {
+      m_DOFMask(std::make_unique<FrDOFMask>(this)) {
 
     m_chronoBody->SetMaxSpeed(DEFAULT_MAX_SPEED);
     m_chronoBody->SetMaxWvel(DEFAULT_MAX_ROTATION_SPEED);
@@ -387,7 +391,7 @@ namespace frydom {
 
   FrInertiaTensor FrBody::GetInertiaTensor() const {
     double Ixx, Iyy, Izz, Ixy, Ixz, Iyz;
-    SplitMatrix33IntoCoeffs(internal::ChMatrix33ToMatrix33(m_chronoBody->GetInertia()),
+    SplitMatrix33IntoCoeffs(m_chronoBody->GetInertia(),
                             Ixx, Ixy, Ixz, Ixy, Iyy, Iyz, Ixz, Iyz, Izz);
 
     return {GetMass(), Ixx, Iyy, Izz, Ixy, Ixz, Iyz, GetCOG(NWU), NWU};
@@ -440,7 +444,7 @@ namespace frydom {
   }
 
   std::shared_ptr<FrContactParamsSMC> FrBody::GetContactParamsSMC() {
-    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT) {
+    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT) {
       event_logger::error(GetTypeName(), GetName(),
                           "Attemping to get non-NSC contact parameters while body is NSC");
       exit(EXIT_FAILURE);
@@ -605,8 +609,8 @@ namespace frydom {
   }
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
-    auto force = internal::ChVectorToVector3d<Force>(m_chronoBody->Get_Xforce());
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(force);
+    Force force = m_chronoBody->Get_Xforce().eigen();
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(force);
     return force;
   }
 
@@ -615,8 +619,8 @@ namespace frydom {
   }
 
   Torque FrBody::GetTotalExtTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
-    auto torque = internal::ChVectorToVector3d<Torque>(m_chronoBody->Get_Xtorque());
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(torque);
+    auto torque = m_chronoBody->Get_Xtorque().eigen();
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(torque);
     return torque;
   }
 
@@ -657,14 +661,14 @@ namespace frydom {
   }
 
   Position FrBody::GetCOG(FRAME_CONVENTION fc) const {
-    Position cogPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetFrame_COG_to_REF().GetPos()); // In NWU
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
+    Position cogPos = m_chronoBody->GetFrame_COG_to_REF().GetPos().eigen(); // In NWU
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 
   Position FrBody::GetPosition(FRAME_CONVENTION fc) const {
-    Position refPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetFrame_REF_to_abs().GetPos());
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(refPos);
+    Position refPos = m_chronoBody->GetFrame_REF_to_abs().GetPos().eigen();
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(refPos);
     return refPos;
   }
 
@@ -745,15 +749,24 @@ namespace frydom {
     SetRotation(worldFrame.GetQuaternion());
   }
 
-  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) {
+  FrFrame FrBody::GetFrameAtPoint(const Position &bodyPoint, FRAME_CONVENTION fc) const {
     FrFrame pointFrame;
     pointFrame.SetPosition(GetPointPositionInWorld(bodyPoint, fc), fc);
     pointFrame.SetRotation(GetQuaternion());
     return pointFrame;
   }
 
-  FrFrame FrBody::GetFrameAtCOG(FRAME_CONVENTION fc) {
-    return GetFrameAtPoint(GetCOG(fc), fc);
+  FrFrame FrBody::GetFrameAtCOG() const {
+    return GetFrameAtPoint(GetCOG(NWU), NWU);
+  }
+
+  FrFrame FrBody::GetHeadingFrame() const {
+    FrFrame headingFrame;
+    double phi, theta, psi;
+    GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+    headingFrame.SetRotZ_RADIANS(psi, NWU);
+    headingFrame.SetPosition(GetCOGPositionInWorld(NWU), NWU);
+    return headingFrame;
   }
 
   Position FrBody::GetPointPositionInWorld(const Position &bodyPos, FRAME_CONVENTION fc) const {
@@ -766,7 +779,7 @@ namespace frydom {
 
   Position FrBody::GetCOGPositionInWorld(FRAME_CONVENTION fc) const {
     Position cogPos = internal::ChVectorToVector3d<Position>(m_chronoBody->GetPos());
-    if (IsNED(fc)) internal::SwapFrameConvention<Position>(cogPos);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Position>(cogPos);
     return cogPos;
   }
 
@@ -861,7 +874,7 @@ namespace frydom {
 
   Velocity FrBody::GetLinearVelocityInWorld(FRAME_CONVENTION fc) const {
     Velocity bodyVel = internal::ChVectorToVector3d<Velocity>(m_chronoBody->GetFrame_REF_to_abs().GetPos_dt());
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(bodyVel);
+    if (IsNED(fc)) return internal::SwapFrameConvention<Velocity>(bodyVel);
     return bodyVel;
   }
 
@@ -871,7 +884,7 @@ namespace frydom {
 
   void FrBody::SetVelocityInWorldNoRotation(const Velocity &worldVel, FRAME_CONVENTION fc) {
     auto worldVelTmp = worldVel;
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(worldVelTmp);
+    if (IsNED(fc)) worldVelTmp = internal::SwapFrameConvention<Velocity>(worldVelTmp);
     chrono::ChCoordsys<double> coord;
     coord.pos = internal::Vector3dToChVector(worldVelTmp);
     coord.rot.SetNull();
@@ -891,6 +904,10 @@ namespace frydom {
 
   Velocity FrBody::GetCOGVelocityInBody(FRAME_CONVENTION fc) const {
     return ProjectVectorInBody<Velocity>(GetCOGLinearVelocityInWorld(fc), fc);
+  }
+
+  Velocity FrBody::GetVelocityInHeadingFrame(FRAME_CONVENTION fc) const {
+    return GetHeadingFrame().ProjectVectorParentInFrame(GetCOGLinearVelocityInWorld(fc), fc);
   }
 
   void FrBody::SetAccelerationInWorldNoRotation(const Acceleration &worldAcc, FRAME_CONVENTION fc) {
@@ -1116,31 +1133,42 @@ namespace frydom {
 
     // TODO : voir si n'accepte pas de definir des offset sur les ddl bloques...
 
-    // Getting the markers that enter in the link
+    if (m_DOFLink) {
+      // updating the link with the new mask
+      m_DOFLink->SetDOFMask(m_DOFMask.get());
+      m_DOFLink->Initialize();
+    }
+    else {
 
-    // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
-    auto bodyNode = NewNode(GetName() + "_locking_node");
+      // Getting the markers that enter in the link
 
-    auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
-    auto bodyOrientationInWorld = GetQuaternion();
+      // Body marker placed at the current COG body position  // TODO : voir si on se donne d'autres regles que le COG...
+      auto bodyNode = NewNode(GetName() + "_locking_node");
 
-    auto bodyNodeFrameInWorld = FrFrame(cogPositionInWorld, bodyOrientationInWorld, NWU);
-    bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
+      auto cogPositionInWorld = GetCOGPositionInWorld(NWU);
+      auto bodyOrientationInWorld = GetQuaternion();
 
-    // World Marker placed at the current COG body position
-    auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
-    auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
-    worldNode->SetFrameInBody(bodyNodeFrameInWorld);
+      auto bodyNodeFrameInWorld = FrFrame(cogPositionInWorld, bodyOrientationInWorld, NWU);
+      bodyNode->SetFrameInWorld(bodyNodeFrameInWorld);
 
-    // Creating the link
-    auto DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), worldNode, bodyNode);
+      // World Marker placed at the current COG body position
+      auto node_numbers = GetSystem()->GetWorldBody()->GetNodeList().size();
+      auto worldNode = GetSystem()->GetWorldBody()->NewNode("world_body_locking_node" + std::to_string(node_numbers));
+      worldNode->SetFrameInBody(bodyNodeFrameInWorld);
 
-    // Initializing the link with the DOFMask
-    DOFLink->SetDOFMask(m_DOFMask.get());
+      // Creating the link
+      m_DOFLink = std::make_shared<FrDOFMaskLink>(GetName() + "_locking_constraint", GetSystem(), bodyNode, worldNode);
 
-    // Adding the link to the system
-    GetSystem()->Add(DOFLink);
+      // Initializing the link with the DOFMask
+      m_DOFLink->SetDOFMask(m_DOFMask.get());
 
+      bodyNode->LogThis(m_DOFMask->IsLogged());
+      worldNode->LogThis(m_DOFMask->IsLogged());
+      m_DOFLink->LogThis(m_DOFMask->IsLogged());
+
+      // Adding the link to the system
+      GetSystem()->Add(m_DOFLink);
+    }
   }
 
   FrDOFMask *FrBody::GetDOFMask() {
@@ -1206,14 +1234,29 @@ namespace frydom {
          [this]() { return GetLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("LinearAccelerationInBody", "m/s2",
+         fmt::format("body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("COGLinearAccelerationInWorld", "m/s2",
          fmt::format("COG body linear acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetCOGLinearAccelerationInWorld(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("COGLinearAccelerationInBody", "m/s2",
+         fmt::format("COG body linear acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetCOGAccelerationInBody(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("AngularAccelerationInWorld", "rad/s2",
          fmt::format("body angular acceleration in the world reference frame in {}", GetLogFC()),
          [this]() { return GetAngularAccelerationInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("AngularAccelerationInBody", "rad/s2",
+         fmt::format("body angular acceleration in the body reference frame in {}", GetLogFC()),
+         [this]() { return GetAngularAccelerationInBody(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("TotalExtForceInBody", "N",

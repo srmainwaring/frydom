@@ -81,8 +81,8 @@ namespace frydom {
   }
 
   void FrEquilibriumFrame::SetVelocityInWorld(const Velocity &velocity, FRAME_CONVENTION fc) {
-    if (IsNED(fc)) internal::SwapFrameConvention(velocity);
     m_velocity = velocity;
+    if (IsNED(fc)) m_velocity = internal::SwapFrameConvention(m_velocity);
     m_initSpeedFromBody = false;
   }
 
@@ -105,6 +105,34 @@ namespace frydom {
 
   Velocity FrEquilibriumFrame::GetFrameVelocityInFrame(FRAME_CONVENTION fc) const {
     return m_frame.ProjectVectorParentInFrame<Velocity>(m_velocity, fc);
+  }
+
+  GeneralizedAcceleration FrEquilibriumFrame::GetGeneralizedAccelerationInWorld(FRAME_CONVENTION fc) const {
+    return GeneralizedAcceleration(c_LinearAcceleration, c_AngularAcceleration);
+  }
+
+  GeneralizedAcceleration FrEquilibriumFrame::GetGeneralizedAccelerationInFrame(FRAME_CONVENTION fc) {
+    auto linearAcceleration = GetLinearAccelerationInFrame(fc);
+    auto angularAcceleration = GetAngularAccelerationInFrame(fc);
+    return GeneralizedAcceleration(linearAcceleration, angularAcceleration);
+  }
+
+  Acceleration FrEquilibriumFrame::GetLinearAccelerationInWorld(FRAME_CONVENTION fc) const {
+    return c_LinearAcceleration;
+  }
+
+  Acceleration FrEquilibriumFrame::GetLinearAccelerationInFrame(FRAME_CONVENTION fc) {
+    auto accelerationInWorld = GetLinearAccelerationInWorld(fc);
+    return m_frame.ProjectVectorParentInFrame(accelerationInWorld, fc);
+  }
+
+  AngularAcceleration FrEquilibriumFrame::GetAngularAccelerationInWorld(FRAME_CONVENTION fc) const {
+    return c_AngularAcceleration;
+  }
+
+  AngularAcceleration FrEquilibriumFrame::GetAngularAccelerationInFrame(FRAME_CONVENTION fc) {
+    auto accelerationInWorld = GetAngularAccelerationInWorld(fc);
+    return m_frame.ProjectVectorParentInFrame(accelerationInWorld, fc);
   }
 
   FrFrame FrEquilibriumFrame::GetPerturbationFrame() {
@@ -153,7 +181,7 @@ namespace frydom {
 
   double FrEquilibriumFrame::GetDriftAngle(FRAME_CONVENTION fc, ANGLE_UNIT unit) const {
     auto velocity = GetFrameVelocityInFrame(fc);
-    return velocity.GetProjectedAngleAroundZ(unit);
+    return GetProjectedAngleAroundZ(velocity, unit);
   }
 
   void FrEquilibriumFrame::Initialize() {
@@ -181,6 +209,7 @@ namespace frydom {
     }
 
     c_prevTime = time;
+
   }
 
   void FrEquilibriumFrame::StepFinalize() {
@@ -224,6 +253,12 @@ namespace frydom {
          [this]() { return GetPerturbationFrame().GetPosition(GetLogFC()); });
 
     msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("PerturbationVelocity", "m/s", fmt::format(
+             "Perturbation velocity between the equilibrium frame and the body in the world reference frame in {}",
+             GetLogFC()),
+         [this]() { return GetPerturbationVelocityInWorld(GetLogFC()); });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
         ("PerturbationOrientation", "rad", fmt::format(
             "Perturbation orientation between the equilibrium frame and the body frame in the world reference frame in {}",
             GetLogFC()),
@@ -232,6 +267,25 @@ namespace frydom {
            GetPerturbationFrame().GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, GetLogFC());
            return Vector3d<double>(phi, theta, psi);
          });
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("BodyNodeVelocityInWorld", "m/s", fmt::format(
+            "Velocity of the node attached to the body in World reference frame in {}",
+            GetLogFC()),
+                [this]() {return m_bodyNode->GetVelocityInWorld(GetLogFC());}
+             );
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("LinearAccelerationInWorld", "m/s^2", fmt::format(
+            "Acceleration of the equilibrium frame in World reference frame in {}", GetLogFC()),
+                [this]() { return GetLinearAccelerationInWorld(GetLogFC()); }
+            );
+
+    msg->AddField<Eigen::Matrix<double, 3, 1>>
+        ("AngularAccelerationInWorld", "rad/s^2", fmt::format(
+            "Angular acceleration of the equilibrium frame in World reference frame in {}", GetLogFC()),
+                [this]() {return GetAngularAccelerationInWorld(GetLogFC()); }
+            );
 
     msg->AddField<double>
         ("DriftAngle", "rad", fmt::format(
@@ -297,7 +351,12 @@ namespace frydom {
     auto bodyAngularVelocity = m_bodyNode->GetAngularVelocityInWorld(NWU).GetWz();
 
     double torque;
-    torque = (bodyPsi - psi) * m_stiffness + (bodyAngularVelocity - m_angularVelocity) * m_damping;
+    auto delta_angle = (bodyPsi - psi);
+    delta_angle = Normalize__PI_PI(delta_angle);
+    torque = delta_angle * m_stiffness + (bodyAngularVelocity - m_angularVelocity) * m_damping;
+
+    c_LinearAcceleration = force;
+    c_AngularAcceleration = {0, 0, torque};
 
     m_velocity += force * (time - m_prevTime);
     position += m_velocity * (time - m_prevTime);
@@ -338,6 +397,7 @@ namespace frydom {
                                         const std::shared_ptr<FrBody> &body,
                                         double cutoffTime,
                                         double dampingRatio) {
+
     auto eqFrame = std::make_shared<FrEqFrameSpringDamping>(name, body.get(),
                                                             body->GetCOG(NWU), NWU, cutoffTime, dampingRatio);
     body->GetSystem()->Add(eqFrame);

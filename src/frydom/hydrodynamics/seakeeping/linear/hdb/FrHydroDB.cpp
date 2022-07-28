@@ -25,6 +25,13 @@ namespace frydom {
 
   }
 
+  FrHydroDB::FrHydroDB(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) : m_HDB(hdb) {
+
+    // Creation of the mapper object for hydrodynamic bodies.
+    m_mapper = std::make_unique<FrHydroMapper>();
+
+  };
+
   FrBEMBody *FrHydroDB::GetBody(FrBody *body) {
     return m_mapper->GetBEMBody(body);
   }
@@ -35,6 +42,14 @@ namespace frydom {
 
   FrBody *FrHydroDB::GetBody(FrBEMBody *body) {
     return m_mapper->GetBody(body);
+  }
+
+  int FrHydroDB::GetBEMBodyNumber() {
+
+    // This method returns the number of BEM bodies.
+
+    return m_HDB->GetNbBodies();
+
   }
 
   FrHydroMapper *FrHydroDB::GetMapper() {
@@ -71,27 +86,44 @@ namespace frydom {
 
   FrMask FrHydroDB::GetBodyDOFMask(FrBEMBody *BEMBody) const {
 
-    auto DOFMask = BEMBody->GetForceMask(); // just to get the correct class type...
-    DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
+    auto mask = BEMBody->GetForceMask();
 
-    return DOFMask&&BEMBody->GetForceMask();
+    if (m_dofMaskApplied) {
+      hdb5_io::Mask DOFMask;
+      DOFMask.SetMask(m_mapper->GetBody(BEMBody)->GetDOFMask()->GetFreeDOFs());
+      mask = mask&&DOFMask;
+    }
+
+    return mask;
   }
 
-  void FrHydroDB::GetImpulseResponseSize(double timeStep, double &Te, double &dt) const {
+  mathutils::Matrix66<bool> FrHydroDB::GetBodyRadiationMask(FrBEMBody* BEMBody, FrBEMBody* BEMBodyMotion) {
+    auto mask = BEMBody->GetRadiationMask(BEMBodyMotion);
+    if (m_dofMaskApplied) {
+      // Applying the BEMBody DOFMask also on the radiationMask to ensure all forces on locked dofs are zero
+      hdb5_io::Mask DOFMask;
+      DOFMask.SetMask(this->GetBody(BEMBody)->GetDOFMask()->GetLockedDOFs());
+      for (auto idof : DOFMask.GetListDOF()) {
+        mask.row(idof) *= false;
+      }
+    }
+    return mask;
+  }
 
-    // FIXME : check this
-    auto frequencies = m_HDB->GetFrequencyDiscretization();
-    auto freqStep = frequencies[1] - frequencies[0];
+  bool FrHydroDB::GetIsXDerivative() const {
 
-    Te = 0.5 * MU_2PI / freqStep;
+    // This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
 
-    auto N = (unsigned int) floor(Te / timeStep);
+    return m_HDB->GetIsXDerivative();
 
-    dt = Te / double(N - 1);
-  };
+  }
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file) {
     return std::make_shared<FrHydroDB>(h5file);
+  }
+
+  std::shared_ptr<FrHydroDB> make_hydrodynamic_database(const std::shared_ptr<hdb5_io::HydrodynamicDataBase> &hdb) {
+    return std::make_shared<FrHydroDB>(hdb);
   }
 
 } //end namespace frydom

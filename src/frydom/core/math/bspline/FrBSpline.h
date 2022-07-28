@@ -168,6 +168,7 @@ namespace frydom {
             r *= (degree - k);
           }
 
+          return DN;
         }
 
         template<unsigned int _dim>
@@ -395,7 +396,7 @@ namespace frydom {
 
         auto knots = fr_bspline.GetKnotVector();
         chrono::ChVectorDynamic<double> ch_knots;
-        ch_knots.Resize(knots.size());
+        ch_knots.resize(knots.size());
         for (int i = 0; i < knots.size(); i++) {
           ch_knots(i) = knots[i];
         }

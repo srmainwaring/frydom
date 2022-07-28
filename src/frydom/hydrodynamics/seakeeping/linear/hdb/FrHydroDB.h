@@ -26,6 +26,8 @@ namespace frydom {
     /// Constructor of the hydrodynamic database with specified HDF5 filename
     explicit FrHydroDB(std::string h5file);
 
+    explicit FrHydroDB(const std::shared_ptr<hdb5_io::HydrodynamicDataBase>& hdb);
+
     /// Return the BEM body database
     /// \param ibody Index of the BEM body
     /// \return BEM Body database
@@ -45,6 +47,9 @@ namespace frydom {
     /// \param body BEM body database
     /// \return frydom body
     FrBody *GetBody(FrBEMBody *body);
+
+    /// This method returns the number of BEM bodies.
+    int GetBEMBodyNumber();
 
     /// Return the mapper between frydom body and BEM body database
     /// \return Mapper
@@ -82,16 +87,26 @@ namespace frydom {
 
     FrMask GetBodyDOFMask(FrBEMBody* BEMBody) const;
 
-    void GetImpulseResponseSize(double timeStep, double &Te, double &dt) const;
+    mathutils::Matrix66<bool> GetBodyRadiationMask(FrBEMBody* BEMBody, FrBEMBody* BEMBodyMotion);
+
+    /// This method gives the boolean to known if x-derivatives of the added mass and damping coefficients are present.
+    bool GetIsXDerivative() const;
+
+    void ActivateDOFMask(bool dofMaskApplied) {
+      m_dofMaskApplied = dofMaskApplied;
+    }
 
    private:
 
     std::shared_ptr<hdb5_io::HydrodynamicDataBase> m_HDB;
     std::unique_ptr<FrHydroMapper> m_mapper;            ///< Mapper between bodies and hdb body database
+    bool m_dofMaskApplied = true;
 
   };
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file);
+
+  std::shared_ptr<FrHydroDB> make_hydrodynamic_database(const std::shared_ptr<hdb5_io::HydrodynamicDataBase>& hdb);
 
 } //end namespace frydom
 

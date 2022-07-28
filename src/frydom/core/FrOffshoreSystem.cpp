@@ -12,14 +12,13 @@
 #include <chrono/physics/ChLinkMotorRotation.h>
 #include <chrono/physics/ChLinkMotorLinear.h>
 #include <frydom/mesh/FrHydroMesh.h>
-#include <chrono/solver/ChSolverMINRES.h>
 
 
 #include "FrOffshoreSystem.h"
 
 #include "chrono/utils/ChProfiler.h"
 #include "chrono/physics/ChLinkMate.h"
-#include "chrono/solver/ChIterativeSolver.h"
+#include "chrono/solver/ChIterativeSolverVI.h"
 
 #include "frydom/core/link/links_lib/FrLink.h"
 #include "frydom/core/link/links_lib/actuators/FrActuator.h"
@@ -36,7 +35,6 @@
 #include "frydom/cable/fea/FrFEALink.h"
 #include "frydom/cable/mooring_components/FrClumpWeight.h"
 #include "frydom/cable/catenary/FrCatenaryLine.h"
-#include "frydom/cable/lumped/FrLumpedMassCable.h"
 
 #include "frydom/environment/FrEnvironment.h"
 
@@ -70,19 +68,24 @@ namespace frydom {
         m_offshoreSystem(offshoreSystem) {}
 
     template <class SystemType>
+    void FrSystemBase<SystemType>::Initialize() {
+      SystemType::SetupInitial();
+    }
+
+    template <class SystemType>
     void FrSystemBase<SystemType>::Update(bool update_assets) {
 
       // Note : there is no ChAssembly::Update() as it is better expanded here...
 
       CH_PROFILE("Update");
 
+      if (!SystemType::is_initialized)
+        SystemType::SetupInitial();
+
       SystemType::timer_update.start();  // Timer for profiling
 
       // Pre updates that are not about multibody dynamics
       m_offshoreSystem->PreUpdate();
-
-      // Executes the "forUpdate" in all controls of controlslist
-      SystemType::ExecuteControlsForUpdate();
 
       // Physics item that have to be updated before all
       m_offshoreSystem->PrePhysicsUpdate(SystemType::ChTime, update_assets);
@@ -180,6 +183,7 @@ namespace frydom {
 
     template <class SystemType>
     bool FrSystemBase<SystemType>::Integrate_Y() {
+      chrono::ChSystem::ForceUpdate();
       auto output = chrono::ChSystem::Integrate_Y();
       m_offshoreSystem->StepFinalize();
       return output;
@@ -518,17 +522,17 @@ namespace frydom {
 
   }
 
-  void FrOffshoreSystem::AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node) {
-    m_chronoSystem->AddBody(lm_node->GetBody());
-  }
-
-  void FrOffshoreSystem::AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element) {
-    m_chronoSystem->AddLink(lm_element->GetLink());
-  }
-
-  void FrOffshoreSystem::AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable) {
-    // Nothing to do ??
-  }
+//  void FrOffshoreSystem::AddLumpedMassNode(std::shared_ptr<internal::FrLMNode> lm_node) {
+//    m_chronoSystem->AddBody(lm_node->GetBody());
+//  }
+//
+//  void FrOffshoreSystem::AddLumpedMassElement(std::shared_ptr<internal::FrLMElement> lm_element) {
+//    m_chronoSystem->AddLink(lm_element->GetLink());
+//  }
+//
+//  void FrOffshoreSystem::AddLumpedMassCable(std::shared_ptr<FrLumpedMassCable> lm_cable) {
+//    // Nothing to do ??
+//  }
 
   void FrOffshoreSystem::MonitorRealTimePerfs(bool val) {
     m_monitor_real_time = val;
@@ -569,6 +573,7 @@ namespace frydom {
 
     if (m_isInitialized)
       return;
+
 
     event_logger::info(GetTypeName(), GetName(), "BEGIN OffshoreSystem initialization");
     event_logger::flush();
@@ -624,26 +629,27 @@ namespace frydom {
 
     msg->AddField<double>("time", "s", "Current time of the simulation", [this]() { return GetTime(); });
 
-    msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
-      return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetTotalIterations();
-    });
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
+        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
+      });
+    }
 
-    msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); }); 
+    msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); });
 
     msg->AddField<double>("residual_log", "", "residual of the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetResidualLog(); }); 
 
     msg->AddField<double>("max_delta_unknowns", "", "", [this]() { return m_chronoSystem->GetSolver()->GetMaxDeltaUnknowns(); });
 
-    if (dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
-      msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
-        return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
-      });
+    //if (dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
+      //msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
+      //  return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
+      //});
 
-      msg->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
-        return dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
-      });
-
-    }
+      //msg->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
+      //  return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
+      //});
+    //}
 
   }
 
@@ -733,32 +739,29 @@ namespace frydom {
     using SOLVERS = chrono::ChSolver::Type;
 
     switch (solver) {
-      case SOR:
-        m_chronoSystem->SetSolverType(SOLVERS::SOR);
+      case PSOR:
+        m_chronoSystem->SetSolverType(SOLVERS::PSOR);
         break;
-      case SYMMSOR:
-        m_chronoSystem->SetSolverType(SOLVERS::SYMMSOR);
+      case PSSOR:
+        m_chronoSystem->SetSolverType(SOLVERS::PSSOR);
         break;
-      case JACOBI:
-        m_chronoSystem->SetSolverType(SOLVERS::JACOBI);
-        break;
-      case BARZILAIBORWEIN:
-        m_chronoSystem->SetSolverType(SOLVERS::BARZILAIBORWEIN);
-        break;
-      case PCG:
-        m_chronoSystem->SetSolverType(SOLVERS::PCG);
-        break;
-      case APGD:
-        m_chronoSystem->SetSolverType(SOLVERS::APGD);
-        break;
-      case MINRES:
-        m_chronoSystem->SetSolverType(SOLVERS::MINRES);
+      case PJACOBI:
+        m_chronoSystem->SetSolverType(SOLVERS::PJACOBI);
         break;
       case PMINRES:
         m_chronoSystem->SetSolverType(SOLVERS::PMINRES);
         break;
-      case SOLVER_SMC:
-        m_chronoSystem->SetSolverType(SOLVERS::SOLVER_SMC);
+      case BARZILAIBORWEIN:
+        m_chronoSystem->SetSolverType(SOLVERS::BARZILAIBORWEIN);
+        break;
+      case APGD:
+        m_chronoSystem->SetSolverType(SOLVERS::APGD);
+        break;
+      case GMRES:
+        m_chronoSystem->SetSolverType(SOLVERS::GMRES);
+        break;
+      case MINRES:
+        m_chronoSystem->SetSolverType(SOLVERS::MINRES);
         break;
     }
 
@@ -767,27 +770,55 @@ namespace frydom {
     if (checkCompat) CheckCompatibility();
   }
 
+  void FrOffshoreSystem::SetSolverMaxIterations(int max_iters) {
+    m_chronoSystem->SetSolverMaxIterations(max_iters);
+    event_logger::info(GetTypeName(), GetName(), "Set Solver max iterations {}", max_iters);
+  }
+
+  int FrOffshoreSystem::GetSolverMaxIterations() const {
+    return m_chronoSystem->GetSolverMaxIterations();
+  }
+
+  void FrOffshoreSystem::SetSolverTolerance(double tolerance) {
+    m_chronoSystem->SetSolverTolerance(tolerance);
+    event_logger::info(GetTypeName(), GetName(), "Set solver tolerance {}", tolerance);
+  }
+
+  double FrOffshoreSystem::GetSolverTolerance() const {
+    return m_chronoSystem->GetSolverTolerance();
+  }
+
+
   void FrOffshoreSystem::SetSolverWarmStarting(bool useWarm) {
-    m_chronoSystem->SetSolverWarmStarting(useWarm);
-    std::string active;
-    if (useWarm) {
-      active = "activated";
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      solver->EnableWarmStart(useWarm);
+
+      std::string active;
+      if (useWarm) {
+        active = "activated";
+      } else {
+        active = "deactivated";
+      }
+      event_logger::info(GetTypeName(), GetName(), "Solver warm start {}", active);
     } else {
-      active = "deactivated";
+      std::cout << "warning : warm starting enabled only on Iterative Solver.\nWarm Starting is not activated." << std::endl;
     }
-    event_logger::info(GetTypeName(), GetName(), "Solver warm start {}", active);
   }
 
   void FrOffshoreSystem::SetSolverOverrelaxationParam(double omega) {
-    m_chronoSystem->SetSolverOverrelaxationParam(omega);
-    event_logger::info(GetTypeName(), GetName(),
-        "Solver over relaxation parameter set to {}", omega);
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      solver->SetOmega(omega);
+      event_logger::info(GetTypeName(), GetName(),
+                         "Solver over relaxation parameter set to {}", omega);
+    } else {
+      std::cout << "warnin : Overrelaxation param enable only on Iterative Solver VI.\n Overrelaxation is not activated." << std::endl;
+    }
   }
 
   void FrOffshoreSystem::SetSolverDiagonalPreconditioning(bool val) {
     if (m_solverType == MINRES) {
-      auto solver = std::static_pointer_cast<chrono::ChSolverMINRES>(m_chronoSystem->GetSolver());
-      solver->SetDiagonalPreconditioning(val);
+      auto solver = dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get());
+      solver->EnableDiagonalPreconditioner(val);
       std::string active;
       if (val) {
         active = "activated";
@@ -802,28 +833,26 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::SetSolverSharpnessParam(double momega) {
-    m_chronoSystem->SetSolverSharpnessParam(momega);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver sharpness parameter set to {}", momega);
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      solver->SetSharpnessLambda(momega);
+      event_logger::info(GetTypeName(), GetName(),
+                         "Solver sharpness parameter set to {}", momega);
+    } else {
+      std::cout << "warning : Solver sharpness param enabled only on Iterative solver VI.\nSolver sharpness param is not activated/" << std::endl;
+    }
   }
 
   void FrOffshoreSystem::SetParallelThreadNumber(int nbThreads) {
-    m_chronoSystem->SetParallelThreadNumber(nbThreads);
+    chrono::CHOMPfunctions::SetNumThreads(nbThreads);
     event_logger::info(GetTypeName(), GetName(),
                        "Number of threads for simulation set to {}", nbThreads);
   }
 
-  void FrOffshoreSystem::SetSolverMaxIterSpeed(int maxIter) {
-    m_chronoSystem->SetMaxItersSolverSpeed(maxIter);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver maximum number of iterations for speed set to {}", maxIter);
-  }
-
-  void FrOffshoreSystem::SetSolverMaxIterStab(int maxIter) {
-    m_chronoSystem->SetMaxItersSolverStab(maxIter);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver maximum number of iterations for stabilization set to {}", maxIter);
-  }
+  //void FrOffshoreSystem::SetSolverMaxIterStab(int maxIter) {
+  //  if (auto solver : std::dynamic_pointer_cast<m_chronoSystem->SetMaxItersSolverStab(maxIter);
+  //  event_logger::info(GetTypeName(), GetName(),
+  //                     "Solver maximum number of iterations for stabilization set to {}", maxIter);
+  //}
 
   void FrOffshoreSystem::SetSolverMaxIterAssembly(int maxIter) {
     m_chronoSystem->SetMaxiter(maxIter);
@@ -831,14 +860,14 @@ namespace frydom {
                        "Solver maximum number of iterations for constraint assembly the system set to {}", maxIter);
   }
 
-  void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
-    m_chronoSystem->SetTol(tol);
-    event_logger::info(GetTypeName(), GetName(),
-                       "Solver geometric tolerance set to {}", tol);
-  }
+  //void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
+  //  m_chronoSystem->GetSolver()->SetTol(tol);
+  //  event_logger::info(GetTypeName(), GetName(),
+  //                      "Solver geometric tolerance set to {}", tol);
+  //}
 
   void FrOffshoreSystem::SetSolverForceTolerance(double tol) {
-    m_chronoSystem->SetTolForce(tol);
+    m_chronoSystem->SetSolverForceTolerance(tol);
     event_logger::info(GetTypeName(), GetName(),
                        "Solver force tolerance set to {}", tol);
   }
@@ -1068,10 +1097,10 @@ namespace frydom {
         m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT_PROJECTED);
         timestepper_str = "EULER_IMPLICIT_PROJECTED";
         break;
-      case EULER_IMPLICIT:
-        m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT);
-        timestepper_str = "EULER_IMPLICIT";
-        break;
+//      case EULER_IMPLICIT:
+//        m_chronoSystem->SetTimestepperType(timeStepperType::EULER_IMPLICIT);
+//        timestepper_str = "EULER_IMPLICIT";
+//        break;
       case TRAPEZOIDAL:
         m_chronoSystem->SetTimestepperType(timeStepperType::TRAPEZOIDAL);
         timestepper_str = "TRAPEZOIDAL";
@@ -1139,7 +1168,9 @@ namespace frydom {
 
   bool FrOffshoreSystem::AdvanceOneStep(double stepSize) {
     Initialize();
-    return (bool) m_chronoSystem->DoStepDynamics(stepSize);
+    auto is_advance =  m_chronoSystem->DoStepDynamics(stepSize);
+    m_chronoSystem->Update(true);
+    return is_advance;
   }
 
   bool FrOffshoreSystem::AdvanceTo(double nextTime) {
@@ -1315,7 +1346,7 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::FinalizeDynamicSimulation() const {
-    event_logger::back_to_default_formatter();
+    event_logger::back_to_default_formatter(GetName());
     event_logger::info(GetTypeName(), GetName(),
                        "END OF DYNAMIC SIMULATION AT SIMULATION TIME: {} s", GetTime());
   }
@@ -1405,7 +1436,7 @@ namespace frydom {
 
   void FrOffshoreSystem::SetSolverVerbose(bool verbose) {
     m_chronoSystem->GetSolver()->SetVerbose(verbose);
-    dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get())->SetRecordViolation(verbose);
+    dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->SetRecordViolation(verbose);
   }
 
 
@@ -1506,17 +1537,17 @@ namespace frydom {
 ////      m_pathManager->RegisterTreeNode(fea_mesh.get());
 
       // LUMPED MASS NODE
-    } else if (auto lumped_mass_node = std::dynamic_pointer_cast<internal::FrLMNode>(item)) {
-      AddLumpedMassNode(lumped_mass_node);
-
-      // LUMPED MASS ELEMENT
-    } else if (auto lumped_mass_element = std::dynamic_pointer_cast<internal::FrLMElement>(item)) {
-      AddLumpedMassElement(lumped_mass_element);
-
-      // LUMPED MASS CABLE
-    } else if (auto lumped_mass_cable = std::dynamic_pointer_cast<FrLumpedMassCable>(item)) {
-      AddLumpedMassCable(lumped_mass_cable);
-      m_pathManager->RegisterTreeNode(lumped_mass_cable.get());
+//    } else if (auto lumped_mass_node = std::dynamic_pointer_cast<internal::FrLMNode>(item)) {
+//      AddLumpedMassNode(lumped_mass_node);
+//
+//      // LUMPED MASS ELEMENT
+//    } else if (auto lumped_mass_element = std::dynamic_pointer_cast<internal::FrLMElement>(item)) {
+//      AddLumpedMassElement(lumped_mass_element);
+//
+//      // LUMPED MASS CABLE
+//    } else if (auto lumped_mass_cable = std::dynamic_pointer_cast<FrLumpedMassCable>(item)) {
+//      AddLumpedMassCable(lumped_mass_cable);
+//      m_pathManager->RegisterTreeNode(lumped_mass_cable.get());
 
       // UNKNOWN
     } else {

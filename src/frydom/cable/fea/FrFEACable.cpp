@@ -44,6 +44,7 @@ namespace frydom {
 
   Force FrFEACable::GetTension(const double &s, FRAME_CONVENTION fc) const {
     // TODO
+    return Force();
   }
 
   /*
@@ -74,6 +75,7 @@ namespace frydom {
 
   Position FrFEACable::GetPositionInWorld(const double &s, FRAME_CONVENTION fc) const {
     // TODO
+    return Position();
   }
 
   void FrFEACable::Initialize() {
@@ -98,7 +100,7 @@ namespace frydom {
       clump_weight->Attach(fea_node, distance);
 
       // Get the position of the node
-      Position position = internal::ChVectorToVector3d<Position>(fea_node->GetPos());
+      Position position = fea_node->GetPos().eigen();
       position.z() -= clump_weight->GetConstraintDistance();
 
       clump_weight->SetBodyNodePositionInWorld(position, NWU);
@@ -118,6 +120,7 @@ namespace frydom {
 
   double FrFEACable::GetStaticResidual() {
     // TODO
+    return 0.;
   }
 
   unsigned int FrFEACable::GetNbNodes() const {
@@ -163,7 +166,7 @@ namespace frydom {
     auto base_cable = GetFrFEACableBase();
     auto start_link = base_cable->GetStartLink();
 
-    auto force = internal::ChVectorToVector3d<Force>(start_link->Get_react_force());
+    Force force = start_link->Get_react_force().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
     return m_startingNode->GetFrameWRT_COG_InBody().ProjectVectorFrameInParent(force, fc);
   }
@@ -173,7 +176,7 @@ namespace frydom {
     auto base_cable = GetFrFEACableBase();
     auto end_link = base_cable->GetEndLink();
 
-    auto force = internal::ChVectorToVector3d<Force>(end_link->Get_react_force());
+    Force force = end_link->Get_react_force().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
     return m_endingNode->GetFrameWRT_COG_InBody().ProjectVectorFrameInParent(force, fc);
   }
@@ -183,7 +186,7 @@ namespace frydom {
     auto base_cable = GetFrFEACableBase();
     auto end_link = base_cable->GetEndLink();
 
-    auto force = internal::ChVectorToVector3d<Force>(end_link->Get_react_force());
+    Force force = end_link->Get_react_force().eigen();
     if (IsNED(fc)) internal::SwapFrameConvention<Force>(force);
     return force;
   }

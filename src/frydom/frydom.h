@@ -18,8 +18,6 @@
   #include <irrlicht.h>
 #endif
 
-#include "chrono/solver/ChSolverMINRES.h" // FIXME: trouver moyen d'avoir un import plus global des headers chrono...
-
 // FRyDoM related headers
 #include "core/FrCore.h"
 #include "environment/FrEnvironmentInc.h"
@@ -30,6 +28,7 @@
 #include "utils/FrUtilsInc.h"
 #include "asset/FrAssetInc.h"
 #include "collision/FrCollisionModel.h"
+#include "propulsion/FrPropulsionInc.h"
 
 //#include <H5Cpp.h>
 

@@ -13,7 +13,7 @@ Description of the test case
 ----------------------------
 
 In this simulation, the 1:46.6 scale is considered which corresponds to the laboratory scale of the DTMB 5512 geometry
-used in the experimental campaigned made by the Iowa Institute of Hydraulic Research (IIHR) [Gui2001]_ [Irvine2008]_. The hull model with no
+used in the experimental campaigned made by the Iowa Institute of Hydraulic Research (IIHR) ([Gui2001]_, [Irvine2008]_). The hull model with no
 appendage, no propeller and no rudder is considered. The CAD model and data are freely available on the IIHR website. The main characteristics of the
 vessel are summarized in the following table. The x-axis is pointing forward to the vessel and z-axis is pointing upward
 as represented in the following figure.
@@ -25,27 +25,35 @@ as represented in the following figure.
 
     Description of the test case.
 
-===================== ================ =====================
-Parameter             Unit             Value
-===================== ================ =====================
-Scale                 -                46.6
-Length (Lpp)          m                3.048
-Beam                  m                0.405
-Draft                 m                0.132
-Wetted surface area   :math:`m^2`      1.371
-LCG                   m                1.536
-VCG                   m                0.162
-===================== ================ =====================
+============================== ================ =====================
+Scale                          :math:`-`        46.6
+Length (Lpp)                   :math:`m`        3.048
+Beam                           :math:`m`        0.405
+Draft                          :math:`m`        0.132
+Wetted surface area            :math:`m^2`      1.371
+Longitudinal center of gravity :math:`m`        1.536
+Vertical center of gravity     :math:`m`        0.162
+Block coefficient              :math:`-`        0.506
+============================== ================ =====================
 
-Hydrostatic coefficients are summarized in the next table.
+Non-zero hydrostatic coefficients are presented in the next table.
 
-===================== ====================
-Hydrostatic coeff.    Value :math:`(x10^3)`
-===================== ====================
-k33                   :math:`9.68`
-k55                   :math:`5.42`
-k35                   :math:`1.25`
-===================== ====================
+===================== ================ ====================
+:math:`K_{33}`        :math:`N/m`      :math:`9680`
+:math:`K_{44}`        :math:`N.m`      :math:`34.6`
+:math:`K_{55}`        :math:`N.m`      :math:`5420`
+:math:`K_{35}`        :math:`N`        :math:`1250`
+===================== ================ ====================
+
+The non-zero inertial properties of the scaled DTMB are listed in the table below. They come from Table 3-1 of [Yoon2009]_.
+
+===================== ================ ==================================================
+Center of gravity     :math:`m`        :math:`\begin{pmatrix} 0 & 0 & 0.03 \end{pmatrix}`        
+Displacement          :math:`kg`       86
+:math:`I_{xx}`        :math:`kg.m^2`   1.98
+:math:`I_{yy}`        :math:`kg.m^2`   53.88
+:math:`I_{zz}`        :math:`kg.m^2`   49.99
+===================== ================ ==================================================
 
 The DTMB5512 is mounted on a carriage with constant forward speed as represented in next figure.
 A `video <https://www.youtube.com/watch?v=yUbBE2nytg0>`_ is also available for the semi captive test.
@@ -163,31 +171,23 @@ The zeroth and first harmonic coefficients of :math:`C_T`, :math:`C_H` and :math
 Pitch and Heave Motion test results
 -----------------------------------
 
-The Response Amplitude Operator (RAO) of the DTMB5512 in pitch and heave motion are compared to experimental results.
-Five different forward speed are considered corresponding to different value of the Froude number equal to 0., 0.19, 0.28, 0.34 and 0.41.
-The numerical results agree well with the experimental results for heave motion. The natural period of the model is around 1 Hz
-and the peak of amplitude increase with increasing speed. The results in pitch motion agree well with the experimental results
-in the case of no forward speed. Discrepancy are more pronounced for the case with forward speed. Work are still to be done for this
-test case in order to characterize these discrepancies.
+The Response Amplitude Operator (RAO) of the DTMB5512 for pitch and heave motions are compared to experimental results provided by [Irvine2008]_. Five different Froude numbers are considered and are equal to 0, 0.19, 0.28, 0.34 and 0.41. Amplitudes are obtained from a Fourier transformation of the heave and pitch motions. Heave amplitudes are nondimensionalized by the incident wave amplitude while pitch amplitudes are divided by the wave steepess.
 
+Comparisons are displayed in :numref:`fig_heave_motion` in heave and in :numref:`fig_pitch_motion` in pitch. A very good agreement is obtained in heave for every Froude number. Regarding the pitch motion, the zero forward speed case shows a very good match. For a nonzero Froude number, differences are observed and a shift of the peak of amplitude appears. A more accurate forward speed model could improve these results.
 
 .. _fig_heave_motion:
-.. figure:: _static/DTMB5512_HeaveAmplitude.png
+.. figure:: _static/Bench_DTMB_RAO_Heave.png
     :align: center
     :alt: Heave motion
-    :scale: 50%
 
-    Comparison of the Heave RAO results from FRyDoM with experimental data for different regular wave frequency. Results for different Froude number (0.0, 0.19, 0.28, 0.34, 0.41) from left to right and top to bottom.
+    Comparison of the nondimensionalized heave RAO from FRyDoM (red) with experimental data (black) with respect to encounter frequency for different Froude numbers (0.0, 0.19, 0.28, 0.34, 0.41 - from left to right and top to bottom).
 
 .. _fig_pitch_motion:
-.. figure:: _static/DTMB5512_PitchAmplitude.png
+.. figure:: _static/Bench_DTMB_RAO_Pitch.png
     :align: center
     :alt: Pitch motion
-    :scale: 50%
 
-
-    Comparison of the Pitch RAO results from FRyDoM with experimental data for different regular wave frequency. Results for different Froude number (0.0, 0.19, 0.28, 0.34, 0.41) from left to right and top to bottom.
-
+    Comparison of the pitch RAO from FRyDoM (red) with experimental data (black) with respect to encounter frequency for different Froude numbers (0.0, 0.19, 0.28, 0.34, 0.41 - from left to right and top to bottom).
 
 References
 ----------
@@ -197,3 +197,5 @@ References
 .. [Gui2002] L. Gui, J. Longo, B. Metcalf, J. Shao, F. Stern, "Forces, moment, and wave pattern for surface combatant in regular head waves. Part 2 : Measurment results and discussions", Experiments in Fluids, Vol 32, 2002, pp 27-36.
 
 .. [Irvine2008] M. Irvine, J. Longo, F. Stern, "Pitch and Heave Tets Uncertainty assessment for a surface combatant in regular head waves", Journal Ship Research, Vol 52, No 2, June 2008, pp 146-163.
+
+.. [Yoon2009] H. Yoon, "Phase-averaged stereo-PIV flow field and force/moment/motion measurements for surface combatant in PMM maneuvers", PhD thesis, University of Iowa, 2009.

@@ -19,6 +19,7 @@
 #include "FrConvention.h"
 #include "frydom/core/math/FrEulerAngles.h"
 #include "frydom/core/math/FrVector.h"
+#include "frydom/core/math/FrMatrix.h"
 
 
 namespace frydom {
@@ -110,7 +111,7 @@ namespace frydom {
     /// The matrix must be orthogonal
     /// \param matrix the 3x3 rotation matrix
     /// \param fc frame convention (NED/NWU)
-    void Set(const mathutils::Matrix33<double> &matrix, FRAME_CONVENTION fc);
+    void Set(const Matrix33 &matrix, FRAME_CONVENTION fc);
 
     /// Set the Quaternion to the null rotation (ie the unit quaternion: {1,0,0,0})
     void SetNullRotation();
@@ -201,13 +202,14 @@ namespace frydom {
     Rotate(const Vector &vector, FRAME_CONVENTION fc) const {  // TODO : voir si on a pas qqch de plus optimise...
       auto vectorTmp = vector;
 
-      if (IsNED(fc)) internal::SwapFrameConvention<Vector>(vectorTmp);
+      if (IsNED(fc)) vectorTmp = internal::SwapFrameConvention<Vector>(vectorTmp);
 
       auto chronoVector = internal::Vector3dToChVector(vectorTmp);
+      auto chronoVectorRot = m_chronoQuaternion.Rotate(chronoVector);
 
-      vectorTmp = internal::ChVectorToVector3d<Vector>(m_chronoQuaternion.Rotate(chronoVector));
+      vectorTmp = chronoVectorRot.eigen();
 
-      if (IsNED(fc)) internal::SwapFrameConvention<Vector>(vectorTmp);
+      if (IsNED(fc)) vectorTmp = internal::SwapFrameConvention<Vector>(vectorTmp);
 
       return vectorTmp;
     }
@@ -233,12 +235,12 @@ namespace frydom {
     /// Get the 3x3 matrix as a rotation matrix corresponding
     /// to the rotation expressed by the quaternion.
     /// \return 3x3 rotation matrix
-    mathutils::Matrix33<double> GetRotationMatrix() const;
+    Matrix33 GetRotationMatrix() const;
 
     /// Get the 3x3 matrix as a rotation matrix corresponding
     /// to the rotation expressed by the quaternion inverse.
     /// \return 3x3 rotation matrix
-    mathutils::Matrix33<double> GetInverseRotationMatrix() const;
+    Matrix33 GetInverseRotationMatrix() const;
     // FIXME : les 4 methodes suivantes sont-elles vraiment utiles ??? De maniere generale dans FRyDoM, on ne manipule
     // que rarement directement les matrices de rotation ...
 
@@ -246,25 +248,25 @@ namespace frydom {
     ///  to the rotation expressed by the quaternion : res = A * R(quat)
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix, solution of A * R(quat)
-    mathutils::Matrix33<double> LeftMultiply(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 LeftMultiply(const Matrix33 &matrix) const;
 
     /// Compute the right multiplication of a 3x3 matrix A, by the 3x3 rotation matrix corresponding
     ///  to the rotation expressed by the quaternion : res = R(quat) * A
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix, solution of R(quat) * A
-    mathutils::Matrix33<double> RightMultiply(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 RightMultiply(const Matrix33 &matrix) const;
 
     /// Compute the left multiplication of a 3x3 matrix A, by the 3x3 rotation matrix corresponding
     ///  to the rotation expressed by the quaternion inverse : res = A * Rc(quat)
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix, solution of A * Rc(quat)
-    mathutils::Matrix33<double> LeftMultiplyInverse(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 LeftMultiplyInverse(const Matrix33 &matrix) const;
 
     /// Compute the right multiplication of a 3x3 matrix A, by the 3x3 rotation matrix corresponding
     ///  to the rotation expressed by the quaternion inverse : res = Rc(quat) * A
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix, solution of Rc(quat) * A
-    mathutils::Matrix33<double> RightMultiplyInverse(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 RightMultiplyInverse(const Matrix33 &matrix) const;
 
 
     friend std::ostream &operator<<(std::ostream &os, const FrUnitQuaternion &quaternion);
@@ -371,11 +373,11 @@ namespace frydom {
 
     /// Get the rotation matrix representation
     /// \return 3x3 rotation matrix
-    mathutils::Matrix33<double> GetRotationMatrix() const;
+    Matrix33 GetRotationMatrix() const;
 
     /// Get the inverse rotation matrix representation
     /// \return 3x3 inverse rotation matrix
-    mathutils::Matrix33<double> GetInverseRotationMatrix() const;
+    Matrix33 GetInverseRotationMatrix() const;
 
     // Matrix representation
 
@@ -547,22 +549,22 @@ namespace frydom {
     /// Multiply a matrix by this rotation on the left
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix solution of the multiplication
-    mathutils::Matrix33<double> LeftMultiply(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 LeftMultiply(const Matrix33 &matrix) const;
 
     /// Multiply a matrix by the inverse of this rotation on the left
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix solution of the multiplication
-    mathutils::Matrix33<double> LeftMultiplyInverse(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 LeftMultiplyInverse(const Matrix33 &matrix) const;
 
     /// Multiply a matrix by this rotation on the right
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix solution of the multiplication
-    mathutils::Matrix33<double> RightMultiply(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 RightMultiply(const Matrix33 &matrix) const;
 
     /// Multiply a matrix by the inverse of this rotation on the right
     /// \param matrix 3x3 matrix to be multiplied
     /// \return 3x3 matrix solution of the multiplication
-    mathutils::Matrix33<double> RightMultiplyInverse(const mathutils::Matrix33<double> &matrix) const;
+    Matrix33 RightMultiplyInverse(const Matrix33 &matrix) const;
 
 
     /// Rotate a vector by the current rotation. Templatized method by the type of vector (Position, Velocity... cf FrVector.h)

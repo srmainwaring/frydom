@@ -19,11 +19,11 @@ using namespace frydom;
 template<class Vector>
 inline Vector &EasyRotate(Vector &vector, FRAME_CONVENTION fc) {
   Vector vecTem;
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vector); }
+  if (IsNED(fc)) { vector = internal::SwapFrameConvention<Vector>(vector); }
   vecTem[0] = vector[2];
   vecTem[1] = vector[0];
   vecTem[2] = vector[1];
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vecTem); }
+  if (IsNED(fc)) { vecTem = internal::SwapFrameConvention<Vector>(vecTem); }
   return vector = vecTem;
 }
 
@@ -37,11 +37,11 @@ inline Vector EasyRotate(const Vector &vector, FRAME_CONVENTION fc) {
 template<class Vector>
 inline Vector &EasyRotateInv(Vector &vector, FRAME_CONVENTION fc) {
   Vector vecTem;
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vector); }
+  if (IsNED(fc)) { vector = internal::SwapFrameConvention<Vector>(vector); }
   vecTem[0] = vector[1];
   vecTem[1] = vector[2];
   vecTem[2] = vector[0];
-  if (IsNED(fc)) { internal::SwapFrameConvention<Vector>(vecTem); }
+  if (IsNED(fc)) { return vector = internal::SwapFrameConvention<Vector>(vecTem); }
   return vector = vecTem;
 }
 
@@ -57,8 +57,8 @@ void Test_AllGetPosition(const std::shared_ptr<FrBody> body,
                          bool is_Orientation, FRAME_CONVENTION out_fc) {
 
   if (out_fc != in_fc) {
-    internal::SwapFrameConvention<Position>(RefPositionInWorld);
-    internal::SwapFrameConvention<Position>(COGPositionInWorld);
+    RefPositionInWorld = internal::SwapFrameConvention<Position>(RefPositionInWorld);
+    COGPositionInWorld = internal::SwapFrameConvention<Position>(COGPositionInWorld);
   }
 
   // Test body reference frame position in world reference frame
@@ -72,7 +72,7 @@ void Test_AllGetPosition(const std::shared_ptr<FrBody> body,
   //-----------------COG-----------------//
   // Test COG position in body reference frame
   Position TempPos = COGPositionInWorld - RefPositionInWorld;
-  if (is_Orientation) EasyRotateInv(TempPos, out_fc);
+  if (is_Orientation) TempPos = EasyRotateInv(TempPos, out_fc);
   testPosition = body->GetCOG(out_fc) - TempPos;
   EXPECT_TRUE(testPosition.isZero());
   if (not(testPosition.isZero())) {
@@ -172,7 +172,7 @@ TEST(FrBodyTest, Translation) {
 
   //-----------------Translate Body-----------------//
   Translation BodyTranslationInWorld(1., 4., 7.);
-  if (IsNED(fc)) { internal::SwapFrameConvention<Translation>(BodyTranslationInWorld); }
+  if (IsNED(fc)) { BodyTranslationInWorld = internal::SwapFrameConvention<Translation>(BodyTranslationInWorld); }
   Position BodyPosition = RefPositionInWorld + BodyTranslationInWorld;
   Position COGPosition = COGPositionInWorld + BodyTranslationInWorld;
 
@@ -401,14 +401,14 @@ TEST(FrBodyTest, AngularVelocity) {
 
   //+++++Test Angular Velocity Setters and Getters without any body reference frame rotation+++++//
   // Test Angular Velocity setter, expressed in world reference frame
-  BodyAngularVelocityInWorld.Set(1., 2., 3.);
+  BodyAngularVelocityInWorld= {1., 2., 3.};
   body->SetAngularVelocityInWorld(BodyAngularVelocityInWorld, fc);
 //    std::cout<<"SetAngularVelocityInWorld"<<std::endl;
   Test_GetAngularVelocity(body, BodyAngularVelocityInWorld, false, fc);
 
 
   // Test Angular Velocity setter, expressed in body reference frame
-  BodyAngularVelocityInBody.Set(4., 5., 6.);
+  BodyAngularVelocityInBody = {4., 5., 6.};
   body->SetAngularVelocityInBody(BodyAngularVelocityInBody, fc);
 //    std::cout<<"SetAngularVelocityInBody"<<std::endl;
   Test_GetAngularVelocity(body, BodyAngularVelocityInBody, false, fc);
@@ -425,14 +425,14 @@ TEST(FrBodyTest, AngularVelocity) {
 
   //+++++Test Angular Velocity Setters and Getters with a body reference frame rotation+++++//
   // Test Angular Velocity setter, expressed in world reference frame
-  BodyAngularVelocityInWorld.Set(1., 2., 3.);
+  BodyAngularVelocityInWorld = {1., 2., 3.};
   body->SetAngularVelocityInWorld(BodyAngularVelocityInWorld, fc);
 //    std::cout<<"SetAngularVelocityInWorld, with a rotation"<<std::endl;
   Test_GetAngularVelocity(body, BodyAngularVelocityInWorld, true, fc);
 
 
   // Test Angular Velocity setter, expressed in body reference frame
-  BodyAngularVelocityInBody.Set(4., 5., 6.);
+  BodyAngularVelocityInBody = {4., 5., 6.};
   body->SetAngularVelocityInBody(BodyAngularVelocityInBody, fc);
 //    std::cout<<"SetAngularVelocityInBody, with a rotation"<<std::endl;
   BodyAngularVelocityInWorld = EasyRotate(BodyAngularVelocityInBody, fc);
@@ -916,14 +916,14 @@ TEST(FrBodyTest, AngularAcceleration) {
 
   //+++++Test Angular Acceleration Setters and Getters without any body reference frame rotation+++++//
   // Test Angular Acceleration setter, expressed in world reference frame
-  BodyAngularAccelerationInWorld.Set(1., 2., 3.);
+  BodyAngularAccelerationInWorld = {1., 2., 3.};
   body->SetAngularAccelerationInWorld(BodyAngularAccelerationInWorld, fc);
 //    std::cout<<"SetAngularAccelerationInWorld"<<std::endl;
   Test_GetAngularAcceleration(body, BodyAngularAccelerationInWorld, false, fc);
 
 
   // Test Angular Acceleration setter, expressed in body reference frame
-  BodyAngularAccelerationInBody.Set(4., 5., 6.);
+  BodyAngularAccelerationInBody = {4., 5., 6.};
   body->SetAngularAccelerationInBody(BodyAngularAccelerationInBody, fc);
 //    std::cout<<"SetAngularAccelerationInBody"<<std::endl;
   Test_GetAngularAcceleration(body, BodyAngularAccelerationInBody, false, fc);
@@ -940,14 +940,14 @@ TEST(FrBodyTest, AngularAcceleration) {
 
   //+++++Test Angular Acceleration Setters and Getters with a body reference frame rotation+++++//
   // Test Angular Acceleration setter, expressed in world reference frame
-  BodyAngularAccelerationInWorld.Set(1., 2., 3.);
+  BodyAngularAccelerationInWorld = {1., 2., 3.};
   body->SetAngularAccelerationInWorld(BodyAngularAccelerationInWorld, fc);
 //    std::cout<<"SetAngularAccelerationInWorld, with a rotation"<<std::endl;
   Test_GetAngularAcceleration(body, BodyAngularAccelerationInWorld, true, fc);
 
 
   // Test Angular Acceleration setter, expressed in body reference frame
-  BodyAngularAccelerationInBody.Set(4., 5., 6.);
+  BodyAngularAccelerationInBody = {4., 5., 6.};
   body->SetAngularAccelerationInBody(BodyAngularAccelerationInBody, fc);
 //    std::cout<<"SetAngularAccelerationInBody, with a rotation"<<std::endl;
   BodyAngularAccelerationInWorld = EasyRotate(BodyAngularAccelerationInBody, fc);

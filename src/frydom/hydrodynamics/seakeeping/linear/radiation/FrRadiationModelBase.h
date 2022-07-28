@@ -100,6 +100,12 @@ namespace frydom {
       mathutils::Matrix66<double> GetInverseGeneralizedMass(FrBEMBody *BEMBody, FrBEMBody *BEMBodyMotion) const;
 
       mathutils::Matrix66<double> GetGeneralizedMass(FrBEMBody *BEMBody, FrBEMBody *BEMBodyMotion) const;
+
+     protected:
+
+      void SetInBody(Eigen::VectorXd &vect, hdb5_io::Body* body);
+
+      void SetInWorld(Eigen::VectorXd &vect, hdb5_io::Body* body);
     };
 
 

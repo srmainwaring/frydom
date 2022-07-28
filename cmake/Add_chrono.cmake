@@ -1,10 +1,8 @@
 include(FetchContent)
 
 FetchContent_Declare(chrono
-        GIT_REPOSITORY ${chrono_URL}
-        GIT_TAG ${chrono_TAG}
-        GIT_PROGRESS 1
-        PATCH_COMMAND git apply ${PROJECT_SOURCE_DIR}/cmake/patches/${chrono_PATCH}
+        URL ${chrono_URL}
+        PATCH_COMMAND patch -p1 < ${PROJECT_SOURCE_DIR}/cmake/patches/${chrono_PATCH}
         )
 
 
@@ -14,7 +12,7 @@ if (NOT chrono_POPULATED)
     message(STATUS "******* FETCHING chrono dependency from ${PROJECT_NAME} (requested version: ${chrono_TAG}) *******")
     FetchContent_Populate(chrono)
 
-    list(APPEND CMAKE_MODULE_PATH "${chrono_SOURCE_DIR}")
+#    list(APPEND CMAKE_MODULE_PATH "${chrono_SOURCE_DIR}")
 
     # chrono BUILD OPTIONS
     set(CMAKE_SOURCE_DIR ${chrono_SOURCE_DIR})
@@ -28,7 +26,6 @@ if (NOT chrono_POPULATED)
     set(BUILD_TESTS_BASE FALSE CACHE BOOL "" FORCE)
     set(BUILD_TESTS_FEA FALSE CACHE BOOL "" FORCE)
     set(BUILD_BENCHMARKING FALSE CACHE BOOL "" FORCE)
-
 
     set(ENABLE_MODULE_CASCADE OFF CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_COSIMULATION OFF CACHE BOOL "" FORCE)
@@ -44,7 +41,7 @@ if (NOT chrono_POPULATED)
     set(ENABLE_MODULE_VEHICLE OFF CACHE BOOL "" FORCE)
     set(ENABLE_OPENMP ON CACHE BOOL "" FORCE)
 
-    if (frydom_use_irrlicht)
+    if (FRYDOM_USE_IRRLICHT)
         set(ENABLE_MODULE_IRRLICHT ON CACHE BOOL "" FORCE)
     else ()
         set(ENABLE_MODULE_IRRLICHT OFF CACHE BOOL "" FORCE)

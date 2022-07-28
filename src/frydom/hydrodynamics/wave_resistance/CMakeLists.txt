@@ -1,12 +1,5 @@
 message(STATUS "    ...wave_resistance")
 
-set(SRC_FILES
+target_sources(frydom PRIVATE
         FrITTCResistance.cpp
         )
-
-set(FRYDOM_WAVERESISTANCE_SOURCES "")
-foreach (file ${SRC_FILES})
-    list(APPEND FRYDOM_WAVERESISTANCE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-endforeach ()
-
-set(FRYDOM_WAVERESISTANCE_SOURCES ${FRYDOM_WAVERESISTANCE_SOURCES} PARENT_SCOPE)

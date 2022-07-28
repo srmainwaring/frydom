@@ -7,6 +7,7 @@
 
 #include "chrono/solver/ChVariablesBody.h"
 #include "chrono/solver/ChVariablesBodyOwnMass.h"
+#include "chrono/core/ChMatrix.h"
 
 #include "MathUtils/Matrix66.h"
 
@@ -33,16 +34,16 @@ namespace frydom {
 
     // Compute
 
-    void Compute_invMb_v(chrono::ChMatrix<double>& result, const chrono::ChMatrix<double>& vect) const override;
+    void Compute_invMb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect) const override;
 
-    void Compute_inc_invMb_v(chrono::ChMatrix<double>& result, const chrono::ChMatrix<double>& vect) const override;
+    void Compute_inc_invMb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect) const override;
 
-    void Compute_inc_Mb_v(chrono::ChMatrix<double>& result, const chrono::ChMatrix<double>& vect) const override;
+    void Compute_inc_Mb_v(chrono::ChVectorRef result, chrono::ChVectorConstRef vect) const override;
 
-    void MultiplyAndAdd(chrono::ChMatrix<double>& result, const chrono::ChMatrix<double>& vect,
+    void MultiplyAndAdd(chrono::ChVectorRef result, chrono::ChVectorConstRef vect,
                         const double c_a) const override;
 
-    void DiagonalAdd(chrono::ChMatrix<double>& result, const double c_a) const override;
+    void DiagonalAdd(chrono::ChVectorRef result, const double c_a) const override;
 
     void Build_M(chrono::ChSparseMatrix& storage, int insrow, int inscol, const double c_a) override;
 

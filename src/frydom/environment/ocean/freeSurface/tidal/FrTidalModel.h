@@ -50,9 +50,9 @@ namespace frydom {
    public:
     FrUTCTime() : m_hours(0), m_minutes(0), m_seconds(0) {}
 
-    FrUTCTime(const unsigned int hours, const unsigned int minutes, const unsigned int seconds);
+    FrUTCTime(unsigned int hours, unsigned int minutes, unsigned int seconds);
 
-    FrUTCTime(const unsigned int hours, const unsigned int minutes);
+    FrUTCTime(unsigned int hours, unsigned int minutes);
 
     unsigned int GetH() const { return m_hours; }
 
@@ -79,6 +79,7 @@ namespace frydom {
    */
   class FrTidal : public FrObject {
 
+   public:
     enum TIDAL_LEVEL {
       LOW,
       HIGH
@@ -88,6 +89,32 @@ namespace frydom {
       NO_TIDAL,
       TWELFTH_RULE
     };
+
+   public:
+
+    ~FrTidal() = default;
+
+    explicit FrTidal(FrFreeSurface *freeSurface);
+
+    FrTidal(FrFreeSurface *freeSurface, FrUTCTime t1, double h1, TIDAL_LEVEL level1, FrUTCTime t2,
+            double h2, TIDAL_LEVEL level2);
+
+    void SetNoTidal();
+
+    void Update(double time);
+
+    double GetHeight(FRAME_CONVENTION fc) const;
+
+    const chrono::ChFrame<double> *GetTidalFrame() const;
+
+    void Initialize() override;
+
+    void StepFinalize() override;
+
+   private:
+    void BuildTable();
+
+    void BuildTwelfthRuleTable();
 
    private:
 
@@ -107,32 +134,7 @@ namespace frydom {
     FrUTCTime m_t2;
     double m_h2;
 
-    mathutils::LookupTable1D<double, double> tidalTable;
-
-    void BuildTable();
-
-    void BuildTwelfthRuleTable();
-
-   public:
-
-    ~FrTidal() = default;
-
-    explicit FrTidal(FrFreeSurface *freeSurface);
-
-    FrTidal(FrFreeSurface *freeSurface, const FrUTCTime t1, const double h1, TIDAL_LEVEL level1, const FrUTCTime t2,
-            const double h2, TIDAL_LEVEL level2);
-
-    void SetNoTidal();
-
-    void Update(const double time);
-
-    const double GetHeight(FRAME_CONVENTION fc) const;
-
-    const chrono::ChFrame<double> *GetTidalFrame() const;
-
-    void Initialize() override;
-
-    void StepFinalize() override;
+    mathutils::LookupTable1D<double, double> m_tidal_table;
 
   };
 

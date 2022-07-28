@@ -12,7 +12,7 @@ void SetUpEnvironment(FrOffshoreSystem *system) {
   auto ocean = system->GetEnvironment()->GetOcean();
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
   waveField->SetWavePeriod(3.);
-  waveField->SetWaveHeight(0.1); //0.1
+  waveField->SetWaveHeight(0.2); //0.1
   waveField->SetDirection(0., DEG, NWU, GOTO);
 
   system->GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 15., 1.);
@@ -20,6 +20,7 @@ void SetUpEnvironment(FrOffshoreSystem *system) {
 
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetGrid(-5., 10., 0.5, -5., 5., 0.5);
   ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->SetUpdateStep(5);
+  ocean->GetFreeSurface()->GetFreeSurfaceGridAsset()->UpdateAssetON();
 
   ocean->GetSeabed()->SetBathymetry(-7.5, NWU);
   ocean->GetSeabed()->GetSeabedGridAsset()->SetGrid(-10., 15., 0.5, -12., 12., 0.5);
@@ -63,6 +64,7 @@ void LinkBodies(FrOffshoreSystem *system, std::vector<std::shared_ptr<FrBody>> b
   auto node_1b = bodyList[1]->NewNode("node_1b");
   node_1b->SetPositionInWorld(Position(-2.498, 1.444, 0.), NWU);
   auto link1 = make_spherical_link("link1", system, node_1a, node_1b);
+
 
   auto node_2a = bodyList[1]->NewNode("node_2a");
   node_2a->SetPositionInWorld(Position(0., 2.887, 0.), NWU);
@@ -134,7 +136,7 @@ SetUpHydrodynamicModel(FrOffshoreSystem *system, std::vector<std::shared_ptr<FrB
   radiationModel->SetImpulseResponseSize(bodyList[1].get(), 50., 0.02);
   radiationModel->SetImpulseResponseSize(bodyList[2].get(), 50., 0.02);
   radiationModel->SetImpulseResponseSize(bodyList[3].get(), 50., 0.02);
-  radiationModel->SetImpulseResponseSize(bodyList[4].get(), 50., 0.02);
+  radiationModel->SetImpulseResponseSize(bodyList[4].get(),  50., 0.02);
   radiationModel->SetImpulseResponseSize(bodyList[5].get(), 50., 0.02);
 
   return hdb;
@@ -263,7 +265,12 @@ int main(int argc, char *argv[]) {
 
   // System
 
-  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy");
+  //FrOffshoreSystem system("demo_HexagonalArticulatedBuoy",
+  //                        FrOffshoreSystem::SMOOTH_CONTACT,
+  //                        FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
+  //                        FrOffshoreSystem::MINRES);
+
+  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // Environment
   SetUpEnvironment(&system);

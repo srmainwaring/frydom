@@ -96,6 +96,7 @@ class TestFrFlowForce : public testing::Test {
 void TestFrFlowForce::SetUp() {
   body = system.NewBody("body");
   body->SetPosition(bodyPositionInWorld, NWU);
+  body->SetFixedInWorld(true);
 
   FrInertiaTensor InertiaTensor(1., 1., 1., 1., 0., 0., 0., COGPosition, NWU);
   body->SetInertiaTensor(InertiaTensor);
@@ -112,6 +113,7 @@ void TestFrFlowForce::LoadData(std::string filename, std::string group) {
   speedUnit   = SpeedUnit[H5Easy::load<std::string>(file, group + "speed_unit")];
   convention  = DirConvention[H5Easy::load<std::string>(file, group + "convention")];
   frame       = FrameConv[H5Easy::load<std::string>(file, group + "frame")];
+
 }
 
 void TestFrFlowForce::MakeForce(FLUID_TYPE type, std::string filename) {

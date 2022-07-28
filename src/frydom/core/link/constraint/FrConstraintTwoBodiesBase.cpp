@@ -14,28 +14,23 @@ namespace frydom {
       // 1- Assuming jacobians are already computed, now compute
       //   the matrices [Eq_a]=[invM_a]*[Cq_a]' and [Eq_b]
       if (variables_a->IsActive()) {
-        chrono::ChMatrixNM<double, 6, 1> mtemp1;
-        mtemp1.CopyFromMatrixT(Cq_a);
-        variables_a->Compute_invMb_v(Eq_a, mtemp1);
+        variables_a->Compute_invMb_v(Eq_a, Cq_a.transpose());
       }
       if (variables_b->IsActive()) {
-        chrono::ChMatrixNM<double, 6, 1> mtemp1;
-        mtemp1.CopyFromMatrixT(Cq_b);
-        variables_b->Compute_invMb_v(Eq_b, mtemp1);
+        variables_b->Compute_invMb_v(Eq_b, Cq_b.transpose());
       }
 
       // Off-diagonal mass-matrix coefficients
       if (variables_a->IsActive() and variables_b->IsActive()) {
 
+
         auto varBEM_a = dynamic_cast<FrVariablesBEMBodyBase *>(variables_a);
         auto varBEM_b = dynamic_cast<FrVariablesBEMBodyBase *>(variables_b);
 
         if (varBEM_a and varBEM_b) {
-          chrono::ChMatrixNM<double, 6, 1> mtemp1;
-          mtemp1.CopyFromMatrixT(Cq_b);
-          varBEM_a->Compute_inc_invMb_v(Eq_a, mtemp1, variables_b);
-          mtemp1.CopyFromMatrixT(Cq_a);
-          varBEM_b->Compute_inc_invMb_v(Eq_b, mtemp1, variables_a);
+
+          varBEM_a->Compute_inc_invMb_v(Eq_a, Cq_b.transpose(), variables_b);
+          varBEM_b->Compute_inc_invMb_v(Eq_b, Cq_a.transpose(), variables_a);
         }
       }
 
@@ -43,12 +38,10 @@ namespace frydom {
       chrono::ChMatrixNM<double, 1, 1> res;
       g_i = 0;
       if (variables_a->IsActive()) {
-        res.MatrMultiply(Cq_a, Eq_a);
-        g_i = res(0, 0);
+        g_i += Cq_a * Eq_a;
       }
       if (variables_b->IsActive()) {
-        res.MatrMultiply(Cq_b, Eq_b);
-        g_i += res(0, 0);
+        g_i += Cq_b * Eq_b;
       }
 
       // 3- adds the constraint force mixing term (usually zero):

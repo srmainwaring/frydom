@@ -10,7 +10,6 @@
 // ==========================================================================
 
 
-#include "chrono/core/ChMatrixDynamic.h"  // TODO : voir pourquoi on est oblige d'inclure ca...
 #include "chrono/core/ChFrame.h"
 
 #include "FrTidalModel.h"
@@ -94,11 +93,13 @@ namespace frydom {
     hVect.push_back(m_h1 + op * 12 * h_twelfth); // 1 twelfth // TODO: verifier qu'on a h2...
 
     // Populating the interpolation table
-    tidalTable.SetX(timeVect);
-    tidalTable.AddY("tidal_height", hVect);
+    m_tidal_table.SetX(timeVect);
+    m_tidal_table.AddY("tidal_height", hVect);
   }
 
-  FrTidal::FrTidal(FrFreeSurface *freeSurface) : m_freeSurface(freeSurface) {
+  FrTidal::FrTidal(FrFreeSurface *freeSurface) :
+      m_freeSurface(freeSurface),
+      m_tidal_table(mathutils::LINEAR) {
     m_tidalFrame = std::make_unique<chrono::ChFrame<double>>();
   }
 
@@ -112,7 +113,8 @@ namespace frydom {
       m_h2(h2),
       m_level2(level2),
       m_mode(TWELFTH_RULE),
-      m_freeSurface(freeSurface) {
+      m_freeSurface(freeSurface),
+      m_tidal_table(mathutils::LINEAR) {
 
     assert(h1 >= 0. && h2 >= 0.);
     assert(level1 != level2);  // Levels have to be different
@@ -130,13 +132,13 @@ namespace frydom {
     }
 
     if (m_mode == TWELFTH_RULE) {
-      waterHeight = tidalTable.Eval("tidal_height", m_time);
+      waterHeight = m_tidal_table.Eval("tidal_height", m_time);
     }
 
     m_tidalFrame->GetPos().z() = waterHeight;
   }
 
-  const double FrTidal::GetHeight(FRAME_CONVENTION fc) const {
+  double FrTidal::GetHeight(FRAME_CONVENTION fc) const {
     double ZPos = m_tidalFrame->GetPos().z();
     if (IsNED(fc)) { ZPos = -ZPos; }
     return ZPos;

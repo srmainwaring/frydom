@@ -66,7 +66,7 @@ namespace frydom {
 
     mathutils::Interp1dLinear<double, double> m_fieldInterpolator;
 
-    mathutils::Vector3d<double> m_direction;
+    Direction m_direction;
 
 
     };

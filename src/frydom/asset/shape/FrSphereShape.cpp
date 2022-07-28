@@ -12,7 +12,7 @@ namespace frydom {
 
     Position pos = relative_position;
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Position>(pos);
+      pos = internal::SwapFrameConvention<Position>(pos);
     }
     m_sphere->GetSphereGeometry().center = internal::Vector3dToChVector(pos);
   }

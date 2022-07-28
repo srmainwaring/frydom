@@ -17,7 +17,7 @@ set(UNIT_TESTS
         test_FrGeographicServices
         test_FrEquilibriumFrame
         test_FrWaveField
-#        test_FrMorisonElement
+        #        test_FrMorisonElement
         test_FrRecorder
         test_FrStandardWindForce
         test_FrStandardCurrentForce
@@ -48,19 +48,6 @@ foreach (test ${UNIT_TESTS})
     add_executable(${test} ${test}.cpp)
     target_link_libraries(${test} frydom gtest_main)
 
-#    set_target_properties( ${test}
-#            PROPERTIES
-#            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-#            )
     add_test(NAME ${test}
             COMMAND ${test})
-endforeach ()
-
-
-set(subdirs
-        # add here the test source subdirectories
-        )
-
-foreach (subdir ${subdirs})
-    add_subdirectory(${subdir})
 endforeach ()

@@ -120,8 +120,8 @@ namespace frydom {
 
   void FrSingleBarElement::NullifyForceTorque() {
     m_is_immerged = false;
-    m_force.SetNull();
-    m_torque.SetNull();
+    m_force.setZero();
+    m_torque.setZero();
   }
 
   void FrSingleBarElement::SetForceTorque() {
@@ -178,8 +178,8 @@ namespace frydom {
   }
 
   void FrCompositeBarElement::Update(double time) {
-    m_force.SetNull();
-    m_torque.SetNull();
+    m_force.setZero();
+    m_torque.setZero();
     for (auto& element : m_elements) {
       element->Update(time);
       if (element->IsImmerged()) {

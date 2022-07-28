@@ -156,7 +156,7 @@ namespace frydom {
 
     // return the vector in the specified frame convention
     mathutils::Vector3d<double> vecNWU = {By, -Bx, Bz};
-    if (IsNED(fc)) internal::SwapFrameConvention(vecNWU);
+    if (IsNED(fc)) vecNWU = internal::SwapFrameConvention(vecNWU);
 
     return vecNWU;
 

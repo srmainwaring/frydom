@@ -22,7 +22,7 @@ namespace frydom {
       m_vertexList = vertexList;
       if (IsNED(fc)) {
         for (auto &vertex:m_vertexList)
-          internal::SwapFrameConvention(vertex);
+          vertex = internal::SwapFrameConvention(vertex);
       }
 
       c_planar = CheckPlanar();
@@ -35,7 +35,7 @@ namespace frydom {
       auto vertexList = m_vertexList;
       if (IsNED(fc)) {
         for (auto &vertex:vertexList)
-          internal::SwapFrameConvention(vertex);
+          vertex = internal::SwapFrameConvention(vertex);
       }
 
       return vertexList;
@@ -72,7 +72,7 @@ namespace frydom {
 
       pos0 = vertexInPlane[0];
 
-      for (int i = 1; i < vertexInPlane.size(); i++) {
+      for (long unsigned int i = 1; i < vertexInPlane.size(); i++) {
 
         pos1 = vertexInPlane[i];
         x0 = pos0[0];

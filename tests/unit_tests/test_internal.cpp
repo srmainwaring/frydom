@@ -69,12 +69,12 @@ TEST(Internal, SwapFrameConvention) {
   Position testPos;
 
   // Swap NWU to NED, using non-const method
-  SwapFrameConvention(NWUPos);
+  NWUPos = SwapFrameConvention(NWUPos);
   testPos = NWUPos - NEDConstPos;
   EXPECT_TRUE(testPos.isZero());
 
   // Swap back to NWU, using non-const method
-  SwapFrameConvention(NWUPos);
+  NWUPos = SwapFrameConvention(NWUPos);
   testPos = NWUPos - NWUConstPos;
   EXPECT_TRUE(testPos.isZero());
 

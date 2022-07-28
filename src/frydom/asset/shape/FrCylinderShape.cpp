@@ -12,13 +12,10 @@ namespace frydom {
 
     Position pos = relative_position;
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Position>(pos);
+      pos = internal::SwapFrameConvention<Position>(pos);
     }
-    Position p1 = pos + Position{0., -height*0.5, 0.};
-    Position p2 = pos + Position{0., height*0.5, 0.};
-
-    m_cylinder->GetCylinderGeometry().p1 = internal::Vector3dToChVector(p1);
-    m_cylinder->GetCylinderGeometry().p2 = internal::Vector3dToChVector(p2);
+    m_cylinder->GetCylinderGeometry().p1 = pos + Position(0., -height*0.5, 0.);
+    m_cylinder->GetCylinderGeometry().p2 = pos + Position(0., height*0.5, 0.);
   }
 
   double FrCylinderShape::radius() const {

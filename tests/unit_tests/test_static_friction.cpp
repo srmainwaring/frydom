@@ -66,8 +66,7 @@ TEST(friction, chrono) {
 
   // Modify some setting of the physical system for the simulation, if you want
   system.SetSolverType(ChSolver::Type::BARZILAIBORWEIN);
-  system.SetMaxItersSolverSpeed(100);
-  system.SetMaxItersSolverStab(100);
+  system.SetSolverMaxIterations(100);
 
   system.DoStepDynamics(0.01);
 

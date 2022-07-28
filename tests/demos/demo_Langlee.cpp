@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 
   flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
-  bool is_irrlicht = false;
+  bool is_irrlicht = true;
 
   if (is_irrlicht) {
     system.RunInViewer(100, 50, false);

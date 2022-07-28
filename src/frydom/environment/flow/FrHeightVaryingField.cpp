@@ -23,7 +23,7 @@ namespace frydom {
     auto height = worldPos.GetZ();
     if (IsNED(fc)) height = -height;
     Velocity velocity = m_direction * m_fieldInterpolator(height);
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(velocity);
+    if (IsNED(fc)) velocity = internal::SwapFrameConvention<Velocity>(velocity);
     return velocity;
   }
 
@@ -38,7 +38,7 @@ namespace frydom {
 
 
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Velocity>(dirTmp);
+      dirTmp = internal::SwapFrameConvention<Velocity>(dirTmp);
       for (auto &item:heightsTmp) item = -item;
 
       //TODO:: should we really sort?

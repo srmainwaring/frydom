@@ -18,6 +18,8 @@
 #include <string>
 #include <list>
 
+#include "FrCastorManager.h"
+
 
 namespace frydom {
 
@@ -25,7 +27,6 @@ namespace frydom {
   class FrLoggableBase;
 
   class FrOffshoreSystem;
-
 
   class FrLogManager {
 
@@ -57,6 +58,10 @@ namespace frydom {
 
     void NoCSVLlog();  // TODO: permettre de ne pas logger en CSV... -> perf !
 
+    void LogCSV(bool val);
+
+    void LogHDF5(bool val);
+
     void DisableAllLogs();
 
     using LoggableList = std::list<FrLoggableBase *>;
@@ -72,6 +77,8 @@ namespace frydom {
 
     static std::string GetDateFolder();
 
+    FrCastorManager& GetCastorParameters();
+
    private:
     bool Has(FrLoggableBase *obj) const;
 
@@ -81,16 +88,22 @@ namespace frydom {
 
     void WriteMetaDataFile() const;
 
+    void WriteCastorFile();
+
     static std::string now();
 
    private:
+
     std::string m_log_folder;
 
     LoggableList m_loggable_list;
 
     FrOffshoreSystem *m_system;
 
+    FrCastorManager m_castor;
+
     bool m_log_CSV;
+    bool m_log_HDF5;
 
     int m_nfreq_output;
     int m_ifreq_output;

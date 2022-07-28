@@ -176,7 +176,7 @@ namespace frydom {
 
   void FrNode::TranslateInBody(const Direction &directionBody, double distance, FRAME_CONVENTION fc) {
     auto tmpDirection = directionBody;
-    tmpDirection.Normalize();
+    tmpDirection.normalize();
     TranslateInBody(distance * tmpDirection, fc);
   }
 
@@ -192,7 +192,7 @@ namespace frydom {
 
   void FrNode::TranslateInWorld(const Direction &directionWorld, double distance, FRAME_CONVENTION fc) {
     auto tmpDirection = directionWorld;
-    tmpDirection.Normalize();
+    tmpDirection.normalize();
     TranslateInWorld(distance * tmpDirection, fc);
   }
 
@@ -274,7 +274,7 @@ namespace frydom {
 
   Velocity FrNode::GetVelocityInWorld(FRAME_CONVENTION fc) const {
     Velocity VelocityInWorld = internal::ChVectorToVector3d<Velocity>(m_chronoMarker->GetAbsCoord_dt().pos);
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(VelocityInWorld);
+    if (IsNED(fc)) VelocityInWorld = internal::SwapFrameConvention<Velocity>(VelocityInWorld);
     return VelocityInWorld;
   }
 
@@ -285,14 +285,14 @@ namespace frydom {
   AngularVelocity FrNode::GetAngularVelocityInWorld(FRAME_CONVENTION fc) const {
     AngularVelocity AngularVelocityInWorld = internal::ChVectorToVector3d<AngularVelocity>(
         m_chronoMarker->GetAbsWvel());
-    if (IsNED(fc)) internal::SwapFrameConvention<AngularVelocity>(AngularVelocityInWorld);
+    if (IsNED(fc)) AngularVelocityInWorld = internal::SwapFrameConvention<AngularVelocity>(AngularVelocityInWorld);
     return AngularVelocityInWorld;
   }
 
   AngularVelocity FrNode::GetAngularVelocityInBody(FRAME_CONVENTION fc) const {
     AngularVelocity AngularVelocityInWorld = internal::ChVectorToVector3d<AngularVelocity>(
         m_chronoMarker->GetWvel_par());
-    if (IsNED(fc)) internal::SwapFrameConvention<AngularVelocity>(AngularVelocityInWorld);
+    if (IsNED(fc)) AngularVelocityInWorld = internal::SwapFrameConvention<AngularVelocity>(AngularVelocityInWorld);
     return AngularVelocityInWorld;
 
   }
@@ -300,7 +300,7 @@ namespace frydom {
   AngularVelocity FrNode::GetAngularVelocityInNode(FRAME_CONVENTION fc) const {
     AngularVelocity AngularVelocityInWorld = internal::ChVectorToVector3d<AngularVelocity>(
         m_chronoMarker->GetWvel_loc());
-    if (IsNED(fc)) internal::SwapFrameConvention<AngularVelocity>(AngularVelocityInWorld);
+    if (IsNED(fc)) AngularVelocityInWorld = internal::SwapFrameConvention<AngularVelocity>(AngularVelocityInWorld);
     return AngularVelocityInWorld;
 
   }
@@ -308,7 +308,7 @@ namespace frydom {
   Acceleration FrNode::GetAccelerationInWorld(FRAME_CONVENTION fc) const {
     Acceleration AccelerationInWorld = internal::ChVectorToVector3d<Acceleration>(
         m_chronoMarker->GetAbsCoord_dtdt().pos);
-    if (IsNED(fc)) internal::SwapFrameConvention<Acceleration>(AccelerationInWorld);
+    if (IsNED(fc)) AccelerationInWorld = internal::SwapFrameConvention<Acceleration>(AccelerationInWorld);
     return AccelerationInWorld;
   }
 

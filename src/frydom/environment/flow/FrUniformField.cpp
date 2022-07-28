@@ -20,7 +20,7 @@ namespace frydom {
     auto velTmp = velocity;
 
     if (IsNED(fc)) {
-      internal::SwapFrameConvention<Velocity>(velTmp);
+      velTmp = internal::SwapFrameConvention<Velocity>(velTmp);
     }
 
     if (IsCOMEFROM(dc)) {
@@ -90,7 +90,7 @@ namespace frydom {
 
   Velocity FrUniformField::GetFluxVelocityInWorld(const Position &worldPos, FRAME_CONVENTION fc) const {
     auto velocity = m_fluxVectorNWU;
-    if (IsNED(fc)) internal::SwapFrameConvention<Velocity>(velocity);
+    if (IsNED(fc)) velocity = internal::SwapFrameConvention<Velocity>(velocity);
     return velocity;
   }
 

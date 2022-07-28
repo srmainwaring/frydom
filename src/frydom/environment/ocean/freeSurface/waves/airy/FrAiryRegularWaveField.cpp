@@ -111,8 +111,10 @@ namespace frydom {
         break;
       case CHAKRABARTI:
         m_verticalFactor = std::make_unique<FrKinStretchingChakrabarti>(this);
+        break;
       case DELTA:
         m_verticalFactor = std::make_unique<FrKinStretchingDelta>(this);
+        break;
       default:
         m_verticalFactor = std::make_unique<FrKinematicStretching>();
         break;

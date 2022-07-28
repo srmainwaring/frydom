@@ -53,7 +53,7 @@ namespace frydom {
 
       element->EvaluateSectionFrame(U, position_, quaternion_);
 
-      auto position = internal::ChVectorToVector3d<Position>(position_);
+      auto position = position_.eigen();
 
       // Getting the tangent direction of cable at U
       chrono::ChVector<double> tangent = quaternion_.GetXaxis();
@@ -262,8 +262,8 @@ namespace frydom {
 
 
       // Pasting the results
-      F.PasteVector(unit_force, 0, 0);   // load, force part
-      F.PasteVector(chrono::VNULL, 3, 0);  // No torque
+      F.segment(0, 3) = unit_force.eigen(); // load, force part
+      F.segment(3, 3) = chrono::VNULL.eigen();  // No torque FIXME (CC) : peut-être a améliorer
 
     }
 
@@ -282,7 +282,7 @@ namespace frydom {
 
       element->EvaluateSectionFrame(U, position_, quaternion_);
 
-      auto position = internal::ChVectorToVector3d<Position>(position_);
+      auto position = position_.eigen();
 
       // Getting the tangent direction of cable at U
       chrono::ChVector<double> tangent = quaternion_.GetXaxis();
@@ -399,8 +399,8 @@ namespace frydom {
 
 
       // Pasting the results
-      F.PasteVector(unit_force, 0, 0);   // load, force part
-      F.PasteVector(chrono::VNULL, 3, 0);  // No torque
+      F.segment(0, 3) = unit_force.eigen();   // load, force part
+      F.segment(3, 3) = chrono::VNULL.eigen();  // No torque FIXME (CC) : améliorer la méthode
 
     }
 

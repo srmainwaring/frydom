@@ -6,6 +6,7 @@
 
 #include "frydom/frydom.h"
 #include "chrono_irrlicht/ChIrrApp.h"
+#include "chrono/physics/ChLinkSpring.h"
 
 
 using namespace chrono;

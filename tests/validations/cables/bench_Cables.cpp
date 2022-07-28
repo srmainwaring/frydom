@@ -95,9 +95,7 @@ int main(int argc, char *argv[]) {
 //    system.Visualize(20.,false);
 
   system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
-  system.SetSolverWarmStarting(true);
-  system.SetSolverMaxIterSpeed(200);
-  system.SetSolverMaxIterStab(200);
+  system.SetSolverMaxIterations(200);
   system.SetSolverForceTolerance(1e-13);
 
   system.SetTimeStep(0.01);

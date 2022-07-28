@@ -86,7 +86,7 @@ namespace frydom {
   Force FrCatenaryLineSeabed::GetTension(const double &s, FRAME_CONVENTION fc) const {
     Force tension = t(s / m_unstretchedLength) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
   }
 
@@ -107,14 +107,14 @@ namespace frydom {
   Force FrCatenaryLineSeabed::GetTensionAtTouchDown(FRAME_CONVENTION fc) const {
     Force tension = t_seabed(m_Lb) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
   }
 
   Force FrCatenaryLineSeabed::GetTensionAtAnchor(FRAME_CONVENTION fc) const {
     Force tension = t_seabed(0.) * c_qL;
     if (IsNED(fc))
-      internal::SwapFrameConvention(tension);
+      tension = internal::SwapFrameConvention(tension);
     return tension;
 
   }
@@ -138,7 +138,7 @@ namespace frydom {
     // (0, 0, 0) point as starting node in adim
     Position position = p(s / m_unstretchedLength) * m_unstretchedLength + m_startingNode->GetPositionInWorld(NWU);
     if (IsNED(fc))
-      internal::SwapFrameConvention(position);
+      position = internal::SwapFrameConvention(position);
 
     return position;
   }
@@ -390,7 +390,7 @@ namespace frydom {
 
   void FrCatenaryLineSeabed::GetJacobian(Jacobian44 &jacobian) const {
 
-    mathutils::Matrix33<double> jac_dp_Lb_dt;
+    Matrix33 jac_dp_Lb_dt;
     internal::JacobianBuilder::dp_dt(*this, *m_catenary_line, jac_dp_Lb_dt);
     jacobian.topLeftCorner(3, 3) = jac_dp_Lb_dt;
 
@@ -470,11 +470,13 @@ namespace frydom {
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t(const double &s) const {
     assert(0. <= s && s <= 1.);
+    Tension tension;
     if (0. <= s && s <= m_Lb) {
-      return t_seabed(s);
+      tension = t_seabed(s);
     } else if (m_Lb < s && s <= 1.) {
-      return t_catenary(s);
+      tension = t_catenary(s);
     }
+    return tension;
   }
 
   FrCatenaryLineSeabed::Tension FrCatenaryLineSeabed::t_seabed(const double &s) const {
@@ -526,7 +528,7 @@ namespace frydom {
 
     void JacobianBuilder::dp_dt(const FrCatenaryLineSeabed &sl,
                                 const FrCatenaryLine &cl,
-                                mathutils::Matrix33<double> &mat) {
+                                Matrix33 &mat) {
 
       mat = cl.GetJacobian();  // FIXME: renormaliser fonction de la longueur totale (* L_catenary / L_total un truc du genre...)
 
