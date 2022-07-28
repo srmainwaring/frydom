@@ -11,6 +11,28 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Fixed
 
+## [4.1] 2022-07-28
+
+### Major change
+
+Update to chrono v6.0
+
+### Added 
+
+- Base class `FrContact` with `static_friction`, `sliding_friction` and `restitution` properties. `FrContactNSC` and `FrContactSMC` now derived from `FrContact`(Consequently of the chrono update).
+
+### Changed
+
+- Update to chrono v6
+- Model  `FrFEACableSection` needs inertia (`chrono::ChInertiaCosserat`) at instanciation. The density and  diameter of the cable becomes properties of inertia. This modification is transparent for the user and definition of FEACable from the FRyDoM API remains unchanged.
+- Material are no longer properties of the body (`FrBody`) but are parts of the collision model. They are defined for each collision shapes. Consequently, when adding box or sphere with the `AddBox` and `AddSphere` methods in `FrCollisionModel` it is necessary to give a material properties with `FrContactParam` in argument of the function.  
+- Rayleigh damping has been extracted from the elasticity model of the FEA Cable and is now seen as an external damping. This modification is transparent for the user of FRyDoM API.
+- Computation of the KRM matrix of the FEA cable model has been updated according to chrono v6 update (transparent for FRyDoM user API).
+- The `GetTotalExtForceInWorld` and `GetTotalExtTorqueInWorld` in `FrBody` now integrate the weight of the body.
+- The method `AddAsset` has been removed from `FrOffshoreSystem` (consequently of chrono version update) since it is now automatically added.
+- Update of the different subsystem, assembled in the assembly model `ChAssembly`, have been updates accordingly to chrono update, since`ChAssembly` is now an attributes of `ChSystem` (transparent for FRyDoM user API).
+
+
 ## [4.0] 2022-07-27
 
 ### Major change
