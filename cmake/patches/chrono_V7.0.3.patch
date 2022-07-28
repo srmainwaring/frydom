@@ -1,0 +1,1150 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d3a923ccd..8cd6a1114 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,9 +14,9 @@ cmake_minimum_required(VERSION 3.10)
+ # Prevent in-source builds.
+ #-----------------------------------------------------------------------------
+ 
+-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
++if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+     message( FATAL_ERROR  "In-source build is not possible and not recommended. Choose an empty directory for build output.")
+-endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
++endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+ 
+ #-----------------------------------------------------------------------------
+ 
+@@ -61,7 +61,7 @@ set(CH_VERSION 0x00070002)
+ # Location of additional CMake scripts
+ #-----------------------------------------------------------------------------
+ 
+-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
++list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+ include(GetGitRevisionDescription)
+ get_git_head_revision(GIT_REFSPEC VCS_REVISION)
+ 
+@@ -191,8 +191,8 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "ChronoEngine")
+ set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "ChronoEngine")
+ set(CPACK_PACKAGE_NAME "ChronoEngine")
+ set(CPACK_PACKAGE_VENDOR "UWSBEL")
+-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+-set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
++set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
++set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+ #set(CPACK_RESOURCE_FILE_WELCOME "/home/andy/vtk/CMake/Templates/CPack.GenericWelcome.txt")
+ set(CPACK_SOURCE_GENERATOR "TGZ")
+ #set(CPACK_SOURCE_PACKAGE_FILE_NAME "ChronoEngine")
+@@ -225,14 +225,14 @@ endif()
+ #------------------------------------------------------------
+ 
+ if(MSVC OR XCODE_VERSION)
+-    file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/bin/data/)
++    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/bin/data/)
+ else()
+-    file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
++    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
+ endif()
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CH_INSTALL_DATA})
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/template_project/ DESTINATION ${CH_INSTALL_SAMPLE_PROJ})
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/template_project_vehicle_cosim/ DESTINATION ${CH_INSTALL_SAMPLE_PROJ_COSIM})
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION ${CH_INSTALL_DATA})
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/template_project/ DESTINATION ${CH_INSTALL_SAMPLE_PROJ})
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/template_project_vehicle_cosim/ DESTINATION ${CH_INSTALL_SAMPLE_PROJ_COSIM})
+ 
+ #------------------------------------------------------------
+ # Defer configuration of all Chrono libraries and programs
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 73d127f58..d7d3d7fd9 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -171,7 +171,7 @@ endif()
+ # SSE / AVX / FMA / NEON support
+ #-----------------------------------------------------------------------------
+ 
+-option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" ON)
++option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" OFF)
+ 
+ if(USE_SIMD)
+ 	
+@@ -342,7 +342,7 @@ if(CUDA_FOUND)
+     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --compiler-options -fPIC)
+   endif()
+ 
+-  include(${CMAKE_SOURCE_DIR}/cmake/FindCudaArch.cmake)
++  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindCudaArch.cmake)
+   SELECT_NVCC_ARCH_FLAGS(NVCC_FLAGS_EXTRA)
+   list(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
+ 
+@@ -391,7 +391,7 @@ if (CUDA_FOUND) # CUB should only be used with CUDA
+ 			cub.cuh
+ 			PATHS 
+ 				"${CUDA_TOOLKIT_ROOT_DIR}/include/cub/"
+-				"${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/cub/cub/"
++				"${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/cub/cub/"
+ 			DOC "Path to the CUB include directory" 
+ 			REQUIRED
+ 		)
+@@ -660,61 +660,61 @@ endif()
+ # Install headers from chrono_thirdparty folder
+ #------------------------------------------------------------
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/filesystem
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/filesystem
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/cxxopts
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/cxxopts
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/HACD
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/HACD
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/HACDv2
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/HACDv2
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/rapidjson
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/rapidjson
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/rapidxml
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/rapidxml
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/tinyobjloader
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/tinyobjloader
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/yafel
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/yafel
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/chpf
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/chpf
+ 	      DESTINATION include/chrono_thirdparty
+ 	      FILES_MATCHING PATTERN "*.hpp")
+         
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/stb
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/stb
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+-install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/variant
++install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/variant
+         DESTINATION include/chrono_thirdparty
+         FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp" PATTERN "*.inl")
+ 
+ if(BUILD_TESTING)
+-   install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/googletest/googletest/include
++   install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/googletest/googletest/include
+            DESTINATION include/chrono_thirdparty/googletest/googletest
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+-   install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/googletest/googlemock/include
++   install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/googletest/googlemock/include
+            DESTINATION include/chrono_thirdparty/googletest/googlemock
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ endif()
+ 
+ if(BUILD_BENCHMARKING)
+-   install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/chrono_thirdparty/googlebenchmark/include
++   install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/chrono_thirdparty/googlebenchmark/include
+            DESTINATION include/chrono_thirdparty/googlebenchmark
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh" PATTERN "*.hpp" PATTERN "*.inl")
+ endif()
+diff --git a/src/chrono/fea/ChElementBeamIGA.h b/src/chrono/fea/ChElementBeamIGA.h
+index e4696b904..c2482afbb 100644
+--- a/src/chrono/fea/ChElementBeamIGA.h
++++ b/src/chrono/fea/ChElementBeamIGA.h
+@@ -343,7 +343,7 @@ class ChApi ChElementBeamIGA : public ChElementBeam, public ChLoadableU, public
+     /// needed esp. when center of mass is offset)
+     static bool add_gyroscopic_terms;
+ 
+-  private:
++  protected:
+     /// Initial setup. Precompute mass and matrices that do not change during the simulation. In particular, compute the
+     /// arc-length parametrization.
+     virtual void SetupInitial(ChSystem* system) override;
+diff --git a/src/chrono/fea/ChMesh.h b/src/chrono/fea/ChMesh.h
+index 70fb03c78..692dbb5a8 100644
+--- a/src/chrono/fea/ChMesh.h
++++ b/src/chrono/fea/ChMesh.h
+@@ -270,7 +270,7 @@ class ChApi ChMesh : public ChIndexedNodes {
+     /// Basically does nothing, but maybe that inherited classes may specialize this.
+     virtual void InjectVariables(ChSystemDescriptor& mdescriptor) override;
+ 
+-  private:
++  protected:
+     /// Initial setup (before analysis).
+     /// This function is called from ChSystem::SetupInitial, marking a point where system
+     /// construction is completed.
+diff --git a/src/chrono/physics/ChBody.h b/src/chrono/physics/ChBody.h
+index 1be5af2d9..0d60a1c15 100644
+--- a/src/chrono/physics/ChBody.h
++++ b/src/chrono/physics/ChBody.h
+@@ -162,6 +162,7 @@ class ChApi ChBody : public ChPhysicsItem, public ChBodyFrame, public ChContacta
+ 
+     /// Return a reference to the encapsulated ChVariablesBody, representing states (pos, speed, or accel.) and forces.
+     /// The ChVariablesBodyOwnMass is the interface to the system solver.
++    ChVariablesBodyOwnMass& VariablesBody() { return variables; }
+     virtual ChVariables& Variables() override { return variables; }
+ 
+     /// Set no speed and no accelerations (but does not change the position)
+diff --git a/src/chrono/physics/ChBodyAuxRef.cpp b/src/chrono/physics/ChBodyAuxRef.cpp
+index 9cb9168ea..03eb877ea 100644
+--- a/src/chrono/physics/ChBodyAuxRef.cpp
++++ b/src/chrono/physics/ChBodyAuxRef.cpp
+@@ -49,6 +49,7 @@ void ChBodyAuxRef::SetFrame_COG_to_REF(const ChFrame<>& mloc) {
+ 
+     for (auto& marker : marklist) {
+         marker->ConcatenatePreTransformation(cog_oldnew);
++        marker->Impose_Rel_Coord(marker->GetCoord());
+         marker->Update(ChTime);
+     }
+ 
+diff --git a/src/chrono/physics/ChForce.h b/src/chrono/physics/ChForce.h
+index 367639f0b..93ba67a9b 100644
+--- a/src/chrono/physics/ChForce.h
++++ b/src/chrono/physics/ChForce.h
+@@ -56,95 +56,95 @@ class ChApi ChForce : public ChObj {
+     virtual ChForce* Clone() const override { return new ChForce(*this); }
+ 
+     /// Return the parent body (the force belongs to this rigid body)
+-    ChBody* GetBody() { return Body; }
++    virtual ChBody* GetBody() { return Body; }
+     /// Sets the parent body (the force belongs to this rigid body)
+-    void SetBody(ChBody* newRB) { Body = newRB; }
++    virtual void SetBody(ChBody* newRB) { Body = newRB; }
+ 
+     /// Sets the mode (force or torque)
+-    void SetMode(ForceType m_mode) { mode = m_mode; }
+-    ForceType GetMode() const { return mode; }
++    virtual void SetMode(ForceType m_mode) { mode = m_mode; }
++    virtual ForceType GetMode() const { return mode; }
+ 
+     /// Sets the alignment method.
+     /// The force will rotate together with this reference.
+-    void SetAlign(AlignmentFrame m_align) { align = m_align; }
+-    AlignmentFrame GetAlign() const { return align; }
++    virtual void SetAlign(AlignmentFrame m_align) { align = m_align; }
++    virtual AlignmentFrame GetAlign() const { return align; }
+ 
+     /// Sets the alignment method.
+     /// The force application point will follow this reference.
+-    void SetFrame(ReferenceFrame m_frame) {
++    virtual void SetFrame(ReferenceFrame m_frame) {
+         frame = m_frame;
+         SetVpoint(vpoint);
+     }
+-    ReferenceFrame GetFrame() const { return frame; }
++    virtual ReferenceFrame GetFrame() const { return frame; }
+ 
+     /// Gets the application point, in absolute coordinates.
+-    ChVector<> GetVpoint() const { return vpoint; }
++    virtual ChVector<> GetVpoint() const { return vpoint; }
+     /// Gets the application point, in rigid body coordinates.
+-    ChVector<> GetVrelpoint() const { return vrelpoint; }
++    virtual ChVector<> GetVrelpoint() const { return vrelpoint; }
+ 
+     /// Sets the application point, in absolute coordinates.
+-    void SetVpoint(ChVector<> mypoint);
++    virtual void SetVpoint(ChVector<> mypoint);
+     /// Sets the application point, in rigid body coordinates.
+-    void SetVrelpoint(ChVector<> myrelpoint);
++    virtual void SetVrelpoint(ChVector<> myrelpoint);
+ 
+     /// Gets the force (or torque) direction, in absolute coordinates.
+-    ChVector<> GetDir() const { return vdir; }
++    virtual ChVector<> GetDir() const { return vdir; }
+     /// Gets the force (or torque) direction, in rigid body coordinates.
+-    ChVector<> GetRelDir() const { return vreldir; }
++    virtual ChVector<> GetRelDir() const { return vreldir; }
+     /// Sets the force (or torque) direction, in absolute coordinates.
+-    void SetDir(ChVector<> newf);
++    virtual void SetDir(ChVector<> newf);
+     /// Sets the force (or torque) direction, in rigid body coordinates.
+-    void SetRelDir(ChVector<> newf);
++    virtual void SetRelDir(ChVector<> newf);
+ 
+     /// Sets force (or torque) modulus.
+-    void SetMforce(double newf);
++    virtual void SetMforce(double newf);
+     /// Gets force (or torque) modulus.
+-    double GetMforce() const { return mforce; }
++    virtual double GetMforce() const { return mforce; }
+ 
+     /// Sets a function for time-modulation of the force.
+-    void SetModulation(std::shared_ptr<ChFunction> m_funct) { modula = m_funct; }
+-    std::shared_ptr<ChFunction> GetModulation() const { return modula; }
++    virtual void SetModulation(std::shared_ptr<ChFunction> m_funct) { modula = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetModulation() const { return modula; }
+ 
+     /// Sets a function for time dependency of position (on x axis)
+-    void SetMove_x(std::shared_ptr<ChFunction> m_funct) { move_x = m_funct; }
+-    std::shared_ptr<ChFunction> GetMove_x() const { return move_x; }
++    virtual void SetMove_x(std::shared_ptr<ChFunction> m_funct) { move_x = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetMove_x() const { return move_x; }
+     /// Sets a function for time dependency of position (on y axis)
+-    void SetMove_y(std::shared_ptr<ChFunction> m_funct) { move_y = m_funct; }
+-    std::shared_ptr<ChFunction> GetMove_y() const { return move_y; }
++    virtual void SetMove_y(std::shared_ptr<ChFunction> m_funct) { move_y = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetMove_y() const { return move_y; }
+     /// Sets a function for time dependency of position (on z axis)
+-    void SetMove_z(std::shared_ptr<ChFunction> m_funct) { move_z = m_funct; }
+-    std::shared_ptr<ChFunction> GetMove_z() const { return move_z; }
++    virtual void SetMove_z(std::shared_ptr<ChFunction> m_funct) { move_z = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetMove_z() const { return move_z; }
+ 
+     /// Sets a function for time dependency of force X component.
+-    void SetF_x(std::shared_ptr<ChFunction> m_funct) { f_x = m_funct; }
+-    std::shared_ptr<ChFunction> GetF_x() const { return f_x; }
++    virtual void SetF_x(std::shared_ptr<ChFunction> m_funct) { f_x = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetF_x() const { return f_x; }
+     /// Sets a function for time dependency of force Y component.
+-    void SetF_y(std::shared_ptr<ChFunction> m_funct) { f_y = m_funct; }
+-    std::shared_ptr<ChFunction> GetF_y() const { return f_y; }
++    virtual void SetF_y(std::shared_ptr<ChFunction> m_funct) { f_y = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetF_y() const { return f_y; }
+     /// Sets a function for time dependency of force Z component.
+-    void SetF_z(std::shared_ptr<ChFunction> m_funct) { f_z = m_funct; }
+-    std::shared_ptr<ChFunction> GetF_z() const { return f_z; }
++    virtual void SetF_z(std::shared_ptr<ChFunction> m_funct) { f_z = m_funct; }
++    virtual std::shared_ptr<ChFunction> GetF_z() const { return f_z; }
+ 
+     /// Gets the instant force vector -or torque vector- in absolute coordinates.
+-    ChVector<> GetForce() const { return force; }
++    virtual ChVector<> GetForce() const { return force; }
+     /// Gets the instant force vector -or torque vector- in rigid body coordinates.
+-    ChVector<> GetRelForce() const { return relforce; }
++    virtual ChVector<> GetRelForce() const { return relforce; }
+     /// Gets the instant force vector -or torque vector- modulus.
+-    double GetForceMod() const { return force.Length(); }
++    virtual double GetForceMod() const { return force.Length(); }
+ 
+     /// Gets force-torque applied to rigid body, as lagrangian generalized force (7x1 matrix).
+-    const ChVectorN<double, 7>& GetQf() const { return Qf; }
++    virtual const ChVectorN<double, 7>& GetQf() const { return Qf; }
+     /// Gets force-torque applied to rigid body, as force vector (in absol.coords)
+     /// and torque vector (in body coords).
+-    void GetBodyForceTorque(ChVector<>& body_force, ChVector<>& body_torque) const;
++    virtual void GetBodyForceTorque(ChVector<>& body_force, ChVector<>& body_torque) const;
+ 
+     //
+     // UPDATING
+     //
+ 
+-    void UpdateTime(double mytime);
+-    void UpdateState();
+-    void Update(double mytime);
++    virtual void UpdateTime(double mytime);
++    virtual void UpdateState();
++    virtual void Update(double mytime);
+ 
+     //
+     // SERIALIZATION
+@@ -172,7 +172,7 @@ class ChApi ChForce : public ChObj {
+     CH_ENUM_VAL(WORLD_DIR);
+     CH_ENUM_MAPPER_END(AlignmentFrame);
+ 
+-  private:
++  protected:
+     ChBody* Body;  ///< object of application
+ 
+     ForceType mode;        ///< force or torque
+diff --git a/src/chrono/physics/ChLinkBrake.cpp b/src/chrono/physics/ChLinkBrake.cpp
+index 6c677ed53..522a6c5a9 100644
+--- a/src/chrono/physics/ChLinkBrake.cpp
++++ b/src/chrono/physics/ChLinkBrake.cpp
+@@ -22,7 +22,7 @@ CH_FACTORY_REGISTER(ChLinkBrake)
+ ChLinkBrake::ChLinkBrake()
+     : brake_torque(0), stick_ratio(1.1), brake_mode(BRAKE_ROTATION), last_dir(0), must_stick(false) {
+     // Mask: initialize our LinkMaskLF (lock formulation mask)
+-    mask.SetLockMask(false, false, false, false, false, false, false);
++    mask->SetLockMask(false, false, false, false, false, false, false);
+     BuildLink();
+ }
+ 
+@@ -40,8 +40,8 @@ void ChLinkBrake::Set_brake_mode(int mmode) {
+         brake_mode = mmode;
+ 
+         // reset mask for default free brake
+-        mask.Constr_E3().SetMode(CONSTRAINT_FREE);
+-        mask.Constr_X().SetMode(CONSTRAINT_FREE);
++        mask->Constr_E3().SetMode(CONSTRAINT_FREE);
++        mask->Constr_X().SetMode(CONSTRAINT_FREE);
+         BuildLink();
+     }
+ }
+@@ -49,8 +49,8 @@ void ChLinkBrake::Set_brake_mode(int mmode) {
+ void ChLinkBrake::SetDisabled(bool mdis) {
+     ChLinkLock::SetDisabled(mdis);
+ 
+-    mask.Constr_E3().SetMode(CONSTRAINT_FREE);
+-    mask.Constr_X().SetMode(CONSTRAINT_FREE);
++    mask->Constr_E3().SetMode(CONSTRAINT_FREE);
++    mask->Constr_X().SetMode(CONSTRAINT_FREE);
+     BuildLink();
+ }
+ 
+@@ -70,7 +70,7 @@ void ChLinkBrake::UpdateForces(double mytime) {
+     // then, if not sticking,
+     if (this->brake_torque) {
+         if (brake_mode == BRAKE_ROTATION) {
+-            if (mask.Constr_E3().IsActive() == false) {
++            if (mask->Constr_E3().IsActive() == false) {
+                 int mdir;
+ 
+                 Vector mv_torque = Vmul(VECT_Z, this->brake_torque);
+@@ -90,7 +90,7 @@ void ChLinkBrake::UpdateForces(double mytime) {
+             }
+         }
+         if (brake_mode == BRAKE_TRANSLATEX) {
+-            if (mask.Constr_X().IsActive() == false) {
++            if (mask->Constr_X().IsActive() == false) {
+                 int mdir;
+ 
+                 Vector mv_force = Vmul(VECT_X, this->brake_torque);
+diff --git a/src/chrono/physics/ChLinkClearance.cpp b/src/chrono/physics/ChLinkClearance.cpp
+index 3b6d55c14..68e9a0342 100644
+--- a/src/chrono/physics/ChLinkClearance.cpp
++++ b/src/chrono/physics/ChLinkClearance.cpp
+@@ -38,7 +38,7 @@ ChLinkClearance::ChLinkClearance() {
+     this->limit_X->SetMin(-1000.0);
+ 
+     // Mask: initialize our LinkMaskLF (lock formulation mask)
+-    mask.SetLockMask(false, false, false, false, true, true, false);
++    mask->SetLockMask(false, false, false, false, true, true, false);
+     BuildLink();
+ }
+ 
+@@ -116,7 +116,7 @@ void ChLinkClearance::UpdateForces(double mytime) {
+ 
+     // Just add Coulomb kinematic friction...
+ 
+-    if (mask.Constr_X().IsActive()) {
++    if (mask->Constr_X().IsActive()) {
+         Vector temp = Get_contact_P_abs();
+         Vector pb1 = ((ChFrame<double>*)Body1)->TransformParentToLocal(temp);
+         Vector pb2 = ((ChFrame<double>*)Body2)->TransformParentToLocal(temp);
+diff --git a/src/chrono/physics/ChLinkGear.cpp b/src/chrono/physics/ChLinkGear.cpp
+index b5315bdfb..dfb82846f 100644
+--- a/src/chrono/physics/ChLinkGear.cpp
++++ b/src/chrono/physics/ChLinkGear.cpp
+@@ -35,7 +35,7 @@ ChLinkGear::ChLinkGear()
+     local_shaft2.SetIdentity();
+ 
+     // Mask: initialize our LinkMaskLF (lock formulation mask) to X  only
+-    mask.SetLockMask(true, false, false, false, false, false, false);
++    mask->SetLockMask(true, false, false, false, false, false, false);
+     BuildLink();
+ }
+ 
+@@ -232,7 +232,7 @@ void ChLinkGear::UpdateTime(double mytime) {
+         if (m_delta > CH_C_PI)
+             m_delta -= (CH_C_2PI);  // range -180..+180 is better than 0...360
+         if (m_delta > (CH_C_PI / 4.0))
+-            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45°
++            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
+         if (m_delta < -(CH_C_PI / 4.0))
+             m_delta = -(CH_C_PI / 4.0);
+ 
+diff --git a/src/chrono/physics/ChLinkLinActuator.cpp b/src/chrono/physics/ChLinkLinActuator.cpp
+index 9a3dfcde6..bdb4e8b2e 100644
+--- a/src/chrono/physics/ChLinkLinActuator.cpp
++++ b/src/chrono/physics/ChLinkLinActuator.cpp
+@@ -34,7 +34,7 @@ ChLinkLinActuator::ChLinkLinActuator()
+     mot_rot = chrono_types::make_shared<ChFunction_Recorder>();
+ 
+     // Mask: initialize our LinkMaskLF (lock formulation mask)
+-    mask.SetLockMask(true, false, false, false, false, false, false);
++    mask->SetLockMask(true, false, false, false, false, false, false);
+     BuildLink();
+ 
+     mot_rerot = mot_rerot_dt = mot_rerot_dtdt = 0;
+@@ -63,9 +63,9 @@ void ChLinkLinActuator::Set_learn(bool mset) {
+     }
+ 
+     if (mset)
+-        mask.Constr_X().SetMode(CONSTRAINT_FREE);
++        mask->Constr_X().SetMode(CONSTRAINT_FREE);
+     else
+-        mask.Constr_X().SetMode(CONSTRAINT_LOCK);
++        mask->Constr_X().SetMode(CONSTRAINT_LOCK);
+ 
+     BuildLink();
+ 
+diff --git a/src/chrono/physics/ChLinkLock.cpp b/src/chrono/physics/ChLinkLock.cpp
+index f4a9277a1..9745a3d13 100644
+--- a/src/chrono/physics/ChLinkLock.cpp
++++ b/src/chrono/physics/ChLinkLock.cpp
+@@ -24,7 +24,7 @@ namespace chrono {
+ // Register into the object factory, to enable run-time dynamic creation and persistence
+ CH_FACTORY_REGISTER(ChLinkLock)
+ 
+-ChLinkLock::ChLinkLock() : type(LinkType::FREE), ndoc(0), ndoc_c(0), ndoc_d(0), d_restlength(0) {
++ChLinkLock::ChLinkLock() : type(LinkType::FREE), ndoc(0), ndoc_c(0), ndoc_d(0), d_restlength(0), mask() {
+     // Need to zero out the bottom-right 4x3 block
+     Cq1_temp.setZero();
+     Cq2_temp.setZero();
+@@ -63,7 +63,10 @@ ChLinkLock::ChLinkLock(const ChLinkLock& other) : ChLinkMarkers(other) {
+     BuildLinkType(other.type);
+ }
+ 
+-ChLinkLock::~ChLinkLock() {}
++ChLinkLock::~ChLinkLock() {
++    delete mask;
++    mask = NULL;
++}
+ 
+ //// Note: ability to explicitly provide joint forces was removed.
+ //// If ever needed, these functions can be re-enabled. In that case,
+@@ -216,19 +219,19 @@ ChLinkLimit& ChLinkLock::GetLimit_D() {
+ void ChLinkLock::SetDisabled(bool mdis) {
+     ChLinkMarkers::SetDisabled(mdis);
+ 
+-    if (mask.SetAllDisabled(mdis) > 0)
++    if (mask->SetAllDisabled(mdis) > 0)
+         BuildLink();
+ }
+ 
+ void ChLinkLock::SetBroken(bool mbro) {
+     ChLinkMarkers::SetBroken(mbro);
+ 
+-    if (mask.SetAllBroken(mbro) > 0)
++    if (mask->SetAllBroken(mbro) > 0)
+         BuildLink();
+ }
+ 
+ int ChLinkLock::RestoreRedundant() {
+-    int mchanges = mask.RestoreRedundant();
++    int mchanges = mask->RestoreRedundant();
+     if (mchanges)
+         BuildLink();
+ 
+@@ -239,7 +242,7 @@ void ChLinkLock::SetUpMarkers(ChMarker* mark1, ChMarker* mark2) {
+     ChLinkMarkers::SetUpMarkers(mark1, mark2);
+     assert(this->Body1 && this->Body2);
+ 
+-    mask.SetTwoBodiesVariables(&Body1->Variables(), &Body2->Variables());
++    mask->SetTwoBodiesVariables(&Body1->Variables(), &Body2->Variables());
+ 
+     // We must call BuildLink here again, because only now are the constraints properly activated
+     // (and hence the correct NDOC available).
+@@ -248,9 +251,9 @@ void ChLinkLock::SetUpMarkers(ChMarker* mark1, ChMarker* mark2) {
+ 
+ void ChLinkLock::BuildLink() {
+     // set ndoc by counting non-dofs
+-    ndoc = mask.GetMaskDoc();
+-    ndoc_c = mask.GetMaskDoc_c();
+-    ndoc_d = mask.GetMaskDoc_d();
++    ndoc = mask->GetMaskDoc();
++    ndoc_c = mask->GetMaskDoc_c();
++    ndoc_d = mask->GetMaskDoc_d();
+ 
+     // create matrices
+     C.resize(ndoc);
+@@ -276,7 +279,7 @@ void ChLinkLock::BuildLink() {
+ }
+ 
+ void ChLinkLock::BuildLink(bool x, bool y, bool z, bool e0, bool e1, bool e2, bool e3) {
+-    mask.SetLockMask(x, y, z, e0, e1, e2, e3);
++    mask->SetLockMask(x, y, z, e0, e1, e2, e3);
+     BuildLink();
+ }
+ 
+@@ -454,7 +457,7 @@ void ChLinkLock::UpdateState() {
+     // ---------------------
+     int index = 0;
+ 
+-    if (mask.Constr_X().IsActive()) {
++    if (mask->Constr_X().IsActive()) {
+         Cq1.block<1, 7>(index, 0) = Cq1_temp.block<1, 7>(0, 0);
+         Cq2.block<1, 7>(index, 0) = Cq2_temp.block<1, 7>(0, 0);
+ 
+@@ -469,7 +472,7 @@ void ChLinkLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_Y().IsActive()) {
++    if (mask->Constr_Y().IsActive()) {
+         Cq1.block<1, 7>(index, 0) = Cq1_temp.block<1, 7>(1, 0);
+         Cq2.block<1, 7>(index, 0) = Cq2_temp.block<1, 7>(1, 0);
+ 
+@@ -484,7 +487,7 @@ void ChLinkLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_Z().IsActive()) {
++    if (mask->Constr_Z().IsActive()) {
+         Cq1.block<1, 7>(index, 0) = Cq1_temp.block<1, 7>(2, 0);
+         Cq2.block<1, 7>(index, 0) = Cq2_temp.block<1, 7>(2, 0);
+ 
+@@ -499,7 +502,7 @@ void ChLinkLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E0().IsActive()) {
++    if (mask->Constr_E0().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(3, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(3, 3);
+ 
+@@ -514,7 +517,7 @@ void ChLinkLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E1().IsActive()) {
++    if (mask->Constr_E1().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(4, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(4, 3);
+ 
+@@ -529,7 +532,7 @@ void ChLinkLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E2().IsActive()) {
++    if (mask->Constr_E2().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(5, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(5, 3);
+ 
+@@ -544,7 +547,7 @@ void ChLinkLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E3().IsActive()) {
++    if (mask->Constr_E3().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(6, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(6, 3);
+ 
+@@ -811,38 +814,38 @@ void ChLinkLock::IntStateScatterReactions(const unsigned int off_L, const ChVect
+ 
+     int local_off = 0;
+ 
+-    if (mask.Constr_X().IsActive()) {
++    if (mask->Constr_X().IsActive()) {
+         react_force.x() = -react(local_off);
+         react_torque.y() = -relM.pos.z() * react(local_off);
+         react_torque.z() = relM.pos.y() * react(local_off);
+         local_off++;
+     }
+-    if (mask.Constr_Y().IsActive()) {
++    if (mask->Constr_Y().IsActive()) {
+         react_force.y() = -react(local_off);
+         react_torque.x() = relM.pos.z() * react(local_off);
+         react_torque.z() += -relM.pos.x() * react(local_off);
+         local_off++;
+     }
+-    if (mask.Constr_Z().IsActive()) {
++    if (mask->Constr_Z().IsActive()) {
+         react_force.z() = -react(local_off);
+         react_torque.x() += -relM.pos.y() * react(local_off);
+         react_torque.y() += relM.pos.x() * react(local_off);
+         local_off++;
+     }
+ 
+-    if (mask.Constr_E1().IsActive()) {
++    if (mask->Constr_E1().IsActive()) {
+         react_torque.x() += Ts(0, 1) * (react(local_off));
+         react_torque.y() += Ts(1, 1) * (react(local_off));
+         react_torque.z() += Ts(2, 1) * (react(local_off));
+         local_off++;
+     }
+-    if (mask.Constr_E2().IsActive()) {
++    if (mask->Constr_E2().IsActive()) {
+         react_torque.x() += Ts(0, 2) * (react(local_off));
+         react_torque.y() += Ts(1, 2) * (react(local_off));
+         react_torque.z() += Ts(2, 2) * (react(local_off));
+         local_off++;
+     }
+-    if (mask.Constr_E3().IsActive()) {
++    if (mask->Constr_E3().IsActive()) {
+         react_torque.x() += Ts(0, 3) * (react(local_off));
+         react_torque.y() += Ts(1, 3) * (react(local_off));
+         react_torque.z() += Ts(2, 3) * (react(local_off));
+@@ -937,9 +940,9 @@ void ChLinkLock::IntLoadResidual_CqL(const unsigned int off_L,    // offset in L
+                                      const double c)              // a scaling factor
+ {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            mask.Constr_N(i).MultiplyTandAdd(R, L(off_L + cnt) * c);
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            mask->Constr_N(i).MultiplyTandAdd(R, L(off_L + cnt) * c);
+             cnt++;
+         }
+     }
+@@ -1015,10 +1018,10 @@ void ChLinkLock::IntLoadConstraint_C(const unsigned int off_L,  // offset in Qc
+                                      double recovery_clamp)     // value for min/max clamping of c*C
+ {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
+             if (do_clamp) {
+-                if (mask.Constr_N(i).IsUnilateral())
++                if (mask->Constr_N(i).IsUnilateral())
+                     Qc(off_L + cnt) += ChMax(c * C(cnt), -recovery_clamp);
+                 else
+                     Qc(off_L + cnt) += ChMin(ChMax(c * C(cnt), -recovery_clamp), recovery_clamp);
+@@ -1100,8 +1103,8 @@ void ChLinkLock::IntLoadConstraint_Ct(const unsigned int off_L,  // offset in Qc
+                                       const double c)            // a scaling factor
+ {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
+             Qc(off_L + cnt) += c * Ct(cnt);
+             cnt++;
+         }
+@@ -1117,10 +1120,10 @@ void ChLinkLock::IntToDescriptor(const unsigned int off_v,
+                                  const ChVectorDynamic<>& L,
+                                  const ChVectorDynamic<>& Qc) {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            mask.Constr_N(i).Set_l_i(L(off_L + cnt));
+-            mask.Constr_N(i).Set_b_i(Qc(off_L + cnt));
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            mask->Constr_N(i).Set_l_i(L(off_L + cnt));
++            mask->Constr_N(i).Set_b_i(Qc(off_L + cnt));
+             cnt++;
+         }
+     }
+@@ -1206,9 +1209,9 @@ void ChLinkLock::IntFromDescriptor(const unsigned int off_v,
+                                    const unsigned int off_L,
+                                    ChVectorDynamic<>& L) {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            L(off_L + cnt) = mask.Constr_N(i).Get_l_i();
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            L(off_L + cnt) = mask->Constr_N(i).Get_l_i();
+             cnt++;
+         }
+     }
+@@ -1281,9 +1284,9 @@ void ChLinkLock::InjectConstraints(ChSystemDescriptor& mdescriptor) {
+     if (!this->IsActive())
+         return;
+ 
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive())
+-            mdescriptor.InsertConstraint(&mask.Constr_N(i));
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive())
++            mdescriptor.InsertConstraint(&mask->Constr_N(i));
+     }
+ 
+     if (limit_X && limit_X->IsActive()) {
+@@ -1349,8 +1352,8 @@ void ChLinkLock::InjectConstraints(ChSystemDescriptor& mdescriptor) {
+ }
+ 
+ void ChLinkLock::ConstraintsBiReset() {
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        mask.Constr_N(i).Set_b_i(0.);
++    for (int i = 0; i < mask->nconstr; i++) {
++        mask->Constr_N(i).Set_b_i(0.);
+     }
+ 
+     if (limit_X && limit_X->IsActive()) {
+@@ -1405,16 +1408,16 @@ void ChLinkLock::ConstraintsBiReset() {
+ 
+ void ChLinkLock::ConstraintsBiLoad_C(double factor, double recovery_clamp, bool do_clamp) {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
+             if (do_clamp) {
+-                if (mask.Constr_N(i).IsUnilateral())
+-                    mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + ChMax(factor * C(cnt), -recovery_clamp));
++                if (mask->Constr_N(i).IsUnilateral())
++                    mask->Constr_N(i).Set_b_i(mask->Constr_N(i).Get_b_i() + ChMax(factor * C(cnt), -recovery_clamp));
+                 else
+-                    mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() +
++                    mask->Constr_N(i).Set_b_i(mask->Constr_N(i).Get_b_i() +
+                                              ChMin(ChMax(factor * C(cnt), -recovery_clamp), recovery_clamp));
+             } else
+-                mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * C(cnt));
++                mask->Constr_N(i).Set_b_i(mask->Constr_N(i).Get_b_i() + factor * C(cnt));
+ 
+             cnt++;
+         }
+@@ -1550,9 +1553,9 @@ void ChLinkLock::ConstraintsBiLoad_C(double factor, double recovery_clamp, bool
+ 
+ void ChLinkLock::ConstraintsBiLoad_Ct(double factor) {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * Ct(cnt));
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            mask->Constr_N(i).Set_b_i(mask->Constr_N(i).Get_b_i() + factor * Ct(cnt));
+             cnt++;
+         }
+     }
+@@ -1560,9 +1563,9 @@ void ChLinkLock::ConstraintsBiLoad_Ct(double factor) {
+ 
+ void ChLinkLock::ConstraintsBiLoad_Qc(double factor) {
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            mask.Constr_N(i).Set_b_i(mask.Constr_N(i).Get_b_i() + factor * Qc(cnt));
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            mask->Constr_N(i).Set_b_i(mask->Constr_N(i).Get_b_i() + factor * Qc(cnt));
+             cnt++;
+         }
+     }
+@@ -1589,10 +1592,10 @@ void ChLinkLock::ConstraintsLoadJacobians() {
+         return;
+ 
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            mask.Constr_N(i).Get_Cq_a().block(0, 0, 1, Cqw1.cols()) = Cqw1.block(cnt, 0, 1, Cqw1.cols());
+-            mask.Constr_N(i).Get_Cq_b().block(0, 0, 1, Cqw2.cols()) = Cqw2.block(cnt, 0, 1, Cqw2.cols());
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            mask->Constr_N(i).Get_Cq_a().block(0, 0, 1, Cqw1.cols()) = Cqw1.block(cnt, 0, 1, Cqw1.cols());
++            mask->Constr_N(i).Get_Cq_b().block(0, 0, 1, Cqw2.cols()) = Cqw2.block(cnt, 0, 1, Cqw2.cols());
+             cnt++;
+ 
+             // sets also the CFM term
+@@ -1695,9 +1698,9 @@ void ChLinkLock::ConstraintsFetch_react(double factor) {
+ 
+     // From constraints to react vector:
+     int cnt = 0;
+-    for (int i = 0; i < mask.nconstr; i++) {
+-        if (mask.Constr_N(i).IsActive()) {
+-            react(cnt) = mask.Constr_N(i).Get_l_i() * factor;
++    for (int i = 0; i < mask->nconstr; i++) {
++        if (mask->Constr_N(i).IsActive()) {
++            react(cnt) = mask->Constr_N(i).Get_l_i() * factor;
+             cnt++;
+         }
+     }
+@@ -1754,38 +1757,38 @@ void ChLinkLock::ConstraintsFetch_react(double factor) {
+ 
+     int n_constraint = 0;
+ 
+-    if (mask.Constr_X().IsActive()) {
++    if (mask->Constr_X().IsActive()) {
+         react_force.x() = -react(n_constraint);
+         react_torque.y() = -relM.pos.z() * react(n_constraint);
+         react_torque.z() = relM.pos.y() * react(n_constraint);
+         n_constraint++;
+     }
+-    if (mask.Constr_Y().IsActive()) {
++    if (mask->Constr_Y().IsActive()) {
+         react_force.y() = -react(n_constraint);
+         react_torque.x() = relM.pos.z() * react(n_constraint);
+         react_torque.z() += -relM.pos.x() * react(n_constraint);
+         n_constraint++;
+     }
+-    if (mask.Constr_Z().IsActive()) {
++    if (mask->Constr_Z().IsActive()) {
+         react_force.z() = -react(n_constraint);
+         react_torque.x() += -relM.pos.y() * react(n_constraint);
+         react_torque.y() += relM.pos.x() * react(n_constraint);
+         n_constraint++;
+     }
+ 
+-    if (mask.Constr_E1().IsActive()) {
++    if (mask->Constr_E1().IsActive()) {
+         react_torque.x() += Ts(0, 1) * (react(n_constraint));
+         react_torque.y() += Ts(1, 1) * (react(n_constraint));
+         react_torque.z() += Ts(2, 1) * (react(n_constraint));
+         n_constraint++;
+     }
+-    if (mask.Constr_E2().IsActive()) {
++    if (mask->Constr_E2().IsActive()) {
+         react_torque.x() += Ts(0, 2) * (react(n_constraint));
+         react_torque.y() += Ts(1, 2) * (react(n_constraint));
+         react_torque.z() += Ts(2, 2) * (react(n_constraint));
+         n_constraint++;
+     }
+-    if (mask.Constr_E3().IsActive()) {
++    if (mask->Constr_E3().IsActive()) {
+         react_torque.x() += Ts(0, 3) * (react(n_constraint));
+         react_torque.y() += Ts(1, 3) * (react(n_constraint));
+         react_torque.z() += Ts(2, 3) * (react(n_constraint));
+@@ -2323,7 +2326,7 @@ void ChLinkLockLock::UpdateState() {
+     // ---------------------
+     int index = 0;
+ 
+-    if (mask.Constr_X().IsActive()) {
++    if (mask->Constr_X().IsActive()) {
+         Cq1.block<1, 7>(index, 0) = Cq1_temp.block<1, 7>(0, 0);
+         Cq2.block<1, 7>(index, 0) = Cq2_temp.block<1, 7>(0, 0);
+ 
+@@ -2338,7 +2341,7 @@ void ChLinkLockLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_Y().IsActive()) {
++    if (mask->Constr_Y().IsActive()) {
+         Cq1.block<1, 7>(index, 0) = Cq1_temp.block<1, 7>(1, 0);
+         Cq2.block<1, 7>(index, 0) = Cq2_temp.block<1, 7>(1, 0);
+ 
+@@ -2353,7 +2356,7 @@ void ChLinkLockLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_Z().IsActive()) {
++    if (mask->Constr_Z().IsActive()) {
+         Cq1.block<1, 7>(index, 0) = Cq1_temp.block<1, 7>(2, 0);
+         Cq2.block<1, 7>(index, 0) = Cq2_temp.block<1, 7>(2, 0);
+ 
+@@ -2368,7 +2371,7 @@ void ChLinkLockLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E0().IsActive()) {
++    if (mask->Constr_E0().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(3, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(3, 3);
+ 
+@@ -2383,7 +2386,7 @@ void ChLinkLockLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E1().IsActive()) {
++    if (mask->Constr_E1().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(4, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(4, 3);
+ 
+@@ -2398,7 +2401,7 @@ void ChLinkLockLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E2().IsActive()) {
++    if (mask->Constr_E2().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(5, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(5, 3);
+ 
+@@ -2413,7 +2416,7 @@ void ChLinkLockLock::UpdateState() {
+         index++;
+     }
+ 
+-    if (mask.Constr_E3().IsActive()) {
++    if (mask->Constr_E3().IsActive()) {
+         Cq1.block<1, 4>(index, 3) = Cq1_temp.block<1, 4>(6, 3);
+         Cq2.block<1, 4>(index, 3) = Cq2_temp.block<1, 4>(6, 3);
+ 
+diff --git a/src/chrono/physics/ChLinkLock.h b/src/chrono/physics/ChLinkLock.h
+index e77164d4c..0ffeaa0f3 100644
+--- a/src/chrono/physics/ChLinkLock.h
++++ b/src/chrono/physics/ChLinkLock.h
+@@ -54,7 +54,7 @@ class ChApi ChLinkLock : public ChLinkMarkers {
+     virtual void SetBroken(bool mon) override;
+ 
+     /// Get the link mask (a container for the ChConstraint items).
+-    ChLinkMask& GetMask() { return mask; }
++    ChLinkMask* GetMask() { return mask; }
+ 
+     /// Set the two markers associated with this link.
+     virtual void SetUpMarkers(ChMarker* mark1, ChMarker* mark2) override;
+@@ -190,7 +190,7 @@ class ChApi ChLinkLock : public ChLinkMarkers {
+ 
+     // The mask of the locked coords, with the status of the scalar constraints.
+     // This object also encapsulates the jacobians and residuals for the solver.
+-    ChLinkMaskLF mask;  ///< scalar constraints
++    ChLinkMaskLF* mask;  ///< scalar constraints
+ 
+     // Degrees of constraint (excluding constraints from joint limits)
+     int ndoc;    ///< number of degrees of constraint
+@@ -245,8 +245,8 @@ class ChApi ChLinkLock : public ChLinkMarkers {
+     void BuildLink();
+ 
+     /// Set the mask and then resize matrices.
+-    void BuildLinkType(LinkType link_type);
+-    void BuildLink(bool x, bool y, bool z, bool e0, bool e1, bool e2, bool e3);
++    virtual void BuildLinkType(LinkType link_type);
++    virtual void BuildLink(bool x, bool y, bool z, bool e0, bool e1, bool e2, bool e3);
+ 
+     void ChangeLinkType(LinkType new_link_type);
+ 
+diff --git a/src/chrono/physics/ChLinkMask.h b/src/chrono/physics/ChLinkMask.h
+index 7c658878d..877db20d6 100644
+--- a/src/chrono/physics/ChLinkMask.h
++++ b/src/chrono/physics/ChLinkMask.h
+@@ -59,7 +59,7 @@ class ChApi ChLinkMask {
+     /// Utility: to change the size of the mask, reallocating constraints
+     /// (all of type ChConstraintTwo).
+     /// No action if newnconstr == nconstr
+-    void ResetNconstr(int newnconstr);
++    virtual void ResetNconstr(int newnconstr);
+ 
+     /// Add a ChConstraintTwoBodies to mask (NOTE: later, the constraint will
+     /// be automatically deleted when the mask will be deleted)
+@@ -114,6 +114,9 @@ class ChApi ChLinkMaskLF : public ChLinkMask {
+     ChLinkMaskLF();
+     ChLinkMaskLF(const ChLinkMaskLF& other) : ChLinkMask(other) {}
+ 
++    /// "Virtual" copy constructor (covariant return type).
++    virtual ChLinkMaskLF* Clone() const { return new ChLinkMaskLF(*this); }
++
+     /// Assignment operator.
+     ChLinkMaskLF& operator=(const ChLinkMaskLF& other);
+ 
+diff --git a/src/chrono/physics/ChLinkPointSpline.cpp b/src/chrono/physics/ChLinkPointSpline.cpp
+index bac799c4c..fbf8ef7e2 100644
+--- a/src/chrono/physics/ChLinkPointSpline.cpp
++++ b/src/chrono/physics/ChLinkPointSpline.cpp
+@@ -28,7 +28,7 @@ ChLinkPointSpline::ChLinkPointSpline() : tolerance(1e-6) {
+     trajectory_line = chrono_types::make_shared<ChLineSegment>();
+ 
+     // Mask: initialize our LinkMaskLF (lock formulation mask) to X  only
+-    mask.SetLockMask(false, true, true, false, false, false, false);
++    mask->SetLockMask(false, true, true, false, false, false, false);
+ 
+     BuildLink();
+ }
+diff --git a/src/chrono/physics/ChLinkPulley.cpp b/src/chrono/physics/ChLinkPulley.cpp
+index 33d2537f0..76823be9f 100644
+--- a/src/chrono/physics/ChLinkPulley.cpp
++++ b/src/chrono/physics/ChLinkPulley.cpp
+@@ -37,7 +37,7 @@ ChLinkPulley::ChLinkPulley()
+     local_shaft2.SetIdentity();
+ 
+     // Mask: initialize our LinkMaskLF (lock formulation mask) to X  only
+-    mask.SetLockMask(true, false, false, false, false, false, false);
++    mask->SetLockMask(true, false, false, false, false, false, false);
+     BuildLink();
+ }
+ 
+@@ -157,7 +157,7 @@ void ChLinkPulley::UpdateTime(double mytime) {
+         if (m_delta > CH_C_PI)
+             m_delta -= (CH_C_2PI);  // range -180..+180 is better than 0...360
+         if (m_delta > (CH_C_PI / 4.0))
+-            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45°
++            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
+         if (m_delta < -(CH_C_PI / 4.0))
+             m_delta = -(CH_C_PI / 4.0);
+         //***TODO***
+diff --git a/src/chrono/physics/ChLinkScrew.cpp b/src/chrono/physics/ChLinkScrew.cpp
+index bac9768b9..805507106 100644
+--- a/src/chrono/physics/ChLinkScrew.cpp
++++ b/src/chrono/physics/ChLinkScrew.cpp
+@@ -25,7 +25,7 @@ ChLinkScrew::ChLinkScrew() {
+     // Mask: initialize our LinkMaskLF (lock formulation mask) to X,Y,Z,Rx Ry,
+     // (note: the Z lock is not a standard LinkLock z-lock and will be handled as a custom screw constraint
+     // z = tau*alpha, later in the updating functions).
+-    mask.SetLockMask(true, true, true, false, true, true, false);
++    mask->SetLockMask(true, true, true, false, true, true, false);
+     BuildLink();
+ }
+ 
+diff --git a/src/chrono/physics/ChLinkTrajectory.cpp b/src/chrono/physics/ChLinkTrajectory.cpp
+index 39370e7ce..878d1991c 100644
+--- a/src/chrono/physics/ChLinkTrajectory.cpp
++++ b/src/chrono/physics/ChLinkTrajectory.cpp
+@@ -33,7 +33,7 @@ ChLinkTrajectory::ChLinkTrajectory() : modulo_s(false) {
+     trajectory_line = chrono_types::make_shared<ChLineSegment>();
+ 
+     // Mask: initialize our LinkMaskLF (lock formulation mask) to X  only
+-    mask.SetLockMask(true, true, true, false, false, false, false);
++    mask->SetLockMask(true, true, true, false, false, false, false);
+ 
+     BuildLink();
+ }
+diff --git a/src/chrono/physics/ChPhysicsItem.h b/src/chrono/physics/ChPhysicsItem.h
+index 45d9f1f82..5685b1ce0 100644
+--- a/src/chrono/physics/ChPhysicsItem.h
++++ b/src/chrono/physics/ChPhysicsItem.h
+@@ -401,7 +401,6 @@ class ChApi ChPhysicsItem : public ChObj {
+     unsigned int offset_w;  ///< offset in vector of state (speed part)
+     unsigned int offset_L;  ///< offset in vector of lagrangian multipliers
+ 
+-  private:
+     virtual void SetupInitial() {}
+ 
+     friend class ChSystem;
+diff --git a/src/chrono/physics/ChSystem.h b/src/chrono/physics/ChSystem.h
+index e5d507367..1ca98144d 100644
+--- a/src/chrono/physics/ChSystem.h
++++ b/src/chrono/physics/ChSystem.h
+@@ -492,10 +492,10 @@ class ChApi ChSystem : public ChIntegrableIIorder {
+ 
+     /// Updates all the auxiliary data and children of
+     /// bodies, forces, links, given their current state.
+-    void Update(double mytime, bool update_assets = true);
++    virtual void Update(double mytime, bool update_assets = true);
+ 
+     /// Updates all the auxiliary data and children of bodies, forces, links, given their current state.
+-    void Update(bool update_assets = true);
++    virtual void Update(bool update_assets = true);
+ 
+     /// In normal usage, no system update is necessary at the beginning of a new dynamics step (since an update is
+     /// performed at the end of a step). However, this is not the case if external changes to the system are made. Most
+@@ -713,7 +713,7 @@ class ChApi ChSystem : public ChIntegrableIIorder {
+     /// Tell if the system will put to sleep the bodies whose motion has almost come to a rest.
+     bool GetUseSleeping() const { return use_sleeping; }
+ 
+-  private:
++  protected:
+     /// Put bodies to sleep if possible. Also awakens sleeping bodies, if needed.
+     /// Returns true if some body changed from sleep to no sleep or viceversa,
+     /// returns false if nothing changed. In the former case, also performs Setup()
+@@ -853,7 +853,7 @@ class ChApi ChSystem : public ChIntegrableIIorder {
+     /// Solve the position of static equilibrium (and the reactions).
+     /// This is a one-step only approach that solves the **linear** equilibrium.
+     /// Appropriate mostly for FEM problems with small deformations.
+-    bool DoStaticLinear();
++    virtual bool DoStaticLinear();
+ 
+     /// Solve the position of static equilibrium (and the reactions).
+     /// This function solves the equilibrium for the nonlinear problem (large displacements).
+diff --git a/src/chrono/solver/ChIterativeSolverVI.h b/src/chrono/solver/ChIterativeSolverVI.h
+index 4e058b4c3..8ae7be471 100644
+--- a/src/chrono/solver/ChIterativeSolverVI.h
++++ b/src/chrono/solver/ChIterativeSolverVI.h
+@@ -73,6 +73,8 @@ class ChApi ChIterativeSolverVI : public ChIterativeSolver, public ChSolverVI {
+     /// GetViolationHistory).
+     void SetRecordViolation(bool mval) { record_violation_history = mval; }
+ 
++    bool GetRecordViolation() const { return record_violation_history; }
++
+     /// Return the current value of the overrelaxation factor.
+     double GetOmega() const { return m_omega; }
+ 
+diff --git a/src/chrono/solver/ChSolver.h b/src/chrono/solver/ChSolver.h
+index d98b45614..0df02da2a 100644
+--- a/src/chrono/solver/ChSolver.h
++++ b/src/chrono/solver/ChSolver.h
+@@ -91,10 +91,22 @@ class ChApi ChSolver {
+     /// Method to allow de-serialization of transient data from archives.
+     virtual void ArchiveIN(ChArchiveIn& marchive);
+ 
++    //##CC
++    int GetIterLog() const { return m_iter_log; }
++    double GetResidualLog() const { return m_residual_log; }
++    double GetMaxDeltaUnknowns() const { return m_maxdeltaunknowns_log; }
++    //##
++
+   protected:
+     ChSolver() : verbose(false) {}
+ 
+     bool verbose;
++
++    //##CC
++    int m_iter_log;
++    double m_residual_log;
++    double m_maxdeltaunknowns_log;
++    //##
+ };
+ 
+ /// @} chrono_solver

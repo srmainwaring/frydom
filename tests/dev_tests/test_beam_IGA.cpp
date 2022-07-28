@@ -623,7 +623,7 @@ int main() {
   // Create the Irrlicht visualization (open the Irrlicht device,
   // bind a simple user interface, etc. etc.)
   ChIrrApp application(&my_system, L"IGA beams DEMO (SPACE for dynamics, F10 / F11 statics)",
-                       core::dimension2d<u32>(800, 600),
+                       core::dimension2d<u32>(800, 600), chrono::irrlicht::VerticalDir::Z,
                        false, true);
 
   // Easy shortcuts to add camera, lights, logo and sky in Irrlicht scene:
