@@ -48,6 +48,7 @@ namespace frydom {
       /// \param offshoreSystem pointer to the offshore system
       explicit FrSystemBase(FrOffshoreSystem *offshoreSystem);
 
+      /// Initialize the systemBase 
       void Initialize();
 
       /// Update the state of the systemBase, called from chrono, call the Update of the offshore system
@@ -458,32 +459,47 @@ namespace frydom {
     /// \param checkCompat if true, compatibility check between contact method, solver and time stepper is performed.
     void SetSolver(SOLVER solver, bool checkCompat = true);
 
-    void SetSolverMaxIterations(int max_iters);
-
-    int GetSolverMaxIterations() const;
-
-    void SetSolverTolerance(double tolerance);
-
-    double GetSolverTolerance() const;
-
     void SetSolverVerbose(bool verbose);
 
+    /// Turn ON/OFF the warm starting feature of both iterative solvers (the one for speed and the other for
+    /// pos.stabilization).
+    /// \param useWarm warm starting if true
+    void SetSolverWarmStarting(bool useWarm);
 
+    /// Adjust the omega overrelaxation parameter of both iterative solvers (the one for speed and the other for
+    /// position stabilization) Note, usually a good omega for Jacobi or GPU solver is 0.2;
+    /// for other iter.solvers can be up to 1.0
+    /// \param omega overrelaxation parameter of both iterative solvers
+    void SetSolverOverrelaxationParam(double omega);
 
     void SetSolverDiagonalPreconditioning(bool val);
 
+    /// Adjust the 'sharpness lambda' parameter of both iterative solvers (the one for speed and the other for
+    /// pos.stabilization). Note, usually a good sharpness value is in 1..0.8 range (the lower, the more it helps
+    /// exact convergence, but overall convergence gets also much slower so maybe better to tolerate some error)
+    /// \param momega 'sharpness lambda' parameter of both iterative solvers
+    void SetSolverSharpnessParam(double momega);
 
-    /// When using an iterative solver (es. SOR) set the maximum number of iterations.
-    /// The higher the iteration number, the more precise the simulation (but more CPU time).
-    /// \param maxIter maximum number of iterations od the iterative solver
-    void SetSolverMaxIterSpeed(int maxIter);
+    /// Changes the number of parallel threads (by default is n.of cores).
+    /// Note that not all solvers use parallel computation.
+    /// If you have a N-core processor, this should be set at least =N for maximum performance.
+    /// \param nbThreads number of parallel threads (by default is n.of cores)
+    void SetParallelThreadNumber(int nbThreads);
 
-    /// When using an iterative solver (es. SOR) and a timestepping method
-    /// requiring post-stabilization (e.g., EULER_IMPLICIT_PROJECTED), set the
-    /// the maximum number of stabilization iterations. The higher the iteration
-    /// number, the more precise the simulation (but more CPU time).
-    /// \param maxIter maximum number of stabilization iterations
-    void SetSolverMaxIterStab(int maxIter);
+    /// Set the maximum number of iterations, if using an iterative solver.
+    /// \deprecated Prefer using SetSolver and setting solver parameters directly.
+    void SetSolverMaxIterations(int max_iters);
+
+    /// Get the current maximum number of iterations, if using an iterative solver.
+    /// \deprecated Prefer using GetSolver and accessing solver statistics directly.
+    int GetSolverMaxIterations() const;
+
+    /// Set the solver tolerance threshold (used with iterative solvers only).
+    /// Note that the stopping criteria differs from solver to solver.
+    void SetSolverTolerance(double tolerance);
+
+    /// Get the current tolerance value (used with iterative solvers only).
+    double GetSolverTolerance() const;
 
     /// Sets outer iteration limit for assembly constraints. When trying to keep constraints together,
     /// the iterative process is stopped if this max.number of iterations (or tolerance) is reached.

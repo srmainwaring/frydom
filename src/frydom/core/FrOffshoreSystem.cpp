@@ -629,6 +629,12 @@ namespace frydom {
 
     msg->AddField<double>("time", "s", "Current time of the simulation", [this]() { return GetTime(); });
 
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
+        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
+      });
+    }
+
     msg->AddField<int>("iter_log", "", "number of total iteractions make by the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetIterLog(); });
 
     msg->AddField<double>("residual_log", "", "residual of the iterative solver", [this]() { return m_chronoSystem->GetSolver()->GetResidualLog(); }); 
@@ -787,6 +793,33 @@ namespace frydom {
     return m_chronoSystem->GetSolverTolerance();
   }
 
+
+  void FrOffshoreSystem::SetSolverWarmStarting(bool useWarm) {
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      solver->EnableWarmStart(useWarm);
+
+      std::string active;
+      if (useWarm) {
+        active = "activated";
+      } else {
+        active = "deactivated";
+      }
+      event_logger::info(GetTypeName(), GetName(), "Solver warm start {}", active);
+    } else {
+      std::cout << "warning : warm starting enabled only on Iterative Solver.\nWarm Starting is not activated." << std::endl;
+    }
+  }
+
+  void FrOffshoreSystem::SetSolverOverrelaxationParam(double omega) {
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      solver->SetOmega(omega);
+      event_logger::info(GetTypeName(), GetName(),
+                         "Solver over relaxation parameter set to {}", omega);
+    } else {
+      std::cout << "warnin : Overrelaxation param enable only on Iterative Solver VI.\n Overrelaxation is not activated." << std::endl;
+    }
+  }
+
   void FrOffshoreSystem::SetSolverDiagonalPreconditioning(bool val) {
     if (m_solverType == MINRES) {
       auto solver = dynamic_cast<chrono::ChIterativeSolver *>(m_chronoSystem->GetSolver().get());
@@ -804,8 +837,27 @@ namespace frydom {
     }
   }
 
+  void FrOffshoreSystem::SetSolverSharpnessParam(double momega) {
+    if (auto solver = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+      solver->SetSharpnessLambda(momega);
+      event_logger::info(GetTypeName(), GetName(),
+                         "Solver sharpness parameter set to {}", momega);
+    } else {
+      std::cout << "warning : Solver sharpness param enabled only on Iterative solver VI.\nSolver sharpness param is not activated/" << std::endl;
+    }
+  }
 
+  void FrOffshoreSystem::SetParallelThreadNumber(int nbThreads) {
+    chrono::CHOMPfunctions::SetNumThreads(nbThreads);
+    event_logger::info(GetTypeName(), GetName(),
+                       "Number of threads for simulation set to {}", nbThreads);
+  }
 
+  //void FrOffshoreSystem::SetSolverMaxIterStab(int maxIter) {
+  //  if (auto solver : std::dynamic_pointer_cast<m_chronoSystem->SetMaxItersSolverStab(maxIter);
+  //  event_logger::info(GetTypeName(), GetName(),
+  //                     "Solver maximum number of iterations for stabilization set to {}", maxIter);
+  //}
 
   void FrOffshoreSystem::SetSolverMaxIterAssembly(int maxIter) {
     m_chronoSystem->SetMaxiter(maxIter);
@@ -813,11 +865,11 @@ namespace frydom {
                        "Solver maximum number of iterations for constraint assembly the system set to {}", maxIter);
   }
 
-  //##CC void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
-  //##CC   m_chronoSystem->GetSolver()->SetTol(tol);
-  //##CC   event_logger::info(GetTypeName(), GetName(),
-  //##CC                      "Solver geometric tolerance set to {}", tol);
-  //##CC }
+  //void FrOffshoreSystem::SetSolverGeometricTolerance(double tol) {
+  //  m_chronoSystem->GetSolver()->SetTol(tol);
+  //  event_logger::info(GetTypeName(), GetName(),
+  //                      "Solver geometric tolerance set to {}", tol);
+  //}
 
   void FrOffshoreSystem::SetSolverForceTolerance(double tol) {
     m_chronoSystem->SetSolverForceTolerance(tol);
