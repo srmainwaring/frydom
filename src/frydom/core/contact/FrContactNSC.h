@@ -13,25 +13,26 @@
 #define FRYDOM_FRCONTACTNSC_H
 
 #include <memory>
+#include "FrContact.h"
 
 namespace frydom {
+
 
   // TODO: utiliser egalement le ChMaterialCompositeNSC pour faire interagir des materiaux differents
 
   // Forward declaration
   class FrBody;
 
-  struct FrContactParamsNSC {
+  class FrContactParamsNSC: public FrContactParams {
+
+    public:
 
     FrContactParamsNSC();
 
     explicit FrContactParamsNSC(FrBody* body);
 
-    float static_friction;
-    float sliding_friction;
     float rolling_friction;
     float spinning_friction;
-    float restitution;
     float cohesion;
     float dampingf;
     float compliance;
@@ -39,10 +40,14 @@ namespace frydom {
     float complianceRoll;
     float complianceSpin;
 
-    void Print() const;
+    void Print() const override;
   };
 
   std::shared_ptr<FrContactParamsNSC> MakeDefaultContactParamsNSC();
+
+  namespace internal {
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialNSC(const FrContactParamsNSC* params);
+  }
 
 } // end namespace frydom
 

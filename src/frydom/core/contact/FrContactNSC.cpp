@@ -10,6 +10,7 @@
 // ==========================================================================
 
 #include <iostream>
+#include <memory>
 
 #include "FrContactNSC.h"
 
@@ -18,11 +19,9 @@
 namespace frydom {
 
   FrContactParamsNSC::FrContactParamsNSC() :
-      static_friction(0.6f),
-      sliding_friction(0.6f),
+      FrContactParams(),
       rolling_friction(0),
       spinning_friction(0),
-      restitution(0),
       cohesion(0),
       dampingf(0),
       compliance(0),
@@ -33,19 +32,20 @@ namespace frydom {
 
   FrContactParamsNSC::FrContactParamsNSC(FrBody *body) {
 
-    auto ms = internal::GetChronoBody(body)->GetMaterialSurfaceNSC();
+    auto ms = internal::GetChronoBody(body)->GetCollisionModel()->GetShape(0)->GetMaterial();
+    auto ms_nsc = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(ms);
 
-    static_friction = ms->GetSfriction();
-    sliding_friction = ms->GetKfriction();
-    rolling_friction = ms->GetRollingFriction();
-    spinning_friction = ms->GetSpinningFriction();
-    restitution = ms->GetRestitution();
-    cohesion = ms->GetCohesion();
-    dampingf = ms->GetDampingF();
-    compliance = ms->GetCompliance();
-    complianceT = ms->GetComplianceT();
-    complianceRoll = ms->GetComplianceRolling();
-    complianceSpin = ms->GetComplianceSpinning();
+    static_friction = ms_nsc->GetSfriction();
+    sliding_friction = ms_nsc->GetKfriction();
+    rolling_friction = ms_nsc->GetRollingFriction();
+    spinning_friction = ms_nsc->GetSpinningFriction();
+    restitution = ms_nsc->GetRestitution();
+    cohesion = ms_nsc->GetCohesion();
+    dampingf = ms_nsc->GetDampingF();
+    compliance = ms_nsc->GetCompliance();
+    complianceT = ms_nsc->GetComplianceT();
+    complianceRoll = ms_nsc->GetComplianceRolling();
+    complianceSpin = ms_nsc->GetComplianceSpinning();
   }
 
   void FrContactParamsNSC::Print() const {
@@ -65,6 +65,28 @@ namespace frydom {
 
   std::shared_ptr<FrContactParamsNSC> MakeDefaultContactParamsNSC() {
     return std::make_shared<FrContactParamsNSC>();
+  }
+
+  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialNSC(const FrContactParamsNSC* params) {
+
+    // FIXME (CC) : regarder pour faire de la composition de ChMaterialSurface avec FrContactParams
+
+    auto chrono_mat = std::make_shared<chrono::ChMaterialSurfaceNSC>();
+
+    chrono_mat->SetSfriction(params->static_friction);
+    chrono_mat->SetKfriction(params->sliding_friction);
+    chrono_mat->SetRollingFriction(params->rolling_friction);
+    chrono_mat->SetSpinningFriction(params->spinning_friction);
+    chrono_mat->SetRestitution(params->restitution);
+    chrono_mat->SetCohesion(params->cohesion);
+    chrono_mat->SetDampingF(params->dampingf);
+    chrono_mat->SetCompliance(params->compliance);
+    chrono_mat->SetComplianceT(params->complianceT);
+    chrono_mat->SetComplianceRolling(params->complianceRoll);
+    chrono_mat->SetComplianceSpinning(params->complianceSpin);
+
+    return chrono_mat;
+
   }
 
 

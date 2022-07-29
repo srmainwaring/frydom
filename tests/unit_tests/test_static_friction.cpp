@@ -45,15 +45,14 @@ TEST(friction, chrono) {
 
   ChSystemNSC system;
 
-  auto floor = std::make_shared<ChBodyEasyBox>(50, 1, 50, 100,
-                                               true, true, ChMaterialSurface::ContactMethod::NSC);
-  floor->SetBodyFixed(true);
-  floor->GetMaterialSurfaceNSC()->SetSfriction(friction);
+  auto mat = ChMaterialSurface::DefaultMaterial(ChContactMethod::NSC);
+  mat->SetFriction(friction);
 
-  auto box = std::make_shared<ChBodyEasyBox>(1, 1, 1, 1000,
-                                             true, true, ChMaterialSurface::ContactMethod::NSC);
+  auto floor = std::make_shared<ChBodyEasyBox>(50, 1, 50, 100, true, true, mat);
+  floor->SetBodyFixed(true);
+
+  auto box = std::make_shared<ChBodyEasyBox>(1, 1, 1, 1000, true, true, mat);
   box->SetPos(ChVector<double>(0., 1., 0.));
-  box->GetMaterialSurfaceNSC()->SetSfriction(friction);
 
   auto constantForce = std::make_shared<ChForce>();
   box->AddForce(constantForce);

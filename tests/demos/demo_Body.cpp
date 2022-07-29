@@ -64,7 +64,8 @@ int main(int argc, char *argv[]) {
   // Add a collision asset to your body, it allows the body to collide with other elements. You can add collision mesh
   // based on triangular mesh as well.
   auto sphereCollision = std::make_shared<FrCollisionModel>();
-  sphereCollision->AddSphere(radius, Position());
+  auto mat = std::make_shared<FrContactParamsNSC>();
+  sphereCollision->AddSphere(mat.get(), radius, Position());
   body->SetCollisionModel(sphereCollision);
 
   // However you can make your body a sphere, cylinder or box using the following functions :

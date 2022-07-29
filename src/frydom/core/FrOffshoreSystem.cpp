@@ -88,29 +88,29 @@ namespace frydom {
       m_offshoreSystem->PreUpdate();
 
       // Physics item that have to be updated before all
-      m_offshoreSystem->PrePhysicsUpdate(SystemType::ChTime, update_assets);
+      m_offshoreSystem->PrePhysicsUpdate(SystemType::GetChTime(), update_assets);
 
       // Bodies updates  // FIXME : appeler les updates directement des objets frydom !
-      for (auto &body : SystemType::bodylist) {
-        body->Update(SystemType::ChTime, update_assets);
+      for (auto &body : SystemType::GetAssembly().Get_bodylist()) {
+        body->Update(SystemType::GetChTime(), update_assets);
 //            body->Update(ChTime, update_assets);  // FIXME : Appel redondant
       }
 
-      for (auto &physics_item : SystemType::otherphysicslist) {
-        physics_item->Update(SystemType::ChTime, update_assets);
+      for (auto &physics_item : SystemType::GetAssembly().Get_otherphysicslist()) {
+        physics_item->Update(SystemType::GetChTime(), update_assets);
       }
 
       // Links updates  // FIXME : appeler les updates directement des objets frydom !
-      for (auto &link : SystemType::linklist) {
-        link->Update(SystemType::ChTime, update_assets);
+      for (auto &link : SystemType::GetAssembly().Get_linklist()) {
+        link->Update(SystemType::GetChTime(), update_assets);
       }
 
-      for (auto &mesh : SystemType::meshlist) {
-        mesh->Update(SystemType::ChTime, update_assets);
+      for (auto &mesh : SystemType::GetAssembly().Get_meshlist()) {
+        mesh->Update(SystemType::GetChTime(), update_assets);
       }
 
       // Update all contacts, if any
-      SystemType::contact_container->Update(SystemType::ChTime, update_assets);
+      SystemType::contact_container->Update(SystemType::GetChTime(), update_assets);
 
       // Post updates that are not about multibody dynamics
       m_offshoreSystem->PostUpdate();
@@ -164,13 +164,13 @@ namespace frydom {
     template <class SystemType>
     bool FrSystemBase<SystemType>::DoStaticLinear() {
       // Set no speed and accel. on bodies, meshes and other physics items
-      for (auto &body : SystemType::bodylist) {
+      for (auto &body : SystemType::GetAssembly().Get_bodylist()) {
         body->SetNoSpeedNoAcceleration();
       }
-      for (auto &mesh : SystemType::meshlist) {
+      for (auto &mesh : SystemType::GetAssembly().Get_meshlist()) {
         mesh->SetNoSpeedNoAcceleration();
       }
-      for (auto &ip : SystemType::otherphysicslist) {
+      for (auto &ip : SystemType::GetAssembly().Get_otherphysicslist()) {
         ip->SetNoSpeedNoAcceleration();
       }
       return true;
@@ -641,7 +641,12 @@ namespace frydom {
 
     msg->AddField<double>("max_delta_unknowns", "", "", [this]() { return m_chronoSystem->GetSolver()->GetMaxDeltaUnknowns(); });
 
-    //if (dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetRecordViolation()) {
+    if (auto solver_iter = std::dynamic_pointer_cast<chrono::ChIterativeSolverVI>(m_chronoSystem->GetSolver())) {
+
+      msg->AddField<int>("iter", "", "number of total iterations taken by the solver", [this]() {
+        return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetIterations();
+      });
+
       //msg->AddField<double>("violationResidual", "", "constraint violation", [this]() {
       //  return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetViolationHistory().back();
       //});
@@ -649,8 +654,8 @@ namespace frydom {
       //msg->AddField<double>("LagrangeResidual", "", "maximum change in Lagrange multipliers", [this]() {
       //  return dynamic_cast<chrono::ChIterativeSolverVI *>(m_chronoSystem->GetSolver().get())->GetDeltalambdaHistory().back();
       //});
-    //}
 
+    }
   }
 
   void FrOffshoreSystem::StepFinalize() {
@@ -843,7 +848,7 @@ namespace frydom {
   }
 
   void FrOffshoreSystem::SetParallelThreadNumber(int nbThreads) {
-    chrono::CHOMPfunctions::SetNumThreads(nbThreads);
+    m_chronoSystem->SetNumThreads(nbThreads);
     event_logger::info(GetTypeName(), GetName(),
                        "Number of threads for simulation set to {}", nbThreads);
   }
@@ -1333,9 +1338,6 @@ namespace frydom {
   }
 #endif
 
-  void FrOffshoreSystem::AddAsset(std::shared_ptr<chrono::ChAsset> asset) {
-    m_chronoSystem->AddAsset(std::move(asset));
-  }
 
   FrLogManager *FrOffshoreSystem::GetLogManager() const {
     return m_logManager.get();

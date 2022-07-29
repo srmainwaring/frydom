@@ -307,14 +307,21 @@ namespace frydom {
       elasticity->SetYoungModulus(props->GetYoungModulus());
       // FIXME: voir a importer cela aussi depuis les props
       elasticity->SetGshearModulus(props->GetYoungModulus() * 0.3);
-      elasticity->SetBeamRaleyghDamping(props->GetRayleighDamping());
+      elasticity->SetAsCircularSection(props->GetDiameter());
+
+      // Set Rayleigh Damping model
+      auto damping = std::make_shared<chrono::fea::ChDampingCosseratRayleigh>(elasticity,
+                                                                              props->GetRayleighDamping());
+
+      // Set inertia for cable element with cylindrical section and uniform density
+      auto inertia = std::make_shared<chrono::fea::ChInertiaCosseratUniformDensity>();
+      inertia->SetAsCircularSection(props->GetDiameter(), props->GetDensity());
 
       // Section definition
-      m_section = std::make_shared<FrFEACableSection>(elasticity);
-      m_section->SetDensity(props->GetDensity());
-      m_section->SetAsCircularSection(props->GetDiameter());
+      m_section = std::make_shared<FrFEACableSection>(inertia, elasticity);
       m_section->SetNormalAddedMassCoeff(props->GetTransverseAddedMassCoefficient());
       m_section->SetNormalDragCoeff(props->GetTransverseDragCoefficient());
+      m_section->SetDamping(damping);
       m_section->SetVIVAmpFactor(props->GetVIVAmpFactor()); // TODO: a inclure dans le pptes de cable...
 
     }
@@ -414,10 +421,9 @@ namespace frydom {
       surface_material->SetKt(1e5); //not defined
       surface_material->SetGn(1e6);
 
-      auto contact_surface = std::make_shared<chrono::fea::ChContactSurfaceNodeCloud>();
+      auto contact_surface = std::make_shared<chrono::fea::ChContactSurfaceNodeCloud>(surface_material);
       AddContactSurface(contact_surface);
       contact_surface->AddAllNodes(GetFEACable()->GetProperties()->GetRadius());
-      contact_surface->SetMaterialSurface(surface_material);
 
     }
 

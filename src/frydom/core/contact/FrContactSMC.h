@@ -13,12 +13,15 @@
 #define FRYDOM_FRCONTACTSMC_H
 
 #include <memory>
+#include "FrContact.h"
 
 namespace frydom {
 
   class FrBody;
 
-  struct FrContactParamsSMC {
+  class FrContactParamsSMC : public FrContactParams {
+
+    public:
 
     FrContactParamsSMC();
 
@@ -26,9 +29,6 @@ namespace frydom {
 
     float young_modulus;      ///< Young's modulus (elastic modulus)
     float poisson_ratio;      ///< Poisson ratio
-    float static_friction;    ///< Static coefficient of friction
-    float sliding_friction;   ///< Kinetic coefficient of friction
-    float restitution;        ///< Coefficient of restitution
     float constant_adhesion;  ///< Constant adhesion force, when constant adhesion model is used
     float adhesionMultDMT;    ///< Adhesion multiplier used in DMT model.
 
@@ -37,11 +37,16 @@ namespace frydom {
 //    float gn;  ///< user-specified normal damping coefficient
 //    float gt;  ///< user-specified tangential damping coefficient
 
-    void Print() const;
+    void Print() const override;
 
   };
 
   std::shared_ptr<FrContactParamsSMC> MakeDefaultContactParamsSMC();
 
-}
+  namespace internal {
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialSMC(const FrContactParamsSMC* params);
+  }
+
+} // end namespace frydom
+
 #endif //FRYDOM_FRCONTACTSMC_H

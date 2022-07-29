@@ -2,7 +2,7 @@
 // Created by lletourn on 21/05/19.
 //
 
-#include "chrono/collision/ChCModelBullet.h"
+#include "chrono/collision/ChCollisionModelBullet.h"
 
 #ifndef FRYDOM_FRCOLLISIONMODEL_H
 #define FRYDOM_FRCOLLISIONMODEL_H
@@ -23,7 +23,7 @@ namespace frydom {
   namespace internal {
 
 
-    class FrCollisionModelBase : public chrono::collision::ChModelBullet {
+    class FrCollisionModelBase : public chrono::collision::ChCollisionModelBullet {
 
      private:
 
@@ -63,26 +63,27 @@ namespace frydom {
     //  the ClearModel() BuildModel() pair.
 
     /// Add a sphere shape to this model, for collision purposes
-    bool AddSphere(double radius, const Position &pos);
+    bool AddSphere(FrContactParams* mat, double radius, const Position &pos);
 
     /// Add an ellipsoid shape to this model, for collision purposes
-    bool AddEllipsoid(double rx, double ry, double rz, const Position &pos, const FrRotation &rot);
+    bool AddEllipsoid(FrContactParams* mat, double rx, double ry, double rz, const Position &pos, const FrRotation &rot);
 
     /// Add a box shape to this model, for collision purposes
-    bool AddBox(double hx, double hy, double hz, const Position &pos, const FrRotation &rot);
+    bool AddBox(FrContactParams* mat, double hx, double hy, double hz, const Position &pos, const FrRotation &rot);
 
     /// Add a cylinder to this model (default axis on Y direction), for collision purposes
-    bool AddCylinder(double rx, double rz, double hy, const Position &pos, const FrRotation &rot);
+    bool AddCylinder(FrContactParams* mat, double rx, double rz, double hy, const Position &pos, const FrRotation &rot);
 
     /// Add a convex hull to this model. A convex hull is simply a point cloud that describe
     /// a convex polytope. Connectivity between the vertexes, as faces/edges in triangle meshes is not necessary.
     /// Points are passed as a list, that is instantly copied into the model.
-    bool AddConvexHull(const std::vector<Position> &pointlist, const Position &pos, const FrRotation &rot);
+    bool AddConvexHull(FrContactParams* mat, const std::vector<Position> &pointlist, const Position &pos, const FrRotation &rot);
 
     /// Add a triangle mesh to this model, passing a triangle mesh.
     /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
     /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
     bool AddTriangleMesh(                           //
+        FrContactParams* mat,
         const std::string &obj_filename,                    ///< the triangle mesh
         const Position &pos,                                ///< displacement respect to COG
         const FrRotation &rot,                              ///< the rotation of the mesh
@@ -100,6 +101,7 @@ namespace frydom {
     /// Note: if possible, for better performance, avoid triangle meshes and prefer simplified
     /// representations as compounds of primitive convex shapes (boxes, sphers, etc).
     bool AddTriangleMesh(                           //
+        FrContactParams* mat,
         std::shared_ptr<FrTriangleMeshConnected> trimesh,  ///< the triangle mesh
         bool is_static,                                     ///< true if model doesn't move. May improve performance.
         bool is_convex,                                     ///< if true, a convex hull is used. May improve robustness.
@@ -113,7 +115,7 @@ namespace frydom {
     /// arbitrary meshes, there could be issues of robustness and precision, so
     /// when possible, prefer simplified representations as compounds of convex
     /// shapes of boxes/spheres/etc.. type.
-    bool AddTriangleMeshConcave(std::shared_ptr<FrTriangleMeshConnected> trimesh,
+    bool AddTriangleMeshConcave(FrContactParams* mat, std::shared_ptr<FrTriangleMeshConnected> trimesh,
                                 const Position &pos,
                                 const FrRotation &rot);
 

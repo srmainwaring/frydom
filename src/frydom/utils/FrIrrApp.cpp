@@ -27,6 +27,7 @@ namespace frydom {
         chrono::irrlicht::ChIrrApp(system,
                                    L"FRyDoM viewer",
                                    irr::core::dimension2d<irr::u32>(800, 600),
+                                   chrono::irrlicht::VerticalDir::Z,
                                    false,
                                    false,
                                    true,

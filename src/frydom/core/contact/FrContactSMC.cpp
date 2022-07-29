@@ -17,11 +17,9 @@
 namespace frydom {
 
 FrContactParamsSMC::FrContactParamsSMC()
-    : young_modulus(2e5),
+    : FrContactParams(),
+      young_modulus(2e5),
       poisson_ratio(0.3f),
-      static_friction(0.6f),
-      sliding_friction(0.6f),
-      restitution(0.4f),
       constant_adhesion(0),
       adhesionMultDMT(0) {}
 //      kn(2e5),
@@ -31,15 +29,16 @@ FrContactParamsSMC::FrContactParamsSMC()
 
   FrContactParamsSMC::FrContactParamsSMC(FrBody *body) {
 
-    auto ms = internal::GetChronoBody(body)->GetMaterialSurfaceSMC();
+    auto ms = internal::GetChronoBody(body)->GetCollisionModel()->GetShape(0)->GetMaterial();
+    auto ms_smc = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(ms);
 
-    static_friction = ms->GetSfriction();
-    sliding_friction = ms->GetKfriction();
-    young_modulus = ms->GetYoungModulus();
-    poisson_ratio = ms->GetPoissonRatio();
-    restitution = ms->GetRestitution();
-    constant_adhesion = ms->GetAdhesion();
-    adhesionMultDMT = ms->GetAdhesionMultDMT();
+    static_friction = ms_smc->GetSfriction();
+    sliding_friction = ms_smc->GetKfriction();
+    young_modulus = ms_smc->GetYoungModulus();
+    poisson_ratio = ms_smc->GetPoissonRatio();
+    restitution = ms_smc->GetRestitution();
+    constant_adhesion = ms_smc->GetAdhesion();
+    adhesionMultDMT = ms_smc->GetAdhesionMultDMT();
 
   }
 
@@ -56,6 +55,21 @@ FrContactParamsSMC::FrContactParamsSMC()
 
   std::shared_ptr<FrContactParamsSMC> MakeDefaultContactParamsSMC() {
     return std::make_shared<FrContactParamsSMC>();
+  }
+
+  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialSMC(const FrContactParamsSMC* params){
+
+    auto chrono_mat = std::make_shared<chrono::ChMaterialSurfaceSMC>();
+
+    chrono_mat->SetYoungModulus(params->young_modulus);
+    chrono_mat->SetPoissonRatio(params->poisson_ratio);
+    chrono_mat->SetSfriction(params->static_friction);
+    chrono_mat->SetKfriction(params->sliding_friction);
+    chrono_mat->SetRestitution(params->restitution);
+    chrono_mat->SetAdhesion(params->constant_adhesion);
+    chrono_mat->SetAdhesionMultDMT(params->adhesionMultDMT);
+
+    return chrono_mat;
   }
 
 }

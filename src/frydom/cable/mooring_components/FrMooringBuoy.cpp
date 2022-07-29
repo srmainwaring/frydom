@@ -55,9 +55,12 @@ namespace frydom {
     SetInertiaTensor(FrInertiaTensor(mass, inertia, inertia, inertia, 0., 0., 0., Position(), NWU));
 
     // Collision
+    auto contact_method = m_chronoBody->GetSystem()->GetContactMethod();
+    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
+
     auto collisionModel = m_chronoBody->GetCollisionModel();
     collisionModel->ClearModel();
-    collisionModel->AddSphere(radius,
+    collisionModel->AddSphere(mat, radius,
                               chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
     collisionModel->BuildModel();
     AllowCollision(true);  // A retirer ?

@@ -147,7 +147,7 @@ class MyLoader : public chrono::ChLoaderUdistributed {
     // Temporaire
     double gravity = 9.81;
     double fluid_density = 1023.;
-    double section = element->GetSection()->Area;
+    double section = std::dynamic_pointer_cast<fea::ChInertiaCosseratSimple>(element->GetSection()->GetInertia())->GetArea();
 
 
     Force hydrostatic_force = {0., 0., fluid_density * section * gravity};
@@ -484,13 +484,18 @@ int main() {
   auto melasticity = std::make_shared<chrono::fea::ChElasticityCosseratSimple>();
   melasticity->SetYoungModulus(E);
   melasticity->SetGshearModulus(E * 0.3); // Jouer avec...
-  melasticity->SetBeamRaleyghDamping(1e3);
+  //melasticity->SetBeamRaleyghDamping(1e3);
+
+  // Damping
+  auto mdamping = std::make_shared<chrono::fea::ChDampingCosseratRayleigh>(melasticity, 1e3);
+
+  // Inertia
+  auto minertia = std::make_shared<chrono::fea::ChInertiaCosseratSimple>();
+  minertia->SetAsCircularSection(diameter, density);
 
   // Section definition
-  auto msection = std::make_shared<chrono::fea::ChBeamSectionCosserat>(melasticity);
-  msection->SetDensity(density);
-  msection->SetAsCircularSection(diameter);
-
+  auto msection = std::make_shared<chrono::fea::ChBeamSectionCosserat>(minertia, melasticity);
+  msection->SetDamping(mdamping);
 
 
   // Building the BSpline to initialize
@@ -618,7 +623,7 @@ int main() {
   // Create the Irrlicht visualization (open the Irrlicht device,
   // bind a simple user interface, etc. etc.)
   ChIrrApp application(&my_system, L"IGA beams DEMO (SPACE for dynamics, F10 / F11 statics)",
-                       core::dimension2d<u32>(800, 600),
+                       core::dimension2d<u32>(800, 600), chrono::irrlicht::VerticalDir::Z,
                        false, true);
 
   // Easy shortcuts to add camera, lights, logo and sky in Irrlicht scene:

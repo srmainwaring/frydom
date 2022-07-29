@@ -455,15 +455,18 @@ namespace frydom {
 
   void FrBody::SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p) {
 
-    auto ms = m_chronoBody->GetMaterialSurfaceSMC();
+    for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
+      auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(shape->GetMaterial());
 
-    ms->SetSfriction(p->static_friction);
-    ms->SetKfriction(p->sliding_friction);
-    ms->SetYoungModulus(p->young_modulus);
-    ms->SetPoissonRatio(p->poisson_ratio);
-    ms->SetRestitution(p->restitution);
-    ms->SetAdhesion(p->constant_adhesion);
-    ms->SetAdhesionMultDMT(p->adhesionMultDMT);
+      ms->SetSfriction(p->static_friction);
+      ms->SetKfriction(p->sliding_friction);
+      ms->SetYoungModulus(p->young_modulus);
+      ms->SetPoissonRatio(p->poisson_ratio);
+      ms->SetRestitution(p->restitution);
+      ms->SetAdhesion(p->constant_adhesion);
+      ms->SetAdhesionMultDMT(p->adhesionMultDMT);
+
+    }
   }
 
   std::shared_ptr<FrContactParamsNSC> FrBody::GetContactParamsNSC() {
@@ -478,19 +481,24 @@ namespace frydom {
 
   void FrBody::SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p) {
 
-    auto ms = m_chronoBody->GetMaterialSurfaceNSC();
+    for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
+      auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(shape->GetMaterial());
+      ms->SetSfriction(p->static_friction);
+      ms->SetKfriction(p->sliding_friction);
+      ms->SetRollingFriction(p->rolling_friction);
+      ms->SetSpinningFriction(p->spinning_friction);
+      ms->SetRestitution(p->restitution);
+      ms->SetCohesion(p->cohesion);
+      ms->SetDampingF(p->dampingf);
+      ms->SetCompliance(p->compliance);
+      ms->SetComplianceT(p->complianceT);
+      ms->SetComplianceRolling(p->complianceRoll);
+      ms->SetComplianceSpinning(p->complianceSpin);
 
-    ms->SetSfriction(p->static_friction);
-    ms->SetKfriction(p->sliding_friction);
-    ms->SetRollingFriction(p->rolling_friction);
-    ms->SetSpinningFriction(p->spinning_friction);
-    ms->SetRestitution(p->restitution);
-    ms->SetCohesion(p->cohesion);
-    ms->SetDampingF(p->dampingf);
-    ms->SetCompliance(p->compliance);
-    ms->SetComplianceT(p->complianceT);
-    ms->SetComplianceRolling(p->complianceRoll);
-    ms->SetComplianceSpinning(p->complianceSpin);
+    }
+
+
+
 
   }
 
@@ -609,7 +617,7 @@ namespace frydom {
   }
 
   Force FrBody::GetTotalExtForceInWorld(FRAME_CONVENTION fc) const {
-    Force force = m_chronoBody->Get_Xforce().eigen();
+    Force force = m_chronoBody->GetAppliedForce().eigen();
     if (IsNED(fc)) return internal::SwapFrameConvention<Position>(force);
     return force;
   }
@@ -619,7 +627,7 @@ namespace frydom {
   }
 
   Torque FrBody::GetTotalExtTorqueInBodyAtCOG(FRAME_CONVENTION fc) const {
-    auto torque = m_chronoBody->Get_Xtorque().eigen();
+    auto torque = m_chronoBody->GetAppliedTorque().eigen();
     if (IsNED(fc)) return internal::SwapFrameConvention<Position>(torque);
     return torque;
   }
@@ -1117,11 +1125,11 @@ namespace frydom {
   void FrBody::SetContactMethod() {
     switch (GetSystem()->GetSystemType()) {
       case FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT:
-        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceSMC>());
+        m_chronoBody->GetCollisionModel()->SetAllShapesMaterial(std::make_shared<chrono::ChMaterialSurfaceSMC>());
         event_logger::info(GetTypeName(), GetName(), "Contact method set to SMOOTH");
         break;
       case FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT:
-        m_chronoBody->SetMaterialSurface(std::make_shared<chrono::ChMaterialSurfaceNSC>());
+        m_chronoBody->GetCollisionModel()->SetAllShapesMaterial(std::make_shared<chrono::ChMaterialSurfaceNSC>());
         event_logger::info(GetTypeName(), GetName(), "Contact method set to NON SMOOTH");
         break;
     };
