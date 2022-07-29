@@ -57,16 +57,7 @@ index d3a923ccd..8cd6a1114 100644
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 73d127f58..d7d3d7fd9 100644
 --- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt
-@@ -171,7 +171,7 @@ endif()
- # SSE / AVX / FMA / NEON support
- #-----------------------------------------------------------------------------
- 
--option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" ON)
-+option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" OFF)
- 
- if(USE_SIMD)
- 	
++++ b/src/CMakeLists.txt	
 @@ -342,7 +342,7 @@ if(CUDA_FOUND)
      set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --compiler-options -fPIC)
    endif()
