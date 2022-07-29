@@ -49,7 +49,6 @@ Update the chrono version to v5.0
 ### Added
 
 - New Abkowitz manoeuvring model (Yoshimura 2012)
-- New solver type from chrono v5 : `GMRES`
 - Add solver max iterations and tolerance setters/getters in `FrOffshoreSystem` (consequently of the update to chrono v5) : `SetSolverMaxIterations` and `GetSolverMaxIterations` set and get the maximum number of iterations of the iterative solver. `SetSolverTolerance` and `GetSolverTolerance` set and get the maximum tolerance threshold of the iterative solver (definition depends on the iterative solver type).
 
 ### Changed
