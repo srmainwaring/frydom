@@ -38,9 +38,8 @@ namespace frydom {
     // FrBodyBase
     //
 
-    FrBodyBase::FrBodyBase(FrBody *body) : chrono::ChBodyAuxRef(), m_frydomBody(body),
-    m_load_container() {
-      system->Add(m_load_container);
+    FrBodyBase::FrBodyBase(FrBody *body) : chrono::ChBodyAuxRef(), m_frydomBody(body) {
+      m_load_container = std::make_shared<chrono::ChLoadContainer>();
     }
 
     FrBodyBase::FrBodyBase(const FrBodyBase &other) : chrono::ChBodyAuxRef(other) {
@@ -49,7 +48,9 @@ namespace frydom {
       m_load_container = other.m_load_container;
     }
 
-    void FrBodyBase::SetupInitial() {}
+    void FrBodyBase::SetupInitial() {
+      system->Add(m_load_container);
+    }
 
     void FrBodyBase::Update(bool update_assets) {
       chrono::ChBodyAuxRef::Update(update_assets);
@@ -98,7 +99,7 @@ namespace frydom {
     void FrBodyBase::RemoveLoad(std::shared_ptr<chrono::ChLoadBase> load) {
 
       auto loadlist = m_load_container->GetLoadList();
-      assert(std::find<std::vector<std::shared_ptr<ChLoadBase>>::iterator>(loadlist.begin(), loadlist.end(), load) !=
+      assert(std::find<std::vector<std::shared_ptr<chrono::ChLoadBase>>::iterator>(loadlist.begin(), loadlist.end(), load) !=
              loadlist.end());
 
       loadlist.erase(

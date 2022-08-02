@@ -45,7 +45,7 @@ namespace frydom {
 
     void FrLoadBodyForceTorqueBase::SetTorqueInBodyNWU(const Torque& torque) {
       auto body = std::dynamic_pointer_cast<chrono::ChBody>(this->loadable);
-      m_torque = body->TransformDirectionParentToLocal(torque).eigen();
+      m_torque = body->TransformDirectionLocalToParent(torque).eigen();
     }
 
     void FrLoadBodyForceTorqueBase::ComputeQ(chrono::ChState* state_x, chrono::ChStateDelta* state_w) {
@@ -73,7 +73,10 @@ namespace frydom {
       if (!std::dynamic_pointer_cast<chrono::ChBody>(this->loadable)->Variables().IsActive())
         return;
 
+      m_frydomForce->Update(time);
+
       ChLoadCustom::Update(time);
+      ChTime = time;
     }
 
     std::shared_ptr<FrLoadBodyForceTorqueBase> GetChronoForce(std::shared_ptr<FrForce> force) {
@@ -82,8 +85,9 @@ namespace frydom {
 
   }  // end namespace frydom::internal
 
-
+  // -------------------------------------------------------------------------------
   // FrForce methods implementations
+  // -------------------------------------------------------------------------------
 
   FrForce::FrForce(const std::string &name,
                    const std::string &type_name,
