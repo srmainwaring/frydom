@@ -364,7 +364,7 @@ namespace frydom {
 
     void FrFEACableBase::InitializeLoads() {
       // Creating a load container for the cable
-      auto load_container = std::make_shared<chrono::ChLoadContainer>();
+      auto load_container = std::make_shared<chrono:: ChLoadContainer>();
       system->Add(load_container);
 
       // Adding loads on each element newly created by the builder

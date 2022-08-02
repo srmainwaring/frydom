@@ -16,6 +16,7 @@
 #include <frydom/core/contact/FrContactNSC.h>
 
 #include "chrono/physics/ChBodyAuxRef.h"
+#include "chrono/physics/ChLoadContainer.h"
 
 #include "frydom/asset/FrAssetOwner.h"
 #include "frydom/core/FrOffshoreSystem.h"
@@ -53,6 +54,8 @@ namespace frydom {
 
       std::shared_ptr<chrono::ChVariables> m_variables_ptr;
 
+      std::shared_ptr<chrono::ChLoadContainer> m_load_container;
+
       /// Constructor of the bodyBase
       /// \param body body containing this bodyBase
       explicit FrBodyBase(FrBody *body);
@@ -76,6 +79,8 @@ namespace frydom {
 
       /// Removes an asset given its shared pointer
       void RemoveAsset(std::shared_ptr<chrono::ChAsset> asset);
+
+      void RemoveLoad(std::shared_ptr<chrono::ChLoadBase> load);
 
       //
       // STATE FUNCTION
