@@ -11,6 +11,7 @@
 
 #include "FrRadiationModel.h"
 #include "FrRadiationModelBase.h"
+#include "FrAddedMass.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 #include "FrRadiationForce.h"
@@ -28,11 +29,15 @@ namespace frydom {
       m_HDB(HDB) {
 
     // Creation of an AddedMassBase object.
-    m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
+    //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
+    m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
+    auto my_mesh = std::make_shared<chrono::fea::ChMesh>();
+    my_mesh->AddElement(m_addedMass);
+    system->GetChronoSystem()->Add(my_mesh);
   }
 
   void FrRadiationModel::Initialize() {
-    FrPhysicsItem::Initialize();
+    //FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
   }
 
