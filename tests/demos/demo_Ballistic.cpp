@@ -32,11 +32,15 @@ int main(int argc, char *argv[]) {
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(false);
   system.GetEnvironment()->GetOcean()->ShowSeabed(false);
 
+  // Contact parameters for NSC
+  auto material = FrMaterialSurfaceNSC();
+  material.restitution = 0.3;
+
   // ------------------ Floor ------------------ //
 
   // Create the floor box (with a collision box already defined from makeItBox)
   auto floorBox = system.NewBody("floor");
-  makeItBox(floorBox, 100., 100., 2., 1000.);
+  makeItBox(floorBox, 100., 100., 2., 1000., &material);
   floorBox->SetColor(Green);
   floorBox->SetPosition(Position(0., 0., 0.), fc);
   floorBox->SetFixedInWorld(true);
@@ -49,21 +53,14 @@ int main(int argc, char *argv[]) {
   double radius = 1.;
   double mass = 50;
 
-  // Contact parameters for NSC
-  auto contact_params_NSC = MakeDefaultContactParamsNSC();
-  contact_params_NSC->restitution = 0.3;
-
   // Create as many balls as specified
   for (int ib = 0; ib < n_balls; ++ib) {
     // A new ball is created in the offshore system
     std::string ballName = "Ball_" + std::to_string(ib);
     auto ball = system.NewBody(ballName);
 
-    // Set the contact parameters
-    ball->SetContactParamsNSC(contact_params_NSC);
-
     // Make it a sphere, with a collision box, spheric asset and inertia tensor automatically calculated
-    makeItSphere(ball, radius, mass);
+    makeItSphere(ball, radius, mass, &material);
 
     // Set the color
     ball->SetColor(Red);
@@ -85,7 +82,7 @@ int main(int argc, char *argv[]) {
   // Now you are ready to perform the simulation and you can watch its progression in the viewer. You can adjust
   // the time length of the simulation (here 15) and the distance from the camera to the objectif (75m).
   // For saving snapshots of the simulation, just turn the boolean to true.
-  system.RunInViewer(1000, 75, true);
+  system.RunInViewer(15, 75, false);
 
 
 }

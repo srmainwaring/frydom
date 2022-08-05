@@ -325,6 +325,10 @@ namespace frydom {
       InitializeLockedDOF();
     }
 
+    if (m_collisionModel) {
+      m_collisionModel->Initialize();
+    }
+
   }
 
   void FrBody::StepFinalize() {
@@ -425,12 +429,13 @@ namespace frydom {
     if (isColliding) {
       event_logger::info(GetTypeName(), GetName(), "Collision activated");
     } else {
+      m_collisionModel.reset();
       event_logger::info(GetTypeName(), GetName(), "Collision deactivated");
     }
   }
 
   FrCollisionModel *FrBody::GetCollisionModel() {
-    return dynamic_cast<internal::FrCollisionModelBase *> (m_chronoBody->GetCollisionModel().get())->m_frydomCollisionModel;
+    return m_collisionModel.get();
   }
 
   void FrBody::SetCollisionModel(std::shared_ptr<FrCollisionModel> collisionModel) {
@@ -441,65 +446,6 @@ namespace frydom {
   Force FrBody::GetContactForceInWorld(FRAME_CONVENTION fc) {
     auto force = GetSystem()->GetContactForceOnBodyInWorld(this, fc);
     return force;
-  }
-
-  std::shared_ptr<FrContactParamsSMC> FrBody::GetContactParamsSMC() {
-    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT) {
-      event_logger::error(GetTypeName(), GetName(),
-                          "Attemping to get non-NSC contact parameters while body is NSC");
-      exit(EXIT_FAILURE);
-    }
-
-    return std::make_shared<FrContactParamsSMC>(this);
-  }
-
-  void FrBody::SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p) {
-
-    for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
-      auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(shape->GetMaterial());
-
-      ms->SetSfriction(p->static_friction);
-      ms->SetKfriction(p->sliding_friction);
-      ms->SetYoungModulus(p->young_modulus);
-      ms->SetPoissonRatio(p->poisson_ratio);
-      ms->SetRestitution(p->restitution);
-      ms->SetAdhesion(p->constant_adhesion);
-      ms->SetAdhesionMultDMT(p->adhesionMultDMT);
-
-    }
-  }
-
-  std::shared_ptr<FrContactParamsNSC> FrBody::GetContactParamsNSC() {
-    if (GetSystem()->GetSystemType() != FrOffshoreSystem::SYSTEM_TYPE::NONSMOOTH_CONTACT) {
-      event_logger::error(GetTypeName(), GetName(),
-                          "Attemping to get non-NSC contact parameters while body is NSC");
-      exit(EXIT_FAILURE);
-    }
-
-    return std::make_shared<FrContactParamsNSC>(this);
-  }
-
-  void FrBody::SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p) {
-
-    for (auto shape: m_chronoBody->GetCollisionModel()->GetShapes()) {
-      auto ms = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(shape->GetMaterial());
-      ms->SetSfriction(p->static_friction);
-      ms->SetKfriction(p->sliding_friction);
-      ms->SetRollingFriction(p->rolling_friction);
-      ms->SetSpinningFriction(p->spinning_friction);
-      ms->SetRestitution(p->restitution);
-      ms->SetCohesion(p->cohesion);
-      ms->SetDampingF(p->dampingf);
-      ms->SetCompliance(p->compliance);
-      ms->SetComplianceT(p->complianceT);
-      ms->SetComplianceRolling(p->complianceRoll);
-      ms->SetComplianceSpinning(p->complianceSpin);
-
-    }
-
-
-
-
   }
 
   void FrBody::ActivateSpeedLimits(bool activate) {

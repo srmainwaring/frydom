@@ -13,11 +13,17 @@
 #include "FrBodyEasy.h"
 
 #include "FrBody.h"
+#include "frydom/collision/FrCollisionModel.h"
 
 
 namespace frydom {
 
-  void makeItBox(std::shared_ptr<FrBody> body, double xSize, double ySize, double zSize, double mass) {
+  void makeItBox(std::shared_ptr<FrBody> body,
+                 double xSize,
+                 double ySize,
+                 double zSize,
+                 double mass,
+                 FrMaterialSurface *mat) {
 
     // Properties of the box
     double xSize2 = xSize * xSize;
@@ -33,23 +39,23 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, Ixx, Iyy, Izz, 0., 0., 0., Position(), NWU));
 
     // Collision
-    auto contact_method = internal::GetChronoBody(body)->GetSystem()->GetContactMethod();
-    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
-
-    auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
-    collisionModel->ClearModel();
-    collisionModel->AddBox(mat, xSize * 0.5, ySize * 0.5, zSize * 0.5,
-                           chrono::ChVector<double>()); // TODO: permettre de specifier une position relative (et orientation ?)
-    collisionModel->BuildModel();
-    body->AllowCollision(true);  // A retirer ??
-//    body->SetSmoothContact();
+    if (mat) {
+      auto collisionModel = std::make_shared<FrCollisionModel>();
+      collisionModel->ClearModel();
+      collisionModel->AddBox(mat, xSize * 0.5, ySize * 0.5, zSize * 0.5, Position(), FrRotation());
+      body->SetCollisionModel(collisionModel);
+    }
 
     // Asset
     body->AddBoxShape(xSize, ySize, zSize, {0., 0., 0.}, NWU);
 
   }
 
-  void makeItCylinder(std::shared_ptr<FrBody> body, double radius, double height, double mass) {
+  void makeItCylinder(std::shared_ptr<FrBody> body,
+                      double radius,
+                      double height,
+                      double mass,
+                      FrMaterialSurface *mat) {
 
     // Properties of the cylinder
     double r2 = radius * radius;
@@ -62,23 +68,22 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, Ixx, Iyy, Izz, 0., 0., 0., Position(), NWU));
 
     // Collision
-    auto contact_method = internal::GetChronoBody(body)->GetSystem()->GetContactMethod();
-    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
-
-    auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
-    collisionModel->ClearModel();
-    collisionModel->AddCylinder(mat, radius, radius, height * 0.5,
-                                chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
-    collisionModel->BuildModel();
-    body->AllowCollision(true);  // A retirer ?
-//    body->SetSmoothContact();  // Smooth contact by default
+    if (mat) {
+      auto collisionModel = std::make_shared<FrCollisionModel>();
+      collisionModel->ClearModel();
+      collisionModel->AddCylinder(mat, radius, radius, height * 0.5, Position(), FrRotation());
+      body->SetCollisionModel(collisionModel);
+    }
 
     // Asset
     body->AddCylinderShape(radius, height, {0., 0., 0.}, NWU);
 
   }
 
-  void makeItSphere(std::shared_ptr<FrBody> body, double radius, double mass) {
+  void makeItSphere(std::shared_ptr<FrBody> body,
+                    double radius,
+                    double mass,
+                    FrMaterialSurface *mat) {
 
     // Properties of the sphere
     double inertia = (2.0 / 5.0) * mass * radius * radius;
@@ -87,16 +92,12 @@ namespace frydom {
     body->SetInertiaTensor(FrInertiaTensor(mass, inertia, inertia, inertia, 0., 0., 0., Position(), NWU));
 
     // Collision
-    auto contact_method = internal::GetChronoBody(body)->GetSystem()->GetContactMethod();
-    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
-
-    auto collisionModel = internal::GetChronoBody(body)->GetCollisionModel();
-    collisionModel->ClearModel();
-    // TODO: permettre de specifier les coords relatives dans le modele !!
-    collisionModel->AddSphere(mat, radius, chrono::ChVector<double>());
-    collisionModel->BuildModel();
-    body->AllowCollision(true);  // A retirer ?
-//    body->SetSmoothContact();  // Smooth contact by default
+    if (mat) {
+      auto collisionModel = std::make_shared<FrCollisionModel>();
+      collisionModel->ClearModel();
+      collisionModel->AddSphere(mat, radius, Position());
+      body->SetCollisionModel(collisionModel);
+    }
 
     // Asset
     body->AddSphereShape(radius, {0., 0., 0.}, NWU);
@@ -108,10 +109,11 @@ namespace frydom {
                                        double xSize,
                                        double ySize,
                                        double zSize,
-                                       double mass) {
+                                       double mass,
+                                       FrMaterialSurface *mat) {
 
     auto box = std::make_shared<FrBody>(name, system);
-    makeItBox(box, xSize, ySize, zSize, mass);
+    makeItBox(box, xSize, ySize, zSize, mass, mat);
     return box;
   }
 
@@ -119,20 +121,22 @@ namespace frydom {
                                             FrOffshoreSystem *system,
                                             double radius,
                                             double height,
-                                            double mass) {
+                                            double mass,
+                                            FrMaterialSurface *mat) {
 
     auto cylinder = std::make_shared<FrBody>(name, system);
-    makeItCylinder(cylinder, radius, height, mass);
+    makeItCylinder(cylinder, radius, height, mass, mat);
     return cylinder;
   }
 
   std::shared_ptr<FrBody> make_SphereBody(const std::string &name,
                                           FrOffshoreSystem *system,
                                           double radius,
-                                          double mass) {
+                                          double mass,
+                                          FrMaterialSurface *mat) {
 
     auto sphere = std::make_shared<FrBody>(name, system);
-    makeItSphere(sphere, radius, mass);
+    makeItSphere(sphere, radius, mass, mat);
     return sphere;
   }
 

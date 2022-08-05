@@ -9,11 +9,11 @@
 //
 // ==========================================================================
 
-#ifndef FRYDOM_FRCONTACTNSC_H
-#define FRYDOM_FRCONTACTNSC_H
+#ifndef FRYDOM_FRMATERIALSURFACENSC_H
+#define FRYDOM_FRMATERIALSURFACENSC_H
 
 #include <memory>
-#include "FrContact.h"
+#include "FrMaterialSurface.h"
 
 namespace frydom {
 
@@ -23,13 +23,13 @@ namespace frydom {
   // Forward declaration
   class FrBody;
 
-  class FrContactParamsNSC: public FrContactParams {
+  class FrMaterialSurfaceNSC: public FrMaterialSurface {
 
     public:
 
-    FrContactParamsNSC();
+    FrMaterialSurfaceNSC();
 
-    explicit FrContactParamsNSC(FrBody* body);
+    explicit FrMaterialSurfaceNSC(FrBody* body);
 
     float rolling_friction;
     float spinning_friction;
@@ -43,12 +43,12 @@ namespace frydom {
     void Print() const override;
   };
 
-  std::shared_ptr<FrContactParamsNSC> MakeDefaultContactParamsNSC();
+  std::shared_ptr<FrMaterialSurfaceNSC> MakeDefaultMaterialSurfaceNSC();
 
   namespace internal {
-    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialNSC(const FrContactParamsNSC* params);
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialNSC(const FrMaterialSurfaceNSC* params);
   }
 
 } // end namespace frydom
 
-#endif //FRYDOM_FRCONTACTNSC_H
+#endif //FRYDOM_FRMATERIALSURFACENSC_H

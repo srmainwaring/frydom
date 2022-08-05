@@ -50,12 +50,7 @@ namespace frydom {
 
    public:
 
-    FrMooringBuoy(const std::string &name,
-                  FrOffshoreSystem *system,
-                  double radius,
-                  double mass,
-                  bool visual_asset = true,
-                  double damping = 0);
+    FrMooringBuoy(const std::string &name, FrOffshoreSystem *system, double radius, double mass, double damping = 0);
 
     ~FrMooringBuoy() = default;
 
@@ -79,12 +74,10 @@ namespace frydom {
   /// \param system system in charge of the buoy
   /// \param radius radius of the buoy
   /// \param mass mass of the buoy
-  /// \param visual_asset true if an asset is to be viewed
   /// \param damping damping coefficient affected to the diagonal terms of a linear damping force.
   /// \return FrMooringBuoy instance
   std::shared_ptr<FrMooringBuoy>
-  make_mooring_buoy(const std::string &name, FrOffshoreSystem *system, double radius, double mass,
-                    bool visual_asset = true, double damping = 0);
+  make_mooring_buoy(const std::string &name, FrOffshoreSystem *system, double radius, double mass, double damping = 0);
 
 }  //end namespace frydom
 

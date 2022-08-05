@@ -750,14 +750,16 @@ namespace frydom {
     }
 
     /// Convert a chrono 3D vector into a FRyDoM Vector
+//    FIXME : faire disparaitre cette fonction : Chrono gere les passages de ChVectorN a ChVector
     template<class Vector>
     inline Vector ChVectorToVector3d(const chrono::ChVector<double> &vector) {
-      return Vector(vector.x(), vector.y(), vector.z()); // Always gives a FRyDoM vector expressed in NWU
+      return vector.eigen();
     }
 
-    /// Convert a mathutils Vector3d into a Chrono 3D vector
+    /// Convert a eigen Vector3d into a Chrono 3D vector
+//    FIXME : faire disparaitre cette fonction : Chrono gere les passages de ChVector a ChVectorN
     inline chrono::ChVector<double> Vector3dToChVector(const chrono::ChVectorN<double, 3> &vector3d) {
-      return chrono::ChVector<double>(vector3d[0], vector3d[1], vector3d[2]);
+      return vector3d;
     }
 
     inline void SwapCoordinateConvention(double &x, double &y, double &z) {

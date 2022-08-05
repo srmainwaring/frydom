@@ -12,7 +12,7 @@
 #ifndef FRYDOM_FRCONTACTINC_H
 #define FRYDOM_FRCONTACTINC_H
 
-#include "FrContactSMC.h"
-#include "FrContactNSC.h"
+#include "FrMaterialSurfaceSMC.h"
+#include "FrMaterialSurfaceNSC.h"
 
 #endif //FRYDOM_FRCONTACTINC_H

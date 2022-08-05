@@ -9,23 +9,23 @@
 //
 // ==========================================================================
 
-#ifndef FRYDOM_FRCONTACTSMC_H
-#define FRYDOM_FRCONTACTSMC_H
+#ifndef FRYDOM_FRMATERIALSURFACESMC_H
+#define FRYDOM_FRMATERIALSURFACESMC_H
 
 #include <memory>
-#include "FrContact.h"
+#include "FrMaterialSurface.h"
 
 namespace frydom {
 
   class FrBody;
 
-  class FrContactParamsSMC : public FrContactParams {
+  class FrMaterialSurfaceSMC : public FrMaterialSurface {
 
     public:
 
-    FrContactParamsSMC();
+    FrMaterialSurfaceSMC();
 
-    explicit FrContactParamsSMC(FrBody* body);
+    explicit FrMaterialSurfaceSMC(FrBody* body);
 
     float young_modulus;      ///< Young's modulus (elastic modulus)
     float poisson_ratio;      ///< Poisson ratio
@@ -41,12 +41,12 @@ namespace frydom {
 
   };
 
-  std::shared_ptr<FrContactParamsSMC> MakeDefaultContactParamsSMC();
+  std::shared_ptr<FrMaterialSurfaceSMC> MakeDefaultMaterialSurfaceSMC();
 
   namespace internal {
-    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialSMC(const FrContactParamsSMC* params);
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterialSMC(const FrMaterialSurfaceSMC* params);
   }
 
 } // end namespace frydom
 
-#endif //FRYDOM_FRCONTACTSMC_H
+#endif //FRYDOM_FRMATERIALSURFACESMC_H

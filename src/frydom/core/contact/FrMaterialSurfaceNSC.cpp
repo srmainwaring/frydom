@@ -12,14 +12,14 @@
 #include <iostream>
 #include <memory>
 
-#include "FrContactNSC.h"
+#include "FrMaterialSurfaceNSC.h"
 
 #include "frydom/core/body/FrBody.h"
 
 namespace frydom {
 
-  FrContactParamsNSC::FrContactParamsNSC() :
-      FrContactParams(),
+  FrMaterialSurfaceNSC::FrMaterialSurfaceNSC() :
+      FrMaterialSurface(),
       rolling_friction(0),
       spinning_friction(0),
       cohesion(0),
@@ -30,7 +30,7 @@ namespace frydom {
       complianceSpin(0) {
   }
 
-  FrContactParamsNSC::FrContactParamsNSC(FrBody *body) {
+  FrMaterialSurfaceNSC::FrMaterialSurfaceNSC(FrBody *body) {
 
     auto ms = internal::GetChronoBody(body)->GetCollisionModel()->GetShape(0)->GetMaterial();
     auto ms_nsc = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceNSC>(ms);
@@ -48,7 +48,7 @@ namespace frydom {
     complianceSpin = ms_nsc->GetComplianceSpinning();
   }
 
-  void FrContactParamsNSC::Print() const {
+  void FrMaterialSurfaceNSC::Print() const {
     std::cout << "NSC Contact parameters:" << std::endl;
     std::cout << "static friction   " << static_friction << std::endl;
     std::cout << "sliding friction  " << sliding_friction << std::endl;
@@ -63,11 +63,11 @@ namespace frydom {
     std::cout << "compliance spin   " << complianceSpin << std::endl;
   }
 
-  std::shared_ptr<FrContactParamsNSC> MakeDefaultContactParamsNSC() {
-    return std::make_shared<FrContactParamsNSC>();
+  std::shared_ptr<FrMaterialSurfaceNSC> MakeDefaultMaterialSurfaceNSC() {
+    return std::make_shared<FrMaterialSurfaceNSC>();
   }
 
-  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialNSC(const FrContactParamsNSC* params) {
+  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialNSC(const FrMaterialSurfaceNSC* params) {
 
     // FIXME (CC) : regarder pour faire de la composition de ChMaterialSurface avec FrContactParams
 

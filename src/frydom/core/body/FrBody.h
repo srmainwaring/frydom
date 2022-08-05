@@ -13,8 +13,6 @@
 #ifndef FRYDOM_FRBODY_H
 #define FRYDOM_FRBODY_H
 
-#include <frydom/core/contact/FrContactNSC.h>
-
 #include "chrono/physics/ChBodyAuxRef.h"
 
 #include "frydom/asset/FrAssetOwner.h"
@@ -144,10 +142,6 @@ namespace frydom {
 
   class FrDOFMask;
 
-  class FrContactParamsSMC;
-
-  class FrContactParamsNSC;
-
   /// Main class for a FRyDoM rigid body
   /**
    * \class FrBody
@@ -168,6 +162,8 @@ namespace frydom {
     std::unique_ptr<FrDOFMask> m_DOFMask;
 
     std::shared_ptr<FrDOFMaskLink> m_DOFLink;
+
+    std::shared_ptr<FrCollisionModel> m_collisionModel;
 
    public:
 
@@ -244,14 +240,6 @@ namespace frydom {
     /// \param collisionModel collision model, containing the collision box
     void SetCollisionModel(std::shared_ptr<FrCollisionModel> collisionModel);
     // TODO voir si on garde en l'etat, on pourrait avoir notre propre logique, plus simple
-
-    std::shared_ptr<FrContactParamsSMC> GetContactParamsSMC();
-
-    void SetContactParamsSMC(std::shared_ptr<FrContactParamsSMC> p);
-
-    std::shared_ptr<FrContactParamsNSC> GetContactParamsNSC();
-
-    void SetContactParamsNSC(std::shared_ptr<FrContactParamsNSC> p);
 
     Force GetContactForceInWorld(FRAME_CONVENTION fc);
 
