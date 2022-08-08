@@ -94,15 +94,13 @@ TEST(friction, static_friction) {
 
   auto floor = system.NewBody("floor");
   floor->SetFixedInWorld(true);
-  makeItBox(floor, 10, 10, 1, 1E3);
-  auto param = floor->GetContactParamsNSC();
-  param->static_friction = 0.6;
-  floor->SetContactParamsNSC(param);
+  auto mat = FrMaterialSurfaceNSC();
+  mat.static_friction = 0.6;
+  makeItBox(floor, 10, 10, 1, 1E3, &mat);
 
   auto box = system.NewBody("box");
-  makeItBox(box, 1, 1, 1, 1E3);
+  makeItBox(box, 1, 1, 1, 1E3, &mat);
   box->SetPosition(Position(0.,0.,1), NWU);
-  box->SetContactParamsNSC(param);
 
   Force tangent(box->GetMass() * system.GetGravityAcceleration(),0. ,0.);
   auto tangentForce = make_constant_force("tangent", box->NewNode("center"), frydom::FrConstantForce::FOLLOWING,
@@ -113,7 +111,7 @@ TEST(friction, static_friction) {
   auto contactForce = box->GetContactForceInWorld(NWU);
   double ratio = abs(contactForce.GetFx()/contactForce.GetFz());
 
-  auto relative_error = abs(ratio - param->static_friction) / param->static_friction;
+  auto relative_error = abs(ratio - mat.static_friction) / mat.static_friction;
   if (verbose) {
     std::cout << "ratio : " << ratio << std::endl;
     std::cout << "relative error : " << relative_error << std::endl;
