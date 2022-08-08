@@ -11,6 +11,11 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Fixed
 
+## [4.2.1] 2022-08-08
+
+### Changed
+- Contact parameters changed accordingly to new Chrono specifications (applied on contact surfaces, not bodies)
+
 ## [4.2] 2022-07-28
 
 ### Changed
