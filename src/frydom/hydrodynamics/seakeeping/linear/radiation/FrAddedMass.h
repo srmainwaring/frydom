@@ -84,6 +84,7 @@ namespace frydom {
 
         std::vector<std::shared_ptr<internal::FrFEANodeBase>> m_nodes;
         std::vector<std::shared_ptr<internal::FrBodyBase>> m_bodies;
+        std::vector<std::shared_ptr<internal::FrFEALinkBase>> m_links;
 
     };
 

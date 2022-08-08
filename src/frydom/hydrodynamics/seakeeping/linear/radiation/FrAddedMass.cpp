@@ -15,6 +15,7 @@
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/cable/fea/FrFEANode.h"
+#include "frydom/cable/fea/FrFEALink.h"
 
 namespace frydom {
 
@@ -36,8 +37,14 @@ namespace frydom {
     int FrAddedMassBase::GetNodeNdofs(int n) { return 6; }
 
     std::shared_ptr<chrono::fea::ChNodeFEAbase> FrAddedMassBase::GetNodeN(int n) {
-      //return m_nodes[n];
-      return std::make_shared<FrFEANodeBase>(*m_bodies[n]);
+      return m_nodes[n];
+      //##CC debug
+      //m_bodies[n]->SetOffset_w(6);
+      //auto node = std::make_shared<FrFEANodeBase>(*m_bodies[n]);
+      //std::cout << "debug : FrAddedMassBase : body offset  = " << m_bodies[n]->GetOffset_w() << std::endl;
+      //std::cout << "debug : FrAddedMassBase : node offset  = " << node->NodeGetOffset_w() << std::endl;
+      //##
+      //return std::make_shared<FrFEANodeBase>(*m_bodies[n]);
     }
 
     void FrAddedMassBase::GetStateBlock(chrono::ChVectorDynamic<>& mD) {
@@ -60,11 +67,11 @@ namespace frydom {
     }
 
     void FrAddedMassBase::ComputeInternalForces(chrono::ChVectorDynamic<>& Fi) {
-      //Fi.setZero();
+      Fi.setZero();
     }
 
     void FrAddedMassBase::ComputeGravityForces(chrono::ChVectorDynamic<>& Fi, const chrono::ChVector<>& G_acc) {
-      //Fi.setZero();
+      Fi.setZero();
     }
 
     void FrAddedMassBase::BuildGeneralizedMass() {
@@ -100,15 +107,27 @@ namespace frydom {
 
     void FrAddedMassBase::SetNodes() {
 
-      std::vector<chrono::ChVariables*> mvars;
-
       auto hdb = m_frydomRadiationModel->GetHydroDB();
 
+      std::vector<chrono::ChVariables*> mvars;
+
       for (auto body = hdb->begin(); body != hdb->end(); body++) {
+
         auto chrono_body = GetChronoBody(hdb->GetBody(body->first));
-        mvars.push_back(&chrono_body->Variables());
+
+        auto node = std::make_shared<FrFEANodeBase>(*chrono_body);
+        auto link = std::make_shared<internal::FrFEALinkBase>("link_"+body->first->GetName()+"_Ma",
+                                                              m_frydomRadiationModel->GetSystem());
+        link->Initialize(node, chrono_body, true,
+                         chrono::ChFrame<double>(),chrono::ChFrame<double>());
+
+        m_nodes.push_back(node);
+        m_links.push_back(link);
+        mvars.push_back(&node->Variables());
+
         //m_nodes.push_back(std::make_shared<internal::FrFEANodeBase>(chrono_body.get()));
-        m_nodes.push_back(std::make_shared<FrFEANodeBase>(*chrono_body));
+        //m_nodes.push_back(std::make_shared<FrFEANodeBase>(chrono::ChFrame<>()));
+
         m_bodies.push_back(chrono_body);
       }
       Kmatr.SetVariables(mvars);

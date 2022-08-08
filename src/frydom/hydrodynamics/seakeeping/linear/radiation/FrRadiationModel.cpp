@@ -31,14 +31,17 @@ namespace frydom {
     // Creation of an AddedMassBase object.
     //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
     m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
-    auto my_mesh = std::make_shared<chrono::fea::ChMesh>();
-    my_mesh->AddElement(m_addedMass);
-    system->GetChronoSystem()->Add(my_mesh);
+    m_mesh = std::make_shared<chrono::fea::ChMesh>();
+    m_mesh->AddElement(m_addedMass);
+    system->GetChronoSystem()->Add(m_mesh);
   }
 
   void FrRadiationModel::Initialize() {
     //FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
+    for (auto i=0; i<m_addedMass->GetNnodes(); i++) {
+      m_mesh->AddNode(m_addedMass->GetNodeN(i));
+    }
   }
 
   FrHydroMapper *FrRadiationModel::GetMapper() const {

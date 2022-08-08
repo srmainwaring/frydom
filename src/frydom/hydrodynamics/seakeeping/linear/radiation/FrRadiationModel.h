@@ -114,6 +114,7 @@ namespace frydom {
     void Compute(double time) override;
 
     std::shared_ptr<internal::FrAddedMassBase> m_addedMass;
+    std::shared_ptr<chrono::fea::ChMesh> m_mesh;
 
   };
 

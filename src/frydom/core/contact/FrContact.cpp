@@ -26,11 +26,12 @@ namespace frydom {
 
 
   std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterial(FrContactParams* params) {
-    if (typeid(params) == typeid(FrContactParamsSMC)) {
-      return internal::GetChronoMaterialSMC(dynamic_cast<FrContactParamsSMC*>(params));
-    } else if (typeid(params) == typeid(FrContactParamsNSC)) {
-      return internal::GetChronoMaterialSMC(dynamic_cast<FrContactParamsSMC*>(params));
-    };
+
+    if (typeid(*params) == typeid(FrContactParamsSMC)) {
+       return internal::GetChronoMaterialSMC(dynamic_cast<FrContactParamsSMC*>(params));
+    } else if (typeid(*params) == typeid(FrContactParamsNSC)) {
+      return internal::GetChronoMaterialNSC(dynamic_cast<FrContactParamsNSC*>(params));
+    }
   }
 
   std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterial(FrContactParamsSMC* params) {
