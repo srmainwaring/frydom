@@ -6,6 +6,7 @@
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrRotation.h"
 #include "frydom/mesh/FrTriangleMeshConnected.h"
+#include "frydom/core/contact/FrMaterialSurface.h"
 
 namespace frydom {
 
@@ -23,83 +24,101 @@ namespace frydom {
     m_chronoCollisionModel->ClearModel();
   }
 
-  bool FrCollisionModel::AddSphere(FrContactParams* mat, double radius, const Position &pos) {
+  bool FrCollisionModel::AddSphere(FrMaterialSurface *mat, double radius, const Position &pos) {
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chrono_material = internal::GetChronoMaterial(mat);
-    return m_chronoCollisionModel->AddSphere(chrono_material, radius, chPos);
+
+    return m_chronoCollisionModel->AddSphere(chrono_material, radius, pos);
 
   }
 
   bool
-  FrCollisionModel::AddEllipsoid(FrContactParams* mat, double rx, double ry, double rz, const Position &pos, const FrRotation &rot) {
+  FrCollisionModel::AddEllipsoid(FrMaterialSurface *mat,
+                                 double rx,
+                                 double ry,
+                                 double rz,
+                                 const Position &pos,
+                                 const FrRotation &rot) {
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chRot = internal::Fr2ChQuaternion(rot.GetQuaternion());
     auto chrono_material = internal::GetChronoMaterial(mat);
 
-    return m_chronoCollisionModel->AddEllipsoid(chrono_material, rx, ry, rz, chPos, chRot);
+    return m_chronoCollisionModel->AddEllipsoid(chrono_material, rx, ry, rz, pos, chRot);
 
   }
 
-  bool FrCollisionModel::AddBox(FrContactParams* mat, double hx, double hy, double hz, const Position &pos, const FrRotation &rot) {
+  bool FrCollisionModel::AddBox(FrMaterialSurface *mat,
+                                double hx,
+                                double hy,
+                                double hz,
+                                const Position &pos,
+                                const FrRotation &rot) {
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chRot = internal::Fr2ChQuaternion(rot.GetQuaternion());
     auto chrono_material = internal::GetChronoMaterial(mat);
 
-    return m_chronoCollisionModel->AddBox(chrono_material, hx, hy, hz, chPos, chRot);
+    return m_chronoCollisionModel->AddBox(chrono_material, hx, hy, hz, pos, chRot);
 
   }
 
   bool
-  FrCollisionModel::AddCylinder(FrContactParams* mat, double rx, double rz, double hy, const Position &pos, const FrRotation &rot) {
+  FrCollisionModel::AddCylinder(FrMaterialSurface *mat,
+                                double rx,
+                                double rz,
+                                double hy,
+                                const Position &pos,
+                                const FrRotation &rot) {
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chRot = internal::Fr2ChQuaternion(rot.GetQuaternion());
     auto chrono_material = internal::GetChronoMaterial(mat);
 
-    return m_chronoCollisionModel->AddCylinder(chrono_material, rx, rz, hy, chPos, chRot);
+    return m_chronoCollisionModel->AddCylinder(chrono_material, rx, rz, hy, pos, chRot);
 
   }
 
-  bool FrCollisionModel::AddConvexHull(FrContactParams* mat, const std::vector<Position> &pointlist, const Position &pos,
+  bool FrCollisionModel::AddConvexHull(FrMaterialSurface *mat,
+                                       const std::vector<Position> &pointlist,
+                                       const Position &pos,
                                        const FrRotation &rot) {
 
     std::vector<chrono::ChVector<double>> chVect;
-    for (const auto &point : pointlist) {
-      chVect.push_back(internal::Vector3dToChVector(point));
+    for (const auto &point: pointlist) {
+      chVect.emplace_back(point);
     }
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chRot = internal::Fr2ChQuaternion(rot.GetQuaternion());
     auto chrono_material = internal::GetChronoMaterial(mat);
 
-    return m_chronoCollisionModel->AddConvexHull(chrono_material, chVect, chPos, chRot);
+    return m_chronoCollisionModel->AddConvexHull(chrono_material, chVect, pos, chRot);
 
   }
 
-  bool FrCollisionModel::AddTriangleMesh(FrContactParams* mat, std::shared_ptr<FrTriangleMeshConnected> trimesh, bool is_static,
-                                         bool is_convex, const Position &pos, const FrRotation &rot,
+  bool FrCollisionModel::AddTriangleMesh(FrMaterialSurface *mat,
+                                         std::shared_ptr<FrTriangleMeshConnected> trimesh,
+                                         bool is_static,
+                                         bool is_convex,
+                                         const Position &pos,
+                                         const FrRotation &rot,
                                          double sphereswept_thickness) {
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chRot = internal::Fr2ChQuaternion(rot.GetQuaternion());
     auto chrono_material = internal::GetChronoMaterial(mat);
 
-    return m_chronoCollisionModel->AddTriangleMesh(chrono_material, trimesh, is_static, is_convex, chPos, chRot, sphereswept_thickness);
+    return m_chronoCollisionModel->AddTriangleMesh(chrono_material, trimesh, is_static, is_convex, pos, chRot,
+                                                   sphereswept_thickness);
 
   }
 
   bool
-  FrCollisionModel::AddTriangleMeshConcave(FrContactParams* mat, std::shared_ptr<FrTriangleMeshConnected> trimesh, const Position &pos,
+  FrCollisionModel::AddTriangleMeshConcave(FrMaterialSurface *mat,
+                                           std::shared_ptr<FrTriangleMeshConnected> trimesh,
+                                           const Position &pos,
                                            const FrRotation &rot) {
 
-    auto chPos = internal::Vector3dToChVector(pos);
     auto chRot = internal::Fr2ChQuaternion(rot.GetQuaternion());
     auto chrono_material = internal::GetChronoMaterial(mat);
 
-    return m_chronoCollisionModel->AddTriangleMeshConcave(chrono_material, trimesh, chPos, chRot);
+    return m_chronoCollisionModel->AddTriangleMeshConcave(chrono_material, trimesh, pos, chRot);
 
   }
 
@@ -111,12 +130,13 @@ namespace frydom {
     m_chronoCollisionModel->ClearModel();
   }
 
-  void FrCollisionModel::BuildModel() {
-    m_chronoCollisionModel->BuildModel();
-  }
-
-  bool FrCollisionModel::AddTriangleMesh(FrContactParams* mat, const std::string &obj_filename, const Position &pos, const FrRotation &rot,
-                                         bool is_static, bool is_convex, double sphereswept_thickness) {
+  bool FrCollisionModel::AddTriangleMesh(FrMaterialSurface *mat,
+                                         const std::string &obj_filename,
+                                         const Position &pos,
+                                         const FrRotation &rot,
+                                         bool is_static,
+                                         bool is_convex,
+                                         double sphereswept_thickness) {
 
     auto mesh = std::make_shared<FrTriangleMeshConnected>();
     mesh->LoadWavefrontMesh(obj_filename);

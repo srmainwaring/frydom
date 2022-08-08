@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
 
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
   FrOffshoreSystem system("demo_Cable", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
+//  FrOffshoreSystem system("demo_Cable");
 
   // Hide the free surface and seabed visual assets.
   system.GetEnvironment()->GetOcean()->ShowFreeSurface(false);
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
   };
 
   // Chose the one you want to run
-  cableCase Case = Pendulum;
+  cableCase Case = Newton_Pendulum;
 
   // Line properties :
   bool elastic = true;                      //  non elastic catenary lines are only available for non strained lines
@@ -149,8 +150,9 @@ int main(int argc, char *argv[]) {
       int n_sphere = 5;               // number of spheres wanted
       double diameter = 4;            // diameter of the spheres
       double density = 1000;          // density of the spheres
-      float steelYoungModulus = 1e12; // Young modulus of the sphere (for contact)
-      float steelNormalDamping = 1e12;// Normal damping of the sphere (for contact)
+//      auto steel = FrMaterialSurfaceNSC();
+      auto steel = FrMaterialSurfaceSMC();
+      steel.restitution = 1.;
 
       // Line properties :
       double unstrainedLength = 51.;                 //  unstrained length, in m
@@ -176,11 +178,8 @@ int main(int argc, char *argv[]) {
 //        sphere_material_props->young_modulus = steelYoungModulus;
 //        sphere_material_props->restitution = 0;
 
-        auto sphere_material_props = sphere->GetContactParamsNSC();
-        sphere_material_props->restitution = 1.;
-
         // Make it a sphere : gives an asset, a collision box, and its inertia parameters
-        makeItSphere(sphere, 0.5 * diameter, density);
+        makeItSphere(sphere, 0.5 * diameter, density, &steel);
 
         // Set the initial position
         sphere->SetPosition(Position(10., diameter * ib, 0.), NWU);
@@ -223,11 +222,8 @@ int main(int argc, char *argv[]) {
 //        sphere_material_props->young_modulus = steelYoungModulus;
 //        sphere_material_props->restitution = 0;
 
-        auto sphere_material_props = sphere->GetContactParamsNSC();
-        sphere_material_props->restitution = 1.;
-
         // Make it a sphere : gives an asset, a collision box, and its inertia parameters
-        makeItSphere(sphere, 0.5 * diameter, density);
+        makeItSphere(sphere, 0.5 * diameter, density, &steel);
 
         // Set the initial position
         sphere->SetPosition(Position(-10., diameter * ib, 0.), NWU);

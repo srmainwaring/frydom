@@ -9,8 +9,8 @@
 //
 // ==========================================================================
 
-#ifndef FRYDOM_FRCONTACT_H
-#define FRYDOM_FRCONTACT_H
+#ifndef FRYDOM_FRMATERIALSURFACE_H
+#define FRYDOM_FRMATERIALSURFACE_H
 
 namespace chrono {
   class ChMaterialSurface;
@@ -18,15 +18,16 @@ namespace chrono {
 
 namespace frydom {
 
-  // Foward declaration
-  class FrContactParamsSMC;
-  class FrContactParamsNSC;
+  // Forward declaration
+  class FrMaterialSurfaceSMC;
+  class FrMaterialSurfaceNSC;
+  class FrOffshoreSystem;
 
-  class FrContactParams {
+  class FrMaterialSurface {
 
     public:
 
-    FrContactParams();
+    FrMaterialSurface();
 
     float static_friction;
     float sliding_friction;
@@ -38,13 +39,13 @@ namespace frydom {
 
 
   namespace internal {
-    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterial(FrContactParams* params);
-    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterial(FrContactParamsSMC* params);
-    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterial(FrContactParamsNSC* params);
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterial(FrMaterialSurface* params);
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterial(FrMaterialSurfaceSMC* params);
+    std::shared_ptr<chrono::ChMaterialSurface> GetChronoMaterial(FrMaterialSurfaceNSC* params);
   }
 
 
 } // end namespace frydom
 
 
-#endif //FRYDOM_FRCONTACT_H
+#endif //FRYDOM_FRMATERIALSURFACE_H

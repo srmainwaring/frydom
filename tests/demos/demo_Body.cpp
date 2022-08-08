@@ -63,16 +63,16 @@ int main(int argc, char *argv[]) {
 
   // Add a collision asset to your body, it allows the body to collide with other elements. You can add collision mesh
   // based on triangular mesh as well.
-  auto sphereCollision = std::make_shared<FrCollisionModel>();
-  auto mat = std::make_shared<FrContactParamsNSC>();
-  sphereCollision->AddSphere(mat.get(), radius, Position());
-  body->SetCollisionModel(sphereCollision);
+  auto collisionModel = std::make_shared<FrCollisionModel>();
+  auto mat = FrMaterialSurfaceNSC();
+  collisionModel->AddSphere(&mat, radius, Position());
+  body->SetCollisionModel(collisionModel);
 
   // However you can make your body a sphere, cylinder or box using the following functions :
   // These functions set the inertia parameters, the collision model and the visual asset.
-//    makeItSphere(body, radius, Mass);
-//    makeItCylinder(body,radius, height, Mass);
-//    makeItBox(body,xSize, ySize, zSize, Mass);
+//    makeItSphere(body, radius, Mass, mat);
+//    makeItCylinder(body,radius, height, Mass, mat);
+//    makeItBox(body,xSize, ySize, zSize, Mass, mat);
 
   // For adding your own mesh, specify a WaveFront .obj file name. Meshmagick software can help you convert other
   // mesh format into .obj : https://github.com/LHEEA/meshmagick.

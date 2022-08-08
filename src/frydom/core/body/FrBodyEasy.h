@@ -22,12 +22,25 @@ namespace frydom {
 
   class FrOffshoreSystem;
 
+  class FrMaterialSurface;
 
-  void makeItBox(std::shared_ptr<FrBody> body, double xSize, double ySize, double zSize, double mass);
+  void makeItBox(std::shared_ptr<FrBody> body,
+                 double xSize,
+                 double ySize,
+                 double zSize,
+                 double mass,
+                 FrMaterialSurface *mat = nullptr);
 
-  void makeItCylinder(std::shared_ptr<FrBody> body, double radius, double height, double mass);
+  void makeItCylinder(std::shared_ptr<FrBody> body,
+                      double radius,
+                      double height,
+                      double mass,
+                      FrMaterialSurface *mat = nullptr);
 
-  void makeItSphere(std::shared_ptr<FrBody> body, double radius, double mass);
+  void makeItSphere(std::shared_ptr<FrBody> body,
+                    double radius,
+                    double mass,
+                    FrMaterialSurface *mat = nullptr);
 
 
   std::shared_ptr<FrBody> make_BoxBody(const std::string &name,
@@ -35,18 +48,21 @@ namespace frydom {
                                        double xSize,
                                        double ySize,
                                        double zSize,
-                                       double mass);
+                                       double mass,
+                                       FrMaterialSurface *mat = nullptr);
 
   std::shared_ptr<FrBody> make_CylinderBody(const std::string &name,
                                             FrOffshoreSystem *system,
                                             double radius,
                                             double height,
-                                            double mass);
+                                            double mass,
+                                            FrMaterialSurface *mat = nullptr);
 
   std::shared_ptr<FrBody> make_SphereBody(const std::string &name,
                                           FrOffshoreSystem *system,
                                           double radius,
-                                          double mass);
+                                          double mass,
+                                          FrMaterialSurface *mat = nullptr);
 
 
   // TODO : faire le make_ConeBody ---> mat d'eolienne...

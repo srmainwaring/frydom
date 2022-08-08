@@ -29,11 +29,7 @@ namespace frydom {
     SetForceInWorldAtCOG(-m_buoy->GetVolume() * rho_water * Gvector, NWU);
   }
 
-  FrMooringBuoy::FrMooringBuoy(const std::string &name,
-                               FrOffshoreSystem *system,
-                               double radius,
-                               double mass,
-                               bool visual_asset,
+  FrMooringBuoy::FrMooringBuoy(const std::string &name, FrOffshoreSystem *system, double radius, double mass,
                                double damping) :
       FrBody(name, system) {
     m_radius = radius;
@@ -54,16 +50,16 @@ namespace frydom {
     // Building the Chrono body
     SetInertiaTensor(FrInertiaTensor(mass, inertia, inertia, inertia, 0., 0., 0., Position(), NWU));
 
-    // Collision
-    auto contact_method = m_chronoBody->GetSystem()->GetContactMethod();
-    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
-
-    auto collisionModel = m_chronoBody->GetCollisionModel();
-    collisionModel->ClearModel();
-    collisionModel->AddSphere(mat, radius,
-                              chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
-    collisionModel->BuildModel();
-    AllowCollision(true);  // A retirer ?
+//    // Collision
+//    auto contact_method = m_chronoBody->GetSystem()->GetContactMethod();
+//    auto mat = chrono::ChMaterialSurface::DefaultMaterial(contact_method);     // FIXME (CC) : permettre le choix du materiau
+//
+//    auto collisionModel = m_chronoBody->GetCollisionModel();
+//    collisionModel->ClearModel();
+//    collisionModel->AddSphere(mat, radius,
+//                              chrono::ChVector<double>());  // TODO: permettre de specifier les coords relatives dans le modele !!
+//    collisionModel->BuildModel();
+//    AllowCollision(true);  // A retirer ?
 //    SetSmoothContact();  // Smooth contact by default
 
     // Asset
@@ -87,13 +83,9 @@ namespace frydom {
 
 
   std::shared_ptr<FrMooringBuoy>
-  make_mooring_buoy(const std::string &name,
-                    FrOffshoreSystem *system,
-                    double radius, double mass,
-                    bool visual_asset,
-                    double damping) {
+  make_mooring_buoy(const std::string &name, FrOffshoreSystem *system, double radius, double mass, double damping) {
 
-    auto buoy = std::make_shared<FrMooringBuoy>(name, system, radius, mass, visual_asset, damping);
+    auto buoy = std::make_shared<FrMooringBuoy>(name, system, radius, mass, damping);
     system->Add(buoy);
     buoy->SetColor(DarkRed);
     return buoy;

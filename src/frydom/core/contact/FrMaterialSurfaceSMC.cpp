@@ -10,14 +10,14 @@
 // ==========================================================================
 
 #include <iostream>
-#include "FrContactSMC.h"
+#include "FrMaterialSurfaceSMC.h"
 
 #include "frydom/core/body/FrBody.h"
 
 namespace frydom {
 
-FrContactParamsSMC::FrContactParamsSMC()
-    : FrContactParams(),
+FrMaterialSurfaceSMC::FrMaterialSurfaceSMC()
+    : FrMaterialSurface(),
       young_modulus(2e5),
       poisson_ratio(0.3f),
       constant_adhesion(0),
@@ -27,7 +27,7 @@ FrContactParamsSMC::FrContactParamsSMC()
 //      gn(40),
 //      gt(20){}
 
-  FrContactParamsSMC::FrContactParamsSMC(FrBody *body) {
+  FrMaterialSurfaceSMC::FrMaterialSurfaceSMC(FrBody *body) {
 
     auto ms = internal::GetChronoBody(body)->GetCollisionModel()->GetShape(0)->GetMaterial();
     auto ms_smc = std::dynamic_pointer_cast<chrono::ChMaterialSurfaceSMC>(ms);
@@ -42,7 +42,7 @@ FrContactParamsSMC::FrContactParamsSMC()
 
   }
 
-  void FrContactParamsSMC::Print() const {
+  void FrMaterialSurfaceSMC::Print() const {
     std::cout << "SMC Contact parameters:" << std::endl;
     std::cout << "Young modulus   " << young_modulus << std::endl;
     std::cout << "Poisson ratio  " << poisson_ratio << std::endl;
@@ -53,11 +53,11 @@ FrContactParamsSMC::FrContactParamsSMC()
     std::cout << "adhesionMultDMT           " << adhesionMultDMT << std::endl;
   }
 
-  std::shared_ptr<FrContactParamsSMC> MakeDefaultContactParamsSMC() {
-    return std::make_shared<FrContactParamsSMC>();
+  std::shared_ptr<FrMaterialSurfaceSMC> MakeDefaultMaterialSurfaceSMC() {
+    return std::make_shared<FrMaterialSurfaceSMC>();
   }
 
-  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialSMC(const FrContactParamsSMC* params){
+  std::shared_ptr<chrono::ChMaterialSurface> internal::GetChronoMaterialSMC(const FrMaterialSurfaceSMC* params){
 
     auto chrono_mat = std::make_shared<chrono::ChMaterialSurfaceSMC>();
 

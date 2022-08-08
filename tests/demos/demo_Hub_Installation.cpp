@@ -45,14 +45,10 @@ int main(int argc, char *argv[]) {
   system.GetEnvironment()->GetOcean()->GetSeabed()->Show(true);
 
   auto seabedCollision = std::make_shared<FrCollisionModel>();
-  auto mat = std::make_shared<FrContactParamsSMC>();
-  seabedCollision->AddBox(mat.get(), 50, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
-  seabedCollision->BuildModel();
+  auto mat = FrMaterialSurfaceSMC();
+  mat.young_modulus = 1e8;
+  seabedCollision->AddBox(&mat, 50, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
   system.GetWorldBody()->SetCollisionModel(seabedCollision);
-
-  auto steel = system.GetWorldBody()->GetContactParamsSMC();
-  steel->young_modulus = 1e8;
-  system.GetWorldBody()->SetContactParamsSMC(steel);
 
   auto FreeSurface = system.GetEnvironment()->GetOcean()->GetFreeSurface();
   // To manipulate the free surface grid asset, you first need to access it, through the free surface object.
@@ -89,9 +85,8 @@ int main(int argc, char *argv[]) {
   barge->SetColor(Yellow);
 
   auto collisionModel = std::make_shared<FrCollisionModel>();
-  collisionModel->AddBox(steel.get(), 17.5, 8, 2, Position(), FrRotation());
+  collisionModel->AddBox(&mat, 17.5, 8, 2, Position(), FrRotation());
 //    collisionModel->AddTriangleMesh("barge.obj",Position(),FrRotation());
-  collisionModel->BuildModel();
   barge->SetCollisionModel(collisionModel);
 
   auto rev1_barge_node = barge->NewNode("rev1_barge_node");
@@ -99,8 +94,6 @@ int main(int argc, char *argv[]) {
 
   barge->SetInertiaTensor(
       FrInertiaTensor((1137.6 - 180.6) * 1000, 2.465e7, 1.149e7, 1.388e07, 0., 0., 0., Position(), NWU));
-
-  barge->SetContactParamsSMC(steel);
 
   // -- Hydrodynamics
 
@@ -203,15 +196,13 @@ int main(int argc, char *argv[]) {
   // --------------------------------------------------
 
   auto hub_box = system.NewBody("Hub_Box");
-  makeItBox(hub_box, 1.5, 1.5, 1.5, 20.7e3);
+  makeItBox(hub_box, 1.5, 1.5, 1.5, 20.7e3, &mat);
   auto hubPos = crane_node->GetPositionInWorld(fc);
   hubPos.GetZ() = 2.85;
   hub_box->SetPosition(hubPos, fc);
 
   auto hub_node = hub_box->NewNode("hub_node");
   hub_node->SetPositionInBody(Position(0., 0., 0.75), fc);
-
-  hub_box->SetContactParamsSMC(steel);
 
   // --------------------------------------------------
   // Hub Line
@@ -224,7 +215,7 @@ int main(int argc, char *argv[]) {
   cableProp->SetEA(5e7);
   cableProp->SetLinearDensity(600);
 
-//    auto CatenaryLine = make_catenary_line("HubLine", &system, crane_node, hub_node, cableProp, elastic, unstretchedLength, FLUID_TYPE::AIR);
+//    auto CatenaryLine = make_catenary_line("HubLine", crane_node, hub_node, cableProp, elastic, unstretchedLength, FLUID_TYPE::AIR);
   auto dynamicLine = make_fea_cable("HubLine", crane_node, hub_node, cableProp, unstretchedLength, 10);
 
   // --------------------------------------------------
@@ -235,19 +226,19 @@ int main(int argc, char *argv[]) {
   double buoyDamping = 1000;
 
 
-  auto buoySE = make_mooring_buoy("buoySE", &system, buoyRadius, buoyMass, true, buoyDamping);
+  auto buoySE = make_mooring_buoy("buoySE", &system, buoyRadius, buoyMass, buoyDamping);
   buoySE->SetPosition(Position(-50., -25., 0.), NWU);
   auto buoyNodeSE = buoySE->NewNode("buoyNodeSE");
 
-  auto buoySW = make_mooring_buoy("buoySW", &system, buoyRadius, buoyMass, true, buoyDamping);
+  auto buoySW = make_mooring_buoy("buoySW", &system, buoyRadius, buoyMass, buoyDamping);
   buoySW->SetPosition(Position(-50., 25., 0.), NWU);
   auto buoyNodeSW = buoySW->NewNode("buoyNodeSW");
 
-  auto buoyNE = make_mooring_buoy("buoyNE", &system, buoyRadius, buoyMass, true, buoyDamping);
+  auto buoyNE = make_mooring_buoy("buoyNE", &system, buoyRadius, buoyMass, buoyDamping);
   buoyNE->SetPosition(Position(50., -25., 0.), NWU);
   auto buoyNodeNE = buoyNE->NewNode("buoyNodeSW");
 
-  auto buoyNW = make_mooring_buoy("buoyNW", &system, buoyRadius, buoyMass, true, buoyDamping);
+  auto buoyNW = make_mooring_buoy("buoyNW", &system, buoyRadius, buoyMass, buoyDamping);
   buoyNW->SetPosition(Position(50., 25., 0.), NWU);
   auto buoyNodeNW = buoyNW->NewNode("buoyNodeSW");
 
@@ -307,7 +298,7 @@ int main(int argc, char *argv[]) {
 //    system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT);
 
   // simulation parameters for dynamic cables
-  system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
+  system.SetSolver(FrOffshoreSystem::SOLVER::APGD);
   system.SetSolverMaxIterations(200);
   system.SetSolverForceTolerance(1e-13);
 
