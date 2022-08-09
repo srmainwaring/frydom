@@ -26,6 +26,7 @@ set(REFACTORING_TESTS
         test_propulsion
         test_FrSteadyStateChecker
         test_CastorFile
+        test_FEACableBuoy
         )
 
 foreach (test ${REFACTORING_TESTS})
