@@ -26,7 +26,9 @@ namespace frydom {
   namespace internal {
 
     FrAddedMassBase::FrAddedMassBase(FrRadiationModel* radiationModel)
-      : m_frydomRadiationModel(radiationModel) {}
+      : m_frydomRadiationModel(radiationModel) {
+      SetNodes();
+    }
 
     FrAddedMassBase::~FrAddedMassBase() { }
 
@@ -105,6 +107,46 @@ namespace frydom {
       }
     }
 
+
+    void FrAddedMassBase::EleIntLoadResidual_Mv(chrono::ChVectorDynamic<>& R,
+                                                const chrono::ChVectorDynamic<>& w,
+                                                const double c) {
+
+      auto hdb = GetRadiationModel()->GetHydroDB();
+
+      chrono::ChMatrixDynamic<> mMi(this->GetNdofs(), this->GetNdofs());
+      this->ComputeMmatrixGlobal(mMi);
+
+      chrono::ChVectorDynamic<> mqi(this->GetNdofs());
+      int stride = 0;
+      for (int in = 0; in < this->GetNnodes(); in++) {
+        int nodedofs = GetNodeNdofs(in);
+        if (GetNodeN(in)->GetFixed()) {
+          for (int i =0; i < nodedofs; ++i)
+            mqi(stride + i) = 0;
+        } else {
+          auto offset = GetNodeN(in)->NodeGetOffset_w();
+          mqi.segment(stride, nodedofs) = w.segment(offset, nodedofs);
+        }
+        stride += nodedofs;
+      }
+
+      chrono::ChVectorDynamic<> mFi = c  *mMi * mqi;
+
+      stride = 0;
+      for (int in = 0; in < this->GetNnodes(); in++) {
+        int nodedofs = GetNodeNdofs(in);
+        if (!GetNodeN(in)->GetFixed()) {
+          //R.segment(internal::GetChronoBody(hdb->GetBody(hdb->GetBody(in)))->GetOffset_w(), nodedofs) +=
+          //    mFi.segment(stride, nodedofs);
+            auto offset = GetNodeN(in)->NodeGetOffset_w();
+          R.segment(offset, nodedofs) += mFi.segment(stride, nodedofs);
+        }
+        stride += nodedofs;
+      }
+    }
+
+
     void FrAddedMassBase::SetNodes() {
 
       auto hdb = m_frydomRadiationModel->GetHydroDB();
@@ -135,7 +177,7 @@ namespace frydom {
 
     void FrAddedMassBase::SetupInitial(chrono::ChSystem* system) {
       BuildGeneralizedMass();
-      SetNodes();
+      //SetNodes();
     }
 
   } // end namespace internal

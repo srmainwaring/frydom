@@ -46,6 +46,10 @@ int main(int argc, char *argv[]) {
   SeabedGridAsset->SetGrid(-150., 150., 3., -150., 150., 3.);
   system.GetEnvironment()->GetOcean()->GetSeabed()->Show(true);
 
+  auto steel = std::make_shared<FrContactParamsSMC>();
+  steel->young_modulus = 1e8;
+
+  /*
   auto seabedCollision = std::make_shared<FrCollisionModel>();
   auto mat = std::make_shared<FrContactParamsSMC>();
   seabedCollision->AddBox(mat.get(), 50, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
@@ -55,6 +59,7 @@ int main(int argc, char *argv[]) {
   auto steel = system.GetWorldBody()->GetContactParamsSMC();
   steel->young_modulus = 1e8;
   system.GetWorldBody()->SetContactParamsSMC(steel);
+  */
 
   auto FreeSurface = system.GetEnvironment()->GetOcean()->GetFreeSurface();
   // To manipulate the free surface grid asset, you first need to access it, through the free surface object.
@@ -305,14 +310,14 @@ int main(int argc, char *argv[]) {
   // ------------------ Run ------------------ //
 
   // You can change the dynamical simulation time step using
-  system.SetTimeStep(0.002);
+  system.SetTimeStep(0.005);
 
 //    system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT);
 
   // simulation parameters for dynamic cables
   //system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   system.SetSolverMaxIterations(1000);
-  system.SetSolverForceTolerance(1e-13);
+  system.SetSolverForceTolerance(1e-7);
 
   system.Initialize();
 

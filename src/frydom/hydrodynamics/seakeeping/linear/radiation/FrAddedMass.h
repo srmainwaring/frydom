@@ -18,6 +18,7 @@
 #include "chrono/fea/ChNodeFEAxyz.h"
 #include "frydom/cable/fea/FrFEANode.h"
 #include "frydom/core/body/FrBody.h"
+#include "frydom/cable/fea/FrFEALink.h"
 
 namespace frydom {
 
@@ -67,6 +68,10 @@ namespace frydom {
         void ComputeGravityForces(chrono::ChVectorDynamic<>& Fi, const chrono::ChVector<>& G_acc) override;
 
         void BuildGeneralizedMass();
+
+        void EleIntLoadResidual_Mv(chrono::ChVectorDynamic<>& R, const chrono::ChVectorDynamic<>& w, const double c) override;
+
+        std::vector<std::shared_ptr<internal::FrFEALinkBase>> GetLinks() { return m_links; }
 
       protected:
 

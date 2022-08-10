@@ -6,6 +6,45 @@
 
 using namespace frydom;
 
+// ----------------------------------------------------------------------------
+// Environment
+// ----------------------------------------------------------------------------
+
+void SetRegularWaveField(FrOffshoreSystem& system) {
+
+  auto FreeSurface = system.GetEnvironment()->GetOcean()->GetFreeSurface();
+
+  auto waveField = FreeSurface->SetAiryRegularOptimWaveField();
+
+  // The Airy regular wave p arameters are its height, period and direction.
+  double waveHeight = 1.; //0.25
+  double wavePeriod = 2. * M_PI;
+  Direction waveDirection = Direction(SOUTH(NWU));
+
+  waveField->SetWaveHeight(waveHeight);
+  waveField->SetWavePeriod(wavePeriod);
+  waveField->SetDirection(waveDirection, NWU, GOTO);
+
+}
+
+void SetIrregularWaveField(FrOffshoreSystem& system) {
+
+  auto FreeSurface = system.GetEnvironment()->GetOcean()->GetFreeSurface();
+
+  //auto waveField = FreeSurface->SetAiryIrregularOptimWaveField();
+  auto waveField = FreeSurface->SetAiryIrregularWaveField();
+
+  //waveField->SetJonswapWaveSpectrum(1., 2.*M_PI);
+  //waveField->SetMeanWaveDirection(Direction(SOUTH(NWU)), NWU, GOTO);
+  //waveField->SetWaveFrequencies(0.05, 2.9, 20);
+  //waveField->SetDirectionalParameters(10, 10);
+
+  auto seastate = FrFileSystem::join(
+      {system.config_file().GetDataFolder(), "test_FEACableBuoy_irregular_wave.json"});
+  waveField->LoadJSON(seastate);
+
+}
+
 void SetEnvironment(FrOffshoreSystem& system) {
 
   // Define the frame convention (NWU for North-West-Up or NED for North-East-Down)
@@ -41,24 +80,19 @@ void SetEnvironment(FrOffshoreSystem& system) {
 
   // The free surface grid is defined here as a squared one ranging from -100m to 100m (in north and west
   // directions) with a 2m steps.
-  FSAsset->SetGrid(-200., 200, 4, -50, 50, 4);
+  FSAsset->SetGrid(-200., 200, 2, -50, 50, 2);
 
   // You have to specify if you want the free surface asset to be updated during the simulation. By default, the
   // update is not activated.
   FSAsset->SetUpdateStep(10);
 
-  // WaveField
-  auto waveField = FreeSurface->SetAiryRegularOptimWaveField();
+  // Wave field
+  //SetRegularWaveField(system);
+  SetIrregularWaveField(system);
 
-  // The Airy regular wave parameters are its height, period and direction.
-  double waveHeight = 1.; //0.25
-  double wavePeriod = 2. * M_PI;
-  Direction waveDirection = Direction(SOUTH(fc));
-
-  waveField->SetWaveHeight(waveHeight);
-  waveField->SetWavePeriod(wavePeriod);
-  waveField->SetDirection(waveDirection, fc, dc);
 }
+
+
 
 std::shared_ptr<FrBody> SetBarge(FrOffshoreSystem& system) {
 
@@ -191,7 +225,7 @@ int main(int argc, char* argv[]) {
   //##
 
   // Mooring
-  SetMooringLines(system, barge);
+  //SetMooringLines(system, barge);
 
   // Solver properties
   system.SetSolverMaxIterations(1000);

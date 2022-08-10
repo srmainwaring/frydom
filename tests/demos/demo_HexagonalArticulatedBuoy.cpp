@@ -265,12 +265,12 @@ int main(int argc, char *argv[]) {
 
   // System
 
-  //FrOffshoreSystem system("demo_HexagonalArticulatedBuoy",
-  //                        FrOffshoreSystem::SMOOTH_CONTACT,
-  //                        FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
-  //                        FrOffshoreSystem::MINRES);
+  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy",
+                          FrOffshoreSystem::SMOOTH_CONTACT,
+                          FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::MINRES);
 
-  FrOffshoreSystem system("demo_HexagonalArticulatedBuoy", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
+  //FrOffshoreSystem system("demo_HexagonalArticulatedBuoy", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
   // Environment
   SetUpEnvironment(&system);
@@ -368,6 +368,8 @@ int main(int argc, char *argv[]) {
   // Simulation
 
   auto dt = 0.01;
+  system.SetSolverMaxIterations(1000);
+  system.SetSolverTolerance(1e-7);
 
   system.SetTimeStep(dt);
   system.Initialize();
