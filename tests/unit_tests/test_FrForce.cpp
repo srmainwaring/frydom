@@ -660,7 +660,7 @@ void TestFrForce::TestUpdateLimitApplication() {
   this->SetLimit(true);
 
   this->SetForceTorqueInBodyAtCOG(m_forceInBodyAtCOG, m_torqueInBodyAtCOG, NWU);
-  m_chronoForce->UpdateState();
+  m_chronoForce->Update(0.);
 
   auto force = GetForceInWorld(NWU);
   auto torque = GetTorqueInBodyAtCOG(NWU);

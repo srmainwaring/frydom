@@ -21,66 +21,95 @@ namespace frydom {
 
   namespace internal {
 
-    FrForceBase::FrForceBase(FrForce *force) : m_frydomForce(force) {}
+    FrLoadBodyForceTorqueBase::FrLoadBodyForceTorqueBase(FrForce *force, FrBody* body)
+        : chrono::ChLoadCustom(GetChronoBody(body)),
+          m_frydomForce(force) {}
 
-    void FrForceBase::UpdateState() {
+    void FrLoadBodyForceTorqueBase::GetBodyForceTorque(Force& force, Torque& torque) const {
+      GetForceInWorldNWU(force);
+      GetTorqueInBodyNWU(torque);
+    }
 
-      // Calling the FRyDoM interface for Update
-      m_frydomForce->Update(ChTime);
+    void FrLoadBodyForceTorqueBase::GetForceInWorldNWU(Force& force) const {
+      force = m_force;
+    }
+
+    void FrLoadBodyForceTorqueBase::GetTorqueInBodyNWU(Torque& torque) const {
+      auto body = std::dynamic_pointer_cast<chrono::ChBody>(this->loadable);
+      torque =  body->TransformDirectionParentToLocal(m_torque).eigen();
+    }
+
+    void FrLoadBodyForceTorqueBase::SetForceInWorldNWU(const Force& force) {
+      m_force = force;
+    }
+
+    void FrLoadBodyForceTorqueBase::SetTorqueInBodyNWU(const Torque& torque) {
+      auto body = std::dynamic_pointer_cast<chrono::ChBody>(this->loadable);
+      m_torque = body->TransformDirectionLocalToParent(torque).eigen();
+    }
+
+    void FrLoadBodyForceTorqueBase::ComputeQ(chrono::ChState* state_x, chrono::ChStateDelta* state_w) {
+
+      auto body = std::dynamic_pointer_cast<chrono::ChBody>(this->loadable);
+      if (!body->Variables().IsActive())
+        return;
+
+      chrono::ChVectorDynamic<> mF(loadable->Get_field_ncoords());
+      mF(0) = m_force.x();
+      mF(1) = m_force.y();
+      mF(2) = m_force.z();
+      mF(3) = m_torque.x();
+      mF(4) = m_torque.y();
+      mF(5) = m_torque.z();
+
+      // Compute Q = N(u, v, w)'*F
+      double detJ; // not used
+      auto pos = body->coord.pos; // body abs pos
+      body->ComputeNF(pos.x(), pos.y(), pos.z(), load_Q, detJ, mF, state_x, state_w);
+    }
+
+    void FrLoadBodyForceTorqueBase::Update(double time) {
+
+      if (!std::dynamic_pointer_cast<chrono::ChBody>(this->loadable)->Variables().IsActive())
+        return;
+
+      m_frydomForce->Update(time);
 
       // Limitation of the force and torque
       if (m_frydomForce->GetLimit()) {
 
         double limit = m_frydomForce->GetMaxForceLimit();
-        double magn = force.Length();
+        double magn = m_force.norm();
         if (magn > limit) {
-          force *= limit / magn;
+          m_force *= limit / magn;
         }
 
         limit = m_frydomForce->GetMaxTorqueLimit();
-        magn = m_torque.Length();
+        magn = m_torque.norm();
         if (magn > limit) {
           m_torque *= limit / magn;
         }
       }
+
+      ChLoadCustom::Update(time);
+      ChTime = time;
     }
 
-    void FrForceBase::GetBodyForceTorque(chrono::ChVector<double> &body_force,
-                                         chrono::ChVector<double> &body_torque) const {
-      body_force = force;    // In absolute coordinates
-      body_torque = m_torque; // In body coordinates expressed at COG
-    }
-
-    void FrForceBase::GetForceInWorldNWU(Force &body_force) const {
-      body_force = internal::ChVectorToVector3d<Force>(force);
-    }
-
-    void FrForceBase::GetTorqueInBodyNWU(Torque &body_torque) const {
-      body_torque = internal::ChVectorToVector3d<Torque>(m_torque);
-    }
-
-    void FrForceBase::SetForceInWorldNWU(const Force &body_force) {
-      force = internal::Vector3dToChVector(body_force);
-    }
-
-    void FrForceBase::SetTorqueInBodyNWU(const Torque &body_torque) {
-      m_torque = internal::Vector3dToChVector(body_torque);
-    }
-
-    std::shared_ptr<FrForceBase> GetChronoForce(std::shared_ptr<FrForce> force) {
+    std::shared_ptr<FrLoadBodyForceTorqueBase> GetChronoForce(std::shared_ptr<FrForce> force) {
       return force->m_chronoForce;
     }
 
   }  // end namespace frydom::internal
 
-
+  // -------------------------------------------------------------------------------
   // FrForce methods implementations
+  // -------------------------------------------------------------------------------
 
   FrForce::FrForce(const std::string &name,
                    const std::string &type_name,
                    FrBody *body) :
       FrLoggable(name, type_name, body) {
-    m_chronoForce = std::make_shared<internal::FrForceBase>(this);
+      m_chronoForce = std::make_shared<internal::FrLoadBodyForceTorqueBase>(this, body);
 
   }
 
@@ -163,11 +192,11 @@ namespace frydom {
   }
 
   Position FrForce::GetForceApplicationPointInWorld(FRAME_CONVENTION fc) const {
-    return internal::ChVectorToVector3d<Position>(m_chronoForce->GetVpoint());
+    return GetBody()->GetCOGPositionInWorld(NWU);
   }
 
   Position FrForce::GetForceApplicationPointInBody(FRAME_CONVENTION fc) const {
-    return internal::ChVectorToVector3d<Position>(m_chronoForce->GetVrelpoint());
+    return GetBody()->GetCOG(NWU);
   }
 
   void FrForce::GetForceInWorld(Force &force, FRAME_CONVENTION fc) const {

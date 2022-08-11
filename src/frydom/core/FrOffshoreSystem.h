@@ -319,9 +319,9 @@ namespace frydom {
     /// \param solver solver type
     explicit
     FrOffshoreSystem(const std::string &name,
-                     SYSTEM_TYPE systemType = NONSMOOTH_CONTACT,
+                     SYSTEM_TYPE systemType = SMOOTH_CONTACT,
                      TIME_STEPPER timeStepper = EULER_IMPLICIT_LINEARIZED,
-                     SOLVER solver = APGD,
+                     SOLVER solver = MINRES,
                      const std::string &logFolderName = FrLogManager::GetDateFolder());
 
     /// Destructor

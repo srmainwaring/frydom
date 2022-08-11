@@ -26,7 +26,9 @@ def main():
 
     call([ffmpeg,
           "-framerate", "10",
-          "-i", "screenshot%5d.bmp",
+          "-pattern_type", "glob",
+          #"-i", "screenshot%5d.bmp",
+          "-i", "*.bmp",
           "-c:v", "libx264",
           "-preset", "slow",
           "-crf", "21",
