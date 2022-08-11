@@ -75,6 +75,22 @@ namespace frydom {
 
       m_frydomForce->Update(time);
 
+      // Limitation of the force and torque
+      if (m_frydomForce->GetLimit()) {
+
+        double limit = m_frydomForce->GetMaxForceLimit();
+        double magn = m_force.norm();
+        if (magn > limit) {
+          m_force *= limit / magn;
+        }
+
+        limit = m_frydomForce->GetMaxTorqueLimit();
+        magn = m_torque.norm();
+        if (magn > limit) {
+          m_torque *= limit / magn;
+        }
+      }
+
       ChLoadCustom::Update(time);
       ChTime = time;
     }

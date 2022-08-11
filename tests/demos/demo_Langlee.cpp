@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   FrOffshoreSystem system("demo_Langlee",
                           FrOffshoreSystem::SMOOTH_CONTACT,
                           FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::MINRES);
+                          FrOffshoreSystem::PMINRES);
 
   //system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   //system.SetSolverVerbose(true);
@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
   FrInertiaTensor InertiaTensor(mass_b, Iy_b, Iy_b, Iy_b, 0., 0., 0., Position(0., 0., 0.), NWU);
   barge->SetInertiaTensor(InertiaTensor);
 
-  //barge->GetDOFMask()->MakeItLocked();
-  barge->SetFixedInWorld(true);
+  barge->GetDOFMask()->MakeItLocked();
+  //barge->SetFixedInWorld(true);
 
   auto node_1b = barge->NewNode("node_1b");
   node_1b->SetPositionInBody(Position(-12.5, 0., 0.), NWU);
@@ -201,7 +201,16 @@ int main(int argc, char *argv[]) {
 
   system.Initialize();
 
-  flap1->Rotate(FrRotation(Direction(0, 1, 0), -20. * DEG2RAD, NWU));
+  // -- Static analysis
+  /*
+  system.GetStaticAnalysis()->SetNbSteps(100);
+  system.GetStaticAnalysis()->SetRelaxation(FrStaticAnalysis::RELAXTYPE::VELOCITY);
+  system.GetStaticAnalysis()->SetNbIteration(10);
+  system.GetStaticAnalysis()->SetTolerance(1E-2);
+  system.SolveStaticWithRelaxation();
+  */
+
+  flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
   bool is_irrlicht = false;
 
