@@ -110,6 +110,10 @@ namespace frydom {
     /// Compute the manoeuvring force value
     /// \param time Current time of the simulation from beginning
     void Compute(double time) override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Helper to make a manoeuvring damping model, as described above.

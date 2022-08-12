@@ -68,6 +68,10 @@ namespace frydom {
    private:
 
     void Compute(double time) override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrCurrentStandardForce>

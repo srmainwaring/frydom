@@ -51,6 +51,9 @@ namespace frydom {
     double c_water_density;
     double c_uP0, c_vP0;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrPropeller>

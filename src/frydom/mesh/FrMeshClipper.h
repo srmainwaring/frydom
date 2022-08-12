@@ -117,6 +117,9 @@ namespace frydom {
       /// This function gives the intersection node position between an edge and an incident wave field.
       virtual FrMesh::Point GetIntersection(const FrMesh::Point &p0, const FrMesh::Point &p1) = 0;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     /**
@@ -141,6 +144,9 @@ namespace frydom {
 
       geom::FrPlane *GetPlane() const;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     /**
@@ -162,6 +168,10 @@ namespace frydom {
 
       /// This function performs a bisection method to track the intersection node.
       FrMesh::Point GetIntersection(const FrMesh::Point &p0, const FrMesh::Point &p1) override;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     class FrMeshClipper {
@@ -263,6 +273,8 @@ namespace frydom {
 //            /// This function gives the position in the body frame of a node in the mesh frame.
 //            FrMesh::Point GetMeshPointPositionInBody(FrMesh::Point point) const;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

@@ -108,6 +108,9 @@ namespace frydom {
     int m_nfreq_output;
     int m_ifreq_output;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

@@ -53,6 +53,9 @@ namespace frydom {
     double m_ramp_slope;
     FrFunctionBase *m_rudderAngleFunction;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrRudder>

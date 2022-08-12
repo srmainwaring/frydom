@@ -66,6 +66,9 @@ namespace frydom {
     friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(std::shared_ptr<FrTriangleMeshShape>);
 
     friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(FrTriangleMeshShape *);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 }  // end namespace frydom

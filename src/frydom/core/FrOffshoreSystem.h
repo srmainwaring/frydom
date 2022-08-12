@@ -69,6 +69,9 @@ namespace frydom {
 
       bool Integrate_Y() override;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     using FrSystemBaseSMC = FrSystemBase<chrono::ChSystemSMC>;
@@ -944,6 +947,9 @@ namespace frydom {
     friend void internal::AddPhysicsItem(FrOffshoreSystem &system, std::shared_ptr<FrPhysicsItem> item);
 
     friend chrono::ChSystem* internal::GetChronoSystem(FrOffshoreSystem* system);
+
+    public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

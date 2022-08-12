@@ -43,6 +43,9 @@ namespace frydom {
     std::string m_name;
     std::string m_tree_path;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // Forward declaration
@@ -66,6 +69,9 @@ namespace frydom {
    private:
     ParentType *m_parent;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   class FrRootNode : public FrTreeNode<FrRootNode> {
@@ -75,6 +81,9 @@ namespace frydom {
       std::cout << "test" << std::endl;
       return nullptr;
     }
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

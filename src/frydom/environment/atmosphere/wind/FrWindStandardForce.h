@@ -60,6 +60,10 @@ namespace frydom {
     /// Compute the wind force according to the DNV standards
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

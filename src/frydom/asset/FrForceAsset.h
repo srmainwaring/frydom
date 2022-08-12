@@ -57,6 +57,10 @@ namespace frydom {
 
     friend void FrBody::RemoveExternalForce(std::shared_ptr<frydom::FrForce>);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+
   };
 
 }  // end namespace frydom

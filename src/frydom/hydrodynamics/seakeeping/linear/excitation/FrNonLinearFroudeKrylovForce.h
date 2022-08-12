@@ -58,6 +58,9 @@ namespace frydom {
 
     void Compute(double time) override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// This function creates a (fully or weakly) nonlinear Froude-Krylov force object.

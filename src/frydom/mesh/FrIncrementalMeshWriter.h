@@ -48,6 +48,9 @@ namespace frydom {
        private:
         std::string GetFilename() const;
 
+       //public:
+       // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
       };
 
     } // end namespace frydom::mesh::meshutils

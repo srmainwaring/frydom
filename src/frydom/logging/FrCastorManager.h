@@ -42,6 +42,9 @@ namespace frydom {
 
     json m_json_object;
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 } // end namespace frydom

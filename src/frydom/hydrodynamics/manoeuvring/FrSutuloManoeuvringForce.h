@@ -62,6 +62,9 @@ namespace frydom {
     double m_Cm;
     double m_mu22;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrSutuloManoeuvringForce>

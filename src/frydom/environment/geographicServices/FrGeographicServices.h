@@ -65,6 +65,8 @@ namespace frydom {
       return m_height;
     }
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -215,6 +217,9 @@ namespace frydom {
     /// \return magnetic field components, in nanotesla
     mathutils::Vector3d<double>
     GetMagneticComponentsFromCart(const Position &cartPos, double year, FRAME_CONVENTION fc) const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

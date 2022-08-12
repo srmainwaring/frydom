@@ -122,6 +122,9 @@ namespace frydom {
     std::shared_ptr<internal::FrFEANodeBodyDistance> internal::GetClumpWeightConstraint(std::shared_ptr<FrClumpWeight>);
 
 //    friend std::shared_ptr<FrBody> internal::GetClumpWeightBody(std::shared_ptr<FrClumpWeight>);
+    public:
+     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrClumpWeight>
@@ -141,6 +144,9 @@ namespace frydom {
 
      protected:
       std::unique_ptr<Fr3DGeometryBase> m_geometry;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
 
@@ -153,6 +159,9 @@ namespace frydom {
       double GetRadius() const;
 
       double GetHeight() const;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

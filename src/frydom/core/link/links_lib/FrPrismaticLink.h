@@ -92,6 +92,9 @@ namespace frydom {
     /// Update the link cache
     void UpdateCache() override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Helper function to make it easy to link two nodes by a prismatic link

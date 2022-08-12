@@ -29,6 +29,10 @@ namespace frydom {
       void Update_auxiliary() override;
 
       virtual FrConstraintTwoBodiesBase *Clone() const override { return new FrConstraintTwoBodiesBase(*this); }
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   } //end namespace internal

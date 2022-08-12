@@ -45,6 +45,9 @@ namespace frydom {
     MODE m_mode;
     Force m_force;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrConstantForce> make_constant_force(const std::string &name,

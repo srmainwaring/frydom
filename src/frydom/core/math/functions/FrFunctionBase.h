@@ -33,6 +33,9 @@ namespace frydom {
 
       double Get_y_dxdx(double x) const override;
 
+      public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   }  // end namespace frydom::internal
@@ -206,6 +209,9 @@ namespace frydom {
       return c_x == x;
     }
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /*
@@ -242,6 +248,9 @@ namespace frydom {
 //        protected:
       std::shared_ptr<internal::FrChronoFunctionWrapper> GetChronoFunction();
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   }
@@ -265,6 +274,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -298,6 +310,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -321,6 +336,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -354,6 +372,9 @@ namespace frydom {
       v_dxdx = m_rightFunction->Get_y_dxdx(c_x);
     }
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -372,6 +393,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Class that result from subtracting two functions
@@ -388,6 +412,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -406,6 +433,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Class that result from dividing two functions
@@ -423,6 +453,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Class that result from composing two functions
@@ -439,6 +472,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

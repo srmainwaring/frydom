@@ -21,6 +21,9 @@ namespace frydom {
    */
   class FrFreeLink {
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

@@ -67,6 +67,9 @@ namespace frydom {
         Force m_force;      ///< abs force applied to the body
         Torque m_torque;    ///< abs torque applied to the body at COG
 
+      public:
+       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     std::shared_ptr<FrLoadBodyForceTorqueBase> GetChronoForce(std::shared_ptr<FrForce> force);
@@ -416,6 +419,9 @@ namespace frydom {
 
 
     friend std::shared_ptr<internal::FrLoadBodyForceTorqueBase> internal::GetChronoForce(std::shared_ptr<FrForce> force);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

@@ -58,6 +58,10 @@ namespace frydom {
 
     using Creator = std::function<hermes::Serializer *(const FrObject *, const std::string &)>;
     std::map<std::string, Creator> creators_;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

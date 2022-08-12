@@ -64,6 +64,9 @@ namespace frydom {
 
     std::vector<std::vector<double>> GetEncounterWaveFrequencies(Velocity speed) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrWaveDriftForce>

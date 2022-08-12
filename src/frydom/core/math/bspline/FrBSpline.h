@@ -382,6 +382,9 @@ namespace frydom {
 
         }
 
+       public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
       };
 
       template<unsigned int _dim = 3>
@@ -532,6 +535,9 @@ namespace frydom {
       std::vector<Point<_dim>> m_ctrl_points;
       KnotVector m_knots;
       int m_degree;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

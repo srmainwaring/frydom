@@ -57,6 +57,9 @@ namespace frydom {
     /// Getter for the x-derivative of the exciting loads for a given wave direction and dof.
     Eigen::VectorXcd GetHDBDataXDerivative(unsigned int iangle, unsigned int iforce) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrLinearExcitationForce>

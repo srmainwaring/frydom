@@ -146,6 +146,9 @@ namespace frydom {
 
     Vector3d<double> m_relax;                           ///< relaxation vector, to ensure that the evolution of the solution is not to large
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// maker of the hydrostatic equilibrium solver

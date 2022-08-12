@@ -87,6 +87,9 @@ namespace frydom {
 
     std::unordered_map<FrBEMBody *, FrBody *>::iterator end() { return m_mapBEMToBody.end(); };
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

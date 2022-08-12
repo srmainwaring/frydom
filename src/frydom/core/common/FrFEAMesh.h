@@ -29,6 +29,9 @@ namespace frydom {
      protected:
       FrFEAMesh *m_frydom_mesh;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     std::shared_ptr<FrFEAMeshBase> GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh);
@@ -57,6 +60,9 @@ namespace frydom {
     std::shared_ptr<internal::FrFEAMeshBase> m_chrono_mesh;
 
     friend std::shared_ptr<internal::FrFEAMeshBase> internal::GetChronoFEAMesh(std::shared_ptr<FrFEAMesh> mesh);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

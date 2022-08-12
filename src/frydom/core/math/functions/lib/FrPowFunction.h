@@ -28,6 +28,9 @@ namespace frydom {
    protected:
     void Eval(double x) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   FrPowFunction pow(const FrFunctionBase &function, double power);

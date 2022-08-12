@@ -39,6 +39,8 @@ namespace frydom {
 
       void Update(double time, bool update_assets) override;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     std::shared_ptr<FrPhysicsItemBase> GetChronoPhysicsItem(std::shared_ptr<FrPhysicsItem> item);
@@ -101,6 +103,9 @@ namespace frydom {
     friend std::shared_ptr<internal::FrPhysicsItemBase> internal::GetChronoPhysicsItem(std::shared_ptr<FrPhysicsItem>);
 
     friend std::shared_ptr<internal::FrPhysicsItemBase> internal::GetChronoPhysicsItem(FrPhysicsItem *);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

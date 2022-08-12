@@ -169,6 +169,9 @@ namespace frydom {
     /// Method called at the send of a time step.
     void StepFinalize() override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -221,6 +224,9 @@ namespace frydom {
     std::vector<double> GetWaveDirections(ANGLE_UNIT unit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const override;
 
     std::vector<std::vector<Complex>> GetComplexElevation(double x, double y, FRAME_CONVENTION fc) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 }  // end namespace frydom

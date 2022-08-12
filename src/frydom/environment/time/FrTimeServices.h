@@ -110,6 +110,9 @@ namespace frydom {
     /// Update the cached valued of the simulation time
     void Update(double time);
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }

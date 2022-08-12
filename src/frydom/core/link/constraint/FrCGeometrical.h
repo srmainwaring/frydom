@@ -33,6 +33,9 @@ namespace frydom {
 
     std::shared_ptr<FrNode> GetNode() const;
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   class FrCPoint : public FrCGeometrical {
@@ -42,6 +45,9 @@ namespace frydom {
     explicit FrCPoint(const std::shared_ptr<FrNode> &node);
 
     Position GetPositionInWorld(FRAME_CONVENTION fc) const;
+
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -63,6 +69,9 @@ namespace frydom {
     Direction GetDirectionInWorld(FRAME_CONVENTION fc) const;
 
     AXISLABEL GetLabel() const;;
+
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -87,6 +96,9 @@ namespace frydom {
     Position GetIntersectionWithLineInWorld(Position P0, Position P1, FRAME_CONVENTION fc) const;
 
     Position GetClosestPointOnPlaneInWorld(Position PointInWorld, FRAME_CONVENTION fc) const;
+
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

@@ -32,6 +32,9 @@ namespace frydom {
     explicit FrCableShapeInitializer(FrCableBase *cable);
 
     FrCableBase *m_cable;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   class FrCatenaryLine;
@@ -51,6 +54,9 @@ namespace frydom {
      private:
       Direction m_unit_vector;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     class FrCableShapeInitializerSlack : public FrCableShapeInitializer {
@@ -63,6 +69,9 @@ namespace frydom {
 
      private:
       std::unique_ptr<FrCatenaryLine> m_catenary_line;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 
@@ -82,6 +91,8 @@ namespace frydom {
 
       bool m_reversed;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
   }  // end namespace frydom::internal

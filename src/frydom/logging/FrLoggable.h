@@ -84,6 +84,9 @@ namespace frydom {
 
     friend void FrLogManager::Initialize();
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   template<class ParentType>
@@ -100,6 +103,9 @@ namespace frydom {
     const std::string &GetTreePath() const override {
       return FrTreeNode<ParentType>::GetTreePath();
     }
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

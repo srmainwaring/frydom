@@ -19,6 +19,9 @@ namespace frydom {
 
     virtual std::shared_ptr<FrBody> GetBody() const = 0;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   class FrHydrostaticBody : public FrHydrostaticBodyBase {
@@ -34,6 +37,9 @@ namespace frydom {
    private:
     std::shared_ptr<FrBody> m_body;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   class FrHydrostaticAssembly : public FrHydrostaticBodyBase {
@@ -48,6 +54,9 @@ namespace frydom {
 
    private:
     std::shared_ptr<FrAssembly> m_assembly;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

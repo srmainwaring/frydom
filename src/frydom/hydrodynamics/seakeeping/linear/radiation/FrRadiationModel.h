@@ -116,6 +116,9 @@ namespace frydom {
     std::shared_ptr<internal::FrAddedMassBase> m_addedMass;
     std::shared_ptr<chrono::fea::ChMesh> m_mesh;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

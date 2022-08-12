@@ -80,6 +80,9 @@ namespace frydom {
 
     date::local_seconds to_local_time(std::tm const &t);
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

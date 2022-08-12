@@ -74,6 +74,9 @@ namespace frydom {
      protected:
       std::shared_ptr<FrLMElement> m_left_element;
       std::shared_ptr<FrLMElement> m_right_element;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class FrLMBoundaryNode : public FrLMNodeBase {
@@ -105,6 +108,9 @@ namespace frydom {
       std::shared_ptr<FrNode> m_frydom_node;
       TYPE m_type;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     class FrLMNodeForceBase : public chrono::ChForce {
@@ -113,6 +119,9 @@ namespace frydom {
 
      protected:
       FrLMNode *m_node;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class FrLMNodeBuoyancyForce : public FrLMNodeForceBase {
@@ -120,6 +129,9 @@ namespace frydom {
       explicit FrLMNodeBuoyancyForce(FrLMNode *node);
 
       void UpdateState() override;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class FrLMNodeMorisonForce : public FrLMNodeForceBase {
@@ -127,6 +139,9 @@ namespace frydom {
       explicit FrLMNodeMorisonForce(FrLMNode *node);
 
       void UpdateState() override;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class FrLMNode : public FrLMNodeBase, public FrTreeNodeBase {
@@ -191,6 +206,9 @@ namespace frydom {
       std::shared_ptr<chrono::ChBody> m_body;
       std::shared_ptr<chrono::ChMarker> m_marker;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     class FrLMCableTensionForceFunctor : public chrono::ChLinkSpringCB::ForceFunctor {
@@ -206,6 +224,9 @@ namespace frydom {
 
      private:
       FrCableProperties *m_cable_properties;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
     class FrLMElement : public FrTreeNodeBase {
@@ -236,6 +257,9 @@ namespace frydom {
       std::shared_ptr<chrono::ChLinkSpringCB> m_link;
 
       std::unique_ptr<FrLMCableTensionForceFunctor> m_force_functor;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 
@@ -289,6 +313,9 @@ namespace frydom {
 
     NodeContainer m_nodes;
     ElementContainer m_elements;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

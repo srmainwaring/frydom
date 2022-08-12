@@ -37,6 +37,9 @@ namespace frydom {
 
     const char *what() const throw() override;
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 } // end namespace frydom

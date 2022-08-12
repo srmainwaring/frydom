@@ -91,6 +91,9 @@ namespace frydom {
         std::vector<std::shared_ptr<internal::FrBodyBase>> m_bodies;
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> m_links;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   } // end namespace internal

@@ -44,6 +44,9 @@ namespace frydom {
 
     FrEnvironment *GetEnvironment() const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

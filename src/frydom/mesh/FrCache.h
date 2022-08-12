@@ -55,6 +55,9 @@ namespace frydom {
 
     operator bool() const { return m_valid; }
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom
