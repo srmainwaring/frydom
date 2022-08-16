@@ -223,7 +223,7 @@ int main(int argc, char* argv[]) {
   //##
 
   // Mooring
-  //SetMooringLines(system, barge);
+  SetMooringLines(system, barge);
 
   // Solver properties
   system.SetSolverMaxIterations(1000);

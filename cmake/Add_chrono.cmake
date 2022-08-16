@@ -41,7 +41,7 @@ if (NOT chrono_POPULATED)
     set(ENABLE_MODULE_VEHICLE OFF CACHE BOOL "" FORCE)
     set(ENABLE_OPENMP ON CACHE BOOL "" FORCE)
 
-    set(USE_SIMD OFF CACHE BOOL "" FORCE)
+    set(USE_SIMD ON CACHE BOOL "" FORCE)
 
     if (FRYDOM_USE_IRRLICHT)
         set(ENABLE_MODULE_IRRLICHT ON CACHE BOOL "" FORCE)
@@ -82,5 +82,13 @@ if (TARGET ChronoEngine_postprocess)
     # Chrono cmake does not embed include directories into its targets... Adding them
     target_include_directories(ChronoEngine_postprocess PUBLIC ${INC})
 endif ()
+
+##CC debug
+if(${CHRONO_AVX_FOUND})
+    message(STATUS "DEBUG : CHRONO_AVX found")
+endif()
+message(STATUS "debug : ADD_chrono : CH_CXX_FLAGS = "${chrono_CH_CXX_FLAGS})
+message(STATUS "debug : Add_chrono : CMAKE_CXX_FLAGS = "${chrono_CMAKE_CXX_FLAGS})
+##CC
 
 # TODO: ajouter une custom_target rassemblat toutes les libs delectionnees pour Chrono avec des add_dependencies()
