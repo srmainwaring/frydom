@@ -127,13 +127,13 @@ TEST(FrQuaternion, Quaternion) {
   // Test GetInverse
   auto TotalRot = xRot;
   TotalRot *= xRot.GetInverse();
-  EXPECT_TRUE(TotalRot == FrUnitQuaternion(1, 0, 0, 0, fc));
+  EXPECT_TRUE(TotalRot.IsApprox(FrUnitQuaternion(1, 0, 0, 0, fc)));
 
   // Test Inverse
   TotalRot = xRot;
   TotalRot.Inverse();
   TotalRot *= xRot;
-  EXPECT_TRUE(TotalRot == FrUnitQuaternion(1, 0, 0, 0, fc));
+  EXPECT_TRUE(TotalRot.IsApprox(FrUnitQuaternion(1, 0, 0, 0, fc)));
 
   // Test Rotate
   testDirection = {0., 1., 0.};
