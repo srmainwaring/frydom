@@ -33,13 +33,14 @@ if (NOT chrono_POPULATED)
     set(ENABLE_MODULE_FSI OFF CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_IRRLICHT ON CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_MATLAB OFF CACHE BOOL "" FORCE)
-    set(ENABLE_MODULE_MKL OFF CACHE BOOL "" FORCE)
+    set(ENABLE_MODULE_MKL ON CACHE BOOL "" FORCE)
+    set(ENABLE_MODULE_PARDISO_MKL ON CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_OPENGL OFF CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_PARALLEL OFF CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_POSTPROCESS ON CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_PYTHON OFF CACHE BOOL "" FORCE)
     set(ENABLE_MODULE_VEHICLE OFF CACHE BOOL "" FORCE)
-    set(ENABLE_OPENMP ON CACHE BOOL "" FORCE)
+    set(ENABLE_OPENMP OFF CACHE BOOL "" FORCE)
 
     set(USE_SIMD ON CACHE BOOL "" FORCE)
 
@@ -84,6 +85,13 @@ if (TARGET ChronoEngine_postprocess)
 endif ()
 
 ##CC debug
+if (TARGET ChronoEngine_pardisomkl)
+    message(STATUS "ChronoEngine_pardisomkl TARGET FOUND")
+    get_target_property(INC ChronoEngine_pardisomkl INCLUDE_DIRECTORIES)
+    # Chrono cmake does not embed include directories into its targets... Adding them
+    target_include_directories(ChronoEngine_pardisomkl PUBLIC ${INC})
+endif ()
+
 if(${CHRONO_AVX_FOUND})
     message(STATUS "DEBUG : CHRONO_AVX found")
 endif()

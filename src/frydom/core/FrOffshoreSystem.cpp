@@ -768,6 +768,9 @@ namespace frydom {
       case MINRES:
         m_chronoSystem->SetSolverType(SOLVERS::MINRES);
         break;
+      case PARDISO_MKL:
+        m_chronoSystem->SetSolverType(SOLVERS::PARDISO_MKL);
+        break;
     }
 
     m_solverType = solver;

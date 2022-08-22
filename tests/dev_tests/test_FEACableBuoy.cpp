@@ -4,6 +4,8 @@
 
 #include "frydom/frydom.h"
 
+#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
+
 using namespace frydom;
 
 // ----------------------------------------------------------------------------
@@ -139,8 +141,8 @@ std::shared_ptr<FrBody> SetBarge(FrOffshoreSystem& system) {
   auto excitationForce = make_linear_excitation_force("linear_excitation", barge, hdb);
 
   // -- Radiation
-  auto radiationModel = make_radiation_convolution_model("radiation_convolution", &system, hdb);
-  radiationModel->SetImpulseResponseSize(barge.get(), 20., 0.025);
+  auto radiationModel = make_recursive_convolution_model("radiation_convolution", &system, hdb);
+  //radiationModel->SetImpulseResponseSize(barge.get(), 20., 0.025);
 
   return barge;
 }
@@ -213,6 +215,15 @@ int main(int argc, char* argv[]) {
                           FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::MINRES);
 
+  //auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
+  //system.GetChronoSystem()->SetSolver(mkl_solver);
+  //mkl_solver->UseSparsityPatternLearner(true);
+  //mkl_solver->LockSparsityPattern(true);
+
+  auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
+  slu_solver->UseSparsityPatternLearner(true);
+  //system.GetChronoSystem()->SetSolver(slu_solver);
+
   // Environment
   SetEnvironment(system);
 
@@ -228,19 +239,45 @@ int main(int argc, char* argv[]) {
   // Solver properties
   system.SetSolverMaxIterations(1000);
   system.SetSolverForceTolerance(1e-7);
-  system.SetTimeStep(0.01);
+
+  auto dt = 0.01;
+  system.SetTimeStep(dt);
 
   // Init.
   system.Initialize();
 
   // Static
-  if (true) {
+  if (false) {
     system.GetStaticAnalysis()->SetNbIteration(50);
     system.GetStaticAnalysis()->SetNbSteps(20);
     system.SolveStaticWithRelaxation();
   }
 
   // Dynamic simulation
-  system.RunInViewer(100, 175, false, 10);
+
+  bool is_irrlicht = false;
+
+  clock_t begin = clock();
+  auto c_start = std::chrono::high_resolution_clock::now();
+
+  if (is_irrlicht) {
+    system.RunInViewer(100, 175, false, 10);
+  } else {
+    auto time = 0.;
+    while (time < 12.) {
+      time += dt;
+      system.AdvanceTo(time);
+      std::cout << "Time : " << time << " s" << std::endl;
+    }
+  }
+  clock_t end = clock();
+  auto c_end = std::chrono::high_resolution_clock::now();
+  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(c_end-c_start);
+  std::cout << "Elapsed cpu time in seconds : " << elapsed_secs << std::endl;
+  std::cout << "Elapsed cpu time in ms (high_resolution_clock) : " << duration.count()/1000. << std::endl;
+  std::cout << "============================== End ===================================== " << std::endl;
+
+  return 0;
 
 }

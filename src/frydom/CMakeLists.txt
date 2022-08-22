@@ -48,6 +48,10 @@ endif ()
 
 target_link_libraries(frydom PUBLIC ChronoEngine)
 
+##CC debug
+target_link_libraries(frydom PUBLIC ChronoEngine_pardisomkl)
+##CC
+
 target_compile_options(frydom PUBLIC -Wno-deprecated-declarations)
 target_compile_options(frydom PUBLIC -Wimplicit-fallthrough)
 #target_compile_options(frydom PRIVATE -Wextra)

@@ -64,6 +64,8 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/URL.conf.cmake)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+set(MKL_INCLUDE_DIR "/usr/include/mkl/")
+
 #-----------------------------------------------------------------------------
 # SSE / AVX / FMA / NEON support
 #-----------------------------------------------------------------------------

@@ -240,6 +240,7 @@ namespace frydom {
       // Iterative linear solvers
       GMRES,               ///< Generalized Minimal RESidual Algorithm
       MINRES,              ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
+      PARDISO_MKL,
       ///< with gradient projection (active set).
     };
 
