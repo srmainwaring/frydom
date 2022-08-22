@@ -175,6 +175,10 @@ namespace frydom {
       Kmatr.SetVariables(mvars);
     }
 
+    void FrAddedMassBase::Initialize() {
+      BuildGeneralizedMass();
+    }
+
     void FrAddedMassBase::SetupInitial(chrono::ChSystem* system) {
       BuildGeneralizedMass();
       //SetNodes();

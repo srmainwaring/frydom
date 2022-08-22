@@ -4,7 +4,8 @@ target_sources(frydom PRIVATE
         FrRadiationForce.cpp
         FrRadiationModel.cpp
         FrVariablesBEMBodyBase.cpp
-        FrRadiationModelBase.cpp
+        FrRadiationModelBaseVariable.cpp
+        FrRadiationModelBaseKRM.cpp
         FrRadiationConvolutionModel.cpp
         FrRadiationRecursiveConvolutionModel.cpp
         FrRadiationConvolutionModelForwardSpeedCorrection.cpp

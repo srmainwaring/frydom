@@ -10,7 +10,8 @@
 // ==========================================================================
 
 #include "FrRadiationModel.h"
-#include "FrRadiationModelBase.h"
+#include "FrRadiationModelBaseVariable.h"
+#include "FrRadiationModelBaseKRM.h"
 #include "FrAddedMass.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
@@ -30,25 +31,24 @@ namespace frydom {
       m_HDB(HDB) {
 
     // Creation of an AddedMassBase object.
-    //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
-    m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
+    m_chronoAddedMassModel = std::make_shared<internal::FrRadiationModelBaseKRM>(this);
+    //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBaseVariable>(this);
+    //m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
 
-    m_mesh = std::make_shared<chrono::fea::ChMesh>();
-    m_mesh->AddElement(m_addedMass);
-    system->GetChronoSystem()->Add(m_mesh);
-    for (auto link : m_addedMass->GetLinks()) {
-      internal::GetChronoSystem(system)->Add(link);
-    }
+    //m_mesh = std::make_shared<chrono::fea::ChMesh>();
+    //m_mesh->AddElement(m_addedMass);
+    // system->GetChronoSystem()->Add(m_mesh);
+    //for (auto link : m_addedMass->GetLinks()) {
+    //  internal::GetChronoSystem(system)->Add(link);
+    //}
   }
 
   void FrRadiationModel::Initialize() {
     //FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
-    for (auto i=0; i<m_addedMass->GetNnodes(); i++) {
-      m_mesh->AddNode(m_addedMass->GetNodeN(i));
+    if (m_chronoAddedMassModel) {
+      m_chronoAddedMassModel->SetupInitial();
     }
-    m_mesh->Setup();
-
   }
 
   FrHydroMapper *FrRadiationModel::GetMapper() const {

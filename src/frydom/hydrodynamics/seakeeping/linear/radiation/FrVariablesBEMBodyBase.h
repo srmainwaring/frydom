@@ -22,13 +22,13 @@ namespace frydom {
   namespace internal {
 
     // Forward declaration
-    class FrRadiationModelBase;
+    class FrRadiationModelBaseVariable;
 
     class FrVariablesBEMBodyBase : public chrono::ChVariablesBody {
 
      private:
 
-      FrRadiationModelBase *m_radiationModelBase;
+      FrRadiationModelBaseVariable *m_radiationModelBase;
       FrBEMBody *m_BEMBody;
       chrono::ChVariablesBodyOwnMass *m_variablesBodyOwnMass;
 
@@ -36,7 +36,7 @@ namespace frydom {
 
       FrVariablesBEMBodyBase() : ChVariablesBody() {}
 
-      explicit FrVariablesBEMBodyBase(FrRadiationModelBase *radiationModelBase,
+      explicit FrVariablesBEMBodyBase(FrRadiationModelBaseVariable *radiationModelBase,
                                       FrBEMBody *BEMBody,
                                       chrono::ChVariablesBodyOwnMass *variables);
 
@@ -44,7 +44,7 @@ namespace frydom {
 
       FrBEMBody *GetBEMBody() const { return m_BEMBody; }
 
-      void SetRadiationModelBase(FrRadiationModelBase *radiationModelBase);
+      void SetRadiationModelBase(FrRadiationModelBaseVariable *radiationModelBase);
 
       void SetVariablesBodyOwnMass(chrono::ChVariablesBodyOwnMass *variables);
 

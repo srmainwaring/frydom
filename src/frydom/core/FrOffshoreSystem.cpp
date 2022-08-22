@@ -431,6 +431,13 @@ namespace frydom {
   void FrOffshoreSystem::AddRadiationModel(std::shared_ptr<FrRadiationModel> radiation_model) {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(radiation_model));
     m_physicsItemsList.push_back(radiation_model);
+
+    auto chrono_mesh = internal::GetChronoAddedMass(radiation_model);
+    m_chronoSystem->AddMesh(chrono_mesh);
+    for (auto link : chrono_mesh->GetAddedMass()->GetLinks()) {
+      m_chronoSystem->AddLink(link);
+    }
+
     event_logger::info(GetTypeName(), GetName(), "A radiation model has been ADDED to the system");
   }
 

@@ -73,6 +73,8 @@ namespace frydom {
 
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> GetLinks() { return m_links; }
 
+        void Initialize();
+
       protected:
 
         void SetNodes();
