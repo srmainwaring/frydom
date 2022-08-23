@@ -24,6 +24,7 @@ namespace frydom {
 
   // Forward declaration
   class FrRadiationModel;
+  class FrHydroDB;
 
 
   // hash defition for the map with pair as a key
@@ -69,7 +70,11 @@ namespace frydom {
 
         void BuildGeneralizedMass();
 
+        void EleIntLoadResidual_F(chrono::ChVectorDynamic<>& R, const double c) override;
+
         void EleIntLoadResidual_Mv(chrono::ChVectorDynamic<>& R, const chrono::ChVectorDynamic<>& w, const double c) override;
+
+        void EleIntLoadResidual_F_gravity(chrono::ChVectorDynamic<>& R, const chrono::ChVector<>& G_acc, const double c) override;
 
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> GetLinks() { return m_links; }
 
@@ -92,6 +97,8 @@ namespace frydom {
         std::vector<std::shared_ptr<internal::FrFEANodeBase>> m_nodes;
         std::vector<std::shared_ptr<internal::FrBodyBase>> m_bodies;
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> m_links;
+
+        FrHydroDB* m_hdb;
 
     };
 

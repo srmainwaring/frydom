@@ -22,15 +22,6 @@ namespace frydom {
       m_added_mass = std::make_shared<FrAddedMassBase>(radiationModel);
       // Adding element (added mass) to mesh
       this->AddElement(m_added_mass);
-      // Adding nodes to mesh
-      for (auto i=0; i < m_added_mass->GetNnodes(); i++) {
-        this->AddNode(m_added_mass->GetNodeN(i));
-      }
-      // FIXME : l'ajout de mesh et des link au system se fait peut -être dans offshore system
-      //GetSystem()->Add(this);
-      //for (auto link : m_added_mass->GetLinks()) {
-      //  GetSystem()->Add(link);
-      //}
     }
     void FrRadiationModelBaseKRM::SetupInitial() {
       m_added_mass->Initialize();

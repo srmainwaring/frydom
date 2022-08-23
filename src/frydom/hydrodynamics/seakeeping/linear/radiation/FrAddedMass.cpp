@@ -27,36 +27,29 @@ namespace frydom {
 
     FrAddedMassBase::FrAddedMassBase(FrRadiationModel* radiationModel)
       : m_frydomRadiationModel(radiationModel) {
+      m_hdb = m_frydomRadiationModel->GetHydroDB();
       SetNodes();
     }
 
     FrAddedMassBase::~FrAddedMassBase() { }
 
-    int FrAddedMassBase::GetNnodes() { return m_nodes.size(); }
+    int FrAddedMassBase::GetNnodes() { return m_hdb->GetBEMBodyNumber(); }
 
     int FrAddedMassBase::GetNdofs() { return 6 * m_nb_bodies; }
 
     int FrAddedMassBase::GetNodeNdofs(int n) { return 6; }
 
     std::shared_ptr<chrono::fea::ChNodeFEAbase> FrAddedMassBase::GetNodeN(int n) {
-      return m_nodes[n];
-      //##CC debug
-      //m_bodies[n]->SetOffset_w(6);
-      //auto node = std::make_shared<FrFEANodeBase>(*m_bodies[n]);
-      //std::cout << "debug : FrAddedMassBase : body offset  = " << m_bodies[n]->GetOffset_w() << std::endl;
-      //std::cout << "debug : FrAddedMassBase : node offset  = " << node->NodeGetOffset_w() << std::endl;
-      //##
-      //return std::make_shared<FrFEANodeBase>(*m_bodies[n]);
+      return nullptr;
     }
 
     void FrAddedMassBase::GetStateBlock(chrono::ChVectorDynamic<>& mD) {
-      auto hdb = GetRadiationModel()->GetHydroDB();
       double phi, theta, psi;
       mD.setZero(this->GetNdofs());
       int iBody = 0;
-      for (auto body = hdb->begin(); body != hdb->end(); body++) {
-        mD.segment(6*iBody, 3) = hdb->GetBody(body->first)->GetPosition(NWU);
-        hdb->GetBody(body->first)->GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
+        mD.segment(6*iBody, 3) = m_hdb->GetBody(body->first)->GetPosition(NWU);
+        m_hdb->GetBody(body->first)->GetRotation().GetCardanAngles_RADIANS(phi, theta, psi, NWU);
         mD.segment(6*iBody+3, 3) = Vector3d<double>(phi, theta, psi);
         iBody++;
       }
@@ -78,9 +71,7 @@ namespace frydom {
 
     void FrAddedMassBase::BuildGeneralizedMass() {
 
-      auto hdb = m_frydomRadiationModel->GetHydroDB();
-
-      auto n_body = hdb->GetMapper()->GetNbMappings();
+      auto n_body = m_hdb->GetMapper()->GetNbMappings();
       m_nb_bodies = n_body;
 
       m_addedMassMatrix = mathutils::MatrixMN<double>(6 * n_body, 6 * n_body);
@@ -88,10 +79,10 @@ namespace frydom {
       int iBody = 0;
 
       // Loop over the bodies subject to hydrodynamic loads
-      for (auto body = hdb->begin(); body != hdb->end(); body++) {
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
         int jBody = 0;
         // Loop over the bodies subject to motion
-        for (auto bodyMotion = hdb->begin(); bodyMotion != hdb->end(); bodyMotion++) {
+        for (auto bodyMotion = m_hdb->begin(); bodyMotion != m_hdb->end(); bodyMotion++) {
 
           mathutils::Matrix66<double> subMatrix = body->first->GetInfiniteAddedMass(bodyMotion->first);
 
@@ -107,68 +98,92 @@ namespace frydom {
       }
     }
 
+    void FrAddedMassBase::EleIntLoadResidual_F(chrono::ChVectorDynamic<>& R, const double c) {
+
+      chrono::ChVectorDynamic<> mFi(this->GetNdofs());
+      this->ComputeInternalForces(mFi);
+      mFi *= c;
+
+      //// RADU
+      //// Attention: this is called from within a parallel OMP for loop.
+      //// Must use atomic increment when updating the global vector R.
+
+      int stride = 0;
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
+        auto chrono_body = internal::GetChronoBody(m_hdb->GetBody(body->first));
+        if (!chrono_body->GetBodyFixed()) {
+          for (int j = 0; j < 6; j++)
+              #pragma omp atomic
+              R(chrono_body->GetOffset_w() + j) += mFi(stride + j);
+        }
+        stride += 6;
+      }
+    }
 
     void FrAddedMassBase::EleIntLoadResidual_Mv(chrono::ChVectorDynamic<>& R,
                                                 const chrono::ChVectorDynamic<>& w,
                                                 const double c) {
-
-      auto hdb = GetRadiationModel()->GetHydroDB();
 
       chrono::ChMatrixDynamic<> mMi(this->GetNdofs(), this->GetNdofs());
       this->ComputeMmatrixGlobal(mMi);
 
       chrono::ChVectorDynamic<> mqi(this->GetNdofs());
       int stride = 0;
-      for (int in = 0; in < this->GetNnodes(); in++) {
-        int nodedofs = GetNodeNdofs(in);
-        if (GetNodeN(in)->GetFixed()) {
-          for (int i =0; i < nodedofs; ++i)
+
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
+        auto chrono_body = internal::GetChronoBody(m_hdb->GetBody(body->first));
+        if (chrono_body->GetBodyFixed()) {
+          for (int i =0; i < 6; ++i)
             mqi(stride + i) = 0;
         } else {
-          auto offset = GetNodeN(in)->NodeGetOffset_w();
-          mqi.segment(stride, nodedofs) = w.segment(offset, nodedofs);
+          auto offset = chrono_body->GetOffset_w();
+          mqi.segment(stride, 6) = w.segment(offset, 6);
         }
-        stride += nodedofs;
+        stride += 6;
       }
 
       chrono::ChVectorDynamic<> mFi = c  *mMi * mqi;
 
       stride = 0;
-      for (int in = 0; in < this->GetNnodes(); in++) {
-        int nodedofs = GetNodeNdofs(in);
-        if (!GetNodeN(in)->GetFixed()) {
-          //R.segment(internal::GetChronoBody(hdb->GetBody(hdb->GetBody(in)))->GetOffset_w(), nodedofs) +=
-          //    mFi.segment(stride, nodedofs);
-            auto offset = GetNodeN(in)->NodeGetOffset_w();
-          R.segment(offset, nodedofs) += mFi.segment(stride, nodedofs);
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
+        auto chrono_body = internal::GetChronoBody(m_hdb->GetBody(body->first));
+        if (!chrono_body->GetBodyFixed()) {
+          auto offset = chrono_body->GetOffset_w();
+          R.segment(offset, 6) += mFi.segment(stride, 6);
         }
-        stride += nodedofs;
+        stride += 6;
       }
     }
 
+    void FrAddedMassBase::EleIntLoadResidual_F_gravity(chrono::ChVectorDynamic<>& R, const chrono::ChVector<>& G_acc, const double c) {
+
+      chrono::ChVectorDynamic<> mFg(this->GetNdofs());
+      this->ComputeGravityForces(mFg, G_acc);
+      mFg *= c;
+
+      int stride = 0;
+      //for (int in = 0; in < this->GetNnodes(); in++) {
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
+        auto chrono_body = internal::GetChronoBody(m_hdb->GetBody(body->first));
+        if (!chrono_body->GetBodyFixed()) {
+          for (int j = 0; j < 6; j++)
+            //// ATOMIC as called from an OMP parallel loop: this is here to avoid race conditions when writing to R
+              #pragma omp atomic
+              R(chrono_body->GetOffset_w() + j) += mFg(stride + j);
+        }
+        stride += 6;
+      }
+    }
 
     void FrAddedMassBase::SetNodes() {
 
-      auto hdb = m_frydomRadiationModel->GetHydroDB();
-
       std::vector<chrono::ChVariables*> mvars;
 
-      for (auto body = hdb->begin(); body != hdb->end(); body++) {
+      for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
 
-        auto chrono_body = GetChronoBody(hdb->GetBody(body->first));
+        auto chrono_body = GetChronoBody(m_hdb->GetBody(body->first));
 
-        auto node = std::make_shared<FrFEANodeBase>(*chrono_body);
-        auto link = std::make_shared<internal::FrFEALinkBase>("link_"+body->first->GetName()+"_Ma",
-                                                              m_frydomRadiationModel->GetSystem());
-        link->Initialize(node, chrono_body, true,
-                         chrono::ChFrame<double>(),chrono::ChFrame<double>());
-
-        m_nodes.push_back(node);
-        m_links.push_back(link);
-        mvars.push_back(&node->Variables());
-
-        //m_nodes.push_back(std::make_shared<internal::FrFEANodeBase>(chrono_body.get()));
-        //m_nodes.push_back(std::make_shared<FrFEANodeBase>(chrono::ChFrame<>()));
+        mvars.push_back(&chrono_body->Variables());
 
         m_bodies.push_back(chrono_body);
       }
@@ -181,14 +196,9 @@ namespace frydom {
 
     void FrAddedMassBase::SetupInitial(chrono::ChSystem* system) {
       BuildGeneralizedMass();
-      //SetNodes();
     }
 
   } // end namespace internal
-
-  // --------------------------------------------------------------------------------
-  // FrAddedMass
-  // --------------------------------------------------------------------------------
 
 } // end namespace frydom
 

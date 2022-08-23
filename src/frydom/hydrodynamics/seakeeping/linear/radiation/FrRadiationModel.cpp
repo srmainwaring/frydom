@@ -12,11 +12,8 @@
 #include "FrRadiationModel.h"
 #include "FrRadiationModelBaseVariable.h"
 #include "FrRadiationModelBaseKRM.h"
-#include "FrAddedMass.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
-#include "FrRadiationForce.h"
-#include "frydom/cable/fea/FrFEALink.h"
 
 namespace frydom {
 
@@ -32,15 +29,6 @@ namespace frydom {
 
     // Creation of an AddedMassBase object.
     m_chronoAddedMassModel = std::make_shared<internal::FrRadiationModelBaseKRM>(this);
-    //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBaseVariable>(this);
-    //m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
-
-    //m_mesh = std::make_shared<chrono::fea::ChMesh>();
-    //m_mesh->AddElement(m_addedMass);
-    // system->GetChronoSystem()->Add(m_mesh);
-    //for (auto link : m_addedMass->GetLinks()) {
-    //  internal::GetChronoSystem(system)->Add(link);
-    //}
   }
 
   void FrRadiationModel::Initialize() {
@@ -91,7 +79,6 @@ namespace frydom {
     return force;
   }
 
-  //##CC
   GeneralizedForce FrRadiationModel::GetRadiationSteadyInertiaPart(FrBody* body) const {
 
     auto HDB = GetHydroDB();
@@ -115,7 +102,6 @@ namespace frydom {
     return GeneralizedForce(force, torque);
 
   }
-  //##
 
   void FrRadiationModel::Compute(double time) {
 
