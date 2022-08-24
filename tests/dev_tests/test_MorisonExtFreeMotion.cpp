@@ -51,6 +51,7 @@ std::shared_ptr<LinearSpring> make_linear_spring(const std::string& name,
   auto force = std::make_shared<LinearSpring>(name, node1, node2, stiffness);
   auto body = node1->GetBody();
   body->AddExternalForce(force);
+  return force;
 }
 
 // ------------------------------------------------
