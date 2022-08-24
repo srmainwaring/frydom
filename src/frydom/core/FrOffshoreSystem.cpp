@@ -470,6 +470,10 @@ namespace frydom {
   void FrOffshoreSystem::AddMorisonElements(std::shared_ptr<FrMorisonCompositeElement> morison_elements) {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(morison_elements));
     m_physicsItemsList.push_back(morison_elements);
+
+    auto chrono_mesh = internal::GetChronoMorisonAddedMass(morison_elements);
+    if (chrono_mesh)
+      m_chronoSystem->AddMesh(chrono_mesh);
     event_logger::info(GetTypeName(), GetName(), "Morison elements have been ADDED to the system");
   }
 

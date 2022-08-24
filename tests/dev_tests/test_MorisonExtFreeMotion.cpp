@@ -65,26 +65,28 @@ int main(int argc, char* argv[]) {
 
   // Environment
 
+  /* ##CC set no waves
   auto ocean = system.GetEnvironment()->GetOcean();
   auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
-  waveField->SetWaveHeight(0.1);
+  waveField->SetWaveHeight(0.1); // 0.1
   waveField->SetWavePeriod(10.);
   waveField->SetDirection(0., DEG, NWU, GOTO);
 
   system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 20., 1.);
   system.GetEnvironment()->GetTimeRamp()->SetActive(true);
+  */
 
   // Body
 
   auto body = system.NewBody("cylinder");
   body->SetPosition({0., 0., -0.54}, NWU);
 
-  body->GetDOFMask()->SetLock_X(false);
-  body->GetDOFMask()->SetLock_Y(true);
-  body->GetDOFMask()->SetLock_Z(false);
-  body->GetDOFMask()->SetLock_Rx(true);
-  body->GetDOFMask()->SetLock_Ry(false);
-  body->GetDOFMask()->SetLock_Rz(true);
+  body->GetDOFMask()->SetLock_X(false); // false
+  body->GetDOFMask()->SetLock_Y(true);  // true
+  body->GetDOFMask()->SetLock_Z(true); // false
+  body->GetDOFMask()->SetLock_Rx(true); // true
+  body->GetDOFMask()->SetLock_Ry(true); // false
+  body->GetDOFMask()->SetLock_Rz(true);  // true
 
   // Link
   /*
@@ -135,26 +137,28 @@ int main(int argc, char* argv[]) {
 
   // Morison
 
-  auto morisonModel = make_morison_model("morison", body, true);
+  auto morisonModel = make_morison_model("morison", body, false);
   morisonModel->AddElement({0., 0., -14}, {0., 0., 6.}, 2., 0.5, 0.6, 0, 20);
   auto morisonForce = make_morison_force("morison", body, morisonModel);
 
   // Additional spring force
 
-  //auto body_node = body->NewNode("body_node");
-  //body_node->SetPositionInBody({0., 0., -7}, NWU);
-  //auto world_node = system.GetWorldBody()->NewNode("world_node");
-  //world_node->SetPositionInWorld({0., 0., -7.}, NWU);
+  auto body_node = body->NewNode("body_node");
+  body_node->SetPositionInBody({0., 0., -7}, NWU);
+  auto world_node = system.GetWorldBody()->NewNode("world_node");
+  world_node->SetPositionInWorld({0., 0., -7.}, NWU);
 
-  //Vector3d<double> stiffness(17804., 17804., 0.);
+  Vector3d<double> stiffness(17804., 17804., 0.);
 
-  //auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
+  auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
 
   // Simulation
 
-  double dt = 0.1;
+  double dt = 0.01;
   double t_end = 200.;
   double time = 0.;
+
+  body->TranslateInWorld(5, 0, 0, NWU);
 
   system.SetTimeStep(dt);
   system.Initialize();
