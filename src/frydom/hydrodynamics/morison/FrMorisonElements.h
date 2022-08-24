@@ -19,7 +19,7 @@
 #include "frydom/core/common/FrFrame.h"
 
 #include "frydom/core/common/FrPhysicsItem.h"
-
+#include "frydom/hydrodynamics/morison/FrMorisonModelBaseKRM.h"
 
 namespace frydom {
 
@@ -323,6 +323,7 @@ namespace frydom {
   // MORISON COMPOSITE ELEMENT
   // --------------------------------------------------------------------------
 
+
   /// This class is used to build a composite morison model with multiple morison element.
   /// Composition of composite model can also be set up from this class.
   /// The resultant force and torque are the sum of the force and torque of each morison model component
@@ -334,6 +335,8 @@ namespace frydom {
 
    protected:
     std::vector<std::unique_ptr<FrMorisonElement>> m_morison;      ///< morison model components of the composite model
+
+    std::shared_ptr<internal::FrMorisonModelBaseKRM> m_chronoAddedMass;
 
    public:
     /// Constructor of a new composite model of the morison force
@@ -399,6 +402,10 @@ namespace frydom {
 
     // TODO : a voir pour externaliser dans une autre classe
     void ComputeForceAddedMass() override;
+
+    protected:
+
+      friend std::shared_ptr<internal::FrMorisonModelBaseKRM> internal::GetChronoMorisonAddedMass(std::shared_ptr<FrMorisonCompositeElement> morisonModel);
   };
 
 }  // end namespace frydom

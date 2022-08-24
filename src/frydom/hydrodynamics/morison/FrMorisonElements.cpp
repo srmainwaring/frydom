@@ -16,6 +16,7 @@
 #include "frydom/core/body/FrBody.h"
 #include "frydom/environment/FrEnvironmentInc.h"
 #include "frydom/hydrodynamics/morison/FrMorisonModelBase.h"
+#include "frydom/hydrodynamics/morison/FrMorisonModelBaseKRM.h"
 
 
 namespace frydom {
@@ -81,6 +82,7 @@ namespace frydom {
       m_force(),
       m_torque(),
       m_includeCurrent(false),
+      m_simpleAMModel(false),
       m_extendedModel(false),
       m_isImmerged(false),
       m_force_added_mass(),
@@ -470,7 +472,8 @@ namespace frydom {
     m_node = std::make_shared<FrNode>("", body);
     SetExtendedModel(extendedModel);
     if (m_extendedModel) {
-      m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+      //m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+      //m_chronoAddedMass = std::make_shared<internal::FrMorisonModelBaseKRM>(this);
     }
   }
 
@@ -511,7 +514,8 @@ namespace frydom {
     }
 
     if (m_extendedModel) {
-      m_chronoPhysicsItem->SetupInitial();
+      //m_chronoPhysicsItem->SetupInitial();
+      //m_chronoAddedMass->SetupInitial();
     }
 
   }
@@ -542,7 +546,7 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
-      //m_chronoPhysicsItem->Update(time, false);
+      //m_chronoAddedMass->Update();
     }
 
     if (m_simpleAMModel) {
