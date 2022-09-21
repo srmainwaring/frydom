@@ -23,10 +23,6 @@ set(DEMOS
         HexagonalArticulatedBuoy
         )
 
-##CC debug
-message(STATUS "debug : MKL_CXX_FLAGS = "${CH_MKL_CXX_FLAGS})
-##CC
-
 # Compile target
 foreach (test ${DEMOS})
     message(STATUS "        ...add demo_${test}")
