@@ -10,7 +10,7 @@
 // ==========================================================================
 
 #include "frydom/frydom.h"
-#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
+//#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
 
 using namespace frydom;
 

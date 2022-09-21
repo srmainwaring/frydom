@@ -4,7 +4,7 @@
 
 #include "frydom/frydom.h"
 
-#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
+//#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
 
 using namespace frydom;
 
@@ -220,8 +220,8 @@ int main(int argc, char* argv[]) {
   //mkl_solver->UseSparsityPatternLearner(true);
   //mkl_solver->LockSparsityPattern(true);
 
-  auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
-  slu_solver->UseSparsityPatternLearner(true);
+  //auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
+  //slu_solver->UseSparsityPatternLearner(true);
   //system.GetChronoSystem()->SetSolver(slu_solver);
 
   // Environment
