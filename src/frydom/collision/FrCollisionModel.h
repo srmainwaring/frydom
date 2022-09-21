@@ -35,6 +35,9 @@ namespace frydom {
 
       explicit FrCollisionModelBase(FrCollisionModel *collisionModel);
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
 
@@ -130,6 +133,9 @@ namespace frydom {
 //                                                          const FrRotation& rot);
 
     friend void FrBody::SetCollisionModel(std::shared_ptr<FrCollisionModel>);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 } // end namespace frydom

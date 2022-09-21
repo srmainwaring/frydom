@@ -68,6 +68,9 @@ namespace frydom {
 
     VertexConstIterator vertex_end() const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

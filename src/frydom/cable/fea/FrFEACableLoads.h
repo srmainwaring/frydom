@@ -30,6 +30,9 @@ namespace frydom {
      private:
       int m_nb_integration_points;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
 
@@ -71,6 +74,9 @@ namespace frydom {
      protected:
       FrFEACable *m_cable;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
 
@@ -83,6 +89,9 @@ namespace frydom {
       void SetCable(FrFEACable *cable) {
         loader.SetCable(cable);
       }
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

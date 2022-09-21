@@ -120,6 +120,9 @@ namespace frydom {
 
       void InjectVariables(chrono::ChSystemDescriptor &mdescriptor) override;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     std::shared_ptr<frydom::internal::FrBodyBase> GetChronoBody(std::shared_ptr<FrBody> body);
@@ -990,6 +993,8 @@ namespace frydom {
 
     friend FrDOFMask;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 

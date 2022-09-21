@@ -48,6 +48,9 @@ namespace frydom {
      public:
       FrEnvironment* m_environment;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   }  // end namespace frydom::internal

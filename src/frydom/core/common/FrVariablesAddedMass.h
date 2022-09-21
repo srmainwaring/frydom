@@ -28,6 +28,9 @@ namespace frydom {
       mathutils::Matrix66<double> m_added_mass;
       mathutils::Matrix66<double> m_body_mass;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   }// end namespace internal

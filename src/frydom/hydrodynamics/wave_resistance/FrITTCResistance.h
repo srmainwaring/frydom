@@ -107,6 +107,8 @@ namespace frydom {
     /// \param time Current time of the simulation from begining
     void Compute(double time) override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

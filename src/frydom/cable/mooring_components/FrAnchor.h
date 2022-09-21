@@ -19,6 +19,8 @@ namespace frydom {
 
     explicit FrAnchor(const FrNode &other) : FrAnchor(other.GetName(), other.GetBody()) {}
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 }  // end namespace frydom

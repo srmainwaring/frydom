@@ -28,6 +28,9 @@ namespace frydom {
 
     std::shared_ptr<FrBarElementBase> m_elements;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrBuoyancyBarElements>

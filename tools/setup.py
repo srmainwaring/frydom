@@ -18,7 +18,11 @@ setup(
 
     include_package_data=True,
 
-    install_requires=['numpy', 'matplotlib', 'h5py', 'argcomplete'],
+    install_requires=['numpy',
+                      'matplotlib',
+                      'h5py',
+                      'argcomplete',
+                      "meshmagick@git+ssh://git@d-ice.gitlab.host:/common/hydro/meshmagick.git@develop"],
 
     entry_points={
         'console_scripts': ['hdb5tool=frydom.HDB5tool.HDB5tool:main',

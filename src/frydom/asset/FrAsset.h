@@ -58,6 +58,9 @@ namespace frydom {
 
     friend std::shared_ptr<internal::FrAssetBase> internal::GetChronoAsset(std::shared_ptr<FrAsset> asset);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

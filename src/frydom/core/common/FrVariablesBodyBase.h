@@ -59,6 +59,9 @@ namespace frydom {
 
     const chrono::ChMatrix33<>& GetBodyInvInertia() const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
  } // end namespace internal

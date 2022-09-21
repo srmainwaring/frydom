@@ -106,6 +106,10 @@ namespace frydom {
       void SetInBody(Eigen::VectorXd &vect, hdb5_io::Body* body);
 
       void SetInWorld(Eigen::VectorXd &vect, hdb5_io::Body* body);
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
 

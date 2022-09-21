@@ -90,6 +90,9 @@ namespace frydom {
 
       void SetInBody(chrono::ChVectorN<double, 6> vect) const;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   } // end namespace internal

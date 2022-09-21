@@ -59,6 +59,9 @@ namespace frydom {
       FrFrame c_frame1Abs;
       FrFrame c_frame2Abs;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
 
@@ -73,6 +76,8 @@ namespace frydom {
                       std::shared_ptr<FrNode> body_node,
                       const double &distance);
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

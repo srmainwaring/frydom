@@ -26,6 +26,9 @@ namespace frydom {
     Position m_pos;
     double m_volume;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 } // end namespace frydom

@@ -89,6 +89,9 @@ namespace frydom {
     // TODO:: Add const to FrBEMBody
     GeneralizedForce Compute_RadiationForce(FrBEMBody* body, int &indice) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// This function creates and adds the radiation recursive convolution model to the offshore system from the HDB.

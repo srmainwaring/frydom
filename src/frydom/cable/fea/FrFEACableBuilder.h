@@ -115,6 +115,9 @@ namespace frydom {
       /// It can be useful for adding constraints or changing properties afterwards.
       /// This list is reset all times a 'Build...' function is called.
       std::vector<std::shared_ptr<FrFEANodeBase>> &GetLastBeamNodes() { return beam_nodes; }
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
   }  // end namespace frydom::internal

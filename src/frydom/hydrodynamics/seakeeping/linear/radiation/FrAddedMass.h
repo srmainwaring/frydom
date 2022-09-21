@@ -100,14 +100,12 @@ namespace frydom {
 
         FrHydroDB* m_hdb;
 
+      public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   } // end namespace internal
-
-  // -------------------------------------------------------------------------------
-  // FrAddedMass
-  // -------------------------------------------------------------------------------
-
 } // end namespace frydom
 
 #endif //FRYDOM_FRADDEDMASS_H

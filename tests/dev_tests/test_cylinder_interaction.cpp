@@ -4,6 +4,7 @@
 
 #include "frydom/frydom.h"
 #include <cppfs/FilePath.h>
+//#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
 
 using namespace frydom;
 
@@ -14,6 +15,14 @@ int main(int argc, char *argv[]) {
   // System
 
   FrOffshoreSystem system("test_cylinder_interaction");
+
+  //auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
+  //system.GetChronoSystem()->SetSolver(mkl_solver);
+  //mkl_solver->UseSparsityPatternLearner(true);
+  //mkl_solver->LockSparsityPattern(true);
+
+  //auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
+  //system.GetChronoSystem()->SetSolver(slu_solver);
 
   // Environment
 
@@ -76,6 +85,8 @@ int main(int argc, char *argv[]) {
 
   // Simulation
 
+  auto c_start = std::chrono::high_resolution_clock::now();
+
   auto dt = 0.01;
 
   system.SetTimeStep(dt);
@@ -94,6 +105,7 @@ int main(int argc, char *argv[]) {
 
     system.AdvanceTo(time);
 
+    /*
     std::cout << "Time : " << time << " s" << std::endl;
 
     std::cout << "Position cyl1 : " << cyl1->GetPosition(NWU).GetX() << ";"
@@ -103,10 +115,13 @@ int main(int argc, char *argv[]) {
     std::cout << "Position cyl2 : " << cyl2->GetPosition(NWU).GetX() << ";"
               << cyl2->GetPosition(NWU).GetY() << ";"
               << cyl2->GetPosition(NWU).GetZ() << std::endl;
-
+  */
   }
 
-  std::cout << "======================================= End ============================= " << std::endl;
+  auto c_end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(c_end-c_start);
+  std::cout << "Elapsed cpu time in ms (high_resolution_clock) : " << duration.count()/1000. << std::endl;
+  std::cout << "============================== End ===================================== " << std::endl;
 
 
 }

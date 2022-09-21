@@ -68,6 +68,9 @@ namespace frydom {
 
     mathutils::Matrix66<double> c_AM;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Maker of a Morison model force : instantiate and return a FrMorisonForce, based on a Morison element.

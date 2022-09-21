@@ -19,6 +19,9 @@ namespace frydom {
 
     virtual double GetUMax() const = 0;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   class FrInterpHullResistance : public FrHullResistance {
@@ -34,6 +37,8 @@ namespace frydom {
    private:
     mathutils::Interp1dLinear<double, double> m_data;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -52,6 +57,9 @@ namespace frydom {
    private:
 
     double m_a_pos, m_a_neg, m_b_pos, m_b_neg;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

@@ -16,6 +16,9 @@ namespace frydom {
                         const std::string &type_name,
                         FrBody *body);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

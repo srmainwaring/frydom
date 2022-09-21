@@ -173,6 +173,9 @@ namespace frydom {
     /// Method called at the send of a time step. Logging may be used here
     void StepFinalize() override;
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

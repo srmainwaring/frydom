@@ -95,6 +95,9 @@ namespace frydom {
 
 //    double c_uR0, c_vR0;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrPropellerRudder>

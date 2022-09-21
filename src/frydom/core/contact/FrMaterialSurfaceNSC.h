@@ -41,6 +41,10 @@ namespace frydom {
     float complianceSpin;
 
     void Print() const override;
+
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrMaterialSurfaceNSC> MakeDefaultMaterialSurfaceNSC();

@@ -60,6 +60,9 @@ namespace frydom {
     /// Update of the internal cache attributes
     void InternalUpdate();
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 } //end namespace frydom

@@ -102,6 +102,9 @@ namespace frydom {
     std::unique_ptr<FrHydroMapper> m_mapper;            ///< Mapper between bodies and hdb body database
     bool m_dofMaskApplied = true;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrHydroDB> make_hydrodynamic_database(std::string h5file);

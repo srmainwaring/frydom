@@ -116,10 +116,12 @@ namespace frydom {
     void Compute(double time) override;
 
    protected:
-
     std::shared_ptr<internal::FrRadiationModelBaseKRM> m_chronoAddedMassModel;
-
     friend std::shared_ptr<internal::FrRadiationModelBaseKRM> internal::GetChronoAddedMass(std::shared_ptr<FrRadiationModel> radiationModel);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

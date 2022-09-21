@@ -202,6 +202,8 @@ namespace frydom {
       /// \return true if the set of polygons is on the plane
       bool CheckBoundaryPolygon(FrClippingPlane *plane);
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

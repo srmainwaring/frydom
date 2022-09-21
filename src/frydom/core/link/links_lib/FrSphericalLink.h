@@ -30,6 +30,9 @@ namespace frydom {
                     const std::shared_ptr<FrNode> &node1,
                     const std::shared_ptr<FrNode> &node2);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Helper function to make it easy to link two nodes by a spherical link

@@ -94,6 +94,9 @@ namespace frydom {
     /// Definition of the derivative according to z-direction for the scale factor
     double diffEz(const double &z, const double &konde, const double &depth) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // ------------------------------------------------------
@@ -112,6 +115,10 @@ namespace frydom {
 
     /// Return the vertical derivative of the scale factor with vertical stretching
     double EvalDZ(const double &z, const double &konde, const double &depth) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // ------------------------------------------------------
@@ -130,6 +137,9 @@ namespace frydom {
 
     /// Return the vertical derivative of the scale factor with vertical stretching
     double EvalDZ(const double &z, const double &konde, const double &depth) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   // -------------------------------------------------------
@@ -148,6 +158,9 @@ namespace frydom {
 
     /// Return the vertical derivative of the scale coefficient
     double EvalDZ(const double &z, const double &konde, const double &depth) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   /// --------------------------------------------------------
@@ -187,6 +200,9 @@ namespace frydom {
     double EvalDZ(const double &x, const double &y, const double &z,
                   const double &konde, const double &depth) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -219,6 +235,9 @@ namespace frydom {
     /// Return the derivative of the vertical scaling factor
     double
     EvalDZ(const double &x, const double &y, const double &z, const double &konde, const double &depth) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -271,6 +290,9 @@ namespace frydom {
     /// Return the derivative modified vertical coordinate
     double DZp(const double &x, const double &y, const double &z) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// ---------------------------------------------------------------------
@@ -312,6 +334,9 @@ namespace frydom {
 
     /// Return the derivative modified vertical coordinate
     double DZp(const double &x, const double &y, const double &z, const double &depth) const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

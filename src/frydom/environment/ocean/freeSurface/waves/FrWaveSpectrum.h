@@ -64,6 +64,9 @@ namespace frydom {
     /// \return
     double dichotomySearch(double theta_mean, double threshold) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // =================================================================================================================
@@ -112,6 +115,9 @@ namespace frydom {
     /// \return evaluation of the spreading function
     double Eval(double theta, double theta_mean) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // =================================================================================================================
@@ -128,6 +134,9 @@ namespace frydom {
     /// \param theta_mean mean wave direction
     /// \return evaluation of the spreading function
     double Eval(double theta, double theta_mean) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   // =================================================================================================================
@@ -277,6 +286,9 @@ namespace frydom {
     /// \return result
     double dichotomySearch(double wmin, double wmax, double threshold) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // =================================================================================================================
@@ -336,6 +348,9 @@ namespace frydom {
     /// \return evaluation of the wave spectrum
     double Eval(double w) const final;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -365,6 +380,9 @@ namespace frydom {
     /// \param w circular frequency for which the wave spectrum is evaluated
     /// \return evaluation of the wave spectrum
     double Eval(double w) const final;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -416,6 +434,9 @@ namespace frydom {
     /// \return evaluation of the wave spectrum
     double Eval(double w) const final;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -426,6 +447,9 @@ namespace frydom {
     FrTestWaveSpectrum() = default;
 
     double Eval(double w) const final;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

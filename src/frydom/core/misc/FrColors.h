@@ -177,6 +177,9 @@ namespace frydom {
 
     explicit FrColor(NAMED_COLOR colorName);
 
+    //public:
+    //EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

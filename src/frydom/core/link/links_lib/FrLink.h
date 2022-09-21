@@ -130,6 +130,9 @@ namespace frydom {
 
       void BuildLinkType(chrono::ChLinkLock::LinkType link_type) override;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     std::shared_ptr<FrLinkLockBase> GetChronoLink(std::shared_ptr<FrLink> link);
@@ -398,6 +401,9 @@ namespace frydom {
 //    friend bool FrOffshoreSystem::Add(std::shared_ptr<FrTreeNodeBase>);
 //
 //    friend void FrOffshoreSystem::Remove(std::shared_ptr<FrTreeNodeBase>);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

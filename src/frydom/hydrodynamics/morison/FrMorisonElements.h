@@ -87,6 +87,9 @@ namespace frydom {
       z = val3;
     }
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// The MorisonElementProperty structure encapsulate the basics property of a morison model
@@ -97,6 +100,9 @@ namespace frydom {
     double diameter = 0.;                   ///< Diameter of the morison model, in meter
     double length = 0.;                   ///< Length of the morison model, in meter
     double volume = 0.;                   ///< Volume of the morison model, in m³
+
+    public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   // --------------------------------------------------------------------------
@@ -193,6 +199,9 @@ namespace frydom {
     virtual void Initialize() = 0;
 
     virtual void ComputeForceAddedMass() = 0;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -317,6 +326,9 @@ namespace frydom {
 
     /// Get the acceleration of the morison element in local frame
     Acceleration GetNodeAcceleration();
+
+    public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
   // --------------------------------------------------------------------------
@@ -404,8 +416,10 @@ namespace frydom {
     void ComputeForceAddedMass() override;
 
     protected:
-
       friend std::shared_ptr<internal::FrMorisonModelBaseKRM> internal::GetChronoMorisonAddedMass(std::shared_ptr<FrMorisonCompositeElement> morisonModel);
+
+    public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 }  // end namespace frydom

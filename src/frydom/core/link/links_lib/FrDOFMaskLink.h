@@ -132,6 +132,9 @@ namespace frydom {
 
     void SetLock(bool xLocked, bool yLocked, bool zLocked, bool rxLocked, bool ryLocked, bool rzLocked);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -153,6 +156,9 @@ namespace frydom {
     /// Users should not use this method to make links between bodies but directly use the specialized classes
     /// (FrPrismaticLink, FrRevoluteLink...)
     void SetDOFMask(FrDOFMask *mask);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

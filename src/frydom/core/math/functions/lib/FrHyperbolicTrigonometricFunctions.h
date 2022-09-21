@@ -28,6 +28,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   FrCosHFunction cosh(const FrFunctionBase &function);
@@ -49,6 +52,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   FrSinHFunction sinh(const FrFunctionBase &function);
@@ -69,6 +75,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -95,6 +104,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   FrACosHFunction acosh(const FrFunctionBase &function);
@@ -116,6 +128,9 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   FrASinHFunction asinh(const FrFunctionBase &function);
@@ -136,6 +151,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

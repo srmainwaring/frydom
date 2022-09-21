@@ -137,6 +137,9 @@ namespace frydom {
     double m_Lb;
     double c_qL;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrCatenaryLineSeabed>

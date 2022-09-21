@@ -3,6 +3,7 @@
 //
 
 #include "frydom/frydom.h"
+#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
 
 using namespace frydom;
 
@@ -131,13 +132,15 @@ SetUpHydrodynamicModel(FrOffshoreSystem *system, std::vector<std::shared_ptr<FrB
   hdb->Map(4, bodyList[4].get(), eqFrame4);
   hdb->Map(5, bodyList[5].get(), eqFrame5);
 
-  auto radiationModel = make_radiation_convolution_model("radiationModel", system, hdb);
-  radiationModel->SetImpulseResponseSize(bodyList[0].get(), 50., 0.02);
-  radiationModel->SetImpulseResponseSize(bodyList[1].get(), 50., 0.02);
-  radiationModel->SetImpulseResponseSize(bodyList[2].get(), 50., 0.02);
-  radiationModel->SetImpulseResponseSize(bodyList[3].get(), 50., 0.02);
-  radiationModel->SetImpulseResponseSize(bodyList[4].get(),  50., 0.02);
-  radiationModel->SetImpulseResponseSize(bodyList[5].get(), 50., 0.02);
+  //auto radiationModel = make_radiation_convolution_model("radiationModel", system, hdb);
+  //radiationModel->SetImpulseResponseSize(bodyList[0].get(), 50., 0.02);
+  //radiationModel->SetImpulseResponseSize(bodyList[1].get(), 50., 0.02);
+  //radiationModel->SetImpulseResponseSize(bodyList[2].get(), 50., 0.02);
+  //radiationModel->SetImpulseResponseSize(bodyList[3].get(), 50., 0.02);
+  //radiationModel->SetImpulseResponseSize(bodyList[4].get(),  50., 0.02);
+  //radiationModel->SetImpulseResponseSize(bodyList[5].get(), 50., 0.02);
+
+  auto radiationModel = make_recursive_convolution_model("radiationModel", system, hdb);
 
   return hdb;
 }
@@ -233,6 +236,60 @@ void SetUpMooringLines(FrOffshoreSystem *system, std::vector<std::shared_ptr<FrB
 
 }
 
+void SetUpFEAMooringLines(FrOffshoreSystem* system, std::vector<std::shared_ptr<FrBody>> bodyList) {
+
+  double uLength = 12.5;
+
+  auto cableProp = make_cable_properties();
+  cableProp->SetSectionArea(0.00196);
+  cableProp->SetEA(2.95E5);
+  cableProp->SetLinearDensity(9.03);
+  cableProp->SetDragCoefficients(1., 0.);
+  cableProp->SetAddedMassCoefficients(1., 0.);
+
+  int nb_element = 3;
+  int order = 2;
+
+  auto worldNodeNW = system->GetWorldBody()->NewNode("worldNodeNW");
+  worldNodeNW->SetPositionInWorld(Position(-10, 5.76, -7.5), NWU);
+  auto bodyNodeNW = bodyList[0]->NewNode("bodyNodeNW");
+  bodyNodeNW->SetPositionInWorld(Position(-2.498, 1.444, 0.), NWU);
+
+  auto worldNodeN = system->GetWorldBody()->NewNode("worldNodeN");
+  worldNodeN->SetPositionInWorld(Position(0., 11.548, -7.5), NWU);
+  auto bodyNodeN = bodyList[1]->NewNode("bodyNodeN");
+  bodyNodeN->SetPositionInWorld(Position(0., 2.887, 0.), NWU);
+
+  auto worldNodeNE = system->GetWorldBody()->NewNode("worldNodeNE");
+  worldNodeNE->SetPositionInWorld(Position(10., 5.76, -7.5), NWU);
+  auto bodyNodeNE = bodyList[2]->NewNode("bodyNodeNE");
+  bodyNodeNE->SetPositionInWorld(Position(2.498, 1.444, 0.), NWU);
+
+  auto worldNodeSE = system->GetWorldBody()->NewNode("worldNodeSE");
+  worldNodeSE->SetPositionInWorld(Position(10., -5.76, -7.5), NWU);
+  auto bodyNodeSE = bodyList[3]->NewNode("bodyNodeSE");
+  bodyNodeSE->SetPositionInWorld(Position(2.498, -1.444, 0.), NWU);
+
+  auto worldNodeS = system->GetWorldBody()->NewNode("worldNodeS");
+  worldNodeS->SetPositionInWorld(Position(0., -11.548, -7.5), NWU);
+  auto bodyNodeS = bodyList[4]->NewNode("bodyNodeS");
+  bodyNodeS->SetPositionInWorld(Position(0., -2.887, 0.), NWU);
+
+  auto worldNodeSW = system->GetWorldBody()->NewNode("worldNodeSW");
+  worldNodeSW->SetPositionInWorld(Position(-10., -5.76, -7.5), NWU);
+  auto bodyNodeSW = bodyList[5]->NewNode("bodyNodeSW");
+  bodyNodeSW->SetPositionInWorld(Position(-2.498, -1.444, 0.), NWU);
+
+  auto mooringLineNW = make_fea_cable("mooringLineNW", worldNodeNW, bodyNodeNW, cableProp, uLength, nb_element, order);
+  auto mooringLineN = make_fea_cable("mooringLineN", worldNodeN, bodyNodeN, cableProp, uLength, nb_element, order);
+  auto mooringLineNE = make_fea_cable("mooringLineNE", worldNodeNE, bodyNodeNE, cableProp,  uLength, nb_element, order);
+  auto mooringLineSE = make_fea_cable("mooringLineSE", worldNodeSE, bodyNodeSE, cableProp, uLength, nb_element ,order);
+  auto mooringLineS = make_fea_cable("mooringLineS", worldNodeS, bodyNodeS, cableProp, uLength, nb_element, order);
+  auto mooringLineEW = make_fea_cable("mooringLineEW", worldNodeSW, bodyNodeSW, cableProp, uLength, nb_element, order);
+
+
+}
+
 void SetUpCurrentForces(FrOffshoreSystem *system, std::vector<std::shared_ptr<FrBody>> bodyList) {
 
   auto currentForce1 = make_quadratic_damping_force("currentForce1", bodyList[0], WATER, true);
@@ -269,6 +326,14 @@ int main(int argc, char *argv[]) {
                           FrOffshoreSystem::SMOOTH_CONTACT,
                           FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::MINRES);
+
+  auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
+  system.GetChronoSystem()->SetSolver(mkl_solver);
+  mkl_solver->UseSparsityPatternLearner(true);
+  //mkl_solver->LockSparsityPattern(true);
+
+  //auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
+  //system.GetChronoSystem()->SetSolver(slu_solver);
 
   //FrOffshoreSystem system("demo_HexagonalArticulatedBuoy", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
 
@@ -359,7 +424,7 @@ int main(int argc, char *argv[]) {
 
   // Mooring Line
 
-  SetUpMooringLines(&system, bodyList);
+  SetUpFEAMooringLines(&system, bodyList);
 
   // Current force as quadratic damping
 
@@ -367,25 +432,35 @@ int main(int argc, char *argv[]) {
 
   // Simulation
 
-  auto dt = 0.01;
+  auto dt = 0.005;
   system.SetSolverMaxIterations(1000);
   system.SetSolverTolerance(1e-7);
 
   system.SetTimeStep(dt);
   system.Initialize();
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
+
+  clock_t begin = clock();
+  auto c_start = std::chrono::high_resolution_clock::now();
 
   if (is_irrlicht) {
     system.RunInViewer(50., 10., false, 5);
   } else {
     auto time = 0.;
-    while (time < 50.) {
+    while (time < 0.2) {
       time += dt;
       system.AdvanceTo(time);
       std::cout << "Time : " << time << "s " << std::endl;
     }
   }
-  std::cout << " ============================================== End =============================== " << std::endl;
+  clock_t end = clock();
+  auto c_end = std::chrono::high_resolution_clock::now();
+  double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(c_end-c_start);
+  std::cout << "Elapsed cpu time in seconds : " << elapsed_secs << std::endl;
+  std::cout << "Elapsed cpu time in ms (high_resolution_clock) : " << duration.count()/1000. << std::endl;
+  std::cout << "============================== End ===================================== " << std::endl;
+
   return 0;
 }

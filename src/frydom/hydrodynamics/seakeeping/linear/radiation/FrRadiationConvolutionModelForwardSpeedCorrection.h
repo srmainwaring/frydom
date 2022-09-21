@@ -32,6 +32,9 @@ namespace frydom {
     /// This method computes the the forward speed dependent part of the convolution term.
     GeneralizedForce ForwardSpeedCorrection(FrBEMBody *BEMBody) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrRadiationConvolutionModel>

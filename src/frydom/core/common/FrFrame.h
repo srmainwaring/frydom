@@ -386,6 +386,8 @@ namespace frydom {
 
     friend class FrInertiaTensor;  // TODO : voir pourquoi on definit cette amitie... (et voir si on peut retirer !)
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

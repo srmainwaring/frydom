@@ -109,6 +109,9 @@ namespace frydom {
     Direction m_pi;
     double m_q;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -144,6 +147,9 @@ namespace frydom {
     /// Update the catenary force : get the tension applied by the line on the corresponding node
     /// \param time time of the simulation
     void Compute(double time) override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
