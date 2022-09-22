@@ -1,16 +1,22 @@
+// ==========================================================================
+// FRyDoM - frydom-ce.org
 //
-// Created by lletourn on 01/07/2021.
+// Copyright (c) Ecole Centrale de Nantes (LHEEA lab.) and D-ICE Engineering.
+// All rights reserved.
 //
+// Use of this source code is governed by a GPLv3 license that can be found
+// in the LICENSE file of FRyDoM.
+//
+// ========================================================================
 
 #ifndef FRYDOM_FRHULLRESISTANCE_H
 #define FRYDOM_FRHULLRESISTANCE_H
 
 #include "MathUtils/Interp1d.h"
-
+#include "frydom/core/force/FrForce.h"
 #include "frydom/io/JSONNode.h"
 
 namespace frydom {
-
 
   // -------------------------------------------------------------------
   // Base hull resistance model
@@ -83,11 +89,36 @@ namespace frydom {
 
   };
 
+  // --------------------------------------------------------------------------
+  // FORCE
+  // --------------------------------------------------------------------------
+
+  class FrHullResistanceForce : public FrForce {
+
+    public:
+      explicit FrHullResistanceForce(const std::string& name, FrBody* body,
+                                     const JSONNode& node, const Position& mid_ship);
+
+      void Initialize() override;
+
+    private:
+
+      void Compute(double time) override;
+
+    private:
+      std::shared_ptr<FrHullResistance> m_hullResistance;
+      Position m_mid_ship;
+
+  };
+
   // ---------------------------------------------------------------------------
   // MAKERS
   // ---------------------------------------------------------------------------
 
   std::shared_ptr<FrHullResistance> make_hull_resistance(const JSONNode& node);
+
+  std::shared_ptr<FrHullResistanceForce> make_hull_resistance_force(const std::string& name, std::shared_ptr<FrBody> body,
+                                                                    const JSONNode& node, const Position& mid_ship);
 
 } // end namespace frydom
 #endif //FRYDOM_FRHULLRESISTANCE_H

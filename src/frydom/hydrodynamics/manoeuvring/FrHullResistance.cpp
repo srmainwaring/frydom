@@ -69,6 +69,44 @@ namespace frydom {
     return m_data.GetXmax();
   }
 
+  // ------------------------------------------------------------------------
+  // FORCES
+  // ----------------------------------------------------------------------
+
+  FrHullResistanceForce::FrHullResistanceForce(const std::string& name, FrBody* body,
+                                               const JSONNode& node, const Position& mid_ship) :
+      FrForce(name, "FrHullResistanceForce", body), m_mid_ship(mid_ship) {
+    m_hullResistance = make_hull_resistance(node);
+  }
+
+  void FrHullResistanceForce::Initialize() {
+    FrForce::Initialize();
+  }
+
+  void FrHullResistanceForce::Compute(double time) {
+    auto body = GetBody();
+
+    // Get the velocity at mid-ship
+    Velocity vessel_vel_world = body->GetVelocityInWorldAtPointInBody(m_mid_ship, NWU);
+    auto vessel_angular_vel_world = body->GetAngularVelocityInWorld(NWU);
+
+    // Projection to the planar frame
+    Direction vessel_x_axis_world = body->GetFrame().GetXAxisInParent(NWU);
+    vessel_x_axis_world[2] = 0;
+    vessel_x_axis_world.normalize();
+
+    double u = vessel_vel_world.dot(vessel_x_axis_world);
+
+    Force forceInWorld = -m_hullResistance->Rh(u) * vessel_x_axis_world;
+
+    SetForceTorqueInWorldAtPointInBody(forceInWorld, Torque(), m_mid_ship, NWU);
+  };
+
+
+  // ------------------------------------------------------------------------
+  // MAKERS
+  // ------------------------------------------------------------------------
+
   std::shared_ptr<FrHullResistance> make_hull_resistance(const JSONNode& node) {
     if (node.exists("lut")) {
       return std::make_shared<FrInterpHullResistance>(node["lut"]);
@@ -78,6 +116,13 @@ namespace frydom {
       std::cerr << "warning : unknown hull resistance model " << std::endl;
       exit(EXIT_FAILURE);
     }
+  }
+
+  std::shared_ptr<FrHullResistanceForce> make_hull_resistance_force(const std::string& name, std::shared_ptr<FrBody> body,
+                                                                    const JSONNode& node, const Position& mid_ship) {
+    auto force = std::make_shared<FrHullResistanceForce>(name, body.get(), node, mid_ship);
+    body->AddExternalForce(force);
+    return force;
   }
 
 }
