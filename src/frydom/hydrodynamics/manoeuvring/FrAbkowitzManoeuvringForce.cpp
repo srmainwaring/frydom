@@ -5,7 +5,6 @@
 #include "FrAbkowitzManoeuvringForce.h"
 #include "frydom/logging/FrEventLogger.h"
 #include "frydom/environment/FrEnvironmentInc.h"
-#include "frydom/io/JSONNode.h"
 #include "frydom/utils/FrFileSystem.h"
 #include "frydom/hydrodynamics/manoeuvring/FrHullResistance.h"
 
@@ -15,16 +14,42 @@ namespace frydom {
                                                          FrBody *body,
                                                          const std::string &file,
                                                          const Position& mid_ship) :
-      FrForce(name, "FrManoeuvringForce", body),
-      c_filepath(file),
-      m_Xvv(0.), m_Xvvvv(0.), m_Xrr(0.), m_Xvr(0.),
-      m_Yv(0.), m_Yvvv(0.), m_Yvrr(0.), m_Yr(0.), m_Yrrr(0.), m_Yvvr(0.),
-      m_Nv(0.), m_Nvvv(0.), m_Nvrr(0.), m_Nr(0.), m_Nrrr(0.), m_Nvvr(0.),
-      m_mid_ship(mid_ship) {}
+      FrForce(name, "FrManoeuvringForce", body), m_mid_ship(mid_ship) {
+    LoadAbkowitzManoeuvringFile(file);
+  }
+
+  FrAbkowitzManoeuvringForce::FrAbkowitzManoeuvringForce(const std::string &name,
+                                                         FrBody* body,
+                                                         const JSONNode& node_man,
+                                                         const JSONNode& node_res,
+                                                         const Position& mid_ship,
+                                                         double draft_m, double lpp_m) :
+       FrForce(name, "FrManoeuvringForce", body), m_mid_ship(mid_ship),
+       m_draft(draft_m), m_Lpp(lpp_m)
+       {
+    // Load hydrodynamic derivatives
+    m_Xvv = node_man.get<double>("Xvv");
+    m_Xvvvv = node_man.get<double>("Xvvvv");
+    m_Xrr = node_man.get<double>("Xrr");
+    m_Xvr = node_man.get<double>("Xvr");
+    m_Yv = node_man.get<double>("Yv");
+    m_Yr = node_man.get<double>("Yr");
+    m_Yvvv = node_man.get<double>("Yvvv");
+    m_Yvvr = node_man.get<double>("Yvvr");
+    m_Yvrr = node_man.get<double>("Yvrr");
+    m_Yrrr = node_man.get<double>("Yrrr");
+    m_Nv = node_man.get<double>("Nv");
+    m_Nr = node_man.get<double>("Nr");
+    m_Nvvv = node_man.get<double>("Nvvv");
+    m_Nvvr = node_man.get<double>("Nvvr");
+    m_Nvrr = node_man.get<double>("Nvrr");
+    m_Nrrr = node_man.get<double>("Nrrr");
+    // Calm water resistance
+    m_hullResistance = make_hull_resistance(node_res);
+  }
 
   void FrAbkowitzManoeuvringForce::Initialize() {
     FrForce::Initialize();
-    LoadManoeuvringData(c_filepath);
   }
 
   double FrAbkowitzManoeuvringForce::GetUMin() const {
@@ -167,176 +192,60 @@ namespace frydom {
 
   }
 
-  void FrAbkowitzManoeuvringForce::LoadManoeuvringData(const std::string &filepath) {
+  void FrAbkowitzManoeuvringForce::LoadAbkowitzManoeuvringFile(const std::string &filepath) {
 
     // Loader
-    std::ifstream ifs(filepath);
-    json j = json::parse(ifs);
-
+    auto j = JSONNode(filepath);
     auto node = j["Abkowitz_manoeuvring_model"];
 
-    //if (node.get_val<std::string>("type") != "abkowitz") {
-    //  std::cerr << "Manoeuvring model enclosed in json file "
-    //            << filepath
-    //            << " was intended to be of type abkowitz but type was "
-    //            << node.get_val<std::string>("type")
-    //            << std::endl
-    //            << "Aborting..."
-    //            << std::endl;
-    //  exit(EXIT_FAILURE);
-    //}
+    // Read main particulars
+    auto node_hull = node["hull_characteristics"];
+    m_Lpp = node_hull.get<double>("length_m");
+    m_draft = node_hull.get<double>("draft_m");
 
-    //auto file_format_version = node.get_val<std::string>("file_format_version");
+    // Coefficients
+    auto node_coeff = node["coefficients"];
+    m_Xvv = node_coeff.get<double>("Xvv");
+    m_Xvvvv = node_coeff.get<double>("Xvvvv");
+    m_Xvr = node_coeff.get<double>("Xvr");
+    m_Xrr = node_coeff.get<double>("Xrr");
+    m_Yv = node_coeff.get<double>("Yv");
+    m_Yr = node_coeff.get<double>("Yr");
+    m_Yvvv = node_coeff.get<double>("Yvvv");
+    m_Yvvr = node_coeff.get<double>("Yvvr");
+    m_Yvrr = node_coeff.get<double>("Yvrr");
+    m_Yrrr = node_coeff.get<double>("Yrrr");
+    m_Nv = node_coeff.get<double>("Nv");
+    m_Nr = node_coeff.get<double>("Nr");
+    m_Nvvv = node_coeff.get<double>("Nvvv");
+    m_Nvvr = node_coeff.get<double>("Nvvr");
+    m_Nvrr = node_coeff.get<double>("Nvrr");
+    m_Nrrr = node_coeff.get<double>("Nrrr");
 
-    try {
-      m_Lpp = node["hull_characteristics"]["length_m"].get<double>();
-    } catch (json::parse_error &err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no length_m in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_draft = node["hull_characteristics"]["draft_m"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no draft_m in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Xvv = node["coefficients"]["Xvv"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Xvv in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Xvvvv = node["coefficients"]["Xvvvv"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Xvvvv in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Xvr = node["coefficients"]["Xvr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Xvr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Xrr = node["coefficients"]["Xrr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Xrr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Yv = node["coefficients"]["Yv"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yv in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Yvvv = node["coefficients"]["Yvvv"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yvvv in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Yvrr = node["coefficients"]["Yvrr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yvrr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Yr = node["coefficients"]["Yr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Yrrr = node["coefficients"]["Yrrr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yrrr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Yvvr = node["coefficients"]["Yvvr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Yvvr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Nv = node["coefficients"]["Nv"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Nv in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Nvvv= node["coefficients"]["Nvvv"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Nvvv in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Nvrr= node["coefficients"]["Nvrr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Nvrr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Nr= node["coefficients"]["Nr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Nr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Nrrr= node["coefficients"]["Nrrr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Nrrr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    try {
-      m_Nvvr= node["coefficients"]["Nvvr"].get<double>();
-    } catch (json::parse_error& err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no Nvvr in json file");
-      exit(EXIT_FAILURE);
-    }
-
-    //try {
-    //  auto wave_resistance_file = node["wave_resistance_file"].get<json::string_t>();
-    //  // TODO
-    //} catch (json::parse_error& err) {
-    //  event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no wave_resistance_file in json file");
-    //  exit(EXIT_FAILURE);
-    //}
-
-    try {
-      auto hull_resistance_filepath = node["hull_resistance_filepath"].get<json::string_t>();
-      auto test_filepath = FrFileSystem::join({c_filepath, "..", hull_resistance_filepath});
-      LoadResistanceCurve(test_filepath);
-    } catch (json::parse_error &err) {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "no hull_resistance_filepath in json file");
-      exit(EXIT_FAILURE);
-    }
-
+    // Hull resistance loader
+    auto hull_resistance_filepath = node.get<std::string>("hull_resistance_filepath");
+    auto filename = FrFileSystem::join({filepath, "..", hull_resistance_filepath});
+    LoadResistanceCurve(filename);
   }
+
+  // ---------------------------------------------------------------------
+  // MAKER FORCE
+  // ---------------------------------------------------------------------
 
   std::shared_ptr<FrAbkowitzManoeuvringForce>
       make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
                                       const std::string& file, const Position& mid_ship) {
     auto force = std::make_shared<FrAbkowitzManoeuvringForce>(name, body.get(), file, mid_ship);
+    body->AddExternalForce(force);
+    return force;
+  }
+
+  std::shared_ptr<FrAbkowitzManoeuvringForce>
+      make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
+                                      const JSONNode& node_man, const JSONNode& node_res,
+                                      const Position& mid_ship, double draft_m, double lpp_m) {
+    auto force = std::make_shared<FrAbkowitzManoeuvringForce>(name, body.get(), node_man, node_res,
+                                                              mid_ship, draft_m, lpp_m);
     body->AddExternalForce(force);
     return force;
   }

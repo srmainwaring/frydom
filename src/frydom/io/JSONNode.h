@@ -1,20 +1,11 @@
-//
-// Created by frongere on 26/02/2021.
-//
-
 #ifndef FRYDOM_JSONNODE_H
 #define FRYDOM_JSONNODE_H
 
 #include <fstream>
 #include <iostream>
-
+#include <string>
 #include <nlohmann/json.hpp>
 #include <filesystem>
-
-#include "frydom/core/math/FrVector.h"
-#include "frydom/core/common/FrConvention.h"
-#include "frydom/propulsion/FrPropellerType.h"
-#include "frydom/core/body/FrInertiaTensor.h"
 
 
 namespace fs = std::filesystem;
@@ -22,231 +13,187 @@ using json = nlohmann::json;
 
 namespace frydom {
 
-  class JSONNode {
+  namespace internal {
+
+    inline bool startswith(const std::string &str, const std::string &pattern) {
+      return str.rfind(pattern, 0) == 0;
+    }
+
+    inline bool is_comment(const std::string &str) {
+      return startswith(str, "_");
+    }
+
+    inline bool exists(const json &node, const std::string &key) {
+      return node.find(key) != node.end();
+    }
+
+    void walk_over_node(const json &node, const fs::path &current_root_dir, json &working_node);
+
+  }  // end namespace esperado::internal
+
+  /// Iterator class to navigate among JSON Nodes in a JSON hierarchy
+  template<class JSONNode, class InnerIterType>
+  class JSONNodeIterator {
+   public:
+//    using iterator_category = std::forward_iterator_tag;
+//    using difference_type = std::ptrdiff_t;
+    using value_type = JSONNode;
+    using pointer = value_type *;
+//    using reference = value_type &;
 
    public:
+    JSONNodeIterator(JSONNode *ptr, json::iterator json_iter) : m_ptr(ptr), m_json_iter(json_iter) {}
 
-    explicit JSONNode(const std::string &json_filename, const char &comment_char = '_') :
-        m_json_file_path(json_filename),
-        m_comment_char(comment_char),
-        m_root("") {
+    JSONNodeIterator(JSONNode *ptr, json::const_iterator json_iter) : m_ptr(ptr), m_json_iter(json_iter) {}
 
+    std::string key() {
+      return m_json_iter.key();
+    }
+
+    value_type operator*() const {
+      return JSONNode(*m_json_iter, m_ptr->m_node_name / m_json_iter.key());
+    }
+
+    JSONNodeIterator &operator++() {
+      ++m_json_iter;
+
+      return *this;
+    }
+
+    JSONNodeIterator operator++(int) {
+      JSONNodeIterator tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    friend bool operator==(const JSONNodeIterator &a, const JSONNodeIterator &b) {
+      return a.m_json_iter == b.m_json_iter;
+    }
+
+    friend bool operator!=(const JSONNodeIterator &a, const JSONNodeIterator &b) {
+      return a.m_json_iter != b.m_json_iter;
+    }
+
+   private:
+    pointer m_ptr;
+    InnerIterType m_json_iter;
+  };
+
+  /// Class that represents a JSON Node in a JSON hierarchy
+  ///
+  /// It works like a pointer into the JSON hierarchy but has only methods to move towards JSON hierarchy leafs
+  class JSONNode {
+   public:
+
+    /// CTOR from file path on disk
+    explicit JSONNode(const std::string &json_filename) : m_node_name("/") {
       if (!fs::exists(json_filename)) {
         std::cerr << "JSON file " << json_filename << " not found" << std::endl;
         exit(EXIT_FAILURE);
       }
 
+      fs::path root_dir = fs::path(json_filename).remove_filename();
+
       std::ifstream ifs(json_filename);
-      m_json_node = json::parse(ifs);
+      json raw_node = json::parse(ifs);
+
+      m_json_node = raw_node;
+
+      internal::walk_over_node(raw_node, root_dir, m_json_node);
+
+    }
+
+    ///
+    std::string dump(int indent = 2) const {
+      return m_json_node.dump(indent);
     }
 
     bool exists(const std::string &key) const {
-      return m_json_node.find(key) != m_json_node.end();
+      return internal::exists(m_json_node, key);
     }
 
-    // TODO: avoir une version qui permet de specifier des valeurs par defaut lors de la lecture
-    JSONNode get_node(const std::vector<std::string> &key_list) const {
-      JSONNode node = *this;
-      for (const auto &key: key_list) {
-        node.next_node(key);
+    JSONNode operator[](const std::string &key) const {
+
+      auto pkey = m_node_name / key;
+
+      if (!internal::exists(m_json_node, key)) {
+        std::cerr << "Key " << pkey << " does not exists" << std::endl;
+        exit(EXIT_FAILURE);
       }
-      return node;
-    }
-
-    JSONNode operator()(const std::vector<std::string> &key_list) const {
-      return get_node(key_list);
+      auto node = m_json_node[key];
+      return JSONNode(node, pkey);
     }
 
     template<typename T>
-    T get_val(const std::string &key) const {
-      return get_node({key}).m_json_node.get<T>();
+    T get() const {
+      if (!m_json_node.is_primitive()) {
+        std::cerr << "JSON Node " << full_name() << " is not a primitive" << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      return m_json_node.get<T>();
     }
 
     template<typename T>
-    T get_val(const std::string &key, const T& default_val) const {
-      return exists(key) ? get_val<T>(key): default_val;
-    }
-
-    std::string get_filepath(const std::string &key) const {
-      auto filename = get_val<fs::path>(key);
-
-      auto abs_filename = get_json_file_root_directory() / filename;
-
-      if (!fs::exists(abs_filename)) {
-        std::cerr << "File \""
-                  << filename
-                  << "\" declared in json file \""
-                  << m_json_file_path
-                  << "\" does not exists"
-                  << std::endl;
+    T get(const std::string &key) const {
+      if (!internal::exists(m_json_node, key)) {
+        std::cerr << "Key " << m_node_name / key << " does not exist" << std::endl;
         exit(EXIT_FAILURE);
       }
 
-      return abs_filename;
-    }
+      auto node = m_json_node[key];
 
-    std::string get_json_file() const {
-      return m_json_file_path;
-    }
-
-    std::string get_json_file_root_directory() const {
-      return fs::path(m_json_file_path).remove_filename();
-    }
-
-    using const_iterator = json::const_iterator;
-
-    const_iterator begin() const {
-      // FIXME: l'implementation actuelle permet de sauter les commentaires commencant par '_' car la lib json place
-      // tous ces champs en premier lors des iterations. La methode n'est donc pas robuste car si le comportement change
-      // plus rien ne fonctionne...
-      auto iter = m_json_node.cbegin();
-
-      std::string key = iter.key();
-      // Skipping keys starting by m_comment_char that are considered as comments
-      while (!key.rfind(m_comment_char, 0)) {
-        iter++;
-        key = iter.key();
-      }
-
-      return iter;
-    }
-
-    const_iterator end() const {
-      return m_json_node.cend();
-    }
-
-    /// Moves the current node state to the next node
-    void next_node(const std::string &key) {
-      if (exists(key)) {
-        m_json_node = m_json_node[key];
-        m_root += "/" + key;
-      } else {
-        std::cerr << "In JSON file " << m_json_file_path << std::endl;
-        std::cerr << "JSON Node " << m_root << "/" << key << " is missing" << std::endl;
+      if (!node.is_primitive() && !node.is_array()) {
+        std::cerr << "JSON Node " << full_name() << " is not a primitive nor an array" << std::endl;
         exit(EXIT_FAILURE);
       }
+
+      return node.get<T>();
+    }
+
+    template<typename T>
+    T get(const std::string &key, const T &default_value) const {
+      return internal::exists(m_json_node, key) ? get<T>(key) : default_value;
+    }
+
+    std::string full_name() const {
+      return m_node_name;
+    }
+
+    std::string name() const {
+      return m_node_name.filename();
+    }
+
+    JSONNodeIterator<JSONNode, json::iterator> begin() {
+      return {this, m_json_node.begin()};
+    }
+
+    JSONNodeIterator<JSONNode, json::iterator> end() {
+      return {this, m_json_node.end()};
+    }
+
+    JSONNodeIterator<const JSONNode, json::const_iterator> begin() const {
+      return {this, m_json_node.cbegin()};
+    }
+
+    JSONNodeIterator<const JSONNode, json::const_iterator> end() const {
+      return {this, m_json_node.cend()};
     }
 
    private:
-    std::string m_json_file_path;
-    std::string m_root;
-    json m_json_node;
-    char m_comment_char;
 
-   public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    JSONNode(const json &node, const fs::path &node_name) :
+        m_json_node(node),
+        m_node_name(node_name) {}
+
+   private:
+    json m_json_node;
+    fs::path m_node_name;
+
+    friend class JSONNodeIterator<JSONNode, json::iterator>;
+
+    friend class JSONNodeIterator<const JSONNode, json::const_iterator>;
 
   };
-
-
-/**
- * In the following, special template specification for FRyDoM are defined
- */
-
-  template<>
-  inline Position JSONNode::get_val<Position>(const std::string &key) const {
-    auto pos = get_val<std::vector<double>>(key);
-    return {pos[0], pos[1], pos[2]};
-  }
-
-  template<>
-  inline FRAME_CONVENTION JSONNode::get_val<FRAME_CONVENTION>(const std::string &key) const {
-    auto fc_str = get_val<std::string>(key);
-    FRAME_CONVENTION fc;
-    if (fc_str == "NED") {
-      fc = FRAME_CONVENTION::NED;
-    } else if (fc_str == "NWU") {
-      fc = FRAME_CONVENTION::NWU;
-    } else {
-      fs::path dir_path = get_json_file_root_directory();
-      std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
-      std::cerr << "ERROR at " << m_root << "/" << key << std::endl;
-      std::cerr << "Unknown frame convention keyword " << fc_str << ". Only NED and NWU are accepted." << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    return fc;
-  }
-
-  template<>
-  inline DIRECTION_CONVENTION JSONNode::get_val<DIRECTION_CONVENTION>(const std::string &key) const {
-    auto fc_str = get_val<std::string>(key);
-    DIRECTION_CONVENTION fc;
-    if (fc_str == "GOTO") {
-      fc = DIRECTION_CONVENTION::GOTO;
-    } else if (fc_str == "COMEFROM") {
-      fc = DIRECTION_CONVENTION::COMEFROM;
-    } else {
-      fs::path dir_path = get_json_file_root_directory();
-      std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
-      std::cerr << "ERROR at " << m_root << "/" << key << std::endl;
-      std::cerr << "Unknown direction convention keyword " << fc_str << ". Only GOTO and COMEFROM are accepted."
-                << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    return fc;
-  }
-
-  template<>
-  inline PropellerModelType JSONNode::get_val<PropellerModelType>(const std::string &key) const {
-    auto pt_str = get_val<std::string>(key);
-    PropellerModelType pt;
-    if (pt_str == "FPP_1Q") {
-      pt = PropellerModelType::E_FPP1Q;
-    } else if (pt_str == "FPP_4Q") {
-      pt = PropellerModelType::E_FPP4Q;
-    } else if (pt_str == "CPP") {
-      pt = PropellerModelType::E_CPP;
-    } else {
-      fs::path dir_path = get_json_file_root_directory();
-      std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
-      std::cerr << "ERROR at " << m_root << "/" << key << std::endl;
-      std::cerr << "Unknown propeller type keyword " << pt_str <<
-                ". Only FPP_1Q, FPP_4Q and CPP are accepted." << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    return pt;
-  }
-
-  template<>
-  inline SCREW_DIRECTION JSONNode::get_val<SCREW_DIRECTION>(const std::string &key) const {
-    auto sd_str = get_val<std::string>(key);
-    SCREW_DIRECTION sd;
-    if (sd_str == "LEFT_HANDED") {
-      sd = SCREW_DIRECTION::LEFT_HANDED;
-    } else if (sd_str == "RIGHT_HANDED") {
-      sd = SCREW_DIRECTION::RIGHT_HANDED;
-    } else {
-      fs::path dir_path = get_json_file_root_directory();
-      std::cerr << "In JSON file " << dir_path / m_json_file_path << std::endl;
-      std::cerr << "ERROR at " << m_root << "/" << key << std::endl;
-      std::cerr << "Unknown screw direction type keyword " << sd_str <<
-                ". Only LEFT_HANDED and RIGHT_HANDED are accepted." << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    return sd;
-  }
-
-  template<>
-  inline FrInertiaTensor JSONNode::get_val<FrInertiaTensor>(const std::string &key) const {
-
-    auto node = get_node({key});
-
-    auto mass = node.get_val<double>("mass_t") * 1e3;
-    auto frame_convention = node.get_val<frydom::FRAME_CONVENTION>("frame_convention");
-    auto cog = node.get_val<frydom::Position>("cog_m");
-    auto ixx = node.get_val<double>("ixx_tm2") * 1e3;
-    auto iyy = node.get_val<double>("iyy_tm2") * 1e3;
-    auto izz = node.get_val<double>("izz_tm2") * 1e3;
-    auto ixy = node.get_val<double>("ixy_tm2", 0.0) * 1e3;
-    auto ixz = node.get_val<double>("ixz_tm2", 0.0) * 1e3;
-    auto iyz = node.get_val<double>("iyz_tm2", 0.0) * 1e3;
-
-    return {mass, ixx, iyy, izz, ixy, ixz, iyz, cog, frame_convention};
-  }
-
-// TODO: voir avec Guillaume comment faire un operator overloading de ++ qui permette de skipper
-// les commentaires (commencant par le caractere de commentaire, _ par defaut)
-
 
 }  // end namespace frydom
 
