@@ -7,5 +7,6 @@
 
 #include "FrManoeuvringDamping.h"
 #include "FrSutuloManoeuvringForce.h"
+#include "FrAbkowitzManoeuvringForce.h"
 
 #endif //FRYDOM_FRMANOEUVRINGINC_H
