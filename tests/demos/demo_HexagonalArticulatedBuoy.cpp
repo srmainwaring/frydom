@@ -1,9 +1,16 @@
+// ==========================================================================
+// FRyDoM - frydom-ce.org
 //
-// Created by camille on 11/07/19.
+// Copyright (c) Ecole Centrale de Nantes (LHEEA lab.) and D-ICE Engineering.
+// All rights reserved.
 //
+// Use of this source code is governed by a GPLv3 license that can be found
+// in the LICENSE file of FRyDoM.
+//
+// ==========================================================================
 
 #include "frydom/frydom.h"
-#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
+//#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
 
 using namespace frydom;
 
@@ -327,9 +334,9 @@ int main(int argc, char *argv[]) {
                           FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
                           FrOffshoreSystem::MINRES);
 
-  auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
-  system.GetChronoSystem()->SetSolver(mkl_solver);
-  mkl_solver->UseSparsityPatternLearner(true);
+  //auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
+  //system.GetChronoSystem()->SetSolver(mkl_solver);
+  //mkl_solver->UseSparsityPatternLearner(true);
   //mkl_solver->LockSparsityPattern(true);
 
   //auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
