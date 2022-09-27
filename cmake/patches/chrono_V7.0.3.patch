@@ -63,7 +63,7 @@ index 73d127f58..d7d3d7fd9 100644
    endif()
  
 -  include(${CMAKE_SOURCE_DIR}/cmake/FindCudaArch.cmake)
-+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindCudaArch.cmake)
++  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/FindCudaArch.cmake)
    SELECT_NVCC_ARCH_FLAGS(NVCC_FLAGS_EXTRA)
    list(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
  
@@ -443,7 +443,7 @@ index b5315bdfb..dfb82846f 100644
          if (m_delta > CH_C_PI)
              m_delta -= (CH_C_2PI);  // range -180..+180 is better than 0...360
          if (m_delta > (CH_C_PI / 4.0))
--            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45°
+-            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
 +            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
          if (m_delta < -(CH_C_PI / 4.0))
              m_delta = -(CH_C_PI / 4.0);
@@ -1021,7 +1021,7 @@ index 33d2537f0..76823be9f 100644
          if (m_delta > CH_C_PI)
              m_delta -= (CH_C_2PI);  // range -180..+180 is better than 0...360
          if (m_delta > (CH_C_PI / 4.0))
--            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45°
+-            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
 +            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
          if (m_delta < -(CH_C_PI / 4.0))
              m_delta = -(CH_C_PI / 4.0);
