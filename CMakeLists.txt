@@ -162,8 +162,9 @@ include(Add_Eigen3)
 message(STATUS "eigen3 : " ${eigen3_SOURCE_DIR})
 set(EIGEN3_INCLUDE_DIR ${eigen3_SOURCE_DIR})
 include(Add_mathutils)
-include(Add_Boost)
+##CC include(Add_Boost)
 include(Add_chrono)
+include(Add_Boost) ##CC
 
 ##CC debug
 #message(STATUS "debug : CMAKE_CXX_FLAGS : "${CMAKE_CXX_FLAGS})
