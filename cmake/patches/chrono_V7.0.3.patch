@@ -55,9 +55,18 @@ index d3a923ccd..8cd6a1114 100644
  #------------------------------------------------------------
  # Defer configuration of all Chrono libraries and programs
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 73d127f58..d7d3d7fd9 100644
+index 73d127f58..ad25b55a1 100644
 --- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt	
++++ b/src/CMakeLists.txt
+@@ -243,7 +243,7 @@ else()
+ 
+    message(STATUS "SIMD support disabled")
+ 
+-endif() 
++endif()
+ 
+ #-----------------------------------------------------------------------------
+ # Eigen library
 @@ -342,7 +342,7 @@ if(CUDA_FOUND)
      set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --compiler-options -fPIC)
    endif()
@@ -443,7 +452,7 @@ index b5315bdfb..dfb82846f 100644
          if (m_delta > CH_C_PI)
              m_delta -= (CH_C_2PI);  // range -180..+180 is better than 0...360
          if (m_delta > (CH_C_PI / 4.0))
--            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
+-            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45°
 +            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
          if (m_delta < -(CH_C_PI / 4.0))
              m_delta = -(CH_C_PI / 4.0);
@@ -1021,7 +1030,7 @@ index 33d2537f0..76823be9f 100644
          if (m_delta > CH_C_PI)
              m_delta -= (CH_C_2PI);  // range -180..+180 is better than 0...360
          if (m_delta > (CH_C_PI / 4.0))
--            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
+-            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45°
 +            m_delta = (CH_C_PI / 4.0);  // phase correction only in +/- 45ï¿½
          if (m_delta < -(CH_C_PI / 4.0))
              m_delta = -(CH_C_PI / 4.0);
