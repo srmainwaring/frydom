@@ -16,7 +16,7 @@
 
 namespace frydom {
 
-  void FrHydroMapper::Map(FrBEMBody *BEMBody, FrBody *body, std::shared_ptr<FrEquilibriumFrame> eqFrame) {
+  void FrHydroMapper::Map(FrBEMBody *BEMBody, FrBody *body, const std::shared_ptr<FrEquilibriumFrame>& eqFrame) {
     m_mapBEMToBody[BEMBody] = body;
     m_mapBodyToBEM[body] = BEMBody;
     m_mapEqFrame[BEMBody] = eqFrame;

@@ -132,7 +132,7 @@ namespace frydom {
     double c_Nrrr = m_Nrrr * pow(r, 3);
 
     // Compute force and torque
-    auto X = q * (c_Xvv + c_Xvr + c_Xrr + c_Xvvvv) - m_hullResistance->Rh(u * vnorm);
+    auto X = q * (c_Xvv + c_Xvr + c_Xrr + c_Xvvvv) + m_hullResistance->Rh(u * vnorm);
     auto Y = q * (c_Yv + c_Yr + c_Yvvv + c_Yvvr + c_Yvrr + c_Yrrr);
     auto N = q * m_Lpp * (c_Nv + c_Nr + c_Nvvv + c_Nvvr + c_Nvrr + c_Nrrr);
 

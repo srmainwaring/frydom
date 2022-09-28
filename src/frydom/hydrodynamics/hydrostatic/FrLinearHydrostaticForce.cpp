@@ -113,7 +113,7 @@ namespace frydom {
   std::shared_ptr<FrLinearHydrostaticForce>
   make_linear_hydrostatic_force(const std::string &name,
                                 const std::shared_ptr<FrBody> body,
-                                const std::shared_ptr<FrEquilibriumFrame> eqFrame) {
+                                const std::shared_ptr<FrEquilibriumFrame>& eqFrame) {
 
     // Construction of the hydrostatic force object from the HDB.
     auto forceHst = std::make_shared<FrLinearHydrostaticForce>(name, body.get(), eqFrame);
@@ -146,7 +146,7 @@ namespace frydom {
   std::shared_ptr<FrLinearHydrostaticForce>
   make_linear_hydrostatic_force(const std::string &name,
                                 std::shared_ptr<FrBody> body,
-                                std::shared_ptr<FrEquilibriumFrame> eqFrame,
+                                const std::shared_ptr<FrEquilibriumFrame>& eqFrame,
                                 const std::string &meshFile,
                                 FrFrame meshOffset) {
 

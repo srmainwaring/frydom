@@ -47,7 +47,7 @@ namespace frydom {
     /// \param BEMBody BEM Body database
     /// \param body body (frydom object)
     /// \param eqFrame Equilibrium frame corresponding to the body
-    void Map(FrBEMBody *BEMBody, FrBody *body, std::shared_ptr<FrEquilibriumFrame> eqFrame);
+    void Map(FrBEMBody *BEMBody, FrBody *body, const std::shared_ptr<FrEquilibriumFrame>& eqFrame);
 
     /// Get the number of bodies map
     /// \return Number of bodies map
