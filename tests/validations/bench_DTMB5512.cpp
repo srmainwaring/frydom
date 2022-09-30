@@ -200,8 +200,8 @@ int main(int argc, char *argv[]) {
   if(argc != 7){
     std::cout << "bench_DTMB5512 requires five input data:" << std::endl;
     std::cout << "    - the Froude number (0, 0.19, 0.28, 0.34 or 0.41);" << std::endl;
-    std::cout << "    - the wave period (s);" << std::endl;
     std::cout << "    - the wave amplitude (m);" << std::endl;
+    std::cout << "    - the wave period (s);" << std::endl;
     std::cout << "    - an interger for using no forward speed model (0) or the simple speed model (1);" << std::endl;
     std::cout << "    - an interger for using the direct convolution (0) or the recursive convolution (1);" << std::endl;
     std::cout << "    - the name of the ouput folder." << std::endl;
