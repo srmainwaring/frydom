@@ -35,10 +35,7 @@ namespace frydom {
 
     double GetRudderAngle(ANGLE_UNIT unit) const;
 
-    // TODO : move to VSL
-    void SetRudderRampSlope(double slope) { m_ramp_slope = slope; }
-
-    void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
     // Propeller Force
 
@@ -72,8 +69,6 @@ namespace frydom {
 
    private:
 
-    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
-
     void Initialize() override;
 
     void Compute(double time) override;
@@ -86,10 +81,6 @@ namespace frydom {
 
     double m_rudder_angle_deg;
     double m_rpm, m_pitch_ratio;
-
-    // TODO : move to VSL
-    double m_ramp_slope;
-    FrFunctionBase *m_rudderAngleFunction;
 
     // cached
     double c_water_density;

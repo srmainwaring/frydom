@@ -19,33 +19,37 @@ namespace frydom {
 
   // Forward declaration
   class FrHullResistance;
+  class FrHullResistanceForce;
+
+  struct FrHydroDerivatives {
+    double m_Xvv = 0;
+    double m_Xvvvv = 0;
+    double m_Xvr = 0;
+    double m_Xrr = 0;
+    double m_Yv = 0;
+    double m_Yr = 0;
+    double m_Yvvv = 0;
+    double m_Yvvr = 0;
+    double m_Yvrr = 0;
+    double m_Yrrr = 0;
+    double m_Nv = 0;
+    double m_Nr = 0;
+    double m_Nvvv = 0;
+    double m_Nvvr = 0;
+    double m_Nvrr = 0;
+    double m_Nrrr = 0;
+  };
 
   /// Abkowitz manoeuvring model from Yoshimura (2012)
   class FrAbkowitzManoeuvringForce : public FrForce {
 
    public:
 
-    /// Constructor of Abkowitz manoeuvring model from json file (for backward compatibility)
-    /// DEPRECIATED : prefer to use constructor from JSON node directly
-    /// \param name Manoeuvring model name
-    /// \param body Body ship to which the manoeuvring model is applied
-    /// \param file JSON file path with manoeuvring model definitions
-    /// \param mid_ship Mid ship position in body reference frame
-    FrAbkowitzManoeuvringForce(const std::string &name, FrBody *body,
-                               const std::string &file,
-                               const Position &mid_ship);
 
-    /// Constructor of Abkowitz manoeuvring model from JSON node
-    /// \param name Manoeuvring model name
-    /// \param body Body ship to which the manoeuvring model is applied
-    /// \param node_man JSON node with hydrodynamic derivative definitions
-    /// \param node_res JSON node with calm water resistance model parameters
-    /// \param mid_ship Mid ship position in body reference frame
-    /// \param draft_m Ship draft
-    /// \param lpp_m Ship length between perpendicular
-    FrAbkowitzManoeuvringForce(const std::string &name, FrBody *body,
-                               const JSONNode &node_man, const JSONNode &node_res,
-                               const Position &mid_ship, double draft_m, double lpp_m);
+    FrAbkowitzManoeuvringForce(const std::string& name, FrBody* body,
+                               const FrHydroDerivatives& hydroDeriv,
+                               const std::shared_ptr<FrHullResistanceForce>& hullResistanceForce,
+                               const Position& mid_ship, double draft_m, double lpp_m);
 
     /// Call force initialization
     void Initialize() override;
@@ -68,7 +72,7 @@ namespace frydom {
 
    private:
 
-    std::shared_ptr<FrHullResistance> m_hullResistance;
+    std::shared_ptr<FrHullResistanceForce> m_hullResistanceForce;
 
     double m_Lpp;
     double m_draft;
@@ -86,14 +90,12 @@ namespace frydom {
   // MAKERS
 
   std::shared_ptr<FrAbkowitzManoeuvringForce>
-      make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
-                                      const std::string& file, const Position& mid_ship);
+  make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
+                                  const FrHydroDerivatives& hydroDerive,
+                                  const std::shared_ptr<FrHullResistanceForce>& hullResistanceForce,
+                                  const Position& mid_ship, double draft_m, double lpp_m);
 
-  std::shared_ptr<FrAbkowitzManoeuvringForce>
-      make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
-                                      const JSONNode& node_man, const JSONNode& node_res,
-                                      const Position& mid_ship,double draft_m, double lpp_m);
 
-}  // end namespace frydom
+  }  // end namespace frydom
 
 #endif //FRYDOM_FRABKOWITZMANOEUVRINGFORCE_H

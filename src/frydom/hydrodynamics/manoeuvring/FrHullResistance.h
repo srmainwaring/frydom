@@ -101,6 +101,12 @@ namespace frydom {
 
       void Initialize() override;
 
+      double Rh(double vel) const;
+
+      double GetUMin() const;
+
+      double GetUMax() const;
+
     private:
 
       void Compute(double time) override;

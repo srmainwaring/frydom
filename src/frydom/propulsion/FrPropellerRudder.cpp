@@ -35,22 +35,6 @@ namespace frydom {
     }
   }
 
-  void FrPropellerRudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
-
-    if (unit == RAD) angle *= RAD2DEG;
-
-    double actualRudderAngle = GetRudderAngle(DEG);
-
-    if (std::abs(angle - GetRudderAngle(DEG)) <= 0)
-      m_rudderAngleFunction = new FrConstantFunction(angle);
-    else {
-      auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
-      m_rudderAngleFunction = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
-                                                       GetSystem()->GetTime() + t_ramp, angle);
-    }
-
-  }
-
   void FrPropellerRudder::Initialize() {
 
     c_water_density = GetSystem()->GetEnvironment()->GetFluidDensity(WATER);
@@ -59,17 +43,10 @@ namespace frydom {
 
     m_acme_propeller_rudder->Initialize();
 
-//    //TODO : remove when command function is moved in VSL
-//    if (m_rudderAngleFunction == NULL)
-//      SetRudderCommandAngle(GetRudderAngle(DEG), DEG);
-
     FrForce::Initialize();
   }
 
   void FrPropellerRudder::Compute(double time) {
-
-    //TODO : remove when command function is moved in VSL
-    SetRudderAngle(m_rudderAngleFunction->Get_y(time), DEG);
 
     // ship velocity at COG
     auto ship_vel = GetBody()->GetCOGLinearVelocityInWorld(NWU);

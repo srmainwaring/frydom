@@ -83,6 +83,18 @@ namespace frydom {
     FrForce::Initialize();
   }
 
+  double FrHullResistanceForce::Rh(double vel) const {
+    return m_hullResistance->Rh(vel);
+  }
+
+  double FrHullResistanceForce::GetUMin() const {
+    return m_hullResistance->GetUMin();
+  }
+
+  double FrHullResistanceForce::GetUMax() const {
+    return m_hullResistance->GetUMax();
+  }
+
   void FrHullResistanceForce::Compute(double time) {
     auto body = GetBody();
 

@@ -10,42 +10,33 @@
 
 namespace frydom {
 
-  FrAbkowitzManoeuvringForce::FrAbkowitzManoeuvringForce(const std::string &name,
-                                                         FrBody *body,
-                                                         const std::string &file,
-                                                         const Position& mid_ship) :
-      FrForce(name, "FrManoeuvringForce", body), m_mid_ship(mid_ship) {
-    LoadAbkowitzManoeuvringFile(file);
-  }
 
-  FrAbkowitzManoeuvringForce::FrAbkowitzManoeuvringForce(const std::string &name,
-                                                         FrBody* body,
-                                                         const JSONNode& node_man,
-                                                         const JSONNode& node_res,
-                                                         const Position& mid_ship,
-                                                         double draft_m, double lpp_m) :
+  FrAbkowitzManoeuvringForce::FrAbkowitzManoeuvringForce(const std::string& name, FrBody* body,
+                                                         const FrHydroDerivatives& hydroDerive,
+                                                         const std::shared_ptr<FrHullResistanceForce>& hullResistanceForce,
+                                                         const Position& mid_ship, double draft_m, double lpp_m) :
        FrForce(name, "FrManoeuvringForce", body), m_mid_ship(mid_ship),
-       m_draft(draft_m), m_Lpp(lpp_m)
+       m_draft(draft_m), m_Lpp(lpp_m), m_hullResistanceForce(hullResistanceForce)
        {
-    // Load hydrodynamic derivatives
-    m_Xvv = node_man.get<double>("Xvv");
-    m_Xvvvv = node_man.get<double>("Xvvvv");
-    m_Xrr = node_man.get<double>("Xrr");
-    m_Xvr = node_man.get<double>("Xvr");
-    m_Yv = node_man.get<double>("Yv");
-    m_Yr = node_man.get<double>("Yr");
-    m_Yvvv = node_man.get<double>("Yvvv");
-    m_Yvvr = node_man.get<double>("Yvvr");
-    m_Yvrr = node_man.get<double>("Yvrr");
-    m_Yrrr = node_man.get<double>("Yrrr");
-    m_Nv = node_man.get<double>("Nv");
-    m_Nr = node_man.get<double>("Nr");
-    m_Nvvv = node_man.get<double>("Nvvv");
-    m_Nvvr = node_man.get<double>("Nvvr");
-    m_Nvrr = node_man.get<double>("Nvrr");
-    m_Nrrr = node_man.get<double>("Nrrr");
-    // Calm water resistance
-    m_hullResistance = make_hull_resistance(node_res);
+    // Set hydrodynamic derivatives
+    m_Xvv   = hydroDerive.m_Xvv;
+    m_Xvvvv = hydroDerive.m_Xvvvv;
+    m_Xvr   = hydroDerive.m_Xvr;
+    m_Xrr   = hydroDerive.m_Xrr;
+    m_Yv    = hydroDerive.m_Yv;
+    m_Yr    = hydroDerive.m_Yr;
+    m_Yvvv  = hydroDerive.m_Yvvv;
+    m_Yvvr  = hydroDerive.m_Yvvr;
+    m_Yvrr  = hydroDerive.m_Yvrr;
+    m_Yrrr  = hydroDerive.m_Yrrr;
+    m_Nv    = hydroDerive.m_Nv;
+    m_Nr    = hydroDerive.m_Nr;
+    m_Nvvv  = hydroDerive.m_Nvvv;
+    m_Nvvr  = hydroDerive.m_Nvvr;
+    m_Nvrr  = hydroDerive.m_Nvrr;
+    m_Nrrr  = hydroDerive.m_Nrrr;
+    // Deactivate hull force to not accounted twice
+    m_hullResistanceForce->SetActive(false);
   }
 
   void FrAbkowitzManoeuvringForce::Initialize() {
@@ -54,9 +45,9 @@ namespace frydom {
 
   double FrAbkowitzManoeuvringForce::GetUMin() const {
     double Umin = 0.;
-    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistance.get())) {
-      Umin = m_hullResistance->GetUMin();
-    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistance.get())) {
+    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistanceForce.get())) {
+      Umin = m_hullResistanceForce->GetUMin();
+    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistanceForce.get())) {
       Umin =  - 0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_Lpp);
     } else {
       event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "wrong hull resistance model");
@@ -67,9 +58,9 @@ namespace frydom {
 
   double FrAbkowitzManoeuvringForce::GetUMax() const {
     double Umax;
-    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistance.get())) {
-      Umax = m_hullResistance->GetUMax();
-    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistance.get())) {
+    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistanceForce.get())) {
+      Umax = m_hullResistanceForce->GetUMax();
+    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistanceForce.get())) {
       Umax = 0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_Lpp);
     } else {
       event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "wrong hull resistance model");
@@ -132,7 +123,7 @@ namespace frydom {
     double c_Nrrr = m_Nrrr * pow(r, 3);
 
     // Compute force and torque
-    auto X = q * (c_Xvv + c_Xvr + c_Xrr + c_Xvvvv) + m_hullResistance->Rh(u * vnorm);
+    auto X = q * (c_Xvv + c_Xvr + c_Xrr + c_Xvvvv) + m_hullResistanceForce->Rh(u * vnorm);
     auto Y = q * (c_Yv + c_Yr + c_Yvvv + c_Yvvr + c_Yvrr + c_Yrrr);
     auto N = q * m_Lpp * (c_Nv + c_Nr + c_Nvvv + c_Nvvr + c_Nvrr + c_Nrrr);
 
@@ -147,104 +138,16 @@ namespace frydom {
     FrForce::DefineLogMessages();
   }
 
-  void FrAbkowitzManoeuvringForce::LoadResistanceCurve(const std::string& filepath) {
-
-    bool interp_hull_resistance = false;
-
-    // Loader
-
-    try {
-      std::ifstream ifs(filepath);
-      json j = json::parse(ifs);
-
-      auto node = j["hull_resistance"];
-
-      try {
-        auto u = std::make_shared<std::vector<double>>(node["vessel_speed_kt"].get<std::vector<double>>());
-        for (auto &vel : *u) vel = convert_velocity_unit(vel, KNOT, MS);
-        auto Rh = std::make_shared<std::vector<double>>(node["Rh_N"].get<std::vector<double>>());
-        m_hullResistance = std::make_shared<FrInterpHullResistance>(u, Rh);
-        interp_hull_resistance = true;
-      } catch (json::parse_error& err) {
-        // TODO
-      } catch (nlohmann::detail::type_error &error) {
-        // TODO
-      }
-
-      if (!interp_hull_resistance) {
-        try {
-          auto a_pos = node["a+"].get<double>();
-          auto a_neg = node["a-"].get<double>();
-          auto b_pos = node["b+"].get<double>();
-          auto b_neg = node["b-"].get<double>();
-          m_hullResistance = std::make_shared<FrQuadHullResistance>(a_pos, a_neg, b_pos, b_neg);
-        } catch (json::parse_error& err) {
-          event_logger::error("frAbkowitzManoeuvringForce", GetName(), "wrong data format in hull resistance json file");
-          exit(EXIT_FAILURE);
-        }
-      }
-
-    } catch (json::parse_error& err) {
-      std::cout << err.what() << std::endl;
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "hull resistance curve file can't be parsed");
-      exit(EXIT_FAILURE);
-    }
-
-  }
-
-  void FrAbkowitzManoeuvringForce::LoadAbkowitzManoeuvringFile(const std::string &filepath) {
-
-    // Loader
-    auto j = JSONNode(filepath);
-    auto node = j["Abkowitz_manoeuvring_model"];
-
-    // Read main particulars
-    auto node_hull = node["hull_characteristics"];
-    m_Lpp = node_hull.get<double>("length_m");
-    m_draft = node_hull.get<double>("draft_m");
-
-    // Coefficients
-    auto node_coeff = node["coefficients"];
-    m_Xvv = node_coeff.get<double>("Xvv");
-    m_Xvvvv = node_coeff.get<double>("Xvvvv");
-    m_Xvr = node_coeff.get<double>("Xvr");
-    m_Xrr = node_coeff.get<double>("Xrr");
-    m_Yv = node_coeff.get<double>("Yv");
-    m_Yr = node_coeff.get<double>("Yr");
-    m_Yvvv = node_coeff.get<double>("Yvvv");
-    m_Yvvr = node_coeff.get<double>("Yvvr");
-    m_Yvrr = node_coeff.get<double>("Yvrr");
-    m_Yrrr = node_coeff.get<double>("Yrrr");
-    m_Nv = node_coeff.get<double>("Nv");
-    m_Nr = node_coeff.get<double>("Nr");
-    m_Nvvv = node_coeff.get<double>("Nvvv");
-    m_Nvvr = node_coeff.get<double>("Nvvr");
-    m_Nvrr = node_coeff.get<double>("Nvrr");
-    m_Nrrr = node_coeff.get<double>("Nrrr");
-
-    // Hull resistance loader
-    auto hull_resistance_filepath = node.get<std::string>("hull_resistance_filepath");
-    auto filename = FrFileSystem::join({filepath, "..", hull_resistance_filepath});
-    LoadResistanceCurve(filename);
-  }
-
   // ---------------------------------------------------------------------
   // MAKER FORCE
   // ---------------------------------------------------------------------
 
   std::shared_ptr<FrAbkowitzManoeuvringForce>
       make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
-                                      const std::string& file, const Position& mid_ship) {
-    auto force = std::make_shared<FrAbkowitzManoeuvringForce>(name, body.get(), file, mid_ship);
-    body->AddExternalForce(force);
-    return force;
-  }
-
-  std::shared_ptr<FrAbkowitzManoeuvringForce>
-      make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
-                                      const JSONNode& node_man, const JSONNode& node_res,
+                                      const FrHydroDerivatives& hydroDerive,
+                                      const std::shared_ptr<FrHullResistanceForce>& hullResistanceForce,
                                       const Position& mid_ship, double draft_m, double lpp_m) {
-    auto force = std::make_shared<FrAbkowitzManoeuvringForce>(name, body.get(), node_man, node_res,
+    auto force = std::make_shared<FrAbkowitzManoeuvringForce>(name, body.get(), hydroDerive, hullResistanceForce,
                                                               mid_ship, draft_m, lpp_m);
     body->AddExternalForce(force);
     return force;
