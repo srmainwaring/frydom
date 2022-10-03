@@ -7,8 +7,11 @@
 
 #include "FrActuatorForceBase.h"
 #include "FrPropellerType.h"
-#include "acme/acme.h"
 #include "frydom/core/math/functions/FrFunctionsInc.h"
+
+namespace acme {
+  class PropellerRudderBase;
+}
 
 namespace frydom {
 

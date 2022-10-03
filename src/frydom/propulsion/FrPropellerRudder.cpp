@@ -8,6 +8,9 @@
 #include "frydom/core/common/FrNode.h"
 #include "frydom/environment/FrEnvironment.h"
 
+#include "acme/propeller_rudder/BrixPropellerRudder.h"
+#include "acme/propeller_rudder/MMGPropellerRudder.h"
+
 using namespace acme;
 
 namespace frydom {
@@ -23,11 +26,11 @@ namespace frydom {
       FrActuatorForceBase(name, "FrACMEPropellerRudder", propeller_node->GetBody()),
       m_propeller_node(propeller_node), m_rudder_node(rudder_node) {
     switch (proprudder_type) {
-      case acme::E_BRIX:
-        m_acme_propeller_rudder = acme::build_Brix_pr(prop_type, prop_params, rudder_type, rudder_params);
+      case E_BRIX:
+        m_acme_propeller_rudder = build_Brix_pr(prop_type, prop_params, rudder_type, rudder_params);
         break;
-      case acme::E_MMG:
-        m_acme_propeller_rudder = acme::build_MMG_pr(prop_type, prop_params, rudder_type, rudder_params);
+      case E_MMG:
+        m_acme_propeller_rudder = build_MMG_pr(prop_type, prop_params, rudder_type, rudder_params);
         break;
     }
   }

@@ -9,5 +9,6 @@
 #include "FrActuatorForceBase.h"
 #include "FrPropeller.h"
 #include "FrRudder.h"
+#include "FrPropellerRudder.h"
 
 #endif //FRYDOM_FRPROPULSIONINC_H
