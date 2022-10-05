@@ -44,8 +44,8 @@ namespace frydom {
 
   FrInterpHullResistanceForce::FrInterpHullResistanceForce(const std::string& name, FrBody* body,
                                                            const Position& mid_ship,
-                                                           const std::shared_ptr<std::vector<double>> &u,
-                                                           const std::shared_ptr<std::vector<double>> &Rh)
+                                                           std::shared_ptr<std::vector<double>> u,
+                                                           std::shared_ptr<std::vector<double>> Rh)
     : FrHullResistanceForce(name, body, mid_ship)
   {
     m_data.Initialize(u, Rh);
@@ -65,7 +65,7 @@ namespace frydom {
 
   std::shared_ptr<FrInterpHullResistanceForce> make_interp_hull_resistance(
       const std::string& name, FrBody* body, const Position& mid_ship,
-      const std::shared_ptr<std::vector<double>>& u, const std::shared_ptr<std::vector<double>>& Rh)
+      std::shared_ptr<std::vector<double>> u, std::shared_ptr<std::vector<double>> Rh)
   {
     auto force = std::make_shared<FrInterpHullResistanceForce>(name, body, mid_ship, u, Rh);
     body->AddExternalForce(force);

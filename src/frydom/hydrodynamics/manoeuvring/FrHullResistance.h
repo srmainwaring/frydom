@@ -55,8 +55,8 @@ namespace frydom {
   class FrInterpHullResistanceForce : public FrHullResistanceForce {
    public:
     explicit FrInterpHullResistanceForce(const std::string& name, FrBody* body, const Position& mid_ship,
-                                         const std::shared_ptr<std::vector<double>>& u,
-                                         const std::shared_ptr<std::vector<double>>& Rh);
+                                         std::shared_ptr<std::vector<double>> u,
+                                         std::shared_ptr<std::vector<double>> Rh);
 
     double Rh(double u) const override;
 
@@ -74,8 +74,8 @@ namespace frydom {
 
   std::shared_ptr<FrInterpHullResistanceForce> make_interp_hull_resistance(
       const std::string& name, FrBody* body, const Position& mid_ship,
-      const std::shared_ptr<std::vector<double>>& u,
-      const std::shared_ptr<std::vector<double>>& Rh);
+      std::shared_ptr<std::vector<double>> u,
+      std::shared_ptr<std::vector<double>> Rh);
 
   // ----------------------------------------------------------------
   // Quadratic hull resistance model
