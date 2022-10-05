@@ -22,15 +22,26 @@ namespace frydom {
   // Base hull resistance model
   // -------------------------------------------------------------------
 
-  class FrHullResistance {
+  class FrHullResistanceForce: public FrForce {
 
    public:
+
+    explicit FrHullResistanceForce(const std::string& name, FrBody* body, const Position& mid_ship);
+
+    void Initialize() override;
 
     virtual double Rh(double u) const = 0;
 
     virtual double GetUMin() const = 0;
 
     virtual double GetUMax() const = 0;
+
+   private:
+
+    void Compute(double time) override;
+
+   protected:
+    Position m_mid_ship;
 
    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -41,12 +52,11 @@ namespace frydom {
   // Table hull resistance model
   // --------------------------------------------------------------------
 
-  class FrInterpHullResistance : public FrHullResistance {
+  class FrInterpHullResistanceForce : public FrHullResistanceForce {
    public:
-
-    FrInterpHullResistance(const JSONNode& node);
-
-    FrInterpHullResistance(const std::shared_ptr<std::vector<double>>& u, const std::shared_ptr<std::vector<double>>& Rh);
+    explicit FrInterpHullResistanceForce(const std::string& name, FrBody* body, const Position& mid_ship,
+                                         const std::shared_ptr<std::vector<double>>& u,
+                                         const std::shared_ptr<std::vector<double>>& Rh);
 
     double Rh(double u) const override;
 
@@ -62,17 +72,21 @@ namespace frydom {
 
   };
 
+  std::shared_ptr<FrInterpHullResistanceForce> make_interp_hull_resistance(
+      const std::string& name, FrBody* body, const Position& mid_ship,
+      const std::shared_ptr<std::vector<double>>& u,
+      const std::shared_ptr<std::vector<double>>& Rh);
+
   // ----------------------------------------------------------------
   // Quadratic hull resistance model
   // ----------------------------------------------------------------
 
-  class FrQuadHullResistance : public FrHullResistance {
+  class FrQuadHullResistanceForce : public FrHullResistanceForce {
 
    public:
-
-    FrQuadHullResistance(const JSONNode& node);
-
-    FrQuadHullResistance(double a_pos, double a_neg, double b_pos, double b_neg);
+    explicit FrQuadHullResistanceForce(const std::string& name, FrBody* body, const Position& mid_ship,
+                                       double a_pos, double a_neg, double b_pos, double b_neg,
+                                       double lpp_m);
 
     double Rh(double u) const override;
 
@@ -81,50 +95,17 @@ namespace frydom {
     double GetUMax() const override;
 
    private:
-
     double m_a_pos, m_a_neg, m_b_pos, m_b_neg;
+    double m_lpp;
 
    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
-  // --------------------------------------------------------------------------
-  // FORCE
-  // --------------------------------------------------------------------------
-
-  class FrHullResistanceForce : public FrForce {
-
-    public:
-      explicit FrHullResistanceForce(const std::string& name, FrBody* body,
-                                     const JSONNode& node, const Position& mid_ship);
-
-      void Initialize() override;
-
-      double Rh(double vel) const;
-
-      double GetUMin() const;
-
-      double GetUMax() const;
-
-    private:
-
-      void Compute(double time) override;
-
-    private:
-      std::shared_ptr<FrHullResistance> m_hullResistance;
-      Position m_mid_ship;
-
-  };
-
-  // ---------------------------------------------------------------------------
-  // MAKERS
-  // ---------------------------------------------------------------------------
-
-  std::shared_ptr<FrHullResistance> make_hull_resistance(const JSONNode& node);
-
-  std::shared_ptr<FrHullResistanceForce> make_hull_resistance_force(const std::string& name, std::shared_ptr<FrBody> body,
-                                                                    const JSONNode& node, const Position& mid_ship);
+  std::shared_ptr<FrQuadHullResistanceForce> make_quadratic_hull_resistance(
+      const std::string& name, FrBody* body, const Position& mid_ship,
+      double a_pos, double a_neg, double b_pos, double b_neg, double lpp_m);
 
 } // end namespace frydom
 #endif //FRYDOM_FRHULLRESISTANCE_H

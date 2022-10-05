@@ -44,29 +44,11 @@ namespace frydom {
   }
 
   double FrAbkowitzManoeuvringForce::GetUMin() const {
-    double Umin = 0.;
-    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistanceForce.get())) {
-      Umin = m_hullResistanceForce->GetUMin();
-    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistanceForce.get())) {
-      Umin =  - 0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_Lpp);
-    } else {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "wrong hull resistance model");
-      Umin = 0;
-    }
-    return Umin;
+    return m_hullResistanceForce->GetUMin();
   }
 
   double FrAbkowitzManoeuvringForce::GetUMax() const {
-    double Umax;
-    if (dynamic_cast<FrInterpHullResistance*>(m_hullResistanceForce.get())) {
-      Umax = m_hullResistanceForce->GetUMax();
-    } else if (dynamic_cast<FrQuadHullResistance*>(m_hullResistanceForce.get())) {
-      Umax = 0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_Lpp);
-    } else {
-      event_logger::error("FrAbkowitzManoeuvringForce", GetName(), "wrong hull resistance model");
-      Umax = 0;
-    }
-    return Umax;
+    return m_hullResistanceForce->GetUMax();
   }
 
   void FrAbkowitzManoeuvringForce::Compute(double time) {

@@ -66,10 +66,6 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
-    void LoadResistanceCurve(const std::string& filepath);
-
-    void LoadAbkowitzManoeuvringFile(const std::string& filepath);
-
    private:
 
     std::shared_ptr<FrHullResistanceForce> m_hullResistanceForce;

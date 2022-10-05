@@ -5,97 +5,21 @@
 #include "FrHullResistance.h"
 #include "MathUtils/Unit.h"
 
-#define VESSEL_WORLD_RECORD_SPEED_KT 80
-
 namespace frydom {
 
-  // --------------------------------------------------------------------------
-  // Quadratic hull resistance
-  // --------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Hull resistance force
+  // -------------------------------------------------------------------------
 
-  FrQuadHullResistance::FrQuadHullResistance(const JSONNode& node) :
-    FrQuadHullResistance(node.get<double>("a+"), node.get<double>("a-"),
-        node.get<double>("b+"), node.get<double>("b-")) {}
-
-  FrQuadHullResistance::FrQuadHullResistance(double a_pos, double a_neg, double b_pos, double b_neg):
-  m_a_pos(a_pos), m_a_neg(a_neg), m_b_pos(b_pos), m_b_neg(b_neg) {}
-
-  double FrQuadHullResistance::Rh(double u) const {
-    double rh;
-    if (u>=0) {
-      rh = m_a_pos * u * u + m_b_pos * u;
-    } else {
-      rh = m_a_neg * u * u + m_b_neg * u;
-    }
-    return rh;
-  }
-
-  double FrQuadHullResistance::GetUMin() const {
-    return - 80 * MU_KNOT;
-  }
-
-  double FrQuadHullResistance::GetUMax() const {
-    return 80 * MU_KNOT;
-  }
-
-
-  // -----------------------------------------------------------------------------
-  // Interp hull resistance
-  // -----------------------------------------------------------------------------
-
-  FrInterpHullResistance::FrInterpHullResistance(const JSONNode& node) {
-    auto u = std::make_shared<std::vector<double>>(node.get<std::vector<double>>("velocity_kt"));
-    for (auto &vel : *u) vel = convert_velocity_unit(vel, mathutils::KNOT, mathutils::MS);
-    auto Rh = std::make_shared<std::vector<double>>(node.get<std::vector<double>>("resistance_N"));
-    m_data.Initialize(u, Rh);
-
-  }
-
-
-  FrInterpHullResistance::FrInterpHullResistance(const std::shared_ptr<std::vector<double>> &u,
-                                                 const std::shared_ptr<std::vector<double>> &Rh) {
-    m_data.Initialize(u, Rh);
-  }
-
-  double FrInterpHullResistance::Rh(double u) const {
-    return m_data.Eval(u);
-  }
-
-  double FrInterpHullResistance::GetUMin() const {
-    return m_data.GetXmin();
-  }
-
-  double FrInterpHullResistance::GetUMax() const {
-    return m_data.GetXmax();
-  }
-
-  // ------------------------------------------------------------------------
-  // FORCES
-  // ----------------------------------------------------------------------
-
-  FrHullResistanceForce::FrHullResistanceForce(const std::string& name, FrBody* body,
-                                               const JSONNode& node, const Position& mid_ship) :
-      FrForce(name, "FrHullResistanceForce", body), m_mid_ship(mid_ship) {
-    m_hullResistance = make_hull_resistance(node);
-  }
+  FrHullResistanceForce::FrHullResistanceForce(const std::string& name, FrBody* body, const Position& mid_ship)
+    : FrForce(name, "FrHullResistanceForce", body), m_mid_ship(mid_ship) {}
 
   void FrHullResistanceForce::Initialize() {
     FrForce::Initialize();
   }
 
-  double FrHullResistanceForce::Rh(double vel) const {
-    return m_hullResistance->Rh(vel);
-  }
-
-  double FrHullResistanceForce::GetUMin() const {
-    return m_hullResistance->GetUMin();
-  }
-
-  double FrHullResistanceForce::GetUMax() const {
-    return m_hullResistance->GetUMax();
-  }
-
   void FrHullResistanceForce::Compute(double time) {
+
     auto body = GetBody();
 
     // Get the velocity at mid-ship
@@ -109,32 +33,83 @@ namespace frydom {
 
     double u = vessel_vel_world.dot(vessel_x_axis_world);
 
-    Force forceInWorld = -m_hullResistance->Rh(u) * vessel_x_axis_world;
+    Force forceInWorld = -Rh(u) * vessel_x_axis_world;
 
     SetForceTorqueInWorldAtPointInBody(forceInWorld, Torque(), m_mid_ship, NWU);
-  };
-
-
-  // ------------------------------------------------------------------------
-  // MAKERS
-  // ------------------------------------------------------------------------
-
-  std::shared_ptr<FrHullResistance> make_hull_resistance(const JSONNode& node) {
-    if (node.exists("lut")) {
-      return std::make_shared<FrInterpHullResistance>(node["lut"]);
-    } else if (node.exists("quadratic")) {
-      return std::make_shared<FrQuadHullResistance>(node["quadratic"]);
-    } else {
-      std::cerr << "warning : unknown hull resistance model " << std::endl;
-      exit(EXIT_FAILURE);
-    }
   }
 
-  std::shared_ptr<FrHullResistanceForce> make_hull_resistance_force(const std::string& name, std::shared_ptr<FrBody> body,
-                                                                    const JSONNode& node, const Position& mid_ship) {
-    auto force = std::make_shared<FrHullResistanceForce>(name, body.get(), node, mid_ship);
+  // -----------------------------------------------------------------------------
+  // Interp hull resistance
+  // -----------------------------------------------------------------------------
+
+  FrInterpHullResistanceForce::FrInterpHullResistanceForce(const std::string& name, FrBody* body,
+                                                           const Position& mid_ship,
+                                                           const std::shared_ptr<std::vector<double>> &u,
+                                                           const std::shared_ptr<std::vector<double>> &Rh)
+    : FrHullResistanceForce(name, body, mid_ship)
+  {
+    m_data.Initialize(u, Rh);
+  }
+
+  double FrInterpHullResistanceForce::Rh(double u) const {
+    return m_data.Eval(u);
+  }
+
+  double FrInterpHullResistanceForce::GetUMin() const {
+    return m_data.GetXmin();
+  }
+
+  double FrInterpHullResistanceForce::GetUMax() const {
+    return m_data.GetXmax();
+  }
+
+  std::shared_ptr<FrInterpHullResistanceForce> make_interp_hull_resistance(
+      const std::string& name, FrBody* body, const Position& mid_ship,
+      const std::shared_ptr<std::vector<double>>& u, const std::shared_ptr<std::vector<double>>& Rh)
+  {
+    auto force = std::make_shared<FrInterpHullResistanceForce>(name, body, mid_ship, u, Rh);
     body->AddExternalForce(force);
     return force;
   }
 
-}
+
+  // --------------------------------------------------------------------------
+  // Quadratic hull resistance
+  // --------------------------------------------------------------------------
+
+  FrQuadHullResistanceForce::FrQuadHullResistanceForce(const std::string& name, FrBody* body, const Position& mid_ship,
+                                                       double a_pos, double a_neg, double b_pos, double b_neg,
+                                                       double lpp_m):
+      FrHullResistanceForce(name, body, mid_ship),
+      m_a_pos(a_pos), m_a_neg(a_neg), m_b_pos(b_pos), m_b_neg(b_neg),
+      m_lpp(lpp_m) {}
+
+  double FrQuadHullResistanceForce::Rh(double u) const {
+    double rh;
+    if (u>=0) {
+      rh = m_a_pos * u * u + m_b_pos * u;
+    } else {
+      rh = m_a_neg * u * u + m_b_neg * u;
+    }
+    return rh;
+  }
+
+  double FrQuadHullResistanceForce::GetUMin() const {
+    return - 80 * MU_KNOT;
+  }
+
+  double FrQuadHullResistanceForce::GetUMax() const {
+    return 80 * MU_KNOT;
+  }
+
+  std::shared_ptr<FrQuadHullResistanceForce> make_quadratic_hull_resistance(
+      const std::string& name, FrBody* body, const Position& mid_ship,
+      double a_pos, double a_neg, double b_pos, double b_neg, double lpp_m) {
+    auto force = std::make_shared<FrQuadHullResistanceForce>(name, body, mid_ship,
+                                                             a_pos, a_neg, b_pos, b_neg,
+                                                             lpp_m);
+    body->AddExternalForce(force);
+    return force;
+  }
+
+} // end namespace frydom
