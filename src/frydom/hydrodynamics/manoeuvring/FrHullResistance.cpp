@@ -95,11 +95,11 @@ namespace frydom {
   }
 
   double FrQuadHullResistanceForce::GetUMin() const {
-    return - 80 * MU_KNOT;
+    return -0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_lpp);
   }
 
   double FrQuadHullResistanceForce::GetUMax() const {
-    return 80 * MU_KNOT;
+    return +0.3 * std::sqrt(GetSystem()->GetGravityAcceleration() * m_lpp);
   }
 
   std::shared_ptr<FrQuadHullResistanceForce> make_quadratic_hull_resistance(
