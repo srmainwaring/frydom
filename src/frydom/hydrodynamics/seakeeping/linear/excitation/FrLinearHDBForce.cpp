@@ -25,6 +25,12 @@ namespace frydom {
     // Wave field.
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
 
+    // Avoid initialization interpolator if no waves
+    if (waveField->GetWaveModel() == FrWaveField::NO_WAVES) {
+      FrForce::Initialize();
+      return;
+    }
+
     // BEMBody.
     auto BEMBody = m_HDB->GetBody(body);
 
