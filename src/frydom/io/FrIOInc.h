@@ -13,11 +13,6 @@
 #ifndef FRYDOM_IO_H
 #define FRYDOM_IO_H
 
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json; // for convenience
-
 #include "FrLoader.h"
-#include "JSONNode.h"
 
 #endif //FRYDOM_IO_H

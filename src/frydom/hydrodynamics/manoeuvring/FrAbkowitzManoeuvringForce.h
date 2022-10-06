@@ -13,12 +13,10 @@
 #define FRYDOM_FRABKOWITZMANOEUVRINGFORCE_H
 
 #include "frydom/core/force/FrForce.h"
-#include "frydom/io/JSONNode.h"
 
 namespace frydom {
 
   // Forward declaration
-  class FrHullResistance;
   class FrHullResistanceForce;
 
   struct FrHydroDerivatives {
