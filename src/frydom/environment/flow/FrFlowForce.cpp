@@ -24,16 +24,41 @@ namespace frydom {
   FrFlowForce::FrFlowForce(const std::string& name,
                            const std::string& type_name,
                            FrBody* body, double frontal_area_m, double lateral_area_m, double length_m,
-                           const std::vector<double>& angles_rad, const std::vector<mathutils::Vector3d<double>>& coeffs
-                           ) :
+                           const std::vector<double>& angles, const std::vector<double>& cx,
+                           const std::vector<double>& cy, const std::vector<double>& cn,
+                           ANGLE_UNIT unit_angle, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) :
       FrForce(name, type_name, body) ,
       m_table(mathutils::LINEAR),
       m_frontal_area(frontal_area_m),
       m_lateral_area(lateral_area_m),
       m_length(length_m) {
 
-    m_table.SetX(angles_rad);
-    m_table.AddY("coeff", coeffs);
+    std::vector<std::pair<double, mathutils::Vector3d<double>>> polar;
+
+    auto n = angles.size();
+    assert(cx.size() == n);
+    assert(cy.size() == n);
+    assert(cn.size() == n);
+
+    std::pair<double, mathutils::Vector3d<double>> new_element;
+    for (int i = 0; i < angles.size(); i++) {
+      polar.push_back(
+          std::pair<double, mathutils::Vector3d<double>>(angles[i], mathutils::Vector3d<double>(cx[i], cy[i], cn[i])));
+    }
+
+    AdaptPolar(polar, unit_angle, fc, dc);
+
+    // Complete lookup table
+    std::vector<double> anglesL;
+    std::vector<mathutils::Vector3d<double>> vectL;
+
+    for (auto it = polar.begin(); it != polar.end(); ++it) {
+      anglesL.push_back(it->first);
+      vectL.push_back(it->second);
+    }
+
+    m_table.SetX(anglesL);
+    m_table.AddY("coeff", vectL);
 
   }
 
@@ -195,8 +220,11 @@ namespace frydom {
 
   FrCurrentForce::FrCurrentForce(const std::string& name, FrBody* body,
                                  double frontal_area_m, double lateral_area_m, double length_m,
-                                 const std::vector<double>& angles_rad, const std::vector<mathutils::Vector3d<double>>& coeffs)
-     : FrFlowForce(name, TypeToString(this), body, frontal_area_m, lateral_area_m, length_m, angles_rad, coeffs) {}
+                                 const std::vector<double>& angles, const std::vector<double>& cx,
+                                 const std::vector<double>& cy, const std::vector<double>& cn,
+                                 ANGLE_UNIT unit_angle, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc)
+     : FrFlowForce(name, TypeToString(this), body, frontal_area_m, lateral_area_m, length_m, angles,
+                   cx, cy, cn, unit_angle, fc, dc) {}
 
   double FrCurrentForce::GetFluidDensity() const {
     return GetBody()->GetSystem()->GetEnvironment()->GetOcean()->GetDensity();
@@ -224,8 +252,11 @@ namespace frydom {
 
   FrWindForce::FrWindForce(const std::string& name, FrBody* body,
                            double frontal_area_m, double lateral_area_m, double length_m,
-                           const std::vector<double>& angles_rad, const std::vector<mathutils::Vector3d<double>>& coeffs) :
-      FrFlowForce(name, TypeToString(this), body, frontal_area_m, lateral_area_m, length_m, angles_rad, coeffs) {}
+                           const std::vector<double>& angles, const std::vector<double>& cx,
+                           const std::vector<double>& cy, const std::vector<double>& cn,
+                           ANGLE_UNIT unit_angle, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) :
+      FrFlowForce(name, TypeToString(this), body, frontal_area_m, lateral_area_m, length_m, angles,
+                  cx, cy, cn, unit_angle, fc, dc) {}
 
   double FrWindForce::GetFluidDensity() const {
     return GetBody()->GetSystem()->GetEnvironment()->GetAtmosphere()->GetDensity();
@@ -242,10 +273,13 @@ namespace frydom {
   std::shared_ptr<FrCurrentForce> make_current_force(const std::string& name,
                                                      std::shared_ptr<FrBody> body,
                                                      double frontal_area_m, double lateral_area_m, double length_m,
-                                                     const std::vector<double>& angles_rad,
-                                                     const std::vector<mathutils::Vector3d<double>>& coeffs) {
+                                                     const std::vector<double>& angles,
+                                                     const std::vector<double>& cx, const std::vector<double>& cy,
+                                                     const std::vector<double>& cn, ANGLE_UNIT unit_angle,
+                                                     FRAME_CONVENTION fc, DIRECTION_CONVENTION dc)
+  {
     auto currentForce = std::make_shared<FrCurrentForce>(name, body.get(), frontal_area_m, lateral_area_m, length_m,
-                                                         angles_rad, coeffs);
+                                                         angles, cx, cy, cn, unit_angle, fc, dc);
     body->AddExternalForce(currentForce);
     return currentForce;
   }
@@ -260,10 +294,13 @@ namespace frydom {
 
   std::shared_ptr<FrWindForce> make_wind_force(const std::string& name, std::shared_ptr<FrBody> body,
                                                double frontal_area_m, double lateral_area_m, double length_m,
-                                               const std::vector<double>& angles_rad,
-                                               const std::vector<mathutils::Vector3d<double>> coeffs) {
+                                               const std::vector<double>& angles,
+                                               const std::vector<double>& cx, const std::vector<double>& cy,
+                                               const std::vector<double>& cn, ANGLE_UNIT unit_angle,
+                                               FRAME_CONVENTION fc, DIRECTION_CONVENTION dc)
+  {
     auto windForce = std::make_shared<FrWindForce>(name, body.get(), frontal_area_m, lateral_area_m, length_m,
-                                                   angles_rad, coeffs);
+                                                   angles, cx, cy, cn, unit_angle, fc, dc);
     body->AddExternalForce(windForce);
     return windForce;
   }
