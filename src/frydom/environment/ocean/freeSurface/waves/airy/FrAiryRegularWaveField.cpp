@@ -218,8 +218,7 @@ namespace frydom {
     return std::vector<double>(1, direction);
   }
 
-  double FrAiryRegularWaveField::GetMeanWaveDirectionAngle(ANGLE_UNIT unit, FRAME_CONVENTION fc,
-                                                           DIRECTION_CONVENTION dc) const {
+  double FrAiryRegularWaveField::GetMeanWaveDirectionAngle(ANGLE_UNIT unit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const {
     return GetDirectionAngle(unit, fc, dc);
   }
 

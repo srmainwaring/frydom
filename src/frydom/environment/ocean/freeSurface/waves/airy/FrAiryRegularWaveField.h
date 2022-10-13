@@ -153,7 +153,9 @@ namespace frydom {
 
     std::vector<double> GetWaveDirections(ANGLE_UNIT unit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const override;
 
-   public:
+    double GetMeanWaveDirectionAngle(ANGLE_UNIT unit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const override;
+
+    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };

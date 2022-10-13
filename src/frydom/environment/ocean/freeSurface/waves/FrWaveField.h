@@ -227,7 +227,9 @@ namespace frydom {
 
     std::vector<std::vector<Complex>> GetComplexElevation(double x, double y, FRAME_CONVENTION fc) const override;
 
-   public:
+    double GetMeanWaveDirectionAngle(ANGLE_UNIT unit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const override;
+
+    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
