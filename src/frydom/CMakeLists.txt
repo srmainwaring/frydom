@@ -34,7 +34,7 @@ target_link_libraries(frydom PUBLIC
         GeographicLib
         fmt
         cppfs
-        timezone
+        date-tz
         hermes
         OpenMeshCore
         nlohmann_json

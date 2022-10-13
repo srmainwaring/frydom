@@ -19,6 +19,8 @@ if (NOT timezone_POPULATED)
     set(USE_TZ_DB_IN_DOT OFF CACHE BOOL "Save the timezone database in the current folder")
 #    set(BUILD_SHARED_LIBS ON CACHE BOOL "Build a shared version of library" FORCE)
     set(ENABLE_DATE_TESTING OFF CACHE BOOL "Enable unit tests")
+    set(BUILD_TZ_LIB ON CACHE BOOL "Build TimeZone")
+    set(MANUAL_TZ_DB ON CACHE BOOL "User will set TZ DB manually by invoking set_install in their code")
 
     add_subdirectory(${timezone_SOURCE_DIR} ${timezone_BINARY_DIR})
 endif ()
