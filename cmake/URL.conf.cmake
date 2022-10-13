@@ -3,6 +3,7 @@
 
 # Chrono
 set(chrono_URL "https://github.com/projectchrono/chrono/archive/refs/tags/7.0.3.tar.gz")
+set(chrono_TAG v7.0.3 CACHE STRING "chrono version")
 set(chrono_PATCH chrono_V7.0.3.patch)
 
 # GeographicLib
@@ -24,8 +25,6 @@ set(hdb5_io_TAG v2.6.1 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
-#set(timezone_TAG v2.4.1)
-#set(timezone_TAG 9454aeda2bd6b23c5dabe997a6b392cef88e321d CACHE STRING "timezone version")
 set(timezone_TAG v3.0.1 CACHE STRING "timezone version")
 
 # CPPFS
