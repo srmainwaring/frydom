@@ -177,4 +177,8 @@ namespace frydom {
 
   }
 
+  double FrNullWaveField::GetMeanWaveDirectionAngle(ANGLE_UNIT unit, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc) const {
+    return 0.;
+  }
+
 }  // end namespace frydom
