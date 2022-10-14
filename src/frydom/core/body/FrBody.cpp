@@ -504,13 +504,8 @@ namespace frydom {
     /// This subroutine is used for adding the hydrodynamic loads.
     m_chronoBody->m_load_container->Add(internal::GetChronoForce(force));
     m_externalForces.push_back(force);
-
-    GetSystem()->GetPathManager()->RegisterTreeNode(force.get());
-
-    GetSystem()->GetLogManager()->Add(force);
-
+    GetSystem()->Add(force);
     event_logger::info(GetTypeName(), GetName(), "External force {} added", force->GetName());
-
   }
 
   void FrBody::RemoveExternalForce(std::shared_ptr<FrForce> force) {
@@ -610,12 +605,11 @@ namespace frydom {
 
     auto pos = node->GetNodePositionInBody(NWU);
 
+    GetSystem()->Add(node);
+
     event_logger::info(GetTypeName(), GetName(),
                        "Node {} added to body at position {}\t{}\t{}",
                        node->GetName(), pos[0], pos[1], pos[2]);
-    GetSystem()->GetPathManager()->RegisterTreeNode(node.get());
-
-    GetSystem()->GetLogManager()->Add(node);
 
     return node;
   }

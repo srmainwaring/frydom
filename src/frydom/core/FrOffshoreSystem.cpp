@@ -54,6 +54,7 @@
 #include "frydom/logging/FrSerializerFactory.h"
 
 #include "frydom/hydrodynamics/morison/FrMorisonElements.h"
+#include "frydom/core/common/FrNode.h"
 
 
 
@@ -213,23 +214,26 @@ namespace frydom {
                                      SYSTEM_TYPE systemType,
                                      TIME_STEPPER timeStepper,
                                      SOLVER solver,
-                                     const std::string& logFolderName) :
+                                     const std::string& logFolderName,
+                                     bool no_logging) :
       FrLoggable(name, TypeToString(this), nullptr),
       m_monitor_real_time(false),
-      m_config_file() {
+      m_config_file(),
+      m_no_logging(no_logging) {
 
     // Creating the chrono System backend. It drives the way contact are modelled
     SetSystemType(systemType, false);
 
     // Creating the log manager service
-    m_logManager = std::make_unique<FrLogManager>(this, logFolderName);
+    if (!m_no_logging) {
+      m_logManager = std::make_unique<FrLogManager>(this, logFolderName);
+    }
 
     // Setting the time stepper
     SetTimeStepper(timeStepper, false);
 
     // Setting the constraints solver
     SetSolver(solver, false);
-
 
     // Check compatibility between system contact model, time stepper and constraint solver
     CheckCompatibility();
@@ -240,9 +244,6 @@ namespace frydom {
     // Creating the path manager service
     m_pathManager = std::make_unique<FrPathManager>();
     m_pathManager->RegisterTreeNode(this);
-
-//    // Creating the log manager service
-//    m_logManager = std::make_unique<FrLogManager>(this);
 
     // Creating the static analysis
     m_statics = std::make_unique<FrStaticAnalysis>(this);
@@ -592,33 +593,35 @@ namespace frydom {
     // Initializing environment before bodies
     m_environment->Initialize();
 
-    for (auto &item : m_physicsItemsList) {
+    for (auto &item: m_physicsItemsList) {
       item->Initialize();
     }
 
-    for (auto &item : m_bodyList) {
+    for (auto &item: m_bodyList) {
       item->Initialize();
     }
 
-    for (auto &item : m_linkList) {
+    for (auto &item: m_linkList) {
       item->Initialize();
     }
 
-    for (auto &item : m_constraintList) {
+    for (auto &item: m_constraintList) {
       item->Initialize();
     }
 
-    for (auto &item : m_actuatorList) {
+    for (auto &item: m_actuatorList) {
       item->Initialize();
     }
 
-    for (auto &item : m_feaMeshList) {
+    for (auto &item: m_feaMeshList) {
       item->Initialize();
     }
 
     m_chronoSystem->Update();
 
-    m_logManager->Initialize();
+    if (!m_no_logging) {
+      m_logManager->Initialize();
+    }
 
     m_isInitialized = true;
 
@@ -698,7 +701,9 @@ namespace frydom {
     }
 
     // Logging
-    m_logManager->StepFinalize();
+    if (!m_no_logging) {
+      m_logManager->StepFinalize();
+    }
 
     if (m_monitor_real_time) {
       double ratio = m_chronoSystem->GetTimerStep() / GetTimeStep();
@@ -1469,6 +1474,14 @@ namespace frydom {
       AddBody(body);
       m_pathManager->RegisterTreeNode(body.get());
 
+    // NODE
+    } else if (auto node = std::dynamic_pointer_cast<FrNode>(item)) {
+      m_pathManager->RegisterTreeNode(node.get());
+
+    // FORCE
+    } else  if (auto force = std::dynamic_pointer_cast<FrForce>(item)) {
+      m_pathManager->RegisterTreeNode(force.get());
+
       // LINK
     } else if (auto link = std::dynamic_pointer_cast<FrLink>(item)) {
       AddLink(link);
@@ -1537,11 +1550,13 @@ namespace frydom {
       m_pathManager->RegisterTreeNode(end_link.get());
       std::cout << "debug : FrOffshoreSystem : ad fea link" << std::endl;
 
-      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(start_link)) {
-        m_logManager->Add(loggable);
-      }
-      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(end_link)) {
-        m_logManager->Add(loggable);
+      if (!m_no_logging) {
+        if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(start_link)) {
+          m_logManager->Add(loggable);
+        }
+        if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(end_link)) {
+          m_logManager->Add(loggable);
+        }
       }
       //##
 
@@ -1582,8 +1597,10 @@ namespace frydom {
     if (added) {
 //      m_pathManager->RegisterTreeNode(item.get());
 
-      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
-        m_logManager->Add(loggable);
+      if (!m_no_logging) {
+        if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
+          m_logManager->Add(loggable);
+        }
       }
     }
 
@@ -1618,8 +1635,10 @@ namespace frydom {
       exit(EXIT_FAILURE);
     }
 
-    if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
-      m_logManager->Remove(loggable);
+    if (!m_no_logging) {
+      if (auto loggable = std::dynamic_pointer_cast<FrLoggableBase>(item)) {
+        m_logManager->Remove(loggable);
+      }
     }
   }
 

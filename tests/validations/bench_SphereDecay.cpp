@@ -27,7 +27,9 @@ int main(int argc, char *argv[]) {
   FrOffshoreSystem system("Sphere_Decay",
                           FrOffshoreSystem::SMOOTH_CONTACT,
                           FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
-                          FrOffshoreSystem::MINRES);
+                          FrOffshoreSystem::MINRES,
+                          "",
+                          true);
 
   //auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
   //system.GetChronoSystem()->SetSolver(mkl_solver);
