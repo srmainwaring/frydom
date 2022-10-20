@@ -40,7 +40,9 @@ namespace frydom {
       int iBEMBody_motion = 0;
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
-        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+        //##CC auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+        auto radiationMask = m_HDB->GetBodyRadiationMask(BEMBody->first, BEMBodyMotion->first);
+        //##
         auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
         // idof of BEMBody motion.
@@ -134,7 +136,9 @@ namespace frydom {
     //WARNING: Only the influence of the body on itself is used for the forward speed model.
 
     // Radiation mask.
-    auto radiationMask = body->GetRadiationMask(body);
+    //##CC auto radiationMask = body->GetRadiationMask(body);
+    auto radiationMask = m_HDB->GetBodyRadiationMask(body, body);
+    //##CC
     auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(body);
 
     for (auto idof : BodyMotionDOFMask.GetListDOF()) {
@@ -196,7 +200,8 @@ namespace frydom {
 
     for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
-        auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
+        auto radiationMask = m_HDB->GetBodyRadiationMask(BEMBody->first, BEMBodyMotion->first);
+        //auto radiationMask = BEMBody->first->GetRadiationMask(BEMBodyMotion->first);
         auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
         // Velocity of the body in the equilibrium frame.
