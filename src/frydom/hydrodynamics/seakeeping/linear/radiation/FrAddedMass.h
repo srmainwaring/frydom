@@ -80,6 +80,8 @@ namespace frydom {
 
         void Initialize();
 
+        void SetActive(bool is_active);
+
       protected:
 
         void SetNodes();
@@ -99,6 +101,8 @@ namespace frydom {
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> m_links;
 
         FrHydroDB* m_hdb;
+
+        bool m_is_active;
 
       public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW

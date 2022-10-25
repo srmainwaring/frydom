@@ -14,6 +14,7 @@
 #include "FrRadiationModelBaseKRM.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
+#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationForce.h"
 
 namespace frydom {
 
@@ -41,6 +42,20 @@ namespace frydom {
 
   FrHydroMapper *FrRadiationModel::GetMapper() const {
     return m_HDB->GetMapper();
+  }
+
+  void FrRadiationModel::SetActive(bool is_active) {
+    m_isActive = is_active;
+    if (m_chronoAddedMassModel) {
+      m_chronoAddedMassModel->GetAddedMass()->SetActive(is_active);
+    }
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+      for (auto &force : BEMBody->second->GetForceList()) {
+        if (auto force_rad = std::dynamic_pointer_cast<FrRadiationForce>(force)) {
+          force_rad->SetActive(is_active);
+        }
+      }
+    }
   }
 
   Force FrRadiationModel::GetRadiationForce(FrBEMBody *BEMBody) const {

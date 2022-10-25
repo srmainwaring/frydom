@@ -433,8 +433,9 @@ namespace frydom {
     m_chronoSystem->AddOtherPhysicsItem(internal::GetChronoPhysicsItem(radiation_model));
     m_physicsItemsList.push_back(radiation_model);
 
-    auto chrono_mesh = internal::GetChronoAddedMass(radiation_model);
-    m_chronoSystem->AddMesh(chrono_mesh);
+    if (auto chrono_mesh = internal::GetChronoAddedMass(radiation_model)) {
+      m_chronoSystem->AddMesh(chrono_mesh);
+    }
     //for (auto link : chrono_mesh->GetAddedMass()->GetLinks()) {
     //  m_chronoSystem->AddLink(link);
     //}

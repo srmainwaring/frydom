@@ -70,7 +70,7 @@ namespace frydom {
     bool IsActive() const;
 
     /// Activate or deactivate
-    void SetActive(bool active);
+    virtual void SetActive(bool active);
 
     /// Return true if the physics item is included in the static analysis
     virtual bool IncludedInStaticAnalysis() const { return true; }

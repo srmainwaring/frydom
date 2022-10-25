@@ -26,7 +26,7 @@ namespace frydom {
   namespace internal {
 
     FrAddedMassBase::FrAddedMassBase(FrRadiationModel* radiationModel)
-      : m_frydomRadiationModel(radiationModel) {
+      : m_frydomRadiationModel(radiationModel), m_is_active(true) {
       m_hdb = m_frydomRadiationModel->GetHydroDB();
       SetNodes();
     }
@@ -58,7 +58,12 @@ namespace frydom {
     void FrAddedMassBase::ComputeKRMmatricesGlobal(chrono::ChMatrixRef H, double Kfactor, double Rfactor,
                                                    double Mfactor) {
       assert((H.rows() == 6 * m_nb_bodies) && (H.cols() == 6 * m_nb_bodies));
-      H = m_addedMassMatrix;
+
+      if (!m_is_active) {
+        H.setZero();
+      } else {
+        H = m_addedMassMatrix;
+      }
     }
 
     void FrAddedMassBase::ComputeInternalForces(chrono::ChVectorDynamic<>& Fi) {
@@ -100,6 +105,10 @@ namespace frydom {
 
     void FrAddedMassBase::EleIntLoadResidual_F(chrono::ChVectorDynamic<>& R, const double c) {
 
+      if (!m_is_active) {
+        return;
+      }
+
       chrono::ChVectorDynamic<> mFi(this->GetNdofs());
       this->ComputeInternalForces(mFi);
       mFi *= c;
@@ -123,6 +132,10 @@ namespace frydom {
     void FrAddedMassBase::EleIntLoadResidual_Mv(chrono::ChVectorDynamic<>& R,
                                                 const chrono::ChVectorDynamic<>& w,
                                                 const double c) {
+
+      if (!m_is_active) {
+        return;
+      }
 
       chrono::ChMatrixDynamic<> mMi(this->GetNdofs(), this->GetNdofs());
       this->ComputeMmatrixGlobal(mMi);
@@ -156,6 +169,10 @@ namespace frydom {
     }
 
     void FrAddedMassBase::EleIntLoadResidual_F_gravity(chrono::ChVectorDynamic<>& R, const chrono::ChVector<>& G_acc, const double c) {
+
+      if (!m_is_active) {
+        return;
+      }
 
       chrono::ChVectorDynamic<> mFg(this->GetNdofs());
       this->ComputeGravityForces(mFg, G_acc);
@@ -192,6 +209,10 @@ namespace frydom {
 
     void FrAddedMassBase::Initialize() {
       BuildGeneralizedMass();
+    }
+
+    void FrAddedMassBase::SetActive(bool is_active) {
+      m_is_active = is_active;
     }
 
     void FrAddedMassBase::SetupInitial(chrono::ChSystem* system) {

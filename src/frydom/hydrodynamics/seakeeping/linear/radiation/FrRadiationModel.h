@@ -109,6 +109,8 @@ namespace frydom {
     /// \return Mapper
     FrHydroMapper *GetMapper() const;
 
+    void SetActive(bool is_active) override;
+
    private:
 
     /// Compute the internal states of the Radiation model
