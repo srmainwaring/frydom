@@ -19,13 +19,7 @@ namespace frydom {
 
   FrTimeServices::FrTimeServices() {
 
-
-
-    //##CCauto tp = date::make_zoned(date::current_zone(), std::chrono::system_clock::now());
-    auto cz = date::current_zone();
-    auto now = std::chrono::system_clock::now();
-    auto tp = date::make_zoned(cz, now);
-    //##
+    auto tp = date::make_zoned(date::current_zone(), std::chrono::system_clock::now());
     auto lt = tp.get_local_time();
     m_initDay = date::floor<date::days>(lt);
     m_initTime = date::floor<std::chrono::milliseconds>(lt - m_initDay);
