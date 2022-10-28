@@ -237,6 +237,8 @@ namespace frydom {
       PMINRES,             ///< Projected MINRES
       BARZILAIBORWEIN,     ///< Barzilai-Borwein
       APGD,                ///< An iterative solver based on Nesterov's Projected Gradient Descent.
+      // Direct solver
+      SPARSE_LU,
       // Iterative linear solvers
       GMRES,               ///< Generalized Minimal RESidual Algorithm
       MINRES,              ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
