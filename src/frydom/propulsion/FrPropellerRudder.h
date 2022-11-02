@@ -30,8 +30,12 @@ namespace frydom {
 
     void SetRPM(double rpm);
 
+    double GetRPM(FREQUENCY_UNIT unit) const;
+
     // For CPP only
     void SetPitchRatio(double pitch_ratio);
+
+    double GetPitchRatio() const;
 
     double GetRudderAngle(ANGLE_UNIT unit) const;
 

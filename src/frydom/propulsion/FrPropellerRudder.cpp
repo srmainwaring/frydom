@@ -161,8 +161,16 @@ namespace frydom {
     m_rpm = rpm;
   }
 
+  double FrPropellerRudder::GetRPM(FREQUENCY_UNIT unit) const {
+    return convert_frequency(m_rpm, RPM, unit);
+  }
+
   void FrPropellerRudder::SetPitchRatio(double pitch_ratio) {
     m_pitch_ratio = pitch_ratio;
+  }
+
+  double FrPropellerRudder::GetPitchRatio() const {
+    return m_pitch_ratio;
   }
 
   void FrPropellerRudder::SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {
