@@ -11,6 +11,7 @@
 
 #include <chrono/physics/ChLinkMotorRotation.h>
 #include <chrono/physics/ChLinkMotorLinear.h>
+#include "chrono/solver/ChDirectSolverLS.h"
 #include <frydom/mesh/FrHydroMesh.h>
 
 
@@ -786,7 +787,8 @@ namespace frydom {
         m_chronoSystem->SetSolverType(SOLVERS::MINRES);
         break;
       case SPARSE_LU:
-        m_chronoSystem->SetSolverType(SOLVERS::SPARSE_LU);
+        //m_chronoSystem->SetSolverType(SOLVERS::SPARSE_LU); // FIXME : SPARSE_LU not implemented in SetSolverType
+        m_chronoSystem->SetSolver(std::make_shared<chrono::ChSolverSparseLU>());
         break;
       case PARDISO_MKL:
         //m_chronoSystem->SetSolverType(SOLVERS::PARDISO_MKL);
