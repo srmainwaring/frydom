@@ -71,6 +71,7 @@ namespace frydom {
 
     Torque GetRudderTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
 
+
    private:
 
     void Initialize() override;
@@ -79,6 +80,7 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
+  protected:
     std::shared_ptr<acme::PropellerRudderBase> m_acme_propeller_rudder;
     std::shared_ptr<FrNode> m_propeller_node;
     std::shared_ptr<FrNode> m_rudder_node;
