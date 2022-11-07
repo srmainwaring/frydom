@@ -39,6 +39,9 @@ namespace frydom {
 
     std::shared_ptr<FrNode> m_node;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // -------------------------------------------------------
@@ -75,6 +78,9 @@ namespace frydom {
     double m_volume;
     double m_buoyancy;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // -----------------------------------------------------
@@ -102,6 +108,9 @@ namespace frydom {
     std::vector<std::unique_ptr<FrBarElementBase>> m_elements;
 
     double m_cfactor;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

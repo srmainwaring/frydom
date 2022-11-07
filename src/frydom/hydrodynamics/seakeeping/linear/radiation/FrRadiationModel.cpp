@@ -11,9 +11,11 @@
 
 #include "FrRadiationModel.h"
 #include "FrRadiationModelBase.h"
+#include "FrAddedMass.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
 #include "FrRadiationForce.h"
+#include "frydom/cable/fea/FrFEALink.h"
 
 namespace frydom {
 
@@ -28,12 +30,25 @@ namespace frydom {
       m_HDB(HDB) {
 
     // Creation of an AddedMassBase object.
-    m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
+    //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
+    m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
+
+    m_mesh = std::make_shared<chrono::fea::ChMesh>();
+    m_mesh->AddElement(m_addedMass);
+    system->GetChronoSystem()->Add(m_mesh);
+    for (auto link : m_addedMass->GetLinks()) {
+      internal::GetChronoSystem(system)->Add(link);
+    }
   }
 
   void FrRadiationModel::Initialize() {
-    FrPhysicsItem::Initialize();
+    //FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
+    for (auto i=0; i<m_addedMass->GetNnodes(); i++) {
+      m_mesh->AddNode(m_addedMass->GetNodeN(i));
+    }
+    m_mesh->Setup();
+
   }
 
   FrHydroMapper *FrRadiationModel::GetMapper() const {

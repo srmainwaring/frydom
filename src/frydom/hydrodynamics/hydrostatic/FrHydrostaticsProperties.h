@@ -110,6 +110,9 @@ namespace frydom {
 
     friend class FrHydrostaticReporter;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /**
@@ -190,6 +193,9 @@ namespace frydom {
 
       return fmt::to_string(m_buffer);
     }
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

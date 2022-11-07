@@ -158,6 +158,9 @@ namespace frydom {
     /// \param gridType type of the grid asset
     void SetGridType(GRID_TYPE gridType);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 }
 

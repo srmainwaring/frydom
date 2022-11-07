@@ -38,6 +38,9 @@ namespace frydom {
       FrCatenaryLine *m_line;
       double m_s;
       Force m_force;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     };
 
   }  // end namespace frydom::internal
@@ -195,6 +198,9 @@ namespace frydom {
     unsigned int c_iter;
     double c_pos_error;
     double c_criterion;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

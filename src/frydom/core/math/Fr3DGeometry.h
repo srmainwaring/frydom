@@ -26,6 +26,9 @@ namespace frydom {
 
     virtual FrInertiaTensor GetUnitInertiaTensor() const = 0;
 
+    public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -50,6 +53,9 @@ namespace frydom {
 
     double m_radius;
     double m_height;
+
+    public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 }  // end namespace frydom

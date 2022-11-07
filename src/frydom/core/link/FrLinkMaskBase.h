@@ -30,6 +30,9 @@ namespace frydom {
 
       void ResetNconstr(int newnconstr) override;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   } // end namespace internal

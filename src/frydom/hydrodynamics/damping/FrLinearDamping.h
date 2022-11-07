@@ -81,6 +81,9 @@ namespace frydom {
 
     void Check() const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// This function creates a linear damping force.

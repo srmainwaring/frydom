@@ -168,6 +168,9 @@ namespace frydom {
    protected:
     virtual void BuildCache() = 0;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

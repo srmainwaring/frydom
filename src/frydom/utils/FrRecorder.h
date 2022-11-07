@@ -19,6 +19,7 @@
 #include <math.h>
 #include "boost/circular_buffer.hpp"
 #include <numeric>
+#include "frydom/core/math/FrVector.h"
 
 
 
@@ -119,6 +120,9 @@ namespace frydom {
     /// \param lastTime Current time
     /// \return Interpolated data value at the target time
     T Interpolate(const double time, const T &data, const double &lastTime);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

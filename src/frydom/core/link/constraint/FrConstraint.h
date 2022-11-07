@@ -119,6 +119,9 @@ namespace frydom {
 
     friend std::shared_ptr<chrono::ChLink> internal::GetChronoConstraint(const FrConstraint *);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -151,6 +154,9 @@ namespace frydom {
 
     /// Initialize the constraint
     void Initialize() override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -193,6 +199,9 @@ namespace frydom {
 
     /// Initialize the constraint
     void Initialize() override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -248,6 +257,9 @@ namespace frydom {
     /// \param distance distance between the two planes, in m
     void SetDistance(double distance);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// maker for a plane on plane constraint
@@ -300,6 +312,9 @@ namespace frydom {
     /// \param distance distance between the point and the plane, in m
     void SetDistance(double distance);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// maker for a point on plane constraint
@@ -344,6 +359,9 @@ namespace frydom {
 
     /// Initialize the constraint
     void Initialize() override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -401,6 +419,9 @@ namespace frydom {
     /// Get the distance between the point and the axis
     /// \return distance between the point and the axis, in m
     double GetDistance() const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -461,6 +482,9 @@ namespace frydom {
     /// Get the distance between the two points
     /// \return distance between the two points, in m
     double GetDistance() const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

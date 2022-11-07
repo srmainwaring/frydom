@@ -72,6 +72,9 @@ namespace frydom {
 
     mathutils::Vector3d<double> operator*(const mathutils::Vector3d<double> &state) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

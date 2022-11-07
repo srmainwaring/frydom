@@ -114,6 +114,9 @@ namespace frydom {
     std::shared_ptr<geom::FrPlane> c_clippingPlane; ///< plane for the FrClippingPane
     bool m_showAsset = false;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// This function creates a hydrodynamic mesh for using in the computation of the nonlinear hydrostatic and/or Froude-Krylov loads.

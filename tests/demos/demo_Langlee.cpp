@@ -1,6 +1,14 @@
+// ==========================================================================
+// FRyDoM - frydom-ce.org
 //
-// Created by camille on 12/04/19.
+// Copyright (c) Ecole Centrale de Nantes (LHEEA lab.) and D-ICE Engineering.
+// All rights reserved.
 //
+// Use of this source code is governed by a GPLv3 license that can be found
+// in the LICENSE file of FRyDoM.
+//
+// ==========================================================================
+
 #include <cppfs/fs.h>
 #include <frydom/logging/FrTypeNames.h>
 #include "frydom/frydom.h"
@@ -40,7 +48,10 @@ int main(int argc, char *argv[]) {
   std::cout << " ====================================== Demo Langlee F3OF ========================== " << std::endl;
 
   // System
-  FrOffshoreSystem system("demo_Langlee");
+  FrOffshoreSystem system("demo_Langlee",
+                          FrOffshoreSystem::SMOOTH_CONTACT,
+                          FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::PMINRES);
 
   //system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
   //system.SetSolverVerbose(true);
@@ -72,6 +83,7 @@ int main(int argc, char *argv[]) {
   barge->SetInertiaTensor(InertiaTensor);
 
   barge->GetDOFMask()->MakeItLocked();
+  //barge->SetFixedInWorld(true);
 
   auto node_1b = barge->NewNode("node_1b");
   node_1b->SetPositionInBody(Position(-12.5, 0., 0.), NWU);
@@ -192,12 +204,23 @@ int main(int argc, char *argv[]) {
   auto dt = 0.01;
 
   system.SetTimeStep(dt);
+  system.SetSolverMaxIterations(1000);
+  system.SetSolverTolerance(1e-7);
 
   system.Initialize();
 
+  // -- Static analysis
+  /*
+  system.GetStaticAnalysis()->SetNbSteps(100);
+  system.GetStaticAnalysis()->SetRelaxation(FrStaticAnalysis::RELAXTYPE::VELOCITY);
+  system.GetStaticAnalysis()->SetNbIteration(10);
+  system.GetStaticAnalysis()->SetTolerance(1E-2);
+  system.SolveStaticWithRelaxation();
+  */
+
   flap1->Rotate(FrRotation(Direction(0, 1, 0), 10. * DEG2RAD, NWU));
 
-  bool is_irrlicht = true;
+  bool is_irrlicht = false;
 
   if (is_irrlicht) {
     system.RunInViewer(100, 50, false);

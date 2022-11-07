@@ -12,9 +12,9 @@
 
 #include "FrBody.h"
 
+#include "chrono/assets/ChColorAsset.h"
 
 #include "frydom/logging/FrEventLogger.h"
-#include "chrono/assets/ChColorAsset.h"
 #include "frydom/core/math/FrMatrix.h"
 #include "frydom/core/force/FrForce.h"
 #include "frydom/core/common/FrNode.h"
@@ -26,9 +26,7 @@
 #include "frydom/logging/FrLogManager.h"
 #include "frydom/logging/FrPathManager.h"
 #include "frydom/logging/FrTypeNames.h"
-
 #include "frydom/core/common/FrVariablesBodyBase.h"
-
 #include "frydom/core/contact/FrContactInc.h"
 
 
@@ -40,14 +38,19 @@ namespace frydom {
     // FrBodyBase
     //
 
-    FrBodyBase::FrBodyBase(FrBody *body) : chrono::ChBodyAuxRef(), m_frydomBody(body) {}
+    FrBodyBase::FrBodyBase(FrBody *body) : chrono::ChBodyAuxRef(), m_frydomBody(body) {
+      m_load_container = std::make_shared<chrono::ChLoadContainer>();
+    }
 
     FrBodyBase::FrBodyBase(const FrBodyBase &other) : chrono::ChBodyAuxRef(other) {
       m_frydomBody = other.m_frydomBody;
       m_variables_ptr = other.m_variables_ptr;
+      m_load_container = other.m_load_container;
     }
 
-    void FrBodyBase::SetupInitial() {}
+    void FrBodyBase::SetupInitial() {
+      system->Add(m_load_container);
+    }
 
     void FrBodyBase::Update(bool update_assets) {
       chrono::ChBodyAuxRef::Update(update_assets);
@@ -91,6 +94,18 @@ namespace frydom {
       // warning! linear time search
       assets.erase(
           std::find<std::vector<std::shared_ptr<chrono::ChAsset>>::iterator>(assets.begin(), assets.end(), asset));
+    }
+
+    void FrBodyBase::RemoveLoad(std::shared_ptr<chrono::ChLoadBase> load) {
+
+      auto loadlist = m_load_container->GetLoadList();
+      assert(std::find<std::vector<std::shared_ptr<chrono::ChLoadBase>>::iterator>(loadlist.begin(), loadlist.end(), load) !=
+             loadlist.end());
+
+      loadlist.erase(
+          std::find<std::vector<std::shared_ptr<chrono::ChLoadBase>>::iterator>(loadlist.begin(), loadlist.end(), load)
+      );
+
     }
 
     //
@@ -487,8 +502,9 @@ namespace frydom {
 
   void FrBody::AddExternalForce(std::shared_ptr<frydom::FrForce> force) {
     /// This subroutine is used for adding the hydrodynamic loads.
-    m_chronoBody->AddForce(internal::GetChronoForce(force));  // FrBody is a friend class of FrForce
+    m_chronoBody->m_load_container->Add(internal::GetChronoForce(force));
     m_externalForces.push_back(force);
+
     GetSystem()->GetPathManager()->RegisterTreeNode(force.get());
 
     GetSystem()->GetLogManager()->Add(force);
@@ -498,7 +514,7 @@ namespace frydom {
   }
 
   void FrBody::RemoveExternalForce(std::shared_ptr<FrForce> force) {
-    m_chronoBody->RemoveForce(internal::GetChronoForce(force));
+    m_chronoBody->RemoveLoad(internal::GetChronoForce(force));
 
     m_externalForces.erase(
         std::find<std::vector<std::shared_ptr<FrForce>>::iterator>(m_externalForces.begin(), m_externalForces.end(),

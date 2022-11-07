@@ -39,6 +39,9 @@ namespace frydom {
 
     void Print() const override;
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrMaterialSurfaceSMC> MakeDefaultMaterialSurfaceSMC();

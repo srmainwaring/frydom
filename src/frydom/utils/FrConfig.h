@@ -45,6 +45,8 @@ namespace frydom {
 
     std::string m_data_folder;
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

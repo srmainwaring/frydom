@@ -28,6 +28,10 @@ namespace frydom {
   // Forward declarations
   class FrHydroDB;
 
+  namespace internal {
+    class FrAddedMassBase;
+  }
+
 //  class FrBEMBody;
 
   class FrHydroMapper;
@@ -108,6 +112,12 @@ namespace frydom {
     /// Compute the internal states of the Radiation model
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
+
+    std::shared_ptr<internal::FrAddedMassBase> m_addedMass;
+    std::shared_ptr<chrono::fea::ChMesh> m_mesh;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

@@ -68,6 +68,9 @@ namespace frydom {
 
     // TODO: ajouter operateurs de comparaison !!
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   // Forward declaration
@@ -135,6 +138,9 @@ namespace frydom {
     double m_h2;
 
     mathutils::LookupTable1D<double, double> m_tidal_table;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

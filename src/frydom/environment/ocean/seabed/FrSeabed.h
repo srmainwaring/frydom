@@ -119,6 +119,9 @@ namespace frydom {
     /// Method called at the send of a time step. Logging may be used here
     void StepFinalize() override = 0;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /**
@@ -185,6 +188,9 @@ namespace frydom {
     void StepFinalize() override;
 
     void CreateContactBox(); // TODO: mettre en prive
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

@@ -58,6 +58,9 @@ namespace frydom {
     // Storage of the initial positions.
     std::vector<mathutils::Vector6d<double>> c_initial_positions;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// This function creates and adds the radiation recursive convolution model with forward speed to the offshore system from the HDB.

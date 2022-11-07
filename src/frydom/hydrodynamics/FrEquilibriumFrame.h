@@ -211,6 +211,9 @@ namespace frydom {
     /// \param time Current time of the simulation in seconds from beginning
     void Compute(double time) override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Maker of a new equilibrium frame linked to a body. The equilibrium frame has its
@@ -277,6 +280,9 @@ namespace frydom {
     void Compute(double time) override;
 
     void SetSpringDamping(double cutoffTime, double dampingRatio);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -369,6 +375,9 @@ namespace frydom {
     /// \param timePersistence Time windows of the recorder
     /// \param timeStep Time step of the recorder
     void SetRecorders(double timePersistence, double timeStep);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

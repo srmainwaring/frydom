@@ -100,6 +100,9 @@ namespace frydom {
     /// \param time Current time of the simulation from beginning.
     void Compute(double time) override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// This function creates a (fully or weakly) nonlinear hydrostatic force object.

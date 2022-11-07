@@ -133,6 +133,9 @@ namespace frydom {
     json m_json_node;
     char m_comment_char;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

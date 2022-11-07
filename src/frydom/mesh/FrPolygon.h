@@ -87,6 +87,9 @@ namespace frydom {
 
       }
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
 
@@ -162,6 +165,9 @@ namespace frydom {
       bool c_planar;                              ///< cached boolean to check if the polygon is planar
 
       std::vector<Position> m_vertexList;         ///> set of vertices defining the polygon
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

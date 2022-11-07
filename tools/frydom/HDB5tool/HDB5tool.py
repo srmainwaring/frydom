@@ -88,9 +88,9 @@ def get_parser(parser):
     parser.add_argument('--mass', '-m', nargs=2, metavar=('id', 'mass'), action="append", help="""
                 Mass of the body of index given in argument.""")
 
-    # Body - Extra roll damping.
-    parser.add_argument('--extra_roll_damping', '-B44', '-b44', nargs=2, metavar=('id', 'extra_roll_damping'),
-                        action="append", help="""Extra roll damping of the body of index given in argument.""")
+    # Body - Extra linear roll damping.
+    parser.add_argument('--extra_linear_roll_damping', '-B44', '-b44', nargs=2, metavar=('id', 'extra_linear_roll_damping'),
+                        action="append", help="""Extra linear roll damping of the body of index given in argument.""")
 
     # Filtering impulse response functions.
     parser.add_argument('--cutoff_irf', '-coirf', nargs=5,
@@ -333,11 +333,11 @@ def get_Arg_part_1_CE(args, database):
             database.body[int(args.mass[j][0]) - 1].inertia.mass = float(args.mass[j][1])
 
     # Body - Extra roll damping.
-    if args.extra_roll_damping is not None:
-        nb_extra_roll_damping = len(args.extra_roll_damping)
-        for j in range(0, nb_extra_roll_damping):
-            database.body[int(args.extra_roll_damping[j][0]) - 1].activate_extra_damping()
-            database.body[int(args.extra_roll_damping[j][0]) - 1].set_extra_roll_damping(float(args.extra_roll_damping[j][1]))
+    if args.extra_linear_roll_damping is not None:
+        nb_extra_linear_roll_damping = len(args.extra_linear_roll_damping)
+        for j in range(0, nb_extra_linear_roll_damping):
+            database.body[int(args.extra_linear_roll_damping[j][0]) - 1].activate_extra_damping()
+            database.body[int(args.extra_linear_roll_damping[j][0]) - 1].set_extra_linear_roll_damping(float(args.extra_linear_roll_damping[j][1]))
 
     return database
 

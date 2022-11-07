@@ -68,6 +68,9 @@ namespace frydom {
       return c_volume = M_PI / 3 * (Zt * (3 * m_radius * m_radius - Zt * Zt) + 2 * std::pow(m_radius, 3));
     }
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   /// Maker for the mooring buoy class: instantiate and return a FrMooringBuoy. It also add it to the system provided.

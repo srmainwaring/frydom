@@ -83,6 +83,9 @@ namespace frydom {
    private:
     std::unordered_set<std::string> m_used_paths;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 } // end namespace frydom

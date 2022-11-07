@@ -119,6 +119,9 @@ namespace frydom {
 
     std::ostream &cout(std::ostream &os) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

@@ -108,6 +108,9 @@ namespace frydom {
       Direction m_normal;         ///< plane normal
       FrFrame m_frame;            ///< plane reference frame
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
   } //end namespace frydom::mesh

@@ -31,6 +31,9 @@ namespace frydom {
 //    protected:
 //        void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   class FrClampAfterFunction : public FrClampFunction {
@@ -46,6 +49,9 @@ namespace frydom {
 
    protected:
     void Eval(double x) const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -63,6 +69,8 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 

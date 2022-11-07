@@ -69,6 +69,9 @@ namespace frydom {
 
     virtual void InitMaxTension();
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -113,6 +116,9 @@ namespace frydom {
     static Triplet make_triplet(double s0, double s1, unsigned int index) {
       return std::make_tuple(s0, s1, index);
     }
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

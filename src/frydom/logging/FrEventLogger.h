@@ -48,6 +48,9 @@ namespace frydom {
        private:
         FrOffshoreSystem *m_system;
 
+       public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
       };
 
       template<typename T>

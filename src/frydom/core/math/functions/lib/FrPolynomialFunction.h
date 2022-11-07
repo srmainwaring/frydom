@@ -31,6 +31,8 @@ namespace frydom {
    protected:
     void Eval(double x) const override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

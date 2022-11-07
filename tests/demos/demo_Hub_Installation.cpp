@@ -28,7 +28,9 @@ int main(int argc, char *argv[]) {
   DIRECTION_CONVENTION dc = GOTO;
 
   // Create an offshore system, it contains all physical objects : bodies, links, but also environment components
-  FrOffshoreSystem system("Hub_Installation", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT);
+  FrOffshoreSystem system("Hub_Installation", FrOffshoreSystem::SYSTEM_TYPE::SMOOTH_CONTACT,
+                          FrOffshoreSystem::TRAPEZOIDAL,
+                          FrOffshoreSystem::MINRES);
 
   // --------------------------------------------------
   // Environment
@@ -44,11 +46,21 @@ int main(int argc, char *argv[]) {
   SeabedGridAsset->SetGrid(-150., 150., 3., -150., 150., 3.);
   system.GetEnvironment()->GetOcean()->GetSeabed()->Show(true);
 
+  auto steel = std::make_shared<FrMaterialSurfaceSMC>();
+  steel->young_modulus = 1e8;
+
+  /*
   auto seabedCollision = std::make_shared<FrCollisionModel>();
   auto mat = FrMaterialSurfaceSMC();
   mat.young_modulus = 1e8;
   seabedCollision->AddBox(&mat, 50, 150, 2, Position(0., 0., Bathy - 2), FrRotation());
   system.GetWorldBody()->SetCollisionModel(seabedCollision);
+
+
+  auto steel = system.GetWorldBody()->GetContactParamsSMC();
+  steel->young_modulus = 1e8;
+  system.GetWorldBody()->SetContactParamsSMC(steel);
+  */
 
   auto FreeSurface = system.GetEnvironment()->GetOcean()->GetFreeSurface();
   // To manipulate the free surface grid asset, you first need to access it, through the free surface object.
@@ -85,7 +97,7 @@ int main(int argc, char *argv[]) {
   barge->SetColor(Yellow);
 
   auto collisionModel = std::make_shared<FrCollisionModel>();
-  collisionModel->AddBox(&mat, 17.5, 8, 2, Position(), FrRotation());
+  collisionModel->AddBox(steel.get(), 17.5, 8, 2, Position(), FrRotation());
 //    collisionModel->AddTriangleMesh("barge.obj",Position(),FrRotation());
   barge->SetCollisionModel(collisionModel);
 
@@ -171,7 +183,7 @@ int main(int argc, char *argv[]) {
   auto rev1 = make_revolute_link("barge-base_revolute", &system, rev1_barge_node, rev1_base_node);
   auto motor1 = rev1->Motorize("barge-base_actuator", POSITION);
   FrCosRampFunction function;
-  function.SetByTwoPoints(10., 0., 200., 90 * DEG2RAD);
+  function.SetByTwoPoints(10., 0., 50., 90 * DEG2RAD);
 
 //    auto motor1 = rev1->Motorize(VELOCITY);
 //    FrCosRampFunction function0;
@@ -182,7 +194,6 @@ int main(int argc, char *argv[]) {
 
   motor1->SetMotorFunction(function);
 
-
   auto rev2 = make_revolute_link("base-crane_revolute", &system, rev2_base_node, rev2_crane_node);
   auto motor2 = rev2->Motorize("base-crane_actuator", POSITION);
 
@@ -190,13 +201,12 @@ int main(int argc, char *argv[]) {
   function2.SetByTwoPoints(200., 45 * DEG2RAD, 300., 0.);
   motor2->SetMotorFunction(function2);
 
-
   // --------------------------------------------------
   // hub box model
   // --------------------------------------------------
 
   auto hub_box = system.NewBody("Hub_Box");
-  makeItBox(hub_box, 1.5, 1.5, 1.5, 20.7e3, &mat);
+  makeItBox(hub_box, 1.5, 1.5, 1.5, 20.7e3, steel.get());
   auto hubPos = crane_node->GetPositionInWorld(fc);
   hubPos.GetZ() = 2.85;
   hub_box->SetPosition(hubPos, fc);
@@ -215,8 +225,8 @@ int main(int argc, char *argv[]) {
   cableProp->SetEA(5e7);
   cableProp->SetLinearDensity(600);
 
-//    auto CatenaryLine = make_catenary_line("HubLine", crane_node, hub_node, cableProp, elastic, unstretchedLength, FLUID_TYPE::AIR);
-  auto dynamicLine = make_fea_cable("HubLine", crane_node, hub_node, cableProp, unstretchedLength, 10);
+  auto CatenaryLine = make_catenary_line("HubLine", crane_node, hub_node, cableProp, elastic, unstretchedLength, FLUID_TYPE::AIR);
+  //auto dynamicLine = make_fea_cable("HubLine", crane_node, hub_node, cableProp, unstretchedLength*0.8, 20, 1);
 
   // --------------------------------------------------
   // Mooring Lines
@@ -270,8 +280,11 @@ int main(int argc, char *argv[]) {
 //    YoungModulus = EA / sectionArea;
   double Lv = 42.5;
 
-  auto mooringLineSE = make_catenary_line("mooringLineSE", worldNodeSE, buoyNodeSE, cableProp, elastic,
-                                          unstretchedLength, FLUID_TYPE::WATER);
+  //auto mooringLineSE = make_catenary_line("mooringLineSE", worldNodeSE, buoyNodeSE, cableProp, elastic,
+  //                                        unstretchedLength, FLUID_TYPE::WATER);
+  auto mooringLineSE = make_fea_cable("mooringLineSE", worldNodeSE, buoyNodeSE, cableProp, unstretchedLength,
+                                       20, 2);
+
   auto tetherLineSE = make_catenary_line("tetherLineSE", bargeNodeSE, buoyNodeSE, cableProp, elastic, Lv,
                                          FLUID_TYPE::WATER);
 
@@ -293,17 +306,19 @@ int main(int argc, char *argv[]) {
   // ------------------ Run ------------------ //
 
   // You can change the dynamical simulation time step using
-  system.SetTimeStep(0.0075);
+  system.SetTimeStep(0.005);
 
 //    system.SetTimeStepper(FrOffshoreSystem::TIME_STEPPER::EULER_IMPLICIT);
 
   // simulation parameters for dynamic cables
-  system.SetSolver(FrOffshoreSystem::SOLVER::APGD);
-  system.SetSolverMaxIterations(200);
-  system.SetSolverForceTolerance(1e-13);
+  //system.SetSolver(FrOffshoreSystem::SOLVER::MINRES);
+  system.SetSolverMaxIterations(1000);
+  system.SetSolverForceTolerance(1e-7);
+
+  system.Initialize();
 
   // ------------------ Static equilibrium ------------------ //
-
+  /*
   // You can solve the static equilibrium first, in order to have the full assembly static before starting the
   // dynamical simulation. The static solving is based on a dynamic simulation with relaxations of the system,
   // performed regularly. You can change the number of time steps between two relaxation :
@@ -320,7 +335,7 @@ int main(int argc, char *argv[]) {
   system.SolveStaticWithRelaxation();
   // Once the static is reached, you can visualize it
 //    system.Visualize(75.,false);
-
+  */
   // The static solving iterations can also be visualized. To do so, just replace the two previous lines with :
 //    system.VisualizeStaticAnalysis(75.,false);
 
@@ -329,5 +344,5 @@ int main(int argc, char *argv[]) {
   // Now you are ready to perform the simulation and you can watch its progression in the viewer. You can adjust
   // the time length of the simulation (here 30) and the distance from the camera to the objectif (75m).
   // For saving snapshots of the simulation, just turn the boolean to true.
-  system.RunInViewer(60, 175, true);
+  system.RunInViewer(100, 175, false, 100);
 }

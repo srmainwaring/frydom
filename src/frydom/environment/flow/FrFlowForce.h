@@ -63,6 +63,9 @@ namespace frydom {
     double m_lateral_area;
     double m_length;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -82,6 +85,9 @@ namespace frydom {
     void Compute(double time) override;
 
     double GetFluidDensity() const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -104,6 +110,9 @@ namespace frydom {
     void Compute(double time) override;
 
     double GetFluidDensity() const override;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

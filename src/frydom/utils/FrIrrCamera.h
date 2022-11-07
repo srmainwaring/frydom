@@ -185,6 +185,8 @@ namespace frydom {
     // Hammad: Adding this so that GCC and clang on osx do not complain
     void updateMatrices();
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

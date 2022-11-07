@@ -126,6 +126,9 @@ namespace frydom {
 
     std::vector<ClumpWeight_> m_clump_weights;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -199,6 +202,9 @@ namespace frydom {
       unsigned int m_bspline_order; // TODO: rendre la chose parametrable (voir a le mettre dans FrFEACable)
 
       std::vector<double> m_control_points_abscissa;
+
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 

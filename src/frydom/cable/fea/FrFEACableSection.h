@@ -50,6 +50,9 @@ namespace frydom {
       double m_Cd;
       double m_VIV_amp_factor;
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
   }  // end namspace frydom::internal
 

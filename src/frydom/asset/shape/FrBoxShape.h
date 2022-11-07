@@ -59,6 +59,10 @@ namespace frydom {
 
     friend std::shared_ptr<chrono::ChAsset> internal::GetChronoAsset(FrBoxShape *);
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+
   };
 
 

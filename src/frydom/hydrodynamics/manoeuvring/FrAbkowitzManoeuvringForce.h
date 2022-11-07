@@ -48,6 +48,9 @@ namespace frydom {
     double m_Yv, m_Yvvv, m_Yvrr, m_Yr, m_Yrrr, m_Yvvr;
     double m_Nv, m_Nvvv, m_Nvrr, m_Nr, m_Nrrr, m_Nvvr;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrAbkowitzManoeuvringForce>

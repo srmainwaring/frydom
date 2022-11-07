@@ -14,7 +14,7 @@
 #define FRYDOM_FRFORCE_H
 
 
-#include "chrono/physics/ChForce.h"
+#include "chrono/physics/ChLoad.h"
 
 #include "frydom/core/math/FrVector.h"
 #include "frydom/core/common/FrObject.h"
@@ -34,30 +34,46 @@ namespace frydom {
 
   namespace internal {
 
-    struct FrForceBase : public chrono::ChForce {
+    class FrLoadBodyForceTorqueBase : public chrono::ChLoadCustom {
 
-      FrForce *m_frydomForce;
-      chrono::ChVector<double> m_torque; // Expressed in body coordinates at COG
+      public:
 
+        FrLoadBodyForceTorqueBase(FrForce *force, FrBody* body);
 
-      explicit FrForceBase(FrForce *force);
+        virtual FrLoadBodyForceTorqueBase* Clone() const override { return new FrLoadBodyForceTorqueBase(*this); }
 
-      void UpdateState() override;
+        void GetBodyForceTorque(Force& force, Torque& torque) const;
 
-      void GetBodyForceTorque(chrono::ChVector<double> &body_force,
-                              chrono::ChVector<double> &body_torque) const override;
+        void GetForceInWorldNWU(Force& force) const;
 
-      void GetForceInWorldNWU(Force &body_force) const;
+        void GetTorqueInBodyNWU(Torque& torque) const;
 
-      void GetTorqueInBodyNWU(Torque &body_torque) const;
+        void SetForceInWorldNWU(const Force &force);
 
-      void SetForceInWorldNWU(const Force &body_force);
+        void SetTorqueInBodyNWU(const Torque& torque);
 
-      void SetTorqueInBodyNWU(const Torque &body_torque);
+        void ComputeQ(chrono::ChState* state_x,       ///< state position to evaluate Q
+                      chrono::ChStateDelta* state_w   ///< state speed to evaluate Q
+        ) override;
+
+        bool IsStiff() override { return false; }
+
+        void Update(double time) override;
+
+      private:
+
+        FrForce *m_frydomForce;
+
+        Force m_force;      ///< abs force applied to the body
+        Torque m_torque;    ///< abs torque applied to the body at COG
+
+      public:
+       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 
-    std::shared_ptr<FrForceBase> GetChronoForce(std::shared_ptr<FrForce> force);
+    std::shared_ptr<FrLoadBodyForceTorqueBase> GetChronoForce(std::shared_ptr<FrForce> force);
+
 
   }  // end namespace frydom::internal
 
@@ -388,7 +404,7 @@ namespace frydom {
 
    protected:
 
-    std::shared_ptr<internal::FrForceBase> m_chronoForce;     ///< Pointer to the force chrono object
+    std::shared_ptr<internal::FrLoadBodyForceTorqueBase> m_chronoForce;     ///< Pointer to the force chrono object
 
     bool m_isActive = true;         ///< boolean to check if the force is active
 
@@ -402,7 +418,10 @@ namespace frydom {
     double m_torqueLimit = 1e20;            ///< setting the values individually.
 
 
-    friend std::shared_ptr<internal::FrForceBase> internal::GetChronoForce(std::shared_ptr<FrForce> force);
+    friend std::shared_ptr<internal::FrLoadBodyForceTorqueBase> internal::GetChronoForce(std::shared_ptr<FrForce> force);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

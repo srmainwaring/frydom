@@ -151,6 +151,9 @@ namespace frydom {
     Position m_mesh_offset_position;
     FrRotation m_mesh_offset_rotation;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   namespace internal {

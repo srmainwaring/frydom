@@ -125,6 +125,9 @@ namespace frydom {
     /// Initialize the field object
     void Initialize() override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 

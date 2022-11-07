@@ -36,6 +36,9 @@ namespace frydom {
     FrTimeRecorder<double> m_recorder;
     FrTimeRecorder<double> m_recorder_mean;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   template<class T>
@@ -59,6 +62,9 @@ namespace frydom {
    private:
 
     std::function<T()> m_data;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
@@ -121,6 +127,9 @@ namespace frydom {
     double m_time_step;
     double m_starting_time;
     bool m_is_active;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

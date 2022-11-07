@@ -10,6 +10,7 @@
 // ==========================================================================
 
 #include "frydom/frydom.h"
+//#include "chrono_pardisomkl/ChSolverPardisoMKL.h"
 
 using namespace frydom;
 
@@ -23,7 +24,18 @@ int main(int argc, char *argv[]) {
 
   bool recursive_radiation = true;
 
-  FrOffshoreSystem system("Sphere_Decay", FrOffshoreSystem::SMOOTH_CONTACT);
+  FrOffshoreSystem system("Sphere_Decay",
+                          FrOffshoreSystem::SMOOTH_CONTACT,
+                          FrOffshoreSystem::EULER_IMPLICIT_LINEARIZED,
+                          FrOffshoreSystem::MINRES);
+
+  //auto mkl_solver = std::make_shared<chrono::ChSolverPardisoMKL>();
+  //system.GetChronoSystem()->SetSolver(mkl_solver);
+  //mkl_solver->UseSparsityPatternLearner(true);
+  //mkl_solver->LockSparsityPattern(true);
+
+  //auto slu_solver = std::make_shared<chrono::ChSolverSparseLU>();
+  //system.GetChronoSystem()->SetSolver(slu_solver);
 
   auto Ocean = system.GetEnvironment()->GetOcean();
   Ocean->SetDensity(1000);
@@ -91,9 +103,10 @@ int main(int argc, char *argv[]) {
   }
   // -- Simulation
 
-  auto dt = 0.01;
+  auto dt = 0.1;
 
   system.SetTimeStep(dt);
+
   system.Initialize();
 
   // Decay test initial position.
@@ -102,6 +115,7 @@ int main(int argc, char *argv[]) {
   auto time = 0.;
 
   clock_t begin = clock();
+  auto c_start = std::chrono::high_resolution_clock::now();
 
   while (time < 20.) {
     time += dt;
@@ -110,8 +124,11 @@ int main(int argc, char *argv[]) {
   }
 
   clock_t end = clock();
+  auto c_end = std::chrono::high_resolution_clock::now();
   double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(c_end-c_start);
   std::cout << "Elapsed cpu time in seconds : " << elapsed_secs << std::endl;
+  std::cout << "Elapsed cpu time in ms (high_resolution_clock) : " << duration.count()/1000. << std::endl;
   std::cout << "============================== End ===================================== " << std::endl;
 
 } // end namespace frydom

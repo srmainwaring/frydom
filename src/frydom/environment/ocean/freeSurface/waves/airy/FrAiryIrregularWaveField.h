@@ -243,6 +243,9 @@ namespace frydom {
     /// Compute the wave directions vector
     void ComputeWaveDirections();
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 }  // end namespace frydom

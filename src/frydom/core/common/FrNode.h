@@ -36,6 +36,9 @@ namespace frydom {
 
       explicit FrMarker(FrNode *node);
 
+     public:
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     };
 
     std::shared_ptr<FrMarker> GetChronoMarker(std::shared_ptr<FrNode> node);
@@ -286,6 +289,9 @@ namespace frydom {
     friend std::shared_ptr<internal::FrMarker> internal::GetChronoMarker(std::shared_ptr<FrNode> node);
 
     friend void FrLink::SetNodes(FrNode *, FrNode *);
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

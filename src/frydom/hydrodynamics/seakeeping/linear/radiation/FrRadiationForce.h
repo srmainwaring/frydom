@@ -45,6 +45,9 @@ namespace frydom {
     /// Method to be applied at the end of steps
     //void StepFinalize() override;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -106,6 +109,9 @@ namespace frydom {
     /// Return the torque component of the inertia part of the radiation force in world reference frame
     /// \param fc Frame convention
     Torque GetTorqueInertiaPartInWorld(FRAME_CONVENTION fc) const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 

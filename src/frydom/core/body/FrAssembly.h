@@ -71,6 +71,9 @@ namespace frydom {
     /// resolved between the master body and the WorldBody : use directly system->DoAssembly();
     void DoAssembly();
 
+   //public:
+   // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
   std::shared_ptr<FrAssembly> make_assembly(const std::shared_ptr<FrBody> &masterBody);

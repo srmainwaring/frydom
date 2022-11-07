@@ -45,6 +45,9 @@ namespace frydom {
     friend std::ostream &operator<<(std::ostream &os, const FrTorsor &torsor);
 
     std::ostream &cout(std::ostream &os) const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   };
 
 
@@ -62,6 +65,9 @@ namespace frydom {
 
     Torque GetTorqueAtPoint(const Position &point, FRAME_CONVENTION fc) const;
 
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   };
 
 
@@ -78,6 +84,9 @@ namespace frydom {
     Force GetAngularVelocity() const;
 
     Torque GetLinearVelocityAtPoint(const Position &point, FRAME_CONVENTION fc) const;
+
+   public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   };
 
