@@ -50,7 +50,7 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 
 # acme
 set(acme_URL git@frydom-ce.org:ce/acme.git)
-set(acme_TAG v1.2 CACHE STRING "acme version")
+set(acme_TAG v1.3 CACHE STRING "acme version")
 
 ### Indirect dependencies / already included
 
