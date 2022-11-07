@@ -7,9 +7,22 @@ This file should be kept up to date following [these guidelines](https://keepach
 
 ### Added
 
+- Enable simulation without logging
+- Add SparseLU direct solver from chrono v7
+- New added mass model based on the KRM matrix is passed to the morison model.
+
 ### Changed
 
+- Reduce the size of the system when added mass with KRM matrix is used by using body states directly instead additional nodes for added mass model.
+- New flow (wind and current) constructor from raw data vector (without json file).
+- New manoeuvring model constructor from raw data (wthout json file).
+- The hull resistance model (calm water resistance model), becomes a force independent of the manoeuvring model. It is no longer created by the manoeuvring model but used by it.
+- Change of the convention of the hull resistance model. The force must be negative for positive forward speed in the input data.
+- Remove JSON (`JSONNode`) reader from FRyDoM
+
 ### Fixed
+
+- Fix the new radiation model when the body frame is not aligned with the word frame.
 
 ## [4.2.1] 2022-08-08
 
