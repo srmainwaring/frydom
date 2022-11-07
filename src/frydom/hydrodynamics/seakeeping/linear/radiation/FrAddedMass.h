@@ -94,10 +94,9 @@ namespace frydom {
 
         std::unordered_map<std::pair<FrBEMBody*, FrBEMBody*>, mathutils::Matrix66<double>, pair_hash> m_generalizedAddedMass;
         mathutils::MatrixMN<double> m_addedMassMatrix;
-        //##CC
         std::unordered_map<std::pair<FrBEMBody*, FrBEMBody*>, mathutils::Matrix66<double>, pair_hash> m_generalizedAddedMassInWorld;
         mathutils::MatrixMN<double> m_addedMassMatrixInWorld;
-        //##
+
         int m_nb_bodies;
 
         std::vector<std::shared_ptr<internal::FrFEANodeBase>> m_nodes;

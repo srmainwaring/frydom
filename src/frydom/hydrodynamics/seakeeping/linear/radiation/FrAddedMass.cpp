@@ -62,11 +62,8 @@ namespace frydom {
       if (!m_is_active) {
         H.setZero();
       } else {
-        //##CC
         BuildGeneralizedMass();
         H = m_addedMassMatrixInWorld;
-        //##
-        //##CC H = m_addedMassMatrix;
       }
     }
 
@@ -84,9 +81,7 @@ namespace frydom {
       m_nb_bodies = n_body;
 
       m_addedMassMatrix = mathutils::MatrixMN<double>(6 * n_body, 6 * n_body);
-      //##CC
       m_addedMassMatrixInWorld = mathutils::MatrixMN<double>(6 * n_body, 6 * n_body);
-      //##
 
       int iBody = 0;
 
@@ -98,27 +93,21 @@ namespace frydom {
 
           mathutils::Matrix66<double> subMatrix = body->first->GetInfiniteAddedMass(bodyMotion->first);
 
-          //##CC debug
           mathutils::Matrix66<double> subMatrixInWorld = body->first->GetInfiniteAddedMass(bodyMotion->first);
           auto matRot = body->second->GetFrame().GetRotation().GetRotationMatrix();
           subMatrixInWorld.block<3, 3>(0, 0) = matRot * subMatrixInWorld.block<3, 3>(0, 0) * matRot.transpose();
           subMatrixInWorld.block<3, 3>(0, 3) = matRot * subMatrixInWorld.block<3, 3>(0, 3) * matRot.transpose();
           subMatrixInWorld.block<3, 3>(3, 0) = matRot * subMatrixInWorld.block<3, 3>(3, 0) * matRot.transpose();
           subMatrixInWorld.block<3, 3>(3, 3) = matRot * subMatrixInWorld.block<3, 3>(3, 3) * matRot.transpose();
-          //##
 
           for (int i=0; i<6; i++) {
             for (int j=0; j<6; j++) {
               m_addedMassMatrix(6 * iBody + i, 6 * jBody + j) = subMatrix(i, j);
-              //##CC debug
               m_addedMassMatrixInWorld(6 * iBody + i, 6 * jBody + j) = subMatrixInWorld(i, j);
-              //##
             }
           }
           m_generalizedAddedMass[std::make_pair(body->first, bodyMotion->first)] = subMatrix;
-          //##CC
           m_generalizedAddedMassInWorld[std::make_pair(body->first, bodyMotion->first)] = subMatrixInWorld;
-          //##
           jBody += 1;
         }
         iBody += 1;
@@ -160,9 +149,7 @@ namespace frydom {
       }
 
       chrono::ChMatrixDynamic<> mMi(this->GetNdofs(), this->GetNdofs());
-      //##CC this->ComputeMmatrixGlobal(mMi);
       mMi = m_addedMassMatrix;
-      //##
 
       chrono::ChVectorDynamic<> mqi(this->GetNdofs());
       int stride = 0;
@@ -173,9 +160,6 @@ namespace frydom {
           for (int i =0; i < 6; ++i)
             mqi(stride + i) = 0;
         } else {
-          //##CC auto offset = chrono_body->GetOffset_w();
-          //##CC mqi.segment(stride, 6) = w.segment(offset, 6);
-          //##CC
           auto offset = chrono_body->GetOffset_w();
           Vector3d pos_in_world = w.segment(offset, 3);
           Vector3d rot_in_world = w.segment(offset+3, 3);
@@ -183,7 +167,6 @@ namespace frydom {
           auto rot_in_body = body->second->GetFrame().ProjectVectorParentInFrame(rot_in_world, NWU);
           mqi.segment(stride, 3) = pos_in_body;
           mqi.segment(stride+3, 3) = rot_in_body;
-          //##
         }
         stride += 6;
       }
@@ -194,9 +177,6 @@ namespace frydom {
       for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
         auto chrono_body = internal::GetChronoBody(m_hdb->GetBody(body->first));
         if (!chrono_body->GetBodyFixed()) {
-          //##CC auto offset = chrono_body->GetOffset_w();
-          //##CC R.segment(offset, 6) += mFi.segment(stride, 6);
-          //##CC
           auto offset = chrono_body->GetOffset_w();
           Vector3d mFi_in_body = mFi.segment(stride, 3);
           Vector3d mMi_in_body = mFi.segment(stride+3, 3);
@@ -204,7 +184,6 @@ namespace frydom {
           auto Mi_in_world = body->second->GetFrame().ProjectVectorFrameInParent(mMi_in_body, NWU);
           R.segment(offset, 3) += Fi_in_world;
           R.segment(offset+3, 3) += Mi_in_world;
-          //##
         }
         stride += 6;
       }
@@ -221,7 +200,6 @@ namespace frydom {
       mFg *= c;
 
       int stride = 0;
-      //for (int in = 0; in < this->GetNnodes(); in++) {
       for (auto body = m_hdb->begin(); body != m_hdb->end(); body++) {
         auto chrono_body = internal::GetChronoBody(m_hdb->GetBody(body->first));
         if (!chrono_body->GetBodyFixed()) {
