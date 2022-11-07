@@ -23,6 +23,26 @@ This file should be kept up to date following [these guidelines](https://keepach
 ### Fixed
 
 - Fix the new radiation model when the body frame is not aligned with the word frame.
+- 
+## [4.3] 2022-10-21
+
+### Added
+
+- Activate SIMD (SSE/AVX) optimization function
+
+
+### Changed 
+
+- Added mass model based on KRM matrix instead Variables
+- Deactviate OpenMP by default
+- Change `FrContactParam` to `FrMaterialSurface` 
+- Remove `ContactParamSMC` and `ContactParamNSC` : automatically selected from contact model
+- Change `FrForce` dependency from `ChLoad` instead `ChForce`
+- Update mathutils dependancy to v1.14.2
+
+### Fixed 
+
+- Fix surface material properties of the seabed
 
 ## [4.2.1] 2022-08-08
 
