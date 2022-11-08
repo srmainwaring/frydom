@@ -3,7 +3,16 @@
 This is the Changelog of the FRyDom framework.
 This file should be kept up to date following [these guidelines](https://keepachangelog.com/en/1.0.0/)
 
-## [Unreleased]
+## [Unrelease]
+
+### Added 
+
+### Changed
+
+### Fixed
+
+
+## [4.4] 2022-11-08
 
 ### Added
 
