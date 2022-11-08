@@ -34,6 +34,12 @@ namespace frydom {
 
     /// Default constructor
 //      FrFlowForce() = default;
+    explicit FrFlowForce(const std::string& name,
+                         const std::string& type_name,
+                         FrBody* body, double frontal_area_m, double lateral_area_m, double length_m,
+                         const std::vector<double>& angles, const std::vector<double>& cx,
+                         const std::vector<double>& cy, const std::vector<double>& cn,
+                         ANGLE_UNIT unit_angle, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
 
     /// Constructor of the flow force with polar coeffients from json table
     /// \param jsonFile Name of the json file containing the polar coefficients
@@ -53,6 +59,9 @@ namespace frydom {
     void Compute(double time) override;
 
     virtual double GetFluidDensity() const = 0;
+
+    void AdaptPolar(std::vector<std::pair<double, mathutils::Vector3d<double>>>& polar,
+                    ANGLE_UNIT& unit, FRAME_CONVENTION& fc, DIRECTION_CONVENTION& dc);
 
    protected:
 
@@ -80,6 +89,11 @@ namespace frydom {
 
     FrCurrentForce(const std::string &name, FrBody *body, const std::string &jsonFile);
 
+    explicit FrCurrentForce(const std::string& ame, FrBody* body, double frontal_area_m, double lateral_area_m,
+                            double length_m, const std::vector<double>& angles,
+                            const std::vector<double>& cx, const std::vector<double>& cy, const std::vector<double>& cn,
+                            ANGLE_UNIT unit_angle, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
+
    private:
 
     void Compute(double time) override;
@@ -100,8 +114,11 @@ namespace frydom {
 
    public:
 
-    explicit FrWindForce(const std::string &name, FrBody *body, const std::string &jsonFile);
+    explicit FrWindForce(const std::string& name, FrBody* body, double frontal_area_m, double lateral_area_m, double length_m,
+                         const std::vector<double>& angles, const std::vector<double>& cx, const std::vector<double>& cy,
+                         const std::vector<double>& cn, ANGLE_UNIT unit_angle, FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
 
+    explicit FrWindForce(const std::string &name, FrBody *body, const std::string &jsonFile);
 
    private:
 
@@ -120,9 +137,23 @@ namespace frydom {
                                                      std::shared_ptr<FrBody> body,
                                                      const std::string &jsonFile);
 
+  std::shared_ptr<FrCurrentForce> make_current_force(const std::string& name, std::shared_ptr<FrBody> body,
+                                                     double frontal_area_m, double lateral_area_m, double length_m,
+                                                     const std::vector<double>& angles,
+                                                     const std::vector<double>& cx, const std::vector<double>& cy,
+                                                     const std::vector<double>& cn, ANGLE_UNIT unit_angle,
+                                                     FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
+
   std::shared_ptr<FrWindForce> make_wind_force(const std::string &name,
                                                std::shared_ptr<FrBody> body,
                                                const std::string &jsonFile);
+
+  std::shared_ptr<FrWindForce> make_wind_force(const std::string& name, std::shared_ptr<FrBody> body,
+                                               double frontal_area_m, double lateral_area_m, double length_m,
+                                               const std::vector<double>& angles,
+                                               const std::vector<double>& cx, const std::vector<double>& cy,
+                                               const std::vector<double>& cn, ANGLE_UNIT unit_angle,
+                                               FRAME_CONVENTION fc, DIRECTION_CONVENTION dc);
 
 
 } // end of namespace frydom

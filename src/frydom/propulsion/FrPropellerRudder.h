@@ -7,8 +7,11 @@
 
 #include "FrActuatorForceBase.h"
 #include "FrPropellerType.h"
-#include "acme/acme.h"
 #include "frydom/core/math/functions/FrFunctionsInc.h"
+
+namespace acme {
+  class PropellerRudderBase;
+}
 
 namespace frydom {
 
@@ -27,15 +30,16 @@ namespace frydom {
 
     void SetRPM(double rpm);
 
+    double GetRPM(FREQUENCY_UNIT unit) const;
+
     // For CPP only
     void SetPitchRatio(double pitch_ratio);
 
+    double GetPitchRatio() const;
+
     double GetRudderAngle(ANGLE_UNIT unit) const;
 
-    // TODO : move to VSL
-    void SetRudderRampSlope(double slope) { m_ramp_slope = slope; }
-
-    void SetRudderCommandAngle(double angle, ANGLE_UNIT unit);
+    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
 
     // Propeller Force
 
@@ -67,9 +71,8 @@ namespace frydom {
 
     Torque GetRudderTorqueInBodyAtCOG(FRAME_CONVENTION fc) const;
 
-   private:
 
-    void SetRudderAngle(double rudder_angle, ANGLE_UNIT unit);
+   private:
 
     void Initialize() override;
 
@@ -77,16 +80,13 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
+  protected:
     std::shared_ptr<acme::PropellerRudderBase> m_acme_propeller_rudder;
     std::shared_ptr<FrNode> m_propeller_node;
     std::shared_ptr<FrNode> m_rudder_node;
 
     double m_rudder_angle_deg;
     double m_rpm, m_pitch_ratio;
-
-    // TODO : move to VSL
-    double m_ramp_slope;
-    FrFunctionBase *m_rudderAngleFunction;
 
     // cached
     double c_water_density;

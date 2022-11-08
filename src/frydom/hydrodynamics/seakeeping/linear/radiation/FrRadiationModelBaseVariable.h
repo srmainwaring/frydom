@@ -47,7 +47,7 @@ namespace frydom {
       }
     };
 
-    class FrRadiationModelBase : public FrPhysicsItemBase {
+    class FrRadiationModelBaseVariable : public FrPhysicsItemBase {
 
      private:
 
@@ -56,7 +56,7 @@ namespace frydom {
 
      public:
 
-      explicit FrRadiationModelBase(FrRadiationModel *radiationModel);
+      explicit FrRadiationModelBaseVariable(FrRadiationModel *radiationModel);
 
       //
       // Update

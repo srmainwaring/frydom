@@ -55,6 +55,13 @@ namespace frydom {
 
    public:
 
+    enum EQUILIBRIUM_FRAME {
+      FIXED,
+      CONSTANT_SPEED,
+      SPRING_DAMPING,
+      MEAN_MOTION
+    };
+
     /// Constructor of a new equilibrium frame with default position and zero speed
     /// \param name Name of the equilibrium frame
     /// \param body Body to which the equilibrium frame is linked

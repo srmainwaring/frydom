@@ -70,7 +70,7 @@ set(MKL_INCLUDE_DIR "/usr/include/mkl/")
 # SSE / AVX / FMA / NEON support
 #-----------------------------------------------------------------------------
 
-option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" ON)
+option(USE_SIMD "Enable use of SIMD if supported (SSE, AVX, NEON)" OFF)
 
 if(USE_SIMD)
 

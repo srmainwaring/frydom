@@ -8,6 +8,9 @@
 #include "frydom/core/common/FrNode.h"
 #include "frydom/environment/FrEnvironment.h"
 
+#include "acme/propeller_rudder/BrixPropellerRudder.h"
+#include "acme/propeller_rudder/MMGPropellerRudder.h"
+
 using namespace acme;
 
 namespace frydom {
@@ -23,29 +26,13 @@ namespace frydom {
       FrActuatorForceBase(name, "FrACMEPropellerRudder", propeller_node->GetBody()),
       m_propeller_node(propeller_node), m_rudder_node(rudder_node) {
     switch (proprudder_type) {
-      case acme::E_BRIX:
-        m_acme_propeller_rudder = acme::build_Brix_pr(prop_type, prop_params, rudder_type, rudder_params);
+      case E_BRIX:
+        m_acme_propeller_rudder = build_Brix_pr(prop_type, prop_params, rudder_type, rudder_params);
         break;
-      case acme::E_MMG:
-        m_acme_propeller_rudder = acme::build_MMG_pr(prop_type, prop_params, rudder_type, rudder_params);
+      case E_MMG:
+        m_acme_propeller_rudder = build_MMG_pr(prop_type, prop_params, rudder_type, rudder_params);
         break;
     }
-  }
-
-  void FrPropellerRudder::SetRudderCommandAngle(double angle, ANGLE_UNIT unit) {
-
-    if (unit == RAD) angle *= RAD2DEG;
-
-    double actualRudderAngle = GetRudderAngle(DEG);
-
-    if (std::abs(angle - GetRudderAngle(DEG)) <= 0)
-      m_rudderAngleFunction = new FrConstantFunction(angle);
-    else {
-      auto t_ramp = std::abs(angle - actualRudderAngle) / m_ramp_slope;
-      m_rudderAngleFunction = new FrLinearRampFunction(GetSystem()->GetTime(), actualRudderAngle,
-                                                       GetSystem()->GetTime() + t_ramp, angle);
-    }
-
   }
 
   void FrPropellerRudder::Initialize() {
@@ -56,17 +43,10 @@ namespace frydom {
 
     m_acme_propeller_rudder->Initialize();
 
-//    //TODO : remove when command function is moved in VSL
-//    if (m_rudderAngleFunction == NULL)
-//      SetRudderCommandAngle(GetRudderAngle(DEG), DEG);
-
     FrForce::Initialize();
   }
 
   void FrPropellerRudder::Compute(double time) {
-
-    //TODO : remove when command function is moved in VSL
-    SetRudderAngle(m_rudderAngleFunction->Get_y(time), DEG);
 
     // ship velocity at COG
     auto ship_vel = GetBody()->GetCOGLinearVelocityInWorld(NWU);
@@ -181,8 +161,16 @@ namespace frydom {
     m_rpm = rpm;
   }
 
+  double FrPropellerRudder::GetRPM(FREQUENCY_UNIT unit) const {
+    return convert_frequency(m_rpm, RPM, unit);
+  }
+
   void FrPropellerRudder::SetPitchRatio(double pitch_ratio) {
     m_pitch_ratio = pitch_ratio;
+  }
+
+  double FrPropellerRudder::GetPitchRatio() const {
+    return m_pitch_ratio;
   }
 
   void FrPropellerRudder::SetRudderAngle(double rudder_angle, ANGLE_UNIT unit) {

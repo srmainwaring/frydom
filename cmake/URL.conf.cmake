@@ -3,6 +3,7 @@
 
 # Chrono
 set(chrono_URL "https://github.com/projectchrono/chrono/archive/refs/tags/7.0.3.tar.gz")
+set(chrono_TAG v7.0.3 CACHE STRING "chrono version")
 set(chrono_PATCH chrono_V7.0.3.patch)
 
 # GeographicLib
@@ -49,7 +50,7 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 
 # acme
 set(acme_URL git@frydom-ce.org:ce/acme.git)
-set(acme_TAG v1.2 CACHE STRING "acme version")
+set(acme_TAG v1.3 CACHE STRING "acme version")
 
 ### Indirect dependencies / already included
 

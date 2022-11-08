@@ -90,7 +90,7 @@ namespace frydom {
   std::shared_ptr<FrLinearHydrostaticForce>
   make_linear_hydrostatic_force(const std::string &name,
                                 std::shared_ptr<FrBody> body,
-                                std::shared_ptr<FrEquilibriumFrame> eqFrame);
+                                const std::shared_ptr<FrEquilibriumFrame>& eqFrame);
 
   /// This function creates the linear hydrostatic force object for computing the linear hydrostatic loads with a hydrostatic stiffness matrix given by the hdb.
   std::shared_ptr<FrLinearHydrostaticForce>
@@ -102,7 +102,7 @@ namespace frydom {
   std::shared_ptr<FrLinearHydrostaticForce>
   make_linear_hydrostatic_force(const std::string &name,
                                 std::shared_ptr<FrBody> body,
-                                std::shared_ptr<FrEquilibriumFrame> eqFrame,
+                                const std::shared_ptr<FrEquilibriumFrame>& eqFrame,
                                 const std::string &meshFile,
                                 FrFrame meshOffset);
 

@@ -8,7 +8,7 @@
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
 //#include "frydom/hydrodynamics/seakeeping/linear/hdb/FrBEMBody.h"
 #include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModel.h"
-#include "FrRadiationModelBase.h"
+#include "FrRadiationModelBaseVariable.h"
 
 //##CC
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
@@ -18,7 +18,7 @@ namespace frydom {
 
   namespace internal {
 
-    FrVariablesBEMBodyBase::FrVariablesBEMBodyBase(FrRadiationModelBase *radiationModelBase,
+    FrVariablesBEMBodyBase::FrVariablesBEMBodyBase(FrRadiationModelBaseVariable *radiationModelBase,
                                                    FrBEMBody *BEMBody,
                                                    chrono::ChVariablesBodyOwnMass *variables)
         : chrono::ChVariablesBody(*variables), m_radiationModelBase(radiationModelBase), m_BEMBody(BEMBody) {
@@ -29,7 +29,7 @@ namespace frydom {
       m_BEMBody = BEMBody;
     }
 
-    void FrVariablesBEMBodyBase::SetRadiationModelBase(FrRadiationModelBase *radiationModelBase) {
+    void FrVariablesBEMBodyBase::SetRadiationModelBase(FrRadiationModelBaseVariable *radiationModelBase) {
       m_radiationModelBase = radiationModelBase;
     }
 

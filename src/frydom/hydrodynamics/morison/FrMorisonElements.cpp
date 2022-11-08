@@ -16,6 +16,7 @@
 #include "frydom/core/body/FrBody.h"
 #include "frydom/environment/FrEnvironmentInc.h"
 #include "frydom/hydrodynamics/morison/FrMorisonModelBase.h"
+#include "frydom/hydrodynamics/morison/FrMorisonModelBaseKRM.h"
 
 
 namespace frydom {
@@ -81,6 +82,7 @@ namespace frydom {
       m_force(),
       m_torque(),
       m_includeCurrent(false),
+      m_simpleAMModel(false),
       m_extendedModel(false),
       m_isImmerged(false),
       m_force_added_mass(),
@@ -385,10 +387,12 @@ namespace frydom {
 
     // Flow acceleration part
     if (m_extendedModel and m_isImmerged) {
+      /* ##CC debug
       Acceleration acceleration = GetFlowAcceleration();
       localForce.x() += rho * (m_property.ca.x + 1.) * GetVolume() * acceleration.x();
       localForce.y() += rho * (m_property.ca.y + 1.) * GetVolume() * acceleration.y();
       localForce.z() += rho * (m_property.ca.z + 1.) * GetVolume() * acceleration.z();
+       */
     }
 
     // Project local force in world at COG
@@ -396,7 +400,7 @@ namespace frydom {
 
     // Part the added mass term due to the body's angular speed (in world ref frame)
     if (m_extendedModel and m_isImmerged) {
-
+      /* ##CC debug
       Vector3d<double> ca = {m_property.ca.x, m_property.ca.y, m_property.ca.z};
 
       AngularVelocity omegaInWorld = body->GetAngularVelocityInWorld(NWU);
@@ -411,7 +415,7 @@ namespace frydom {
       forceAngSpeedInFrame = -rho * GetVolume() * ca.cwiseProduct(forceAngSpeedInFrame);
       m_force += m_node->GetFrameInWorld().ProjectVectorFrameInParent(forceAngSpeedInFrame, NWU);
       localForce += forceAngSpeedInFrame;
-
+      */
       // Update added mass matrix in world
       SetAMInWorld();
     }
@@ -470,7 +474,8 @@ namespace frydom {
     m_node = std::make_shared<FrNode>("", body);
     SetExtendedModel(extendedModel);
     if (m_extendedModel) {
-      m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+      //m_chronoPhysicsItem = std::make_shared<internal::FrMorisonModelBase>(this);
+      m_chronoAddedMass = std::make_shared<internal::FrMorisonModelBaseKRM>(this);
     }
   }
 
@@ -511,7 +516,8 @@ namespace frydom {
     }
 
     if (m_extendedModel) {
-      m_chronoPhysicsItem->SetupInitial();
+      //m_chronoPhysicsItem->SetupInitial();
+      m_chronoAddedMass->SetupInitial();
     }
 
   }
@@ -542,7 +548,7 @@ namespace frydom {
           m_AMInWorld += element->GetAMInWorld();
         }
       }
-      //m_chronoPhysicsItem->Update(time, false);
+      m_chronoAddedMass->Update();
     }
 
     if (m_simpleAMModel) {

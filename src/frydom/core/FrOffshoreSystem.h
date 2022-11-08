@@ -237,6 +237,8 @@ namespace frydom {
       PMINRES,             ///< Projected MINRES
       BARZILAIBORWEIN,     ///< Barzilai-Borwein
       APGD,                ///< An iterative solver based on Nesterov's Projected Gradient Descent.
+      // Direct solver
+      SPARSE_LU,
       // Iterative linear solvers
       GMRES,               ///< Generalized Minimal RESidual Algorithm
       MINRES,              ///< An iterative solver based on modified Krylov iteration of MINRES type alternated
@@ -311,6 +313,7 @@ namespace frydom {
     std::unique_ptr<FrLogManager> m_logManager;
 
     bool m_monitor_real_time;
+    bool m_no_logging;
 
     FrConfig m_config_file;
 
@@ -326,7 +329,8 @@ namespace frydom {
                      SYSTEM_TYPE systemType = SMOOTH_CONTACT,
                      TIME_STEPPER timeStepper = EULER_IMPLICIT_LINEARIZED,
                      SOLVER solver = MINRES,
-                     const std::string &logFolderName = FrLogManager::GetDateFolder());
+                     const std::string &logFolderName = FrLogManager::GetDateFolder(),
+                     bool no_logging = false);
 
     /// Destructor
     ~FrOffshoreSystem() override;

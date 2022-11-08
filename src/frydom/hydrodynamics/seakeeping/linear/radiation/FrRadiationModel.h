@@ -22,6 +22,7 @@
 #include "frydom/core/common/FrTreeNode.h"
 
 #include "frydom/hydrodynamics/seakeeping/linear/hdb/FrLinearHDBInc.h"
+#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationModelBaseKRM.h"
 
 namespace frydom {
 
@@ -41,7 +42,8 @@ namespace frydom {
   class FrOffshoreSystem;
 
   namespace internal {
-    class FrRadiationModelBase;
+    class FrRadiationModelBaseVariable;
+    class FrRadiationModelBaseKRM;
   }
 
   /**
@@ -107,14 +109,17 @@ namespace frydom {
     /// \return Mapper
     FrHydroMapper *GetMapper() const;
 
+    void SetActive(bool is_active) override;
+
    private:
 
     /// Compute the internal states of the Radiation model
     /// \param time Current time of the simulation from beginning, in seconds
     void Compute(double time) override;
 
-    std::shared_ptr<internal::FrAddedMassBase> m_addedMass;
-    std::shared_ptr<chrono::fea::ChMesh> m_mesh;
+   protected:
+    std::shared_ptr<internal::FrRadiationModelBaseKRM> m_chronoAddedMassModel;
+    friend std::shared_ptr<internal::FrRadiationModelBaseKRM> internal::GetChronoAddedMass(std::shared_ptr<FrRadiationModel> radiationModel);
 
    public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

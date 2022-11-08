@@ -1,6 +1,13 @@
+// ==========================================================================
+// FRyDoM - frydom-ce.org
 //
-// Created by frongere on 12/10/2021.
+// Copyright (c) Ecole Centrale de Nantes (LHEEA lab.) and D-ICE Engineering.
+// All rights reserved.
 //
+// Use of this source code is governed by a GPLv3 license that can be found
+// in the LICENSE file of FRyDoM.
+//
+// ========================================================================
 
 #ifndef FRYDOM_FRABKOWITZMANOEUVRINGFORCE_H
 #define FRYDOM_FRABKOWITZMANOEUVRINGFORCE_H
@@ -9,19 +16,46 @@
 
 namespace frydom {
 
-  class FrHullResistance;
+  // Forward declaration
+  class FrHullResistanceForce;
+
+  struct FrHydroDerivatives {
+    double m_Xvv = 0;
+    double m_Xvvvv = 0;
+    double m_Xvr = 0;
+    double m_Xrr = 0;
+    double m_Yv = 0;
+    double m_Yr = 0;
+    double m_Yvvv = 0;
+    double m_Yvvr = 0;
+    double m_Yvrr = 0;
+    double m_Yrrr = 0;
+    double m_Nv = 0;
+    double m_Nr = 0;
+    double m_Nvvv = 0;
+    double m_Nvvr = 0;
+    double m_Nvrr = 0;
+    double m_Nrrr = 0;
+  };
 
   /// Abkowitz manoeuvring model from Yoshimura (2012)
   class FrAbkowitzManoeuvringForce : public FrForce {
 
    public:
-    FrAbkowitzManoeuvringForce(const std::string &name, FrBody *body, const std::string &file,
-                               const Position &mid_ship);
 
+
+    FrAbkowitzManoeuvringForce(const std::string& name, FrBody* body,
+                               const FrHydroDerivatives& hydroDeriv,
+                               const std::shared_ptr<FrHullResistanceForce>& hullResistanceForce,
+                               const Position& mid_ship, double draft_m, double lpp_m);
+
+    /// Call force initialization
     void Initialize() override;
 
+    /// Get min ship speed from resistance curve (in m/s)
     double GetUMin() const;
 
+    /// Get max ship speed from resistance curve (in m/s)
     double GetUMax() const;
 
    private:
@@ -30,15 +64,9 @@ namespace frydom {
 
     void DefineLogMessages() override;
 
-    void LoadResistanceCurve(const std::string& filepath);
-
-    void LoadManoeuvringData(const std::string& filepath);
-
    private:
 
-    std::string c_filepath; ///< path to the JSON file containing the manoeuvring data
-
-    std::shared_ptr<FrHullResistance> m_hullResistance;
+    std::shared_ptr<FrHullResistanceForce> m_hullResistanceForce;
 
     double m_Lpp;
     double m_draft;
@@ -53,11 +81,15 @@ namespace frydom {
 
   };
 
+  // MAKERS
+
   std::shared_ptr<FrAbkowitzManoeuvringForce>
-      make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
-                                      const std::string& file, const Position& mid_ship);
+  make_abkowitz_manoeuvring_model(const std::string& name, std::shared_ptr<FrBody> body,
+                                  const FrHydroDerivatives& hydroDerive,
+                                  const std::shared_ptr<FrHullResistanceForce>& hullResistanceForce,
+                                  const Position& mid_ship, double draft_m, double lpp_m);
 
 
-}  // end namespace frydom
+  }  // end namespace frydom
 
 #endif //FRYDOM_FRABKOWITZMANOEUVRINGFORCE_H

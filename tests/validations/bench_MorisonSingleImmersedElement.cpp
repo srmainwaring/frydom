@@ -24,7 +24,7 @@ std::shared_ptr<FrMorisonCompositeElement> make_morison_model(
       morisonModel->AddElement({0., 0., -12.}, {0., 0., -8}, 1., 0.8, 0.6, 0.);
       break;
     case ec_XY:
-      morisonModel->AddElement({-1.4142, -1.4142, -10.}, {1.4142, 1.4142, -10.}, 1., 0.8, 0.6, 0.);
+      morisonModel->AddElement({-1.4142, -1.4142, -10.}, {1.4142, 1.4142, -10.}, 1., {0.8, 0.8, 0.}, 0.6, 0.);
       break;
     case ec_YZ:
       morisonModel->AddElement({0., -1.4142, -11.4142}, {0., 1.4142, -8.5858}, 1., 0.8, 0.6, 0.);
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 
   // Morison model
 
-  auto morisonModel = make_morison_model("morison", body, true, ec_XYZ);
+  auto morisonModel = make_morison_model("morison", body, true, ec_XY);
   auto morisonForce = make_morison_force("morison", body, morisonModel);
 
   // Simulation

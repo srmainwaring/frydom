@@ -41,6 +41,7 @@ namespace frydom {
       for (auto BEMBodyMotion = m_HDB->begin(); BEMBodyMotion != m_HDB->end(); ++BEMBodyMotion) {
 
         auto radiationMask = m_HDB->GetBodyRadiationMask(BEMBody->first, BEMBodyMotion->first);
+
         auto BodyMotionDOFMask = m_HDB->GetBodyDOFMask(BEMBodyMotion->first);
 
         // idof of BEMBody motion.

@@ -55,15 +55,24 @@ index d3a923ccd..8cd6a1114 100644
  #------------------------------------------------------------
  # Defer configuration of all Chrono libraries and programs
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 73d127f58..d7d3d7fd9 100644
+index 73d127f58..ad25b55a1 100644
 --- a/src/CMakeLists.txt
-+++ b/src/CMakeLists.txt	
++++ b/src/CMakeLists.txt
+@@ -243,7 +243,7 @@ else()
+ 
+    message(STATUS "SIMD support disabled")
+ 
+-endif() 
++endif()
+ 
+ #-----------------------------------------------------------------------------
+ # Eigen library
 @@ -342,7 +342,7 @@ if(CUDA_FOUND)
      set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --compiler-options -fPIC)
    endif()
  
 -  include(${CMAKE_SOURCE_DIR}/cmake/FindCudaArch.cmake)
-+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindCudaArch.cmake)
++  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/FindCudaArch.cmake)
    SELECT_NVCC_ARCH_FLAGS(NVCC_FLAGS_EXTRA)
    list(APPEND CUDA_NVCC_FLAGS ${NVCC_FLAGS_EXTRA})
  

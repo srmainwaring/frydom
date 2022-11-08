@@ -24,6 +24,7 @@ namespace frydom {
 
   // Forward declaration
   class FrRadiationModel;
+  class FrHydroDB;
 
 
   // hash defition for the map with pair as a key
@@ -69,9 +70,17 @@ namespace frydom {
 
         void BuildGeneralizedMass();
 
+        void EleIntLoadResidual_F(chrono::ChVectorDynamic<>& R, const double c) override;
+
         void EleIntLoadResidual_Mv(chrono::ChVectorDynamic<>& R, const chrono::ChVectorDynamic<>& w, const double c) override;
 
+        void EleIntLoadResidual_F_gravity(chrono::ChVectorDynamic<>& R, const chrono::ChVector<>& G_acc, const double c) override;
+
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> GetLinks() { return m_links; }
+
+        void Initialize();
+
+        void SetActive(bool is_active);
 
       protected:
 
@@ -85,23 +94,25 @@ namespace frydom {
 
         std::unordered_map<std::pair<FrBEMBody*, FrBEMBody*>, mathutils::Matrix66<double>, pair_hash> m_generalizedAddedMass;
         mathutils::MatrixMN<double> m_addedMassMatrix;
+        std::unordered_map<std::pair<FrBEMBody*, FrBEMBody*>, mathutils::Matrix66<double>, pair_hash> m_generalizedAddedMassInWorld;
+        mathutils::MatrixMN<double> m_addedMassMatrixInWorld;
+
         int m_nb_bodies;
 
         std::vector<std::shared_ptr<internal::FrFEANodeBase>> m_nodes;
         std::vector<std::shared_ptr<internal::FrBodyBase>> m_bodies;
         std::vector<std::shared_ptr<internal::FrFEALinkBase>> m_links;
 
-     public:
-      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        FrHydroDB* m_hdb;
+
+        bool m_is_active;
+
+      public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     };
 
   } // end namespace internal
-
-  // -------------------------------------------------------------------------------
-  // FrAddedMass
-  // -------------------------------------------------------------------------------
-
 } // end namespace frydom
 
 #endif //FRYDOM_FRADDEDMASS_H

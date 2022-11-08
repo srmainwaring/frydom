@@ -25,6 +25,12 @@ namespace frydom {
     // Wave field.
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
 
+    // Avoid initialization interpolator if no waves
+    if (waveField->GetWaveModel() == FrWaveField::NO_WAVES) {
+      FrForce::Initialize();
+      return;
+    }
+
     // BEMBody.
     auto BEMBody = m_HDB->GetBody(body);
 
@@ -265,6 +271,12 @@ namespace frydom {
 
     // Wave field structure.
     auto waveField = body->GetSystem()->GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
+
+    // Prevent wave excitation computation for calm water condition
+    if (waveField->GetWaveModel() == FrWaveField::NO_WAVES) {
+      SetForceTorqueInWorldAtCOG({0., 0., 0.}, {0., 0., 0.}, NWU);
+      return;
+    }
 
     // Wave elevation.
     auto complexElevations = waveField->GetComplexElevation(eqFrame->GetFrame().GetX(NWU),

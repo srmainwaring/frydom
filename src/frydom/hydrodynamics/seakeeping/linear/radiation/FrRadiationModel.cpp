@@ -10,12 +10,11 @@
 // ==========================================================================
 
 #include "FrRadiationModel.h"
-#include "FrRadiationModelBase.h"
-#include "FrAddedMass.h"
+#include "FrRadiationModelBaseVariable.h"
+#include "FrRadiationModelBaseKRM.h"
 #include "frydom/core/body/FrBody.h"
 #include "frydom/hydrodynamics/FrEquilibriumFrame.h"
-#include "FrRadiationForce.h"
-#include "frydom/cable/fea/FrFEALink.h"
+#include "frydom/hydrodynamics/seakeeping/linear/radiation/FrRadiationForce.h"
 
 namespace frydom {
 
@@ -30,29 +29,33 @@ namespace frydom {
       m_HDB(HDB) {
 
     // Creation of an AddedMassBase object.
-    //m_chronoPhysicsItem = std::make_shared<internal::FrRadiationModelBase>(this);
-    m_addedMass = std::make_shared<internal::FrAddedMassBase>(this);
-
-    m_mesh = std::make_shared<chrono::fea::ChMesh>();
-    m_mesh->AddElement(m_addedMass);
-    system->GetChronoSystem()->Add(m_mesh);
-    for (auto link : m_addedMass->GetLinks()) {
-      internal::GetChronoSystem(system)->Add(link);
-    }
+    m_chronoAddedMassModel = std::make_shared<internal::FrRadiationModelBaseKRM>(this);
   }
 
   void FrRadiationModel::Initialize() {
     //FrPhysicsItem::Initialize();
     m_chronoPhysicsItem->SetupInitial();
-    for (auto i=0; i<m_addedMass->GetNnodes(); i++) {
-      m_mesh->AddNode(m_addedMass->GetNodeN(i));
+    if (m_chronoAddedMassModel) {
+      m_chronoAddedMassModel->SetupInitial();
     }
-    m_mesh->Setup();
-
   }
 
   FrHydroMapper *FrRadiationModel::GetMapper() const {
     return m_HDB->GetMapper();
+  }
+
+  void FrRadiationModel::SetActive(bool is_active) {
+    m_isActive = is_active;
+    if (m_chronoAddedMassModel) {
+      m_chronoAddedMassModel->GetAddedMass()->SetActive(is_active);
+    }
+    for (auto BEMBody = m_HDB->begin(); BEMBody != m_HDB->end(); ++BEMBody) {
+      for (auto &force : BEMBody->second->GetForceList()) {
+        if (auto force_rad = std::dynamic_pointer_cast<FrRadiationForce>(force)) {
+          force_rad->SetActive(is_active);
+        }
+      }
+    }
   }
 
   Force FrRadiationModel::GetRadiationForce(FrBEMBody *BEMBody) const {
@@ -91,7 +94,6 @@ namespace frydom {
     return force;
   }
 
-  //##CC
   GeneralizedForce FrRadiationModel::GetRadiationSteadyInertiaPart(FrBody* body) const {
 
     auto HDB = GetHydroDB();
@@ -115,7 +117,6 @@ namespace frydom {
     return GeneralizedForce(force, torque);
 
   }
-  //##
 
   void FrRadiationModel::Compute(double time) {
 

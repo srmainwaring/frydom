@@ -51,7 +51,13 @@ std::shared_ptr<LinearSpring> make_linear_spring(const std::string& name,
   auto force = std::make_shared<LinearSpring>(name, node1, node2, stiffness);
   auto body = node1->GetBody();
   body->AddExternalForce(force);
+  return force;
 }
+
+enum SIMU_DEF {
+  DECAY,
+  WAVE_EXCITATION,
+};
 
 // ------------------------------------------------
 // Main
@@ -63,28 +69,44 @@ int main(int argc, char* argv[]) {
 
   FrOffshoreSystem system("test_MorisonExtFreeMotion");
 
+  SIMU_DEF simu = WAVE_EXCITATION;
+
   // Environment
 
-  auto ocean = system.GetEnvironment()->GetOcean();
-  auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
-  waveField->SetWaveHeight(0.1);
-  waveField->SetWavePeriod(10.);
-  waveField->SetDirection(0., DEG, NWU, GOTO);
+  if (simu == WAVE_EXCITATION) {
 
-  system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 20., 1.);
-  system.GetEnvironment()->GetTimeRamp()->SetActive(true);
+    auto ocean = system.GetEnvironment()->GetOcean();
+    auto waveField = ocean->GetFreeSurface()->SetAiryRegularWaveField();
+    waveField->SetWaveHeight(0.1); // 0.1
+    waveField->SetWavePeriod(5); //10
+    waveField->SetDirection(0., DEG, NWU, GOTO);
+    waveField->SetStretching(frydom::CUTOFF);
+
+    system.GetEnvironment()->GetTimeRamp()->SetByTwoPoints(0., 0., 20., 1.);
+    system.GetEnvironment()->GetTimeRamp()->SetActive(true);
+
+  }
 
   // Body
 
   auto body = system.NewBody("cylinder");
   body->SetPosition({0., 0., -0.54}, NWU);
 
-  body->GetDOFMask()->SetLock_X(false);
-  body->GetDOFMask()->SetLock_Y(true);
-  body->GetDOFMask()->SetLock_Z(false);
-  body->GetDOFMask()->SetLock_Rx(true);
-  body->GetDOFMask()->SetLock_Ry(false);
-  body->GetDOFMask()->SetLock_Rz(true);
+  if (simu == DECAY) {
+    body->GetDOFMask()->SetLock_X(false);
+    body->GetDOFMask()->SetLock_Y(true);
+    body->GetDOFMask()->SetLock_Z(true);
+    body->GetDOFMask()->SetLock_Rx(true);
+    body->GetDOFMask()->SetLock_Ry(true);
+    body->GetDOFMask()->SetLock_Rz(true);
+  } else if (simu == WAVE_EXCITATION) {
+    body->GetDOFMask()->SetLock_X(false);
+    body->GetDOFMask()->SetLock_Y(true);
+    body->GetDOFMask()->SetLock_Z(true);
+    body->GetDOFMask()->SetLock_Rx(true);
+    body->GetDOFMask()->SetLock_Ry(true);
+    body->GetDOFMask()->SetLock_Rz(true);
+  }
 
   // Link
   /*
@@ -102,7 +124,7 @@ int main(int argc, char* argv[]) {
   double zcog = -8.;
 
   double mass = 45100.;
-  double Ixx = mass / 12. * (3.*std::pow(radius, 2)+ std::pow(length, 2));
+  double Ixx = mass / 12. * (3. * std::pow(radius, 2) + std::pow(length, 2));
   double Iyy = Ixx;
   double Izz = 0.5 * mass * std::pow(radius, 2);
   FrInertiaTensor inertia(mass, Ixx, Iyy, Izz, 0., 0., 0., {0., 0., zcog}, NWU);
@@ -118,63 +140,97 @@ int main(int argc, char* argv[]) {
 
   // Hydrostatic
 
-  FrFrame meshOffset;
-  auto hydroMesh = make_hydro_mesh("HydroMesh", body, cylinderMesh, meshOffset,
-      FrHydroMesh::ClippingSupport::PLANESURFACE);
+  bool is_nonlinear_hst = true;
 
-  auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, hydroMesh);
+  if (is_nonlinear_hst) {
 
-  //auto eqFrame = make_equilibrium_frame("eqFrame", body);
+    FrFrame meshOffset;
+    auto hydroMesh = make_hydro_mesh("HydroMesh", body, cylinderMesh, meshOffset,
+                                     FrHydroMesh::ClippingSupport::PLANESURFACE);
 
-  //auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame);
+    auto forceHst = make_nonlinear_hydrostatic_force("nonlinear_hydrostatic", body, hydroMesh);
 
-  //auto stiffMatrix = forceHst->GetStiffnessMatrix();
-  //stiffMatrix.SetNonDiagonal(0., 0., 0.);
-  //stiffMatrix.SetDiagonal(30477., 434650., 434680.);
-  //forceHst->SetStiffnessMatrix(stiffMatrix);
+  } else {
+
+    auto eqFrame = make_equilibrium_frame("eqFrame", body);
+
+    auto forceHst = make_linear_hydrostatic_force("linear_hydrostatic", body, eqFrame);
+
+    auto stiffMatrix = forceHst->GetStiffnessMatrix();
+    stiffMatrix.SetNonDiagonal(0., 0., 0.);
+    stiffMatrix.SetDiagonal(30477., 434650., 434680.);
+    forceHst->SetStiffnessMatrix(stiffMatrix);
+
+  }
 
   // Morison
 
-  auto morisonModel = make_morison_model("morison", body, true);
+  auto morisonModel = make_morison_model("morison", body, false);
   morisonModel->AddElement({0., 0., -14}, {0., 0., 6.}, 2., 0.5, 0.6, 0, 20);
   auto morisonForce = make_morison_force("morison", body, morisonModel);
 
   // Additional spring force
 
-  //auto body_node = body->NewNode("body_node");
-  //body_node->SetPositionInBody({0., 0., -7}, NWU);
-  //auto world_node = system.GetWorldBody()->NewNode("world_node");
-  //world_node->SetPositionInWorld({0., 0., -7.}, NWU);
+  //if (simu == DECAY) {
+    auto body_node = body->NewNode("body_node");
+    body_node->SetPositionInBody({0., 0., -7}, NWU);
+    auto world_node = system.GetWorldBody()->NewNode("world_node");
+    world_node->SetPositionInWorld({0., 0., -7.}, NWU);
 
-  //Vector3d<double> stiffness(17804., 17804., 0.);
+    Vector3d<double> stiffness(17804., 17804., 0.);
 
-  //auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
+    auto spring = make_linear_spring("LinearSpring", body_node, world_node, stiffness);
+  //}
 
   // Simulation
 
-  double dt = 0.1;
-  double t_end = 200.;
+  double dt = 0.01;
+  double t_end = 400.;
   double time = 0.;
+
+  if (simu == DECAY) {
+    body->TranslateInWorld(5, 0, 0, NWU);
+  }
 
   system.SetTimeStep(dt);
   system.Initialize();
 
-  //body->SetPosition({5., 0., 0.}, NWU);
-  //body->SetRotation(FrRotation({0., 1., 0.}, 0.5*M_PI_4, NWU));
-  //body->SetPosition({0., 0., 2.}, NWU);
-  //body->SetPosition({0., 0., 0.}, NWU);
+  if (simu == DECAY) {
+    body->SetPosition({5., 0., 0.}, NWU);
+    body->SetRotation(FrRotation({0., 1., 0.}, 0.5*M_PI_4, NWU));
+    body->SetPosition({0., 0., 2.}, NWU);
+    body->SetPosition({0., 0., 0.}, NWU);
+  }
+
+  //##CC
+  //std::ofstream myfile;
+  //myfile.open("wavefield_log.csv", std::ios::out);
+  //myfile << "time;vx;vy;vz;ax;ay;az" << std::endl;
+  //auto wavefield = system.GetEnvironment()->GetOcean()->GetFreeSurface()->GetWaveField();
+  //##
 
   bool is_irrlicht = false;
 
   if (is_irrlicht) {
-//    system.RunInViewer(t_end, 100.);
+    system.RunInViewer(t_end, 100.);
 
   } else {
     while (time < t_end) {
       system.AdvanceTo(time);
       std::cout << "time : " << time << " s" << std::endl;
+      //##CC
+      //auto vel = wavefield->GetVelocity(0, 0, 0, NWU);
+      //auto acc = wavefield->GetAcceleration(0, 0, 0, NWU);
+      //myfile << time << ";" << vel.x() << ";" << vel.y() << ";" << vel.z();
+      //myfile << ";" << acc.x() << ";" << acc.y() << ";" << acc.z() << std::endl;
+      //##
+
       time += dt;
     }
   }
+
+  //##CC
+  //myfile.close();
+  //##
 
 }
