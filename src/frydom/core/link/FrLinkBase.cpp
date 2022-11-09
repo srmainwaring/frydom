@@ -16,6 +16,8 @@
 
 
 namespace frydom {
+  FrLinkBase::~FrLinkBase() {
+  }
 
   FrLinkBase::FrLinkBase(const std::shared_ptr<FrNode> &node1,
                          const std::shared_ptr<FrNode> &node2) :

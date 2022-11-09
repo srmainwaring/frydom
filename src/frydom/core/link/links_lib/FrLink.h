@@ -81,6 +81,7 @@ namespace frydom {
       GeneralizedForce c_generalizedForceOnNode2;
       GeneralizedForce c_generalizedForceOnNode1;
 
+      virtual ~FrLinkLockBase();
 
       /// Constructor
       explicit FrLinkLockBase(FrLink *frydomLink);
@@ -173,6 +174,8 @@ namespace frydom {
     std::shared_ptr<FrActuator> m_actuator;
 
    public:
+
+    virtual ~FrLink();
 
     /// Constructor taking the nodes attached to the two bodies implied in the link and the system
     FrLink(const std::string &name,

@@ -15,6 +15,8 @@ namespace frydom {
     class FrLinkMaskBase : public chrono::ChLinkMaskLF {
 
      public:
+      virtual ~FrLinkMaskBase();
+
       /// Create a FrLinkMaskBase with 7 scalar constraints of
       /// class FrConstraintTwoBodies.
       FrLinkMaskBase();

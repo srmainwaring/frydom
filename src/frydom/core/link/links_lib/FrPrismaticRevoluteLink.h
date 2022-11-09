@@ -19,6 +19,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrPrismaticRevoluteLink();
+
     FrPrismaticRevoluteLink(const std::string &name,
                             FrOffshoreSystem *system,
                             const std::shared_ptr<FrNode> &node1,

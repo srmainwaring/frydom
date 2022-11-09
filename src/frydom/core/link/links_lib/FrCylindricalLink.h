@@ -26,6 +26,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrCylindricalLink();
+
     /// Constructor from two nodes and a pointer to the system.
     /// It automatically adds the link to the system
     FrCylindricalLink(const std::string &name,

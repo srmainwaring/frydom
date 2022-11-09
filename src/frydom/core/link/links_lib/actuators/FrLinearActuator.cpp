@@ -16,6 +16,8 @@
 
 namespace frydom {
 
+  FrLinearActuator::~FrLinearActuator() {
+  }
 
   FrLinearActuator::FrLinearActuator(const std::string &name,
                                      FrLink *actuatedLink,

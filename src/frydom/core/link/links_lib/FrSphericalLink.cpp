@@ -15,6 +15,8 @@
 
 namespace frydom {
 
+  FrSphericalLink::~FrSphericalLink() {
+  }
 
   FrSphericalLink::FrSphericalLink(const std::string &name,
                                    FrOffshoreSystem *system,

@@ -40,6 +40,9 @@ namespace frydom {
     double m_linkAcceleration = 0.;
 
    public:
+
+    virtual ~FrPrismaticLink();
+
     /// Constructor from two nodes and a pointer to the system.
     /// It automatically adds the link to the system
     FrPrismaticLink(const std::string &name,

@@ -29,6 +29,9 @@ namespace frydom {
     std::shared_ptr<chrono::ChLinkMotorLinear> m_chronoActuator;
 
    public:
+
+    virtual ~FrLinearActuator();
+
     FrLinearActuator(const std::string &name, FrLink *actuatedLink, ACTUATOR_CONTROL control);
 
     void SetMotorFunction(const FrFunctionBase &function) override;

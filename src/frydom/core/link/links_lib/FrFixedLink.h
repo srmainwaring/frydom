@@ -27,6 +27,8 @@ namespace frydom {
 
    public:
 
+   virtual ~FrFixedLink();
+
     /// Constructor from two nodes and a pointer to the system.
     /// It automatically adds the link to the system
     FrFixedLink(const std::string &name,

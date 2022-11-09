@@ -32,6 +32,9 @@ namespace frydom {
 
   namespace internal {
 
+    FrLinkLockBase::~FrLinkLockBase() {
+    }
+
     FrLinkLockBase::FrLinkLockBase(frydom::FrLink *frydomLink) : m_frydomLink(frydomLink), chrono::ChLinkLock() {}
 
     void FrLinkLockBase::SetLinkType(LINK_TYPE lt) {
@@ -306,6 +309,9 @@ namespace frydom {
    * FrLink method definitions
    *
    */
+
+  FrLink::~FrLink() {
+  }
 
   FrLink::FrLink(const std::string &name,
                  const std::string &type_name,

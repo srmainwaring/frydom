@@ -7,6 +7,9 @@
 
 namespace frydom {
 
+  FrPrismaticRevoluteLink::~FrPrismaticRevoluteLink() {
+  }
+
   FrPrismaticRevoluteLink::FrPrismaticRevoluteLink(const std::string &name,
                                                    FrOffshoreSystem *system,
                                                    const std::shared_ptr<frydom::FrNode> &node1,

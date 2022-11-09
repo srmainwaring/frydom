@@ -186,6 +186,8 @@ namespace frydom {
    * FrDOFMaskLink definitions
    */
 
+  FrDOFMaskLink::~FrDOFMaskLink() {
+  }
 
   void FrDOFMaskLink::SetDOFMask(FrDOFMask *mask) {
     m_chronoLink->SetMask(mask);

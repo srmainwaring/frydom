@@ -26,6 +26,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrActuator();
+
     FrActuator(const std::string &name, const std::string &type_name, FrLink *actuatedLink);
 
 //        /// Tells if the link is broken, for excess of pulling/pushing.

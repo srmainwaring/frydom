@@ -24,6 +24,7 @@ namespace frydom {
   class FrSphericalLink : public FrLink {
 
    public:
+    virtual ~FrSphericalLink();
 
     FrSphericalLink(const std::string &name,
                     FrOffshoreSystem *system,

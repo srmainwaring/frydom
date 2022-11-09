@@ -12,6 +12,8 @@
 
 namespace frydom {
 
+  FrActuator::~FrActuator() {
+  }
 
   FrActuator::FrActuator(const std::string &name, const std::string &type_name, FrLink *actuatedLink) :
       FrLoggable(name, type_name, actuatedLink),

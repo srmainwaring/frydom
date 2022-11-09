@@ -146,6 +146,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrDOFMaskLink();
+
     /// Constructor taking the nodes attached to the two bodies implied in the link and the system
     FrDOFMaskLink(const std::string &name,
                   FrOffshoreSystem *system,

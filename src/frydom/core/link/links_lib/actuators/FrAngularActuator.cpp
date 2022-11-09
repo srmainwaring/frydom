@@ -18,6 +18,8 @@
 
 namespace frydom {
 
+  FrAngularActuator::~FrAngularActuator() {
+  }
 
   FrAngularActuator::FrAngularActuator(const std::string &name,
                                        FrLink *actuatedLink,

@@ -15,6 +15,8 @@
 
 namespace frydom {
 
+  FrFixedLink::~FrFixedLink() {
+  }
 
   FrFixedLink::FrFixedLink(const std::string &name,
                            FrOffshoreSystem *system,

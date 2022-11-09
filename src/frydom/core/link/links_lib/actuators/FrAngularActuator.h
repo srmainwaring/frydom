@@ -35,6 +35,8 @@ namespace frydom {
     std::shared_ptr<chrono::ChLinkMotorRotation> m_chronoActuator;
 
    public:
+    virtual ~FrAngularActuator();
+
     FrAngularActuator(const std::string &name, FrLink *actuatedLink, ACTUATOR_CONTROL control);
 
     void SetMotorFunction(const FrFunctionBase &function) override;

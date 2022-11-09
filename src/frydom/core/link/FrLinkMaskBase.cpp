@@ -10,6 +10,9 @@ namespace frydom {
 
   namespace internal {
 
+    FrLinkMaskBase::~FrLinkMaskBase() {
+    }
+
     FrLinkMaskBase::FrLinkMaskBase() {
       nconstr = 7;
 

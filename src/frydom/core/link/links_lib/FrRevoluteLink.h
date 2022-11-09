@@ -44,6 +44,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrRevoluteLink();
+
     /// Constructor from two nodes and a pointer to the system.
     /// It automatically adds the link to the system
     FrRevoluteLink(const std::string &name,

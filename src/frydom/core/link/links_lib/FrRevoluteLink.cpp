@@ -20,6 +20,9 @@
 
 namespace frydom {
 
+  FrRevoluteLink::~FrRevoluteLink() {
+  }
+
   FrRevoluteLink::FrRevoluteLink(const std::string &name,
                                  FrOffshoreSystem *system,
                                  const std::shared_ptr<FrNode> &node1,
