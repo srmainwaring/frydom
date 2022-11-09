@@ -33,6 +33,7 @@
 #include <vector>
 #include <cppfs/FilePath.h>
 
+#define HOST_NAME_MAX 64
 
 namespace frydom {
 
