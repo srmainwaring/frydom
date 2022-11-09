@@ -18,13 +18,13 @@
 
 std::string GetPlatformName() {
   #ifdef _WIN32
-  return "Windows 32-bit";
+    return "Windows 32-bit";
   #elif _WIN64
-  return "Windows 64-bit";
-//  #elif __APPLE__ || __MACH__
-//  return "Mac OSX";
+    return "Windows 64-bit";
+  #elif __APPLE__ || __MACH__
+    return "Mac OSX";
   #elif __linux__
-  return "Linux";
+    return "Linux";
 //  #elif __FreeBSD__
 //  return "FreeBSD";
 //    #elif __unix || __unix__
