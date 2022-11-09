@@ -20,6 +20,8 @@
 namespace frydom {
 
   // FrWaveDirectionalModel descriptions
+  FrWaveDirectionalModel::~FrWaveDirectionalModel() {
+  }
 
   std::vector<double>
   FrWaveDirectionalModel::GetSpreadingFunction(const std::vector<double> &thetaVect, double theta_mean) {

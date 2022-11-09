@@ -35,6 +35,7 @@ namespace frydom {
    */
   class FrWaveDirectionalModel {
    public:
+    virtual ~FrWaveDirectionalModel();
 
     /// Get the type of the directional model
     /// \return type of directional model (COS2S/NONE/DIRTEST)

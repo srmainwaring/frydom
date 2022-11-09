@@ -35,7 +35,7 @@ namespace frydom {
 
     explicit FrIrrApp(FrOffshoreSystem *frSystem, chrono::ChSystem *system, double dist = 100);
 
-    ~FrIrrApp() final;
+    virtual ~FrIrrApp() final;
 
     /// Create a skybox that has Z pointing up.
     /// Note that the default ChIrrApp::AddTypicalSky() uses Y up.

@@ -20,6 +20,7 @@ namespace frydom {
   class FrRadiationRecursiveConvolutionModelForwardSpeedCorrection : public FrRadiationRecursiveConvolutionModel{
 
    public:
+    virtual ~FrRadiationRecursiveConvolutionModelForwardSpeedCorrection();
 
     /// Constructor of the class.
     FrRadiationRecursiveConvolutionModelForwardSpeedCorrection(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB);

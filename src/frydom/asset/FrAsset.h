@@ -48,6 +48,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrAsset();
+
     FrAsset();
 
     virtual void Initialize() = 0;

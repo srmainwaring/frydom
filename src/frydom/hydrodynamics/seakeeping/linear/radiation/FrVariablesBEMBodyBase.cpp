@@ -18,6 +18,9 @@ namespace frydom {
 
   namespace internal {
 
+    FrVariablesBEMBodyBase::~FrVariablesBEMBodyBase() {
+    }
+
     FrVariablesBEMBodyBase::FrVariablesBEMBodyBase(FrRadiationModelBaseVariable *radiationModelBase,
                                                    FrBEMBody *BEMBody,
                                                    chrono::ChVariablesBodyOwnMass *variables)

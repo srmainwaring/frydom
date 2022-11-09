@@ -15,6 +15,8 @@
 #include "FrWaveField.h"
 
 namespace frydom {
+  FrKinematicStretching::~FrKinematicStretching() {
+  }
 
   void FrKinematicStretching::SetInfDepth(bool infinite_depth) { c_infinite_depth = infinite_depth; }
 

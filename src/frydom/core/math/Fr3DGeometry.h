@@ -19,6 +19,7 @@
 namespace frydom {
 
   struct Fr3DGeometryBase {
+    virtual ~Fr3DGeometryBase();
 
 //    virtual Position GetRelativePositionForNode(FRAME_CONVENTION fc) const = 0;
 

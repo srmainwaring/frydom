@@ -19,6 +19,9 @@
 
 namespace frydom {
 
+  FrTriangleMeshConnected::~FrTriangleMeshConnected() {
+  }
+
   void FrTriangleMeshConnected::addVertex(chrono::ChVector<double> vertex) {
     m_vertices.push_back(vertex);
   }

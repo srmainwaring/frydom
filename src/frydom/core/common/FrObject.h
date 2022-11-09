@@ -28,6 +28,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrObject();
+
     /// Default constructor
     FrObject();
 

@@ -76,6 +76,8 @@ namespace frydom {
   // -----------------------------------------------------------------
   // MORISON MODEL
   // -----------------------------------------------------------------
+  FrMorisonElement::~FrMorisonElement() {
+  }
 
   FrMorisonElement::FrMorisonElement() :
       m_node(nullptr),

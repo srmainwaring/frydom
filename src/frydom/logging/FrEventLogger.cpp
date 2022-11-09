@@ -9,6 +9,8 @@ namespace frydom {
   namespace event_logger {
 
     namespace internal {
+      SimulationFormatter::~SimulationFormatter() {
+      }
 
       SimulationFormatter::SimulationFormatter(FrOffshoreSystem *system) : m_system(system) {}
 

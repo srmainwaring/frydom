@@ -24,6 +24,8 @@ namespace frydom {
   // ---------------------------------------------------------------------
   // Equilibrium frame
   // ---------------------------------------------------------------------
+  FrEquilibriumFrame::~FrEquilibriumFrame() {
+  }
 
   FrEquilibriumFrame::FrEquilibriumFrame(const std::string &name, FrBody *body,
                                          const Position &localPos, FRAME_CONVENTION fc)
@@ -321,6 +323,8 @@ namespace frydom {
   // -----------------------------------------------------------------------
   // Equilibrium frame with spring damping restoring force
   // -----------------------------------------------------------------------
+  FrEqFrameSpringDamping::~FrEqFrameSpringDamping() {
+  }
 
   FrEqFrameSpringDamping::FrEqFrameSpringDamping(const std::string &name,
                                                  FrBody *body,
@@ -407,6 +411,8 @@ namespace frydom {
   // ----------------------------------------------------------------
   // Equilibrium frame with updated mean velocity
   // ----------------------------------------------------------------
+  FrEqFrameMeanMotion::~FrEqFrameMeanMotion() {
+  }
 
   FrEqFrameMeanMotion::FrEqFrameMeanMotion(const std::string &name,
                                            FrBody *body,

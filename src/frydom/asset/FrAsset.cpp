@@ -23,6 +23,8 @@ namespace frydom {
 
   } // end namespace frydom::internal
 
+  FrAsset::~FrAsset() {
+  }
 
   FrAsset::FrAsset() {
     m_chronoAsset = std::make_shared<internal::FrAssetBase>(this);

@@ -33,6 +33,7 @@ namespace frydom {
     FrRadiationModel *m_radiationModel;     ///< radiation model
 
    public:
+    virtual ~FrRadiationForce();
 
     /// Constructor with the radiation model
     /// \param radiationModel Radiation model where the radiation force is applied
@@ -66,6 +67,7 @@ namespace frydom {
     Torque c_torqueInertiaPart;
 
    public:
+    virtual ~FrRadiationConvolutionForce();
 
     /// Constructor with the radiation model
     /// \param radiationModel Radiation model where the radiation force is applied

@@ -17,6 +17,8 @@ namespace frydom {
 
    public:
 
+    virtual ~FrBarElementBase();
+    
     FrBarElementBase();
 
     virtual void Update(double time) = 0;

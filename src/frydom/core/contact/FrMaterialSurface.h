@@ -26,6 +26,7 @@ namespace frydom {
   class FrMaterialSurface {
 
     public:
+    virtual ~FrMaterialSurface();
 
     FrMaterialSurface();
 

@@ -13,6 +13,9 @@
 
 namespace frydom {
 
+  FrPropeller::~FrPropeller() {
+  }
+
   FrPropeller::FrPropeller(const std::string &name, const std::shared_ptr<FrNode> &propeller_node,
                            PropellerParams params,
                            PropellerModelType type) :

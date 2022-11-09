@@ -51,7 +51,7 @@ namespace frydom {
       public:
 
         explicit FrAddedMassBase(FrRadiationModel* radiationModel);
-        ~FrAddedMassBase();
+        virtual ~FrAddedMassBase();
 
         FrRadiationModel* GetRadiationModel() const { return m_frydomRadiationModel; }
 

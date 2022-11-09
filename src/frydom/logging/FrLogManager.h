@@ -34,7 +34,7 @@ namespace frydom {
 
     explicit FrLogManager(FrOffshoreSystem *system, const std::string &logFolderName);
 
-    ~FrLogManager();
+    virtual ~FrLogManager();
 
     FrOffshoreSystem *GetSystem() const;
 

@@ -15,6 +15,8 @@
 
 
 namespace frydom {
+  FrLoggableBase::~FrLoggableBase() {
+  }
 
   FrLoggableBase::FrLoggableBase(const std::string &type_name) :
       m_type_name(type_name),

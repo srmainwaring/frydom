@@ -106,6 +106,7 @@ namespace frydom {
       Position m_bodyPosition = {0., 0., 0.};   ///< horizontal position of the body, related to the mesh to be clipped
 
      public:
+      virtual ~FrClippingSurface();
 
       /// Set the body position in world reference frame, for correction in ClippingWaveSurface::GetDistance
       /// \param bodyPos
@@ -133,6 +134,7 @@ namespace frydom {
       std::shared_ptr<geom::FrPlane> m_plane;     ///< plane used for clipping
 
      public:
+      virtual ~FrClippingPlane();
 
       explicit FrClippingPlane(const std::shared_ptr<geom::FrPlane> &plane);;
 
@@ -160,6 +162,7 @@ namespace frydom {
       FrFreeSurface *m_freeSurface;   ///< free surface used for clipping
 
      public:
+      virtual ~FrClippingWaveSurface();
 
       explicit FrClippingWaveSurface(FrFreeSurface *freeSurface) : m_freeSurface(freeSurface) {};
 

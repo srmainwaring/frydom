@@ -29,6 +29,8 @@ namespace frydom {
   class FrLoggableBase {
 
    public:
+    virtual ~FrLoggableBase();
+
     explicit FrLoggableBase(const std::string &type_name);
 
     void LogThis(bool log);
@@ -93,6 +95,8 @@ namespace frydom {
   class FrLoggable : public FrLoggableBase, public FrTreeNode<ParentType> {
 
    public:
+    virtual ~FrLoggable() {}
+
     explicit FrLoggable(const std::string &name,
                         const std::string &type_name,
                         ParentType *parent) :

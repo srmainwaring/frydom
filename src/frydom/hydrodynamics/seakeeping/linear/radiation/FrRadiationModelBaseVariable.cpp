@@ -23,6 +23,9 @@ namespace frydom {
 
   namespace internal {
 
+    FrRadiationModelBaseVariable::~FrRadiationModelBaseVariable() {
+    }
+
     FrRadiationModelBaseVariable::FrRadiationModelBaseVariable(FrRadiationModel *radiationModel) :
         m_frydomRadiationModel(radiationModel), FrPhysicsItemBase(radiationModel) {
 

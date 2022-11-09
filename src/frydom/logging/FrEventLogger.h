@@ -38,6 +38,7 @@ namespace frydom {
       class SimulationFormatter : public spdlog::formatter {
 
        public:
+        virtual ~SimulationFormatter();
 
         explicit SimulationFormatter(FrOffshoreSystem *system);
 

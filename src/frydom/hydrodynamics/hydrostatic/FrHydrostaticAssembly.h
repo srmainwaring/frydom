@@ -14,6 +14,7 @@ namespace frydom {
   class FrHydrostaticBodyBase {
 
    public:
+    virtual ~FrHydrostaticBodyBase() {}
 
     virtual FrInertiaTensor GetInertiaTensor() const = 0;
 
@@ -27,6 +28,7 @@ namespace frydom {
   class FrHydrostaticBody : public FrHydrostaticBodyBase {
 
    public:
+    virtual ~FrHydrostaticBody() {}
 
     explicit FrHydrostaticBody(const std::shared_ptr<FrBody> &body) : m_body(body) {}
 
@@ -45,6 +47,7 @@ namespace frydom {
   class FrHydrostaticAssembly : public FrHydrostaticBodyBase {
 
    public:
+    virtual ~FrHydrostaticAssembly() {}
 
     explicit FrHydrostaticAssembly(const std::shared_ptr<FrAssembly> &assembly) : m_assembly(assembly) {}
 

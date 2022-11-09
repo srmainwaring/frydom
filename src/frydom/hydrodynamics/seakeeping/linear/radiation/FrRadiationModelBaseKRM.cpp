@@ -16,6 +16,9 @@
 namespace frydom {
   namespace internal {
 
+    FrRadiationModelBaseKRM::~FrRadiationModelBaseKRM() {
+    }
+
     FrRadiationModelBaseKRM::FrRadiationModelBaseKRM(FrRadiationModel *radiationModel) :
       m_frydomRadiationModel(radiationModel) {
       // Instanciate added mass

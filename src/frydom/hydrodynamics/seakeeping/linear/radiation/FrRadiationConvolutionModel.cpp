@@ -49,6 +49,8 @@ namespace frydom {
     return 0.5 * (sum + y[0] * dx1 + y[N - 1] * dxN_1);
 
   }
+  FrRadiationConvolutionModel::~FrRadiationConvolutionModel() {
+  }
 
   FrRadiationConvolutionModel::FrRadiationConvolutionModel(const std::string &name,
                                                            FrOffshoreSystem *system,

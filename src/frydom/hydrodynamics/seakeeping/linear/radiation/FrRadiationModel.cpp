@@ -21,6 +21,8 @@ namespace frydom {
   // ----------------------------------------------------------------
   // Radiation model
   // ----------------------------------------------------------------
+  FrRadiationModel::~FrRadiationModel() {
+  }
 
   FrRadiationModel::FrRadiationModel(const std::string &name,
                                      FrOffshoreSystem *system,

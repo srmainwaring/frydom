@@ -38,6 +38,7 @@ namespace frydom {
     double m_capp; ///< appendage resistance coefficient
 
    public:
+    virtual ~FrITTCResistance();
 
     /// Constructor of a new resistance force from ITTC standard model
     /// \param Lpp Length between perpendicular

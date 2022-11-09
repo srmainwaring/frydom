@@ -26,6 +26,7 @@ namespace frydom {
     class FrRadiationModelBaseKRM : public chrono::fea::ChMesh {
 
       public:
+      virtual ~FrRadiationModelBaseKRM();
 
       explicit FrRadiationModelBaseKRM(FrRadiationModel* radiationModel);
 

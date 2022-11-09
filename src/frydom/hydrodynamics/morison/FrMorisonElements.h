@@ -131,6 +131,8 @@ namespace frydom {
     Eigen::Matrix<double, 6, 6> m_AMInWorld;
 
    public:
+    virtual ~FrMorisonElement();
+
     FrMorisonElement();
 
     /// Set the local frame of the morison model from node positions

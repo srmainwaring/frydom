@@ -47,6 +47,8 @@ namespace frydom {
     bool c_infinite_depth = false;              ///< cache value of infinite_depth of FrWaveField
 
    public:
+    virtual ~FrKinematicStretching();
+
     /// Set the infinite depth value
     void SetInfDepth(bool infinite_depth);
 

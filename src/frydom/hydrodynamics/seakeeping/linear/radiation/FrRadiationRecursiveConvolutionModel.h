@@ -23,6 +23,7 @@ namespace frydom {
   class FrRadiationRecursiveConvolutionModel : public FrRadiationModel {
 
    public:
+    virtual ~FrRadiationRecursiveConvolutionModel();
 
     /// Constructor of the class.
     FrRadiationRecursiveConvolutionModel(const std::string &name, FrOffshoreSystem *system, std::shared_ptr<FrHydroDB> HDB);

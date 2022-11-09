@@ -36,6 +36,7 @@ namespace frydom {
   class FrTriangleMeshConnected : public chrono::geometry::ChTriangleMeshConnected {
 
    public:
+    virtual ~FrTriangleMeshConnected();
 
     /// Add a vertex to the mesh
     void addVertex(chrono::ChVector<double> vertex);

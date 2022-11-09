@@ -22,6 +22,7 @@ namespace frydom {
   class FrRecordingFieldBase {
 
    public:
+    virtual ~FrRecordingFieldBase();
 
     FrRecordingFieldBase(double time_length, double time_step);
 
@@ -45,6 +46,7 @@ namespace frydom {
   class FrRecordingField : public FrRecordingFieldBase {
 
    public:
+    virtual ~FrRecordingField() {}
 
     FrRecordingField(T *data, double time_length, double time_step)
         : FrRecordingFieldBase(time_length, time_step),

@@ -15,6 +15,9 @@ using namespace acme;
 
 namespace frydom {
 
+  FrPropellerRudder::~FrPropellerRudder() {
+  }
+
   FrPropellerRudder::FrPropellerRudder(const std::string &name,
                                        PropellerRudderModelType proprudder_type,
                                        PropellerModelType prop_type,

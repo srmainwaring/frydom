@@ -12,6 +12,8 @@ namespace frydom {
   class FrActuatorForceBase : public FrForce {
 
    public:
+    virtual ~FrActuatorForceBase();
+
     FrActuatorForceBase(const std::string &name,
                         const std::string &type_name,
                         FrBody *body);

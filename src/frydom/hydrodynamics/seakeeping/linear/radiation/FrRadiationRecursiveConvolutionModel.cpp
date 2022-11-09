@@ -15,6 +15,9 @@
 
 namespace frydom {
 
+  FrRadiationRecursiveConvolutionModel::~FrRadiationRecursiveConvolutionModel() {
+  }
+
   FrRadiationRecursiveConvolutionModel::FrRadiationRecursiveConvolutionModel(const std::string &name,
                                                                              FrOffshoreSystem *system,
                                                                              std::shared_ptr<FrHydroDB> HDB) :

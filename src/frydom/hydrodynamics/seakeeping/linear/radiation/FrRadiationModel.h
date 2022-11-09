@@ -58,6 +58,7 @@ namespace frydom {
     std::unordered_map<FrBEMBody *, GeneralizedForce> m_radiationForce;
 
    public:
+    virtual ~FrRadiationModel();
 
     /// Constructor with specified hydrodynamic database
     /// \param HDB Hydrodynamic database

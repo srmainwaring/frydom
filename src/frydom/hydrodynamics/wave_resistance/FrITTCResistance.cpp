@@ -19,6 +19,8 @@
 
 
 namespace frydom {
+  FrITTCResistance::~FrITTCResistance() {
+  }
 
   void FrITTCResistance::Compute(double time) {
 

@@ -33,6 +33,7 @@ namespace frydom {
       chrono::ChVariablesBodyOwnMass *m_variablesBodyOwnMass;
 
      public:
+      virtual ~FrVariablesBEMBodyBase();
 
       FrVariablesBEMBodyBase() : ChVariablesBody() {}
 

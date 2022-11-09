@@ -22,6 +22,9 @@
 
 namespace frydom {
 
+  FrWaveDriftForce::~FrWaveDriftForce() {
+  }
+
   FrWaveDriftForce::FrWaveDriftForce(const std::string &name,
                                      FrBody *body,
                                      std::shared_ptr<FrHydroDB> hdb)

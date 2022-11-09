@@ -12,12 +12,18 @@
 namespace frydom {
 
   namespace mesh {
+    
+    FrClippingSurface::~FrClippingSurface() {
+    }
 
     void FrClippingSurface::SetBodyPosition(Position bodyPos) {
       m_bodyPosition = bodyPos;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
+
+    FrClippingPlane::~FrClippingPlane() {
+    }
 
     FrClippingPlane::FrClippingPlane(const std::shared_ptr<geom::FrPlane> &plane) : m_plane(plane) {}
 
@@ -82,6 +88,9 @@ namespace frydom {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
+
+    FrClippingWaveSurface::~FrClippingWaveSurface() {
+    }
 
     VectorT<double, 3>
     FrClippingWaveSurface::GetIntersection(const VectorT<double, 3> &p0, const VectorT<double, 3> &p1) {

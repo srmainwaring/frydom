@@ -15,6 +15,7 @@ namespace frydom {
   class FrRudder : public FrActuatorForceBase {
 
    public:
+    virtual ~FrRudder();
 
     FrRudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
              RudderModelType type);

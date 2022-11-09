@@ -10,6 +10,9 @@ namespace frydom {
   // Bar element
   // --------------------------------------------------
 
+  FrBarElementBase::~FrBarElementBase() {
+  }
+
   FrBarElementBase::FrBarElementBase()
   : m_node(), m_force(), m_torque(), m_is_immerged(false) {}
 

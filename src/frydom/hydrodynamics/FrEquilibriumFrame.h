@@ -62,6 +62,8 @@ namespace frydom {
       MEAN_MOTION
     };
 
+    virtual ~FrEquilibriumFrame();
+
     /// Constructor of a new equilibrium frame with default position and zero speed
     /// \param name Name of the equilibrium frame
     /// \param body Body to which the equilibrium frame is linked
@@ -264,6 +266,7 @@ namespace frydom {
     double m_prevTime = 0;              ///< previous time step
 
    public:
+    virtual ~FrEqFrameSpringDamping();
 
     /// Constructor of a new equilibrium frame with body link and spring-damping parameters
     /// \param name Name of the equilibrium frame
@@ -354,6 +357,7 @@ namespace frydom {
     double m_errAngleCoeff;
 
    public:
+    virtual ~FrEqFrameMeanMotion();
 
     /// Constructor of a new equilibrium frame with body link and mean function parameters
     /// \param body Body link

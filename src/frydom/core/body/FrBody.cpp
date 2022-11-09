@@ -38,6 +38,9 @@ namespace frydom {
     // FrBodyBase
     //
 
+    FrBodyBase::~FrBodyBase() {
+    }
+
     FrBodyBase::FrBodyBase(FrBody *body) : chrono::ChBodyAuxRef(), m_frydomBody(body) {
       m_load_container = std::make_shared<chrono::ChLoadContainer>();
     }
@@ -238,6 +241,9 @@ namespace frydom {
     }
 
   }  // end namespace frydom::internal
+
+  FrBody::~FrBody() {
+  }
 
   FrBody::FrBody(const std::string &name, FrOffshoreSystem *system) :
       FrLoggable(name, TypeToString(this), system),

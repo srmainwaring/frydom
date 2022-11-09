@@ -21,6 +21,10 @@
 #include "FrObject.h"
 
 namespace frydom {
+
+  FrObject::~FrObject() {
+  }
+
 #ifdef H5_NO_UUID
   FrObject::FrObject() : m_UUID("") {}
 #else

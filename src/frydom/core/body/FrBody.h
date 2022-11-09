@@ -54,6 +54,8 @@ namespace frydom {
 
       std::shared_ptr<chrono::ChLoadContainer> m_load_container;
 
+      virtual ~FrBodyBase();
+
       /// Constructor of the bodyBase
       /// \param body body containing this bodyBase
       explicit FrBodyBase(FrBody *body);
@@ -178,7 +180,7 @@ namespace frydom {
     /// Default constructor
     FrBody(const std::string &name, FrOffshoreSystem *system);
 
-    ~FrBody() = default;
+    virtual ~FrBody();
 
     /// Make the body fixed
     /// \param state true if body is fixed, false otherwise

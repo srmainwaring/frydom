@@ -55,6 +55,7 @@ namespace frydom {
       std::unordered_map<std::pair<FrBEMBody *, FrBEMBody *>, mathutils::Matrix66<double>, pair_hash> m_invGeneralizedMass;
 
      public:
+      virtual ~FrRadiationModelBaseVariable();
 
       explicit FrRadiationModelBaseVariable(FrRadiationModel *radiationModel);
 

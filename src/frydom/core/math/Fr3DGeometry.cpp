@@ -13,6 +13,8 @@
 
 
 namespace frydom {
+  Fr3DGeometryBase::~Fr3DGeometryBase() {
+  }
 
   FrCylinder::FrCylinder(const double &radius, const double &height) :
       m_radius(radius),

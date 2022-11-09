@@ -14,6 +14,9 @@
 
 namespace frydom {
 
+  FrRecordingFieldBase::~FrRecordingFieldBase() {
+  }
+
   FrRecordingFieldBase::FrRecordingFieldBase(double time_length, double time_step)
   : m_recorder(time_length, time_step),
     m_recorder_mean(time_length, time_step)

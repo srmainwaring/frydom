@@ -19,6 +19,8 @@
 #include "FrMaterialSurfaceSMC.h"
 
 namespace frydom {
+  FrMaterialSurface::~FrMaterialSurface() {
+  }
 
   FrMaterialSurface::FrMaterialSurface() :
     static_friction(0.6f),

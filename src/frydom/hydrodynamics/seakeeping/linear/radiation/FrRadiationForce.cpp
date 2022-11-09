@@ -23,6 +23,9 @@ namespace frydom {
   // FrRadiationForce
   // --------------------------------------------------
 
+  FrRadiationForce::~FrRadiationForce() {
+  }
+
   FrRadiationForce::FrRadiationForce(const std::string &name,
                                      FrBody *body,
                                      FrRadiationModel *radiationModel)
@@ -36,6 +39,9 @@ namespace frydom {
   // --------------------------------------------------
   // FrRadiationConvolutionForce
   // --------------------------------------------------
+
+  FrRadiationConvolutionForce::~FrRadiationConvolutionForce() {
+  }
 
   FrRadiationConvolutionForce::FrRadiationConvolutionForce(const std::string &name,
                                                            FrBody *body,

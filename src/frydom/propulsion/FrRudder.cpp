@@ -13,6 +13,9 @@
 
 namespace frydom {
 
+  FrRudder::~FrRudder() {
+  }
+
   FrRudder::FrRudder(const std::string &name, const std::shared_ptr<FrNode> &rudder_node, RudderParams params,
                      RudderModelType type) :
       m_node(rudder_node), FrActuatorForceBase(name, "FrACMERudder", rudder_node->GetBody()) {

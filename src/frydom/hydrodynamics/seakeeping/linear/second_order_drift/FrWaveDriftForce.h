@@ -39,6 +39,7 @@ namespace frydom {
 //    double m_threshold;
 
    public:
+    virtual ~FrWaveDriftForce();
 
     /// Constructor of the wave drift force with specified hydrodynamic database
     /// \param hdb Hydrodynamic database

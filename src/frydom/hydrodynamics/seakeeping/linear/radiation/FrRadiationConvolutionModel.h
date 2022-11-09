@@ -27,6 +27,8 @@ namespace frydom {
     std::unordered_map<FrBEMBody *, FrTimeRecorder<GeneralizedVelocity> > m_recorder;    ///< Recorder of the perturbation velocity of the body at COG
 
    public:
+    virtual ~FrRadiationConvolutionModel();
+
     /// Default constructor
     FrRadiationConvolutionModel(const std::string &name,
                                 FrOffshoreSystem *system,
