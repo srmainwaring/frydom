@@ -35,7 +35,14 @@ namespace frydom {
     FrLinkLockBase::~FrLinkLockBase() {
     }
 
-    FrLinkLockBase::FrLinkLockBase(frydom::FrLink *frydomLink) : m_frydomLink(frydomLink), chrono::ChLinkLock() {}
+    FrLinkLockBase::FrLinkLockBase(frydom::FrLink *frydomLink) :
+      m_frydomLink(frydomLink),
+      chrono::ChLinkLock()
+    {
+      if (m_frydomLink == nullptr) {
+        throw FrException("Invalid link pointer");
+      }
+    }
 
     void FrLinkLockBase::SetLinkType(LINK_TYPE lt) {
       switch (lt) {
@@ -104,6 +111,9 @@ namespace frydom {
     }
 
     void FrLinkLockBase::Update(double time, bool update_assets) {
+      if (m_frydomLink == nullptr) {
+        throw FrException("Invalid link pointer");
+      }
 
       chrono::ChLinkLock::Update(time, update_assets);
 
