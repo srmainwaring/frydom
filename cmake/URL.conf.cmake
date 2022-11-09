@@ -16,12 +16,16 @@ set(googletest_URL https://github.com/google/googletest.git)
 set(googletest_TAG release-1.10.0 CACHE STRING "googletest version")
 
 # hermes
-set(hermes_URL git@frydom-ce.org:ce/hermes.git)
-set(hermes_TAG v1.4 CACHE STRING " version")
+# set(hermes_URL git@frydom-ce.org:ce/hermes.git)
+# set(hermes_TAG v1.4 CACHE STRING " version")
+set(hermes_URL https://github.com/srmainwaring/hermes.git)
+set(hermes_TAG 5e27fdab4376f7cefc27a2066e4b82bf6d928e6c CACHE STRING " version")
 
 # HDB5_IO
-set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
-set(hdb5_io_TAG v2.6.1 CACHE STRING "hdb5_io version")
+# set(hdb5_io_URL git@frydom-ce.org:ce/hdb5-io.git)
+# set(hdb5_io_TAG v2.6.1 CACHE STRING "hdb5_io version")
+set(hdb5_io_URL https://github.com/srmainwaring/hdb5-io.git)
+set(hdb5_io_TAG 2a861346f6a8705b949fe62a2213ff882cf8eb01 CACHE STRING "hdb5_io version")
 
 # TimeZone
 set(timezone_URL https://github.com/HowardHinnant/date.git)
@@ -49,14 +53,18 @@ set(cxxopts_TAG v2.2.0 CACHE STRING "cxxopts version")
 #set(HDF5_TAG hdf5-1_10_6 CACHE STRING "HDF5 version")
 
 # acme
-set(acme_URL git@frydom-ce.org:ce/acme.git)
-set(acme_TAG v1.3 CACHE STRING "acme version")
+# set(acme_URL git@frydom-ce.org:ce/acme.git)
+# set(acme_TAG v1.3 CACHE STRING "acme version")
+set(acme_URL https://github.com/srmainwaring/acme.git)
+set(acme_TAG 16cde3f6c5e63f40f2e5467dd2476f604f5839d9 CACHE STRING "acme version")
 
 ### Indirect dependencies / already included
 
 # MathUtils
-set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
-set(mathutils_TAG v1.14.2 CACHE STRING "mathutils version")
+# set(mathutils_URL git@frydom-ce.org:ce/mathutils.git)
+# set(mathutils_TAG v1.14.2 CACHE STRING "mathutils version")
+set(mathutils_URL https://github.com/srmainwaring/mathutils.git)
+set(mathutils_TAG c1b5cfb4a992b82c2721d9dc7f5d8a6e2817d14e CACHE STRING "MathUtils version")
 set(MATHUTILS_BUILD_TESTS OFF CACHE BOOL "")
 set(MATHUTILS_BUILD_BOOST_TESTS OFF CACHE BOOL "")
 
@@ -65,7 +73,9 @@ set(openmesh_URL https://www.graphics.rwth-aachen.de:9000/OpenMesh/OpenMesh.git)
 set(openmesh_TAG OpenMesh-8.0 CACHE STRING "openmesh version")
 
 #Meshoui
-set(meshoui_TAG v1.3.2 CACHE STRING "meshoui version")
+# set(meshoui_TAG v1.3.2 CACHE STRING "meshoui version")
+set(meshoui_URL https://github.com/srmainwaring/meshoui.git)
+set(meshoui_TAG b93a58f0320bfce6ef6f6a8125cb0b906335ee08 CACHE STRING "meshoui version")
 set(MESHOUI_BUILD_TESTS OFF CACHE BOOL "")
 set(MESHOUI_BUILD_TOOLS OFF CACHE BOOL "")
 
